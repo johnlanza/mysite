@@ -1,0 +1,636 @@
+## Overview
+- Type:: [[book]] 
+  Cover:: ![image](https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1568871230i/74034.jpg){:height 172, :width, 98}
+  Link:: [Goodreads](https://www.goodreads.com/book/show/74034.Amusing_Ourselves_to_Death)
+  Author:: Postman, Neil
+  Title:: Amusing Ourselves to Death
+  Notes:: in progress
+- ## Summary
+- In *Amusing Ourselves to Death*, Neil Postman argues that television has changed truth. When the telegraph first brought us the "news of the day," it dignified largely irrelevant information. Television amplified this information stream. And "serious television" — news programs and the like — is the Trojan Horse that ensured truth-telling would be rooted in "dangerous and absurdist" trivia. We have much to talk about but little to act upon. TV has become "theatre for the masses," a jumble of slogans easily forgotten that we consume like Aldous Huxley's "soma." TV caused "our public discourse [to] become dangerous nonsense." Rather than appeal to understanding, performers — politicians, pundits, presenters, influencers and we — appeal to passion. We live in a "peek-a-boo world," in which context is gone and history is forgotten. Content appears and disappears, and voting becomes "the next to last refuge of the politically impotent." Television is our culture now. We swim in a sea of irrelevance and incoherence, endlessly informed of it yet impotent to change it. The solution is not to use media to educate, but to use education to control media.
+- ## Notes
+	- Yellow highlight | Location: 297
+	- We are all, as Huxley says someplace, Great Abbreviators, meaning that **none of us has the wit to know the whole truth, the time to tell it if we believed we did, or an audience so gullible as to accept it.**
+	-
+	- Yellow highlight | Location: 303
+	- In this sense, all culture is a conversation or, more precisely, a corporation of conversations, conducted in a variety of symbolic modes. Our attention here is on how forms of public discourse regulate and even dictate what kind of content can issue from such forms.
+	-
+	- Yellow highlight | Location: 309
+	- You cannot use smoke to do philosophy. Its form excludes the content.
+	-
+	- Yellow highlight | Location: 312
+	- **The shape of a man’s body is largely irrelevant to the shape of his ideas** when he is addressing a publi**c in writing or on the radio** or, for that matter, in smoke signals. **But it is quite relevant on television**.
+	-
+	- Yellow highlight | Location: 315
+	- **television gives us a conversation in images, not words.**
+	-
+	- Yellow highlight | Location: 316
+	- **You ==cannot do political philosophy on television==. Its form ==works against the content==.**
+	-
+	- Yellow highlight | Location: 319
+	- **I do not mean that things like fires, wars, murders and love affairs did not, ever and always, happen in places all over the world. I mean that lacking a technology to advertise them, people could not attend to them, could not include them in their daily business.** #profound
+	-
+	- Yellow highlight | Location: 322
+	- **==“the news of the day”—was entirely created by the telegraph== (and since amplified by newer media), which made it possible to move decontextualized information over vast spaces at incredible speed. The ==news of the day is a figment of our technological imagination==. It is, quite precisely, a media event.**
+	-
+	- Yellow highlight | Location: 329
+	- **since two media so vastly different cannot accommodate the same ideas.**
+	- Note:**Tv and typography**
+	-
+	- Yellow highlight | Location: 335
+	- the clearest way to see through a culture is to attend to its tools for conversation.
+	-
+	- Yellow highlight | Location: 374
+	- **“The clock,” Mumford has concluded, “is a piece of power machinery whose ‘product’ is seconds and minutes.”**
+	-
+	- Yellow highlight | Location: 376
+	- Moment to moment, it turns out, is not God’s conception, or nature’s. It is man conversing with himself about and through a piece of machinery he created.
+	-
+	- Yellow highlight | Location: 379
+	- ==**in a world made up of seconds and minutes, the authority of nature is superseded.**==
+	- Note:**Why we care less for mother earth?**
+	-
+	- Yellow highlight | Location: 380
+	- **Eternity ceased to serve as the measure and focus of human events. And thus, though few would have imagined the connection, ==the inexorable ticking of the clock may have had more to do with the weakening of God’s supremacy== than all the treatises produced by the philosophers of the Enlightenment**;
+	-
+	- Yellow highlight | Location: 383
+	- **==the clock introduced a new form of conversation between man and God,== in which ==God appears to have been the loser==.**
+	-
+	- Yellow highlight | Location: 393
+	- so that they can see what it means, where it errs, and where it is leading.
+	-
+	- Yellow highlight | Location: 396
+	- the great literary critic Northrop Frye has remarked, “the written word is far more powerful than simply a reminder: it re-creates the past in the present, and gives us, not the familiar remembered thing, but the glittering intensity of the summoned-up hallucination.”
+	-
+	- Yellow highlight | Location: 403
+	- **the Egyptian god Thoth, who is alleged to have brought writing to the King Thamus, was also the god of magic.**
+	-
+	- Yellow highlight | Location: 404
+	- **People like ourselves may see nothing wondrous in writing, but our anthropologists know how strange and magical it appears to a purely oral people—a conversation with no one and yet with everyone**.
+	-
+	- Yellow highlight | Location: 405
+	- What could be stranger than the silence one encounters when addressing a question to a text?
+	-
+	- Yellow highlight | Location: 406
+	- **What could be more metaphysically puzzling than addressing an unseen audience, as every writer of books must do?**
+	-
+	- Yellow highlight | Location: 408
+	- **What I mean to point out here is that the ==introduction into a culture of a technique such as writing or a clock== is not merely an extension of man’s power to bind time but a ==transformation of his way of thinking==—and, of course, of the content of his culture.**
+	- Note: **Literally Godlike tech**
+	-
+	- Yellow highlight | Location: 411
+	- a metaphor suggests what a thing is like by comparing it to something else.
+	-
+	- Yellow highlight | Location: 418
+	- Thus, it takes some digging to get at them, to grasp, for example, that a clock re-creates time as an independent, mathematically precise sequence;
+	-
+	- Yellow highlight | Location: 419
+	- **that writing recreates the mind as a tablet on which experience is written;**
+	-
+	- Yellow highlight | Location: 419
+	- **that ==the telegraph== re-creates ==news as a commodity==.**
+	- Note: Also texting
+	-
+	- Yellow highlight | Location: 420
+	- **And yet, such digging becomes easier if we start from the assumption that in ==every tool we create==, an idea is embedded that ==goes beyond the function of the thing itself==.**
+	- Note: **==Social media turns thinking into a commodity?==**
+	-
+	- Yellow highlight | Location: 423
+	- **==Eyeglasses== refuted the belief that anatomy is destiny by putting forward the idea that ==our bodies as well as our minds are improvable==.**
+	-
+	- Yellow highlight | Location: 428
+	- **What else is psychoanalysis but a microscope of the mind?**
+	- Note: **I like the idea of thinking about the linking of these metaphors.**
+	-
+	- Yellow highlight | Location: 432
+	- **Indeed, our tools for thought suggest to us what our bodies are like, as when someone refers to her “biological clock,”**
+	- Note: **We mistake measure for a proxy. ==There is no actual biological clock==.**
+	-
+	- Yellow highlight | Location: 434
+	- **When Galileo remarked that the language of nature is written in mathematics, he meant it only as a metaphor.**
+	-
+	- Yellow highlight | Location: 436
+	- **==We do not see nature or intelligence or human motivation or ideology as “it” is but only as our languages are==. And our languages are our media. ==Our media are our metaphors. Our metaphors create the content of our culture==.** #profound
+	-
+	- Yellow highlight | Location: 441
+	- **much of our ==public discourse== has ==become dangerous nonsense==.**
+	-
+	- Yellow highlight | Location: 447
+	- **And so, I raise no objection to television’s junk. ==The best things on television are its junk, and no one and nothing is seriously threatened by it==.**
+	-
+	- Yellow highlight | Location: 448
+	- **Besides, we do not measure a culture by its output of undisguised trivialities but by what it claims as significant.** #profound #mw ==So while Gilligan's Island is mindless fun and noone believes it isn't, the DNC isn't necessarily some higher form if the medium of communication is such that gravitas is lost==.
+	-
+	- Yellow highlight | Location: 449
+	- Therein is our problem, for **==television is at its most trivial and, therefore, most dangerous when its aspirations are high==, ==when it presents itself as a carrier of important cultural conversations==.**
+	- Note: **Sesame Street. TMM. 😬** #mw **The opportunity here is to say that even our program isn't the teacher. It's the catalyst for teaching.**
+	-
+	- Yellow highlight | Location: 450
+	- The irony here is that this is what intellectuals and critics are constantly urging television to do. The trouble with such people is that they do not take television seriously enough.
+	-
+	- Yellow highlight | Location: 452
+	- **==television is nothing less than a philosophy of rhetoric==**.
+	-
+	- Yellow highlight | Location: 470
+	- **Thus, Athens becomes a metaphor of intellectual excellence, wherever we find it; Hamlet, a metaphor of brooding indecisiveness; Alice’s wanderings, a metaphor of a search for order in a world of semantic nonsense.**
+	-
+	- Note | Location: 471
+	- Nice and clear definitions
+	-
+	- Yellow highlight | Location: 484
+	- **As Walter Ong points out, ==in oral cultures proverbs and sayings are not occasional devices: “They are incessant==.** They form the substance of thought itself. Thought in any extended form is impossible without them, for it consists in them.”
+	-
+	- Yellow highlight | Location: 487
+	- **==To people like ourselves any reliance on proverbs and sayings is reserved largely for resolving disputes among or with children==.**
+	-
+	- Yellow highlight | Location: 497
+	- **Indeed, in many courtrooms jurors are not permitted to take notes, nor are they given written copies of the judge’s explanation of the law. Jurors are expected to hear the truth, or its opposite, not to read it.**
+	- Note: #mw **Sounds ridiculous now reading it**
+	-
+	- Yellow highlight | Location: 502
+	- In our culture, lawyers do not have to be wise; they need to be well briefed.
+	-
+	- Yellow highlight | Location: 535
+	- People like ourselves find great appeal in Socrates’ plea because we are accustomed to thinking of rhetoric as an ornament of speech—most often pretentious, superficial and unnecessary.
+	-
+	- Yellow highlight | Location: 540
+	- T**o the Greeks, rhetoric was a form of spoken writing. Though it always implied oral performance, its power to reveal the truth resided in the written word’s power to display arguments in orderly progression.**
+	-
+	- Yellow highlight | Location: 543
+	- **To disdain rhetorical rules, to speak one’s thoughts in a random manner, without proper emphasis or appropriate passion, was considered demeaning to the audience’s intelligence and suggestive of falsehood.**
+	- Note:This forms good advice
+	-
+	- Yellow highlight | Location: 565
+	- We must remember that Galileo merely said that the language of nature is written in mathematics. He did not say everything is.
+	-
+	- Yellow highlight | Location: 566
+	- For most of human history, the language of nature has been the language of myth and ritual. These forms, one might add, had the virtues of leaving nature unthreatened and of encouraging the belief that human beings are part of it. It hardly befits a people who stand ready to blow up the planet to praise themselves too vigorously for having found the true way to talk about nature.
+	-
+	- Yellow highlight | Location: 569
+	- **I am not making a case for epistemological relativism. ==Some ways of truth-telling are better than others, and therefore have a healthier influence on the cultures that adopt them==.**
+	-
+	- Yellow highlight | Location: 573
+	- **“Seeing is believing” has always had a preeminent status as an epistemological axiom, but “saying is believing,” “reading is believing,” “counting is believing,” “deducing is believing,” and “feeling is believing” are others that have risen or fallen in importance as cultures have undergone media change.**
+	-
+	- Yellow highlight | Location: 575
+	- **==As a culture moves from orality to writing to printing to televising, its ideas of truth move with it.==**
+	-
+	- Yellow highlight | Location: 576
+	- Every philosophy is the philosophy of a stage of life, Nietzsche remarked. To which we might add that every epistemology is the epistemology of a stage of media development.
+	-
+	- Yellow highlight | Location: 604
+	- **==Intelligence implies that one can dwell comfortably without pictures, in a field of concepts and generalizations==.**
+	- Note: #mw **Which suggests that ==when we move from absract imagery in print== that ==perhaps we lose intelligence==.**
+	-
+	- Yellow highlight | Location: 616
+	- **==My argument is limited to saying that a major new medium changes the structure of discourse==; it does so ==by encouraging certain uses of the intellect==, by ==favoring certain definitions of intelligence and wisdom==, and by demanding a certain kind of content—in a phrase, by ==creating new forms of truth-telling==.** #[[podcast club]]
+	-
+	- Yellow highlight | Location: 618
+	- **I will say once again that I am no relativist in this matter, and that ==I believe the epistemology created by television== not only ==is inferior== to a print-based epistemology but ==is dangerous and absurdist==.**
+	- Note: And social media is a further step into the absurd.
+	-
+	- Yellow highlight | Location: 632
+	- **They delude themselves who believe that television and print coexist, for coexistence implies parity. There is no parity here.**
+	-
+	- Yellow highlight | Location: 634
+	- Like the fish who survive a toxic river and the boatmen who sail on it, there still dwell among us those whose sense of things is largely influenced by older and clearer waters.
+	-
+	- Yellow highlight | Location: 639
+	- **==I am also aware of television’s potential for creating a theater for the masses== (a subject which in my opinion has not been taken seriously enough).**
+	- Note: **==Ponder==**
+	-
+	- Yellow highlight | Location: 644
+	- Anyone who is even slightly familiar with the history of communications knows that **==every new technology for thinking involves a trade-off. It giveth and taketh away==, although not quite in equal measure**.
+	-
+	- Yellow highlight | Location: 647
+	- **==Typography fostered the modern idea of individuality==, but ==it destroyed the medieval sense of community and integration==.**
+	-
+	- Yellow highlight | Location: 648
+	- Typography created prose but made poetry into an exotic and elitist form of expression.
+	-
+	- Yellow highlight | Location: 669
+	- Franklin describes this sentiment as a singular instance in the history of mankind of modesty in a sect.****
+	-
+	- Yellow highlight | Location: 671
+	- **==The Dunkers== came close here to formulating a commandment about religious discourse: ==Thou shalt not write down thy principles, still less print them==, ==lest thou shall be entrapped by them for all time==.**
+	-
+	- Yellow highlight | Location: 738
+	- Where such a keen taste for books prevailed among the general population, we need not be surprised that **==Thomas Paine’s Common Sense==, published on January 10, 1776, ==sold more than 100,000 copies== by March of the same year.**
+	-
+	- Yellow highlight | Location: 745
+	- **The only communication event that could produce such collective attention in today’s America is ==the Super Bowl [Common Sense above]==.**
+	-
+	- Yellow highlight | Location: 822
+	- When Charles Dickens visited America in 1842, his reception equaled the adulation we offer today to television stars, quarterbacks, and Michael Jackson. #post
+	-
+	- Yellow highlight | Location: 831
+	- **During the nineteenth century, scores of Englishmen came to America to see for themselves what had become of the Colonies. All were impressed with the high level of literacy and in particular its extension to all classes.**
+	-
+	- Yellow highlight | Location: 840
+	- Alfred Bunn, an Englishman on an extensive tour through America, reported in 1853 that “practically every village had its lecture hall.”[35] He added: **“It is a matter of wonderment . . . to witness the youthful workmen, the over-tired artisan, the worn-out factory girl . . . rushing . . . after the toil of the day is over, into the hot atmosphere of a crowded lecture room.”**
+	-
+	- Yellow highlight | Location: 861
+	- **We might even say that ==America was founded by intellectuals==, from which it has taken us two centuries and a communications revolution to recover.** #mw You can't both idolize our founding fathers and be anti-intellectual. I refuse to retreat from intellectual life. In fact, it's my duty to increase intellectual life. #mw ==**You can't revere the founding fathers or the Constitution and be anti-elitist**==.
+	-
+	- Yellow highlight | Location: 867
+	- One sometimes hears it said, for example, that **==there is more printed matter available today== than ever before**, which is **undoubtedly true**. **==But from the seventeenth century to the late nineteenth century, printed matter was virtually all that was available==**. #mw An important distinction.
+	-
+	- Yellow highlight | Location: 871
+	- **Tocqueville** remarks on this in Democracy in America. **“An American,” he wrote, “cannot converse, but he can discuss, and his talk falls into a dissertation. He speaks to you as if he was addressing a meeting; and if he should chance to become warm in the discussion, he will say ‘Gentlemen’ to the person with whom he is conversing.”**
+	- Note:Ha
+	-
+	- Yellow highlight | Location: 915
+	- The tradition of the “stump” speaker was widely practiced, especially in the western states. By the stump of a felled tree or some equivalent open space, a speaker would gather an audience, and, as the saying had it, “take the stump” for two or three hours.
+	-
+	- Yellow highlight | Location: 961
+	- **At the time of the Lincoln-Douglas debates, America was in the middle years of its most glorious literary outpouring.** #post
+	-
+	- Yellow highlight | Location: 976
+	- This language is pure print. That the occasion required it to be spoken aloud cannot obscure that fact. And that the audience was able to process it through the ear is remarkable only to people whose culture no longer resonates powerfully with the printed word.
+	- Note: On the Lincoln Douglas debates #mw **The length and density of content in these debates is remarkable.**
+	-
+	- Yellow highlight | Location: 983
+	- That is the meaning of **Douglas’ reproach to the audience**. He claimed that **==his appeal was to understanding and not to passion==**, as if the audience were to be silent, reflective readers, and his language the text which they must ponder.
+	- Note: #mw **==So the opposite of today. The focus is on fomenting dissent or ardor thru passion. Understanding is a hinderence==.** #profound #mw This is what we're seeing with the 2024 election. The commercials are unabashedly us vs them.
+	-
+	- Yellow highlight | Location: 991
+	- Though one may accomplish it from time to time, **it is very hard to say nothing when employing a written English sentence.** What else is exposition good for? **Words have very little to recommend them except as carriers of meaning.**
+	-
+	- Yellow highlight | Location: 1,045
+	- **“All national institutions of churches,” he wrote, “whether Jewish, Christian or Turkish, appear to me no other than human inventions, set up to terrify and enslave mankind, and monopolize power and profit.”**[9] Because of The Age of Reason, **Paine lost his standing** among the pantheon of Founding Fathers (and to this day is treated ambiguously in American history textbooks).
+	-
+	- Yellow highlight | Location: 1,237
+	- **==The telegraph made a three-pronged attack on typography’s== definition of discourse, introducing on a ==large scale irrelevance, impotence, and incoherence==**.
+	-
+	- Yellow highlight | Location: 1,270
+	- **==In a sea of information, there was very little of it to use==.** #mw This remains true. This is where the question of why is important. If I ask someone why they care about, for example, the war in Ukraine, and they can't answer that question, it's on them. Not me.
+	-
+	- Yellow highlight | Location: 1,271
+	- **The telegraph may have made the country into “one neighborhood,”== but it was a peculiar one, populated by ==strangers who knew nothing but the most superficial facts== about each other.**
+	-
+	- Yellow highlight | Location: 1,278
+	- **But ==most of our daily news is inert==, consisting of information that ==gives us something to talk about== but ==cannot lead to any meaningful action==.**
+	-
+	- Yellow highlight | Location: 1,279
+	- This fact is ==**the principal legacy of the telegraph: By generating an abundance of irrelevant information, it dramatically altered what may be called the “information-action ratio.”**== #post
+	-
+	- Yellow highlight | Location: 1,289
+	- You plan to do nothing about them. **==You may==, of course, ==cast a ballot for someone who claims to have some plans==, as well as the power to act. But this you can do only ==once every two or four years by giving one hour of your time==, hardly a satisfying means of expressing the broad range of opinions you hold. ==Voting, we might even say, is the next to last refuge of the politically impotent==.** #profound
+	-
+	- Yellow highlight | Location: 1,296
+	- **In the information world created by telegraphy**, this sense of potency was lost, precisely because the whole world became the context for news. **Everything became everyone’s business**. **==For the first time, we were sent information which answered no question we had asked==, and which, in any case, did not permit the right of reply.** #mw So Nora worries about world news rather than just the crumbs on Maugit's chin.
+	-
+	- Yellow highlight | Location: 1,298
+	- **We may say then that ==the contribution of the telegraph to public discourse== was to ==dignify irrelevance== and ==amplify impotence==.**
+	-
+	- Yellow highlight | Location: 1,304
+	- **A book is an attempt to make thought permanent and to contribute to the great conversation conducted by authors of the past.** Therefore, civilized people everywhere consider **==the burning of a book a vile form of anti-intellectualism==**. But **==the telegraph demands that we burn its contents==**.
+	- Note: Snapchat turned it into a business. #mw **==People write disposable books now==**. They write one book that matters and more as means of commerce.
+	-
+	- Yellow highlight | Location: 1,310
+	- **==News took the form of slogans==, to be noted with ==excitement==, to be ==forgotten with dispatch.==**
+	- Note: **==And this was 150 years ago==**
+	-
+	- Yellow highlight | Location: 1,312
+	- And because of all this, the world as depicted by the telegraph began to appear unmanageable, even undecipherable.
+	-
+	- Yellow highlight | Location: 1,316
+	- **To the telegraph==, intelligence meant knowing of lots of things==, ==not knowing about them==.** #post #profound Know about. Not just of.
+	-
+	- Yellow highlight | Location: 1,317
+	- **Thus, to the reverent question posed by Morse—What hath God wrought?—a disturbing answer came back: a neighborhood of strangers and pointless quantity; a world of fragments and discontinuities.** #post
+	-
+	- Yellow highlight | Location: 1,332
+	- The name “photography” was given to this process by the famous astronomer Sir John F. W. Herschel. It is an odd name since it literally means “writing with light.” Perhaps Herschel meant the name to be taken ironically, since it must have been clear from the beginning that photography and writing (in fact, language in any form) do not inhabit the same universe of discourse.
+	-
+	- Yellow highlight | Location: 1,339
+	- DONE **By itself, ==a photograph cannot deal with the unseen==, the remote, the internal, the abstract.** **==It does not speak of “man,” only of a man;== not of “tree,” only of a tree.** You cannot produce a photograph of “nature,” any more than a photograph of “the sea.” #mw Read Sontag On Photography
+	-
+	- Yellow highlight | Location: 1,348
+	- **==There is no such thing in nature as “man” or “tree.”== The universe offers no such categories or simplifications; only flux and infinite variety. The photograph documents and celebrates the particularities of this infinite variety. Language makes them comprehensible.**
+	- Note:Echo of todays obsession w individual expression
+	-
+	- Yellow highlight | Location: 1,354
+	- **As Susan Sontag has observed, ==a photograph implies “that we know about the world if we accept it as the camera records it.==”[7] ==But, as she further observes, all understanding begins with our not accepting the world as it appears==.** #profound
+	-
+	- Yellow highlight | Location: 1,368
+	- **Like telegraphy, photography recreates the world as a series of idiosyncratic events.** There is no beginning, middle, or end in a world of photographs, as there is none implied by telegraphy. The world is atomized. **There is only a present and it need not be part of any story that can be told.**
+	-
+	- Yellow highlight | Location: 1,377
+	- **I choose the word “assault” deliberately here, to amplify the point implied in Boorstin’s “graphic revolution.” The new imagery, with photography at its forefront, did not merely function as a supplement to language, but bid to replace it as our dominant means for construing, understanding, and testing reality.** What Boorstin implies about the graphic revolution, I wish to make explicit here: **==The new focus on the image undermined traditional definitions of information, of news, and, to a large extent, of reality itself.==**
+	-
+	- Yellow highlight | Location: 1,386
+	- **For the ==photograph gave a concrete reality to the strange-sounding datelines, and attached faces to the unknown names==. Thus it provided the illusion, at least, that “the news” had a connection to something within one’s sensory experience. ==It created an apparent context for the “news of the day.” And the “news of the day” created a context for the photograph==.**
+	-
+	- Yellow highlight | Location: 1,402
+	- **Where people once sought information to manage the real contexts of their lives, now they had to invent contexts in which otherwise useless information might be put to some apparent use.**
+	-
+	- Yellow highlight | Location: 1,409
+	- **==A pseudo-context== is a structure ==invented to give fragmented and irrelevant information a seeming use==. But the use the pseudo-context provides is not action, or problem-solving, or change. It is the only use left for information with no genuine connection to our lives. And that, of course, is to amuse. ==The pseudo-context is the last refuge, so to say, of a culture overwhelmed by irrelevance, incoherence, and impotence==.**
+	-
+	- Yellow highlight | Location: 1,425
+	- Together, this ensemble of electronic techniques called into being a new world—**==a peek-a-boo world==, where now this event, now that, ==pops into view== for a moment, ==then vanishes== again.**
+	- Note: **Netflix**
+	-
+	- Yellow highlight | Location: 1,429
+	- **The communications media of the late nineteenth and early twentieth centuries, with telegraphy and photography at their center, called the peek-a-boo world into existence, but we did not come to live there until television.** #mw **How can you create relevance in a peek-a-boo world. How is anything not forgotten quickly?** [[Aug 27th, 2024]]
+	-
+	- Yellow highlight | Location: 1,433
+	- We are by now well into a second generation of children for whom television has been their first and most accessible teacher and, for many, their most reliable companion and friend.
+	- Note: **Social media now. It is the promised interactive TV.** #post
+	-
+	- Yellow highlight | Location: 1,444
+	- **==Television has achieved the status of “meta-medium”==—an instrument that ==directs not only our knowledge== of the world, but our ==knowledge of ways of knowing as well==.**
+	- Note: Social media meta medium
+	-
+	- Yellow highlight | Location: 1,452
+	- Twenty years ago, the question, Does television shape culture or merely reflect it? held considerable interest for many scholars and social critics. The question has largely disappeared as **==television== has gradually ==become our culture==**.
+	-
+	- Yellow highlight | Location: 1,462
+	- **Our culture’s adjustment to the epistemology of television is by now all but complete; we have so thoroughly accepted its definitions of truth, knowledge, and reality that ==irrelevance seems to us to be filled with import==, and ==incoherence seems eminently sane==.** #profound
+	-
+	- Yellow highlight | Location: 1,469
+	- Television, in other words, is transforming ==our culture== into one ==vast arena for show business==.
+	-
+	- Yellow highlight | Location: 1,489
+	- **Television does not extend or amplify literate culture. It attacks it.** If television is a continuation of anything, it is of a tradition begun by the telegraph and photograph in the mid-nineteenth century, not by the printing press in the fifteenth.
+	-
+	- Yellow highlight | Location: 1,493
+	- **We might say that a ==technology is to a medium== as the ==brain is to the mind==.**
+	-
+	- Yellow highlight | Location: 1,494
+	- A technology becomes a medium as it employs a particular symbolic code, as it finds its place in a particular social setting, as it insinuates itself into economic and political contexts.
+	-
+	- Yellow highlight | Location: 1,496
+	- **A ==technology==, in other words, ==is merely a machine==. A ==medium== is the ==social and intellectual environment== a machine creates.**
+	-
+	- Yellow highlight | Location: 1,525
+	- **American television programs are in demand not because America is loved but because American television is loved.**
+	- Note:Ha
+	-
+	- Yellow highlight | Location: 1,537
+	- **But what I am claiming here is ==not that television is entertaining== but that it has ==made entertainment itself the natural format for the representation of all experience==.** #profound
+	-
+	- Yellow highlight | Location: 1,539
+	- **The problem is not that television presents us with entertaining subject matter but that ==all subject matter is presented as entertaining==, which is another issue altogether.** #profound
+	-
+	- Yellow highlight | Location: 1,546
+	- **==A news show, to put it plainly, is a format for entertainment, not for education, reflection or catharsis==**. **And we must not judge too harshly those who have framed it in this way.** They are not assembling the news to be read, or broadcasting it to be heard. **They are televising the news to be seen.**
+	-
+	- Yellow highlight | Location: 1,591
+	- **==Thinking does not play well on television==, a fact that television directors discovered long ago. There is not much to see in it. It is, in a phrase, not a performing art.**
+	-
+	- Yellow highlight | Location: 1,621
+	- **It is not merely that on the television screen entertainment is the metaphor for all discourse. It is that off the screen the same metaphor prevails.** #profound
+	-
+	- Yellow highlight | Location: 1,623
+	- In courtrooms, classrooms, operating rooms, board rooms, churches and even airplanes, **==Americans no longer talk to each other, they entertain each other==. ==They do not exchange ideas; they exchange images==.** #profound
+	- Note:Social media
+	-
+	- Yellow highlight | Location: 1,697
+	- **The men were less concerned with giving arguments than with “giving off” impressions, which is what television does best.** Post-debate commentary largely avoided any evaluation of the candidates’ ideas, since there were none to evaluate. **Instead, the debates were conceived as boxing matches, the relevant question being, Who KO’d whom?** **The answer was determined by the “style” of the men—how they looked, fixed their gaze, smiled, and delivered one-liners.**
+	- Note: Just like today
+	-
+	- Yellow highlight | Location: 1,771
+	- **==While brevity does not always suggest triviality, in this case it clearly does==. It is simply ==not possible to convey a sense of seriousness== about any event if its implications are exhausted ==in less than one minute’s time==.**
+	-
+	- Yellow highlight | Location: 1,776
+	- **==Pictures have little difficulty in overwhelming words==, and ==short-circuiting introspection==.**
+	-
+	- Yellow highlight | Location: 1,785
+	- **==Viewers, after all, are partners with the newscasters== in the “Now . . . this” culture, and they expect the newscaster to play out his or her role as a character who is ==marginally serious but who stays well clear of authentic understanding==.**
+	-
+	- Yellow highlight | Location: 1,787
+	- The viewers, for their part, will not be caught contaminating their responses with a sense of reality, any more than an audience at a play would go scurrying to call home because a character on stage has said that a murderer is loose in the neighborhood.
+	-
+	- Yellow highlight | Location: 1,793
+	- **Imagine what you would think of me, and this book, ==if I were to pause here==, tell you that I will return to my discussion in a moment, and ==then proceed to write a few words in behalf of United Airlines== or the Chase Manhattan Bank.** #mw Exactly the problem with our ad-driven culture. **A good example is Acquired's JP Morgan sponsorship in which they present them as a transcendent operation.** #mw Great example.
+	-
+	- Yellow highlight | Location: 1,797
+	- **==We have become so accustomed to its discontinuities that we are no longer struck dumb==, ==as any sane person would be==, by a newscaster who having ==just reported that a nuclear war is inevitable== goes on to say that he will be right back ==after this word from Burger King;== who says, in other words, “==Now . . . this==.”** #mw The medium transcends the message.
+	-
+	- Yellow highlight | Location: 1,800
+	- **One can hardly overestimate the damage that such juxtapositions do to our sense of the world as a serious place.** #mw Most people are unaware of how much this juxtaposition affects us.
+	-
+	- Yellow highlight | Location: 1,811
+	- **He goes on to say that the ==assumptions controlling a news show== are “that bite-sized is best, that ==complexity must be avoided==, that ==nuances are dispensable==, that qualifications impede the simple message, that ==visual stimulation is a substitute for thought==, and that ==verbal precision is an anachronism==.”**
+	-
+	- Yellow highlight | Location: 1,838
+	- **What is happening here is that television is altering the meaning of “being informed” by creating a species of information that might properly be called disinformation.** #mw **==All information is disinformation in a screen-driven world because the image belies complexity==.** #profound
+	-
+	- Yellow highlight | Location: 1,840
+	- **==Disinformation== does not mean false information. It means ==misleading information==—misplaced, irrelevant, fragmented or superficial information—information that creates ==the illusion of knowing== something but which in fact leads one away from knowing.**
+	-
+	- Yellow highlight | Location: 1,844
+	- **And in saying that the television news show entertains but does not inform, I am saying something far more serious than that we are being deprived of authentic information.** **I am saying ==we are losing our sense of what it means to be well informed==. Ignorance is always correctable. But ==what shall we do if we take ignorance to be knowledge==?** #profound
+	-
+	- Yellow highlight | Location: 1,856
+	- **Walter Lippmann, for example, wrote in 1920: “There can be ==no liberty== for a community ==which lacks the means== by which ==to detect lies==.”**
+	-
+	- Yellow highlight | Location: 1,857
+	- Lippmann assumed, as did Thomas Jefferson before him, that with a well-trained press functioning as a lie-detector, the public’s interest in a President’s mangling of the truth would be piqued, in both senses of that word. Given the means to detect lies, he believed, the public could not be indifferent to their consequences.
+	- Note: Lost faith in the fourth estate creates problems. ==**The problem is that we don't have a fourth estate. We have show business.**==
+	-
+	- Yellow highlight | Location: 1,866
+	- We do well to remember that President Nixon did not begin to come undone until his lies were given a theatrical setting at the Water-gate hearings.
+	-
+	- Yellow highlight | Location: 1,867
+	- Apparently, all President Reagan does is say things that are not entirely true. And there is nothing entertaining in that.
+	- Note: Whereas Trump bullshits and that entertains.
+	-
+	- Yellow highlight | Location: 1,874
+	- **Contradiction, in short, requires that statements and events be perceived as interrelated aspects of a continuous and coherent context. Disappear the context, or fragment it, and contradiction disappears.**
+	-
+	- Yellow highlight | Location: 1,882
+	- And in a world of discontinuities, contradiction is useless as a test of truth or merit, because contradiction does not exist.
+	-
+	- Yellow highlight | Location: 1,883
+	- **My point is that we are by now so thoroughly adjusted to the “Now . . . this” world of news—a world of fragments, where events stand alone, stripped of any connection to the past, or to the future, or to other events—that all assumptions of coherence have vanished. And so, perforce, has contradiction. In the context of no context, so to speak, it simply disappears.**
+	-
+	- Yellow highlight | Location: 1,892
+	- All that has happened is that **==the public has adjusted to incoherence and been amused into indifference==**. Which is why Aldous Huxley would not in the least be surprised by the story.
+	- Note: Although he seems to be saying people are both indifferent and opinionated. Which makes sense now that I reread it.
+	-
+	- Yellow highlight | Location: 1,895
+	- **Huxley grasped, as Orwell did not, that ==it is not necessary to conceal anything== from a ==public insensible to contradiction== and ==narcoticized by technological diversions==.**
+	-
+	- Yellow highlight | Location: 1,898
+	- do not mean that the trivialization of public information is all accomplished on television. I mean that television is the paradigm for our conception of public information.
+	-
+	- Yellow highlight | Location: 1,901
+	- **==In presenting news to us packaged as vaudeville, television induces other media to do the same==, so that the total information environment begins to mirror television.**
+	-
+	- Yellow highlight | Location: 1,927
+	- In New York City, radio station WINS entreats its listeners to ==**“Give us twenty-two minutes and we’ll give you the world.” This is said without irony**==, and its audience, we may assume, does not regard the slogan as the conception of a disordered mind.
+	-
+	- Yellow highlight | Location: 1,931
+	- **It has not yet been demonstrated whether a culture can survive if it takes the measure of the world in twenty-two minutes. Or if the value of its news is determined by the number of laughs it provides.**
+	-
+	- Yellow highlight | Location: 2,027
+	- **Both the history and the ever-present possibilities of the television screen work against the idea that introspection or spiritual transcendence is desirable in its presence. ==The television screen wants you to remember== that its imagery is ==always available for your amusement and== pleasure**. #mw S**ocial media doubles down on this power.**
+	-
+	- Yellow highlight | Location: 2,064
+	- **The spectacle we find in ==true religions== has as its purpose enchantment, not entertainment. The distinction is critical. By endowing things with magic, ==enchantment is the means through which we may gain access to sacredness==. ==Entertainment is the means through which we distance ourselves from it==.** #ponder #mw Not sure I agree
+	-
+	- Yellow highlight | Location: 2,075
+	- Television’s strongest point is that it brings personalities into our hearts, not abstractions into our heads. That is why CBS’ programs about the universe were called Walter Cronkite’s Universe. **One would think that the grandeur of the universe needs no assistance from Walter Cronkite. One would think wrong. CBS knows that Walter Cronkite plays better on television than the Milky Way.** And Jimmy Swaggart plays better than God.
+	-
+	- Yellow highlight | Location: 2,078
+	- **==For God exists only in our minds, whereas Swaggart is there, to be seen, admired, adored==. Which is why he is the star of the show. And why Billy Graham is a celebrity, and why Oral Roberts has his own university, and why Robert Schuller has a crystal cathedral all to himself. If I am not mistaken, the word for this is blasphemy.**
+	-
+	- Yellow highlight | Location: 2,092
+	- There is no doubt, in other words, that religion can be made entertaining. The question is, By doing so, do we destroy it as an “authentic object of culture”?
+	-
+	- Yellow highlight | Location: 2,096
+	- **I know of one rabbi who has seriously proposed to his congregation that ==Luciano Pavarotti be engaged to sing Kol Nidre at a Yom Kippur service==. He believes that the event would fill the synagogue as never before. Who can doubt it? But as Hannah Arendt would say, ==that is the problem, not a solution to one==.** #profound **Because they have been made more entertaining, debates have been neutered as anything more than a popularity contest.**
+	-
+	- Yellow highlight | Location: 2,100
+	- It is well understood at the National Council that **the danger is not that religion has become the content of television shows but that television shows may become the content of religion.**
+	-
+	- Yellow highlight | Location: 2,119
+	- **If politics is like show business, then the idea is not to pursue excellence, clarity or honesty but to appear as if you are, which is another matter altogether. And what the other matter is can be expressed in one word: advertising.** #profound
+	-
+	- Yellow highlight | Location: 2,123
+	- **In America, ==the fundamental metaphor== for political discourse is ==the television commercial==.**
+	-
+	- Yellow highlight | Location: 2,144
+	- But it was not until the 1950’s that the television commercial made linguistic discourse obsolete as the basis for product decisions. **By substituting images for claims, the pictorial commercial made emotional appeal, not tests of truth, the basis of consumer decisions.**
+	-
+	- Yellow highlight | Location: 2,148
+	- Today, on television commercials, propositions are as scarce as unattractive people. The truth or falsity of an advertiser’s claim is simply not an issue.
+	- Note: Politics now
+	-
+	- Yellow highlight | Location: 2,151
+	- **One can like or dislike a television commercial, of course. But one cannot refute it.**
+	-
+	- Yellow highlight | Location: 2,155
+	- **What ==the advertiser needs to know== is ==not what is right about the product== but ==what is wrong about the buyer==.**
+	-
+	- Yellow highlight | Location: 2,161
+	- But when Orwell wrote in his famous essay “The Politics of the English Language” that politics has become a matter of “defending the indefensible,” he was assuming that politics would remain a distinct, although corrupted, mode of discourse.
+	-
+	- Yellow highlight | Location: 2,165
+	- He feared the politician as deceiver, not as entertainer.
+	-
+	- Yellow highlight | Location: 2,178
+	- **He understood that ==in a world of television== and other visual media, ==“political knowledge” means having pictures in your head== more than having words.** #mw Huxley
+	-
+	- Yellow highlight | Location: 2,189
+	- Thus it is not merely therapy. It is instant therapy. Indeed, it puts forward a psychological theory of unique axioms: **==The commercial asks us to believe that all problems are solvable, that they are solvable fast==, and that they are solvable fast through the interventions of technology, techniques and chemistry.**
+	-
+	- Yellow highlight | Location: 2,192
+	- This is, of course, a preposterous theory about the roots of discontent, and would appear so to anyone hearing or reading it.
+	-
+	- Yellow highlight | Location: 2,202
+	- **For example, ==a person who has seen one million television commercials might well believe== that ==all political problems have fast solutions== through simple measures—or ought to. Or that complex language is not to be trusted, and that all problems lend themselves to theatrical expression.**
+	-
+	- Yellow highlight | Location: 2,257
+	- This is the lesson of all great television commercials: They provide a slogan, a symbol or a focus that creates for viewers a comprehensive and compelling image of themselves.
+	-
+	- Yellow highlight | Location: 2,258
+	- **In the shift from party politics to television politics, the same goal is sought. ==We are not permitted to know who is best at being President or Governor or Senator, but whose image is best in touching and soothing the deep reaches of our discontent==. We look at the television screen and ask, in the same voracious way as the Queen in Snow White and the Seven Dwarfs, “Mirror, mirror on the wall, who is the fairest one of all?”** #profound #mw I need to think about how I'm making my choices. Am I fooling myself with what I believe?
+	-
+	- Yellow highlight | Location: 2,262
+	- As Xenophanes remarked twenty-five centuries ago, **men always make their gods in their own image**. But to this, television politics has added a new wrinkle: **Those who would be gods refashion themselves into images the viewers would have them be**.
+	-
+	- Yellow highlight | Location: 2,269
+	- It is a sobering thought to recall that there are no photographs of Abraham Lincoln smiling, that his wife was in all likelihood a psychopath, and that he was subject to lengthy fits of depression. He would hardly have been well suited for image politics. We do not want our mirrors to be so dark and so far from amusing.
+	-
+	- Yellow highlight | Location: 2,282
+	- The literal gray haze that is the background void on all television screens is an apt metaphor of the notion of history the medium puts forward. **In the Age of Show Business and image politics, political discourse is emptied not only of ideological content but of historical content, as well.**
+	-
+	- Yellow highlight | Location: 2,289
+	- **Television’s Bill Moyers** inches still closer when he says, **“I worry that my own business . . . helps to make this an anxious age of agitated amnesiacs. . . . We Americans seem to ==know everything about the last twenty-four hours== but ==very little of the last sixty centuries== or the last sixty years.”**
+	-
+	- Yellow highlight | Location: 2,322
+	- To paraphrase David Riesman only slightly, in a world of printing, information is the gunpowder of the mind; hence come the censors in their austere robes to dampen the explosion.
+	-
+	- Yellow highlight | Location: 2,325
+	- **==Orwell was, in effect, addressing himself to a problem of the Age of Print==—in fact, to the same problem addressed by the men who wrote the United States Constitution.**
+	-
+	- Yellow highlight | Location: 2,326
+	- **The Constitution was composed at a time when most free men had access to their communities through a leaflet, a newspaper or the spoken word.** They were quite well positioned to share their political ideas with each other in forms and contexts over which they had competent control. Therefore, **==their greatest worry was the possibility of government tyranny==.**
+	-
+	- Yellow highlight | Location: 2,344
+	- i**n the Age of Television, our information environment is completely different from what it was in 1783; that ==we have less to fear from government restraints than from television glut==;** that, in fact, **we have no way of protecting ourselves from information disseminated by corporate America**; and that, therefore, **the battles for liberty must be fought on different terrains from where they once were.**
+	-
+	- Yellow highlight | Location: 2,350
+	- **To put it plainly, ==a student’s freedom to read is not seriously injured by someone’s banning a book on Long Island== or in Anaheim or anyplace else. But as Gerbner suggests, television clearly does impair the student’s freedom to read, and it does so with innocent hands, so to speak. ==Television does not ban books, it simply displaces them==.** #profound
+	-
+	- Yellow highlight | Location: 2,354
+	- **Those who run television do not limit our access to information but in fact widen it.**
+	- Note:The issue isnt that information is hidden. It is that there is too much info.
+	-
+	- Yellow highlight | Location: 2,395
+	- **If we are to ==blame Sesame Street== for anything, it is for the ==pretense that it is any ally of the classroom==.** That, after all, has been its chief claim on foundation and public money. **As a television show, and a good one, ==Sesame Street does not encourage children to love school== or anything about school. It ==encourages them to love television==.**
+	-
+	- Yellow highlight | Location: 2,403
+	- In other words, the most important thing one learns is always something about how one learns.
+	-
+	- Yellow highlight | Location: 2,408
+	- America is, in fact, the leading case in point of what may be thought of as the third great crisis in Western education. The first occurred in the fifth century b.c., when Athens underwent a change from an oral culture to an alphabet-writing culture. To understand what this meant, **we must ==read Plato==**. The second occurred in the sixteenth century, when Europe underwent a radical transformation as a result of the printing press. To understand what this meant, **we must ==read John Locke==**. The third is happening now, in America, as a result of the electronic revolution, particularly the invention of television. To understand what this means, **we must ==read Marshall McLuhan==**.
+	-
+	- Yellow highlight | Location: 2,421
+	- **This is why I think ==it accurate to call television a curriculum==.** As I understand the word, a curriculum is a specially constructed information system whose purpose is to influence, teach, train or cultivate the mind and character of youth. **Television, of course, does exactly that, and does it relentlessly. In so doing, ==it competes successfully with the school curriculum==. By which I mean, ==it damn near obliterates it==.**
+	-
+	- Yellow highlight | Location: 2,432
+	- **But ==no one has ever said or implied that significant learning is effectively==, durably and truthfully ==achieved when education is entertainment==.** #profound
+	- Note: Interesting counterpoint to the quote i shared
+	-
+	- Yellow highlight | Location: 2,458
+	- **The name we may properly give to an ==education without prerequisites, perplexity and exposition is entertainment==.**
+	-
+	- Yellow highlight | Location: 2,553
+	- **Mainly, ==they will have learned== that learning is a form of entertainment or, more precisely, that ==anything worth learning can take the form of an entertainment, and ought to==.** #mw **==TV and social media teach us that education is entertaining and all problems are easily solvable.==**
+	-
+	- Yellow highlight | Location: 2,556
+	- Indeed, they will expect it and thus will be well prepared to receive their politics, their religion, their news and their commerce in the same delightful way.
+	-
+	- Yellow highlight | Location: 2,564
+	- **Of course, Orwell was not the first to teach us about the spiritual devastations of tyranny. What is irreplaceable about his work is his insistence that ==it makes little difference if our wardens are inspired by right- or left-wing ideologies==.**
+	-
+	- Yellow highlight | Location: 2,568
+	- **==In the Huxleyan prophecy, Big Brother does not watch us, by his choice. We watch him, by ours==. There is no need for wardens or gates or Ministries of Truth.** #post
+	-
+	- Yellow highlight | Location: 2,569
+	- **==When a population becomes distracted== by trivia, when ==cultural life is redefined as a perpetual round of entertainments==, when serious public conversation becomes a form of baby-talk, when, in short, a ==people become an audience== and their ==public business a vaudeville act==, then a nation finds itself at risk; ==culture-death is a clear possibility==.**
+	-
+	- Yellow highlight | Location: 2,579
+	- ==**An Orwellian world is much easier to recognize, and to oppose, than a Huxleyan.**==
+	- #mw **==This is at the core of our discord. We are fighting the Orwellian future while living the Huxleyan one. We don't recognize that we are our own overlords.==**
+	-
+	- Yellow highlight | Location: 2,586
+	- But what is happening in America is not the design of an articulated ideology. **No Mein Kampf or Communist Manifesto announced its coming. ==It comes as the unintended consequence of a dramatic change in our modes of public conversation==.**
+	- Note: The problem w Trump. #mw So we make analogies to Nazi Germany as the most evil (vile anagram) conception, but we have something much worse, brought upon not by a Hitler type, but by ourselves. Trump is a reflection of our culture. A symptom. Not a cause. #[[idea]]
+	-
+	- Yellow highlight | Location: 2,589
+	- **Public consciousness has not yet assimilated the point that ==technology is ideology==.** #profound
+	-
+	- Yellow highlight | Location: 2,599
+	- **==Introduce speed-of-light transmission of images and you make a cultural revolution.==** **Without a vote. Without polemics.** Without guerrilla resistance. Here is ideology, pure if not serene. Here is ideology without words, and all the more powerful for their absence. **All that is required to make it stick is a population that devoutly believes in the inevitability of progress**. **==And in this sense, all Americans are Marxists, for we believe nothing if not that history is moving us toward some preordained paradise and that technology is the force behind that movement.==** #profound
+	-
+	- Yellow highlight | Location: 2,608
+	- **==Americans will not shut down any part of their technological apparatus==, and to suggest that they do so is to make no suggestion at all.** #mw So the solution?
+	-
+	- Yellow highlight | Location: 2,625
+	- **==Require all political commercials to be preceded by a short statement== to the effect that common sense has determined ==that watching political commercials is hazardous to the intellectual health of the community==.** #profound #post
+	- Note:Ha
+	-
+	- Yellow highlight | Location: 2,628
+	- **==Television, as I have implied earlier, serves us most usefully when presenting junk-entertainment==; it serves us ==most ill when it co-opts serious modes of discourse==—news, politics, science, education, commerce, religion—==and turns them into entertainment packages==.** #profound
+	-
+	- Yellow highlight | Location: 2,630
+	- **==We would all be better off if television got worse, not better.== ==The A-Team and Cheers are no threat== to our public health. ==60 Minutes, Eye-Witness News and Sesame Street are==.** #mw ==**And it HAS gotten better! Think Daily Show, John Oliver, etc. Not to mention the golden age of great shows**.== #post
+	-
+	- Yellow highlight | Location: 2,647
+	- ==**For no medium is excessively dangerous if its users understand what its dangers are.**==
+	-
+	- Yellow highlight | Location: 2,651
+	- **Thus, a central thesis of computer technology—that the principal difficulty we have in solving problems stems from insufficient data—will go unexamined. Until, years from now, when it will be noticed that the massive collection and speed-of-light retrieval of data have been of great value to large-scale organizations but have solved very little of importance to most people and have created at least as many problems for them as they may have solved.** #profound
+	- Note: Interesting. He was right on.
+	-
+	- Yellow highlight | Location: 2,665
+	- **==The desperate answer is to rely on==** the only mass medium of communication that, in theory, is capable of addressing the problem: **==our schools==**. **==This is the conventional American solution to all dangerous social problems==, and is, of course, based on a naive and mystical faith in the efficacy of education. ==The process rarely works==.**
+	- Note: Like fin lit
+	-
+	- Yellow highlight | Location: 2,683
+	- **For in the end, he was trying to tell us that what afflicted ==the people in Brave New World== was not that they were laughing instead of thinking, but that they ==did not know what they were laughing about and why they had stopped thinking==.**

@@ -1,0 +1,33 @@
+body {
+  background-color: hsl(36, 71%, 96%);
+}
+
+section {
+  font-size: x-large;
+  font-family: "Lexend", sans-serif;
+  margin-bottom: 1.5em;
+  margin-left: 1em;
+  font-size: 1.5em;
+}
+
+label {
+  font-size: x-large;
+  font-family: "Lexend", sans-serif;
+  margin-left: 1em;
+  font-size: 1.5em;
+}
+
+h1 {
+  font-family: "Apple Garamond", sans-serif;
+  font-size: 4em;
+  font-weight: medium;
+}
+
+h2 {
+  font-family: "Apple Garamond", sans-serif;
+  font-size: 4em;
+}
+
+h3 {
+  font-size: 1.5em;
+}

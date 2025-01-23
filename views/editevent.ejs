@@ -1,0 +1,26 @@
+  <h1>Edit Event</h1>
+  <body>
+    <form action="/events/<%= event._id %>?_method=PUT" method="post">
+      <div>
+        <label for="year">Year</label>
+        <input
+          type="number"
+          id="year"
+          name="event[year]"
+          class="form-control"
+          value="<%=event.year%>" required autofocus/>
+      </div>
+      <div>
+        <label for="description">Description</label>
+        <textarea
+          id="description"
+          name="event[description]"
+          class="form-control mb-3"
+          rows="3" required>
+<%=event.description %></textarea
+        >
+      </div>
+      <button class="btn btn-secondary" type="submit">Update Event</button>
+    </form>
+  </body>
+</html>

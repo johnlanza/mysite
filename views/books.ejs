@@ -1,0 +1,45 @@
+  <h1>My Book Summaries</h1>
+  <div class="container"></div>
+  <section></section>
+  <section>
+    <a href="/books/newbook">Add a Book</a>
+    <p></p>
+    <% for (let book of books) { %>
+    <h3 style="font-style: italic"><%= book.title %></h3>
+    <p>by <%= book.author %></p>
+    <p><%= book.summary %></p>
+    <% if (book.notes) { %>
+      <div class="notes" style="min-height: 100px;">
+        <%- book.notes %>
+      </div>
+  <% } %>
+  <p style="display: flex; justify-content: space-between; align-items: center;">
+    <a href="<%= book.link %>">Link</a>
+    <span>
+      <a href="/books/<%= book._id %>/editbook" style="margin-right: 10px;">Edit</a>
+      <a href="#" onclick="deleteBook('<%= book._id %>')">Delete</a>
+    </span>
+  </p>
+    <section></section>
+    <% } %>
+    <a href="/books/newbook">Add a Book</a>
+  </section>
+</div>
+
+<script>
+  async function deleteBook(bookId) {
+    try {
+      const response = await fetch(`/books/${bookId}`, {
+        method: "DELETE", // Use DELETE method here
+      });
+
+      if (response.ok) {
+        window.location.href = "/books"; // Redirect after successful deletion
+      } else {
+        console.error("Failed to delete book");
+      }
+    } catch (error) {
+      console.error("Error deleting book:", error);
+    }
+  }
+</script>

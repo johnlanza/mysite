@@ -1,0 +1,35 @@
+<div class="container">
+  <h2>Events</h2>
+  <section>
+    <a href="/events/newevent">Add Event</a>
+    <p></p>
+    <ul>
+      <% for (let event of events) { %>
+      <li>
+        In <%= event.year %>, <%- event.description %>
+        <a href="/events/<%= event._id %>/editevent">Edit</a>
+        <a href="#" onclick="deleteEvent('<%= event._id %>')">Delete</a>
+      </li>
+      <% } %>
+    </ul>
+    <a href="/events/newevent">Add Event</a>
+  </section>
+</div>
+
+<script>
+  async function deleteEvent(eventId) {
+    try {
+      const response = await fetch(`/events/${eventId}`, {
+        method: "DELETE", // Use DELETE method here
+      });
+
+      if (response.ok) {
+        window.location.href = "/events"; // Redirect after successful deletion
+      } else {
+        console.error("Failed to delete event");
+      }
+    } catch (error) {
+      console.error("Error deleting event:", error);
+    }
+  }
+</script>
