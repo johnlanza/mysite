@@ -1,6 +1,6 @@
-// if (process.env.NODE_ENV !== "test") {
-require("dotenv").config();
-// }
+if (process.env.NODE_ENV !== "test") {
+  require("dotenv").config();
+}
 
 const express = require("express");
 const path = require("path");
@@ -10,6 +10,12 @@ const mongoose = require("mongoose");
 const Event = require("./models/events");
 const Book = require("./models/books");
 const methodOverride = require("method-override");
+const passport = require("passport");
+const localStrategy = require("passport-mongoose");
+const User = require("./models/user");
+
+const userRoutes = require("./routes/users");
+
 const dbUrl = process.env.DB_URL;
 // const dbUrl = "mongodb://localhost:27017/mysite"
 
@@ -26,6 +32,12 @@ app.use(expressLayouts);
 app.use(express.static("public"));
 app.use(methodOverride("_method"));
 
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new localStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 // Specify the default layout
 app.set("layout", "layouts/boilerplate");
 app.set("view engine", "ejs");
@@ -33,6 +45,8 @@ app.set("views", path.join(__dirname, "views"));
 
 //need this to parse the res. send in the post request below
 app.use(express.urlencoded({ extended: true }));
+
+app.use("/", userRoutes);
 
 app.get("/", (req, res) => {
   res.render("home");
