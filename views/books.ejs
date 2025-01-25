@@ -2,7 +2,9 @@
   <div class="container"></div>
   <section></section>
   <section>
+    <% if (currentUser) { %>
     <a href="/books/newbook">Add a Book</a>
+    <% } %>
     <p></p>
     <% for (let book of books) { %>
     <h3 style="font-style: italic"><%= book.title %></h3>
@@ -16,13 +18,17 @@
   <p style="display: flex; justify-content: space-between; align-items: center;">
     <a href="<%= book.link %>">Link</a>
     <span>
+      <% if (currentUser) { %>
       <a href="/books/<%= book._id %>/editbook" style="margin-right: 10px;">Edit</a>
       <a href="#" onclick="deleteBook('<%= book._id %>')">Delete</a>
+      <% } %>
     </span>
   </p>
     <section></section>
     <% } %>
+    <% if (currentUser) { %>
     <a href="/books/newbook">Add a Book</a>
+    <% } %>
   </section>
 </div>
 

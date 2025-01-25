@@ -1,18 +1,23 @@
 <div class="container">
   <h2>Events</h2>
   <section>
+    <% if (currentUser) { %>
     <a href="/events/newevent">Add Event</a>
+    <% } %>
     <p></p>
     <ul>
       <% for (let event of events) { %>
       <li>
-        In <%= event.year %>, <%- event.description %>
+        In <%= event.year %>, <%- event.description %> <% if (currentUser) { %>
         <a href="/events/<%= event._id %>/editevent">Edit</a>
         <a href="#" onclick="deleteEvent('<%= event._id %>')">Delete</a>
+        <% } %>
       </li>
       <% } %>
     </ul>
+    <% if (currentUser) { %>
     <a href="/events/newevent">Add Event</a>
+    <% } %>
   </section>
 </div>
 

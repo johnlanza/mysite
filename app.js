@@ -11,13 +11,14 @@ const Event = require("./models/events");
 const Book = require("./models/books");
 const methodOverride = require("method-override");
 const passport = require("passport");
-const localStrategy = require("passport-mongoose");
-const User = require("./models/user");
-
+const localStrategy = require("passport-local").Strategy;
+const User = require("./models/users");
 const userRoutes = require("./routes/users");
+const session = require("express-session");
+const { isLoggedIn } = require("./middleware");
 
 const dbUrl = process.env.DB_URL;
-// const dbUrl = "mongodb://localhost:27017/mysite"
+// const dbUrl = "mongodb://localhost:27017/mysite";
 
 mongoose.connect(dbUrl);
 
@@ -32,11 +33,32 @@ app.use(expressLayouts);
 app.use(express.static("public"));
 app.use(methodOverride("_method"));
 
+app.use(
+  session({
+    secret: process.env.SESSION_KEY, // Replace with a strong secret key
+    resave: false, // Prevents session being saved on every request
+    saveUninitialized: false, // Prevents saving unmodified sessions
+    cookie: {
+      secure: false, // Set to `true` if using HTTPS
+      maxAge: 1000 * 60 * 60 * 24, // Optional: 1-day cookie expiration
+    },
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new localStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+
+//gives access to info in all my templates
+app.use((req, res, next) => {
+  res.locals.currentUser = req.user;
+  next();
+});
 
 // Specify the default layout
 app.set("layout", "layouts/boilerplate");
@@ -48,8 +70,14 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/", userRoutes);
 
-app.get("/", (req, res) => {
-  res.render("home");
+app.get("/", (req, res, next) => {
+  res.render("home", (err, html) => {
+    if (err) {
+      console.error("Error rendering view:", err);
+      return next(err);
+    }
+    res.send(html);
+  });
 });
 
 app.get("/events", async (req, res) => {
@@ -62,11 +90,11 @@ app.get("/events", async (req, res) => {
   }
 });
 
-app.get("/events/newevent", (req, res) => {
+app.get("/events/newevent", isLoggedIn, (req, res) => {
   res.render("newevent");
 });
 
-app.get("/events/:id/editevent", async (req, res, next) => {
+app.get("/events/:id/editevent", isLoggedIn, async (req, res, next) => {
   try {
     const { id } = req.params;
     // Validate ID format
@@ -85,7 +113,7 @@ app.get("/events/:id/editevent", async (req, res, next) => {
   }
 });
 
-app.put("/events/:id", async (req, res) => {
+app.put("/events/:id", isLoggedIn, async (req, res) => {
   //params returns the id
   const { id } = req.params;
   const updatedEvent = req.body.event;
@@ -93,7 +121,7 @@ app.put("/events/:id", async (req, res) => {
   res.redirect("/events");
 });
 
-app.delete("/events/:id", async (req, res) => {
+app.delete("/events/:id", isLoggedIn, async (req, res) => {
   try {
     const { id } = req.params;
     await Event.findByIdAndDelete(id);
@@ -104,7 +132,7 @@ app.delete("/events/:id", async (req, res) => {
   }
 });
 
-app.post("/events", async (req, res, next) => {
+app.post("/events", isLoggedIn, async (req, res, next) => {
   try {
     const event = new Event(req.body.event);
     await event.save();
@@ -125,11 +153,11 @@ app.get("/books", async (req, res) => {
   }
 });
 
-app.get("/books/newbook", (req, res) => {
+app.get("/books/newbook", isLoggedIn, (req, res) => {
   res.render("newbook");
 });
 
-app.post("/books", async (req, res, next) => {
+app.post("/books", isLoggedIn, async (req, res, next) => {
   try {
     const book = new Book(req.body.book);
     await book.save();
@@ -140,7 +168,7 @@ app.post("/books", async (req, res, next) => {
   }
 });
 
-app.get("/books/:id/editbook", async (req, res, next) => {
+app.get("/books/:id/editbook", isLoggedIn, async (req, res, next) => {
   try {
     const { id } = req.params;
     // Validate ID format
@@ -159,7 +187,7 @@ app.get("/books/:id/editbook", async (req, res, next) => {
   }
 });
 
-app.put("/books/:id", async (req, res) => {
+app.put("/books/:id", isLoggedIn, async (req, res) => {
   //params returns the id
   const { id } = req.params;
   const updatedBook = req.body.book;
@@ -167,7 +195,7 @@ app.put("/books/:id", async (req, res) => {
   res.redirect("/books");
 });
 
-app.delete("/books/:id", async (req, res) => {
+app.delete("/books/:id", isLoggedIn, async (req, res) => {
   try {
     const { id } = req.params;
     await Book.findByIdAndDelete(id);
@@ -179,6 +207,7 @@ app.delete("/books/:id", async (req, res) => {
 });
 
 app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err);
   res.status(500).send("Something went wrong!");
 });
 
