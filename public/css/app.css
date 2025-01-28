@@ -1,5 +1,8 @@
+/* //colors pulled from */
+/* //[https://coolors.co/palette/edede9-d6ccc2-f5ebe0-e3d5ca-d5bdaf] */
+
 body {
-  background-color: hsl(36, 71%, 96%);
+  background-color: #f5ebe0;
 }
 
 section {
@@ -29,5 +32,42 @@ h2 {
 }
 
 h3 {
-  font-size: 1.5em;
+  font-size: 1.25em;
+}
+
+.book:hover {
+  background-color: #f5ebe0; /* Slightly darker background on hover */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Enhanced shadow */
+  transition: all 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.book {
+  margin-bottom: 20px; /* Adds space between books */
+  padding: 15px; /* Adds space inside each book's container */
+  border: 1px solid #d5bdaf; /* Light border for separation */
+  border-radius: 8px; /* Rounded corners for aesthetics */
+  background-color: #e3d5ca; /* Subtle background for contrast */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+}
+.book-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.toggle-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.2s ease; /* Subtle animation */
+}
+.toggle-btn:hover {
+  transform: scale(1.2); /* Slight zoom on hover */
+}
+.book-details {
+  margin-top: 10px; /* Space between the title and details */
+}
+
+a:visited {
+  color: #e5383b; /* Change this to your desired color */
 }
