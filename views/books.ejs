@@ -9,16 +9,19 @@
   <div class="book">
     <div
       class="book-header"
-      style="
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      ">
-      <h3
-        style="font-style: italic; cursor: pointer"
-        onclick="toggleDetails('<%= book._id %>')">
-        <%= book.title %>
-      </h3>
+      style="display: flex; justify-content: space-between">
+      <section>
+        <h3
+          style="font-style: italic; cursor: pointer"
+          onclick="toggleDetails('<%= book._id %>')">
+          <%= book.title %>
+        </h3>
+        <h4
+          style="font-style: italic; cursor: pointer; margin: 0"
+          onclick="toggleDetails('<%= book._id %>')">
+          by <%= book.author %>
+        </h4>
+      </section>
       <button
         class="toggle-btn"
         onclick="toggleDetails('<%= book._id %>')"
@@ -26,7 +29,7 @@
           background: none;
           border: none;
           cursor: pointer;
-          font-size: 16px;
+          font-size: 32px;
         ">
         🔽
       </button>
@@ -35,7 +38,6 @@
       id="details-<%= book._id %>"
       class="book-details"
       style="display: none; margin-left: 20px">
-      <p><strong>Author:</strong> <%= book.author %></p>
       <p><strong>Summary:</strong> <%= book.summary %></p>
       <% if (book.notes) { %>
       <div class="notes" style="min-height: 100px"><%- book.notes %></div>

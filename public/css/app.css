@@ -20,6 +20,16 @@ label {
   font-size: 1.5em;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  padding: 0;
+}
+
 h1 {
   font-family: "Apple Garamond", sans-serif;
   font-size: 4em;
@@ -32,7 +42,11 @@ h2 {
 }
 
 h3 {
-  font-size: 1.25em;
+  font-size: 1.1em;
+}
+
+h4 {
+  margin: 0; /* Eliminate all default margin */
 }
 
 .book:hover {
@@ -65,9 +79,13 @@ h3 {
   transform: scale(1.2); /* Slight zoom on hover */
 }
 .book-details {
-  margin-top: 10px; /* Space between the title and details */
+  margin-top: 10px; /*Space between the title and details*/
 }
 
 a:visited {
   color: #e5383b; /* Change this to your desired color */
+}
+
+a:link {
+  color: #00cecb; /* Change this to your desired color */
 }
