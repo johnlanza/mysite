@@ -6,7 +6,7 @@
   <% } %>
   <p></p>
   <% for (let book of books) { %>
-  <div class="book">
+  <div class="book" id="book-<%= book._id %>">
     <div
       class="book-header"
       style="display: flex; justify-content: space-between">
@@ -43,7 +43,11 @@
       <div class="notes" style="min-height: 100px"><%- book.notes %></div>
       <% } %>
       <p>
-        <a href="<%= book.link %>">Link</a>
+        <a href="<%= book.link %>" target="_blank">Link</a>
+        <a href="#" onclick="shareBook('<%= book._id %>'); return false;">
+          Share
+        </a>
+        </p>
       </p>
       <% if (currentUser) { %>
       <p>
@@ -65,6 +69,7 @@
 
   function toggleDetails(bookId) {
     const details = document.getElementById(`details-${bookId}`);
+    const bookElement = document.getElementById(`book-${bookId}`);
     const isCurrentlyVisible = details.style.display === "block";
 
     // Hide the previously expanded content, if any
@@ -85,7 +90,16 @@
       if (button) {
         button.textContent = "🔼";
       }
-      currentExpanded = details; // Update the reference to the currently expanded section
+      currentExpanded = details;
+
+      // Update the URL with both query param and anchor
+      const url = new URL(window.location);
+      url.searchParams.set("book", bookId);
+      url.hash = bookId;
+      window.history.pushState({}, "", url);
+
+      // Scroll into view smoothly
+      bookElement.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
       details.style.display = "none";
       const button =
@@ -93,10 +107,48 @@
       if (button) {
         button.textContent = "🔽";
       }
-      currentExpanded = null; // Reset if no content is expanded
+      currentExpanded = null;
+
+      // Remove book ID from URL when closed
+      const url = new URL(window.location);
+      url.searchParams.delete("book");
+      url.hash = "";
+      window.history.pushState({}, "", url);
     }
   }
 
+  function shareBook(bookId) {
+    const url = new URL(window.location);
+    url.searchParams.set("book", bookId);
+    url.hash = bookId;
+    const shareableLink = url.href;
+
+    // Copy to clipboard
+    navigator.clipboard
+      .writeText(shareableLink)
+      .then(() => alert("Link copied to clipboard!"))
+      .catch((err) => console.error("Error copying link:", err));
+  }
+
+  // Open and scroll to book if ID is in the URL
+  window.onload = function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const bookId = urlParams.get("book");
+    if (bookId) {
+      toggleDetails(bookId);
+
+      // Ensure scrolling to the book after opening
+      setTimeout(() => {
+        const bookElement = document.getElementById(`book-${bookId}`);
+        if (bookElement) {
+          bookElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 300); // Delay to ensure expansion happens first
+    }
+  };
+</script>
+
+<script>
   async function deleteBook(bookId) {
     try {
       const response = await fetch(`/books/${bookId}`, {
