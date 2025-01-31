@@ -89,17 +89,3 @@ a:visited {
 a:link {
   color: #00cecb; /* Change this to your desired color */
 }
-
-.share-link {
-  background: none;
-  border: none;
-  color: blue;
-  text-decoration: underline;
-  cursor: pointer;
-  font-size: 1em;
-  padding: 0;
-}
-
-.share-link:hover {
-  color: darkblue;
-}
