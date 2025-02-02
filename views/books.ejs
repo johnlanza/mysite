@@ -5,6 +5,7 @@
   <a href="/books/newbook">Add a Book</a>
   <% } %>
   <p></p>
+  <p>I'm adding all my book summaries here as I complete them. (And as time permits.)</p>
   <% for (let book of books) { %>
   <div class="book" id="book-<%= book._id %>">
     <div
@@ -43,7 +44,7 @@
       <div class="notes" style="min-height: 100px"><%- book.notes %></div>
       <% } %>
       <p>
-        <a href="<%= book.link %>" target="_blank">Link</a>
+        <a href="<%= book.link %>" target="_blank">Goodreads</a>
         <a href="#" onclick="shareBook('<%= book._id %>'); return false;">
           Share
         </a>
