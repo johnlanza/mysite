@@ -46,6 +46,16 @@ app.use(
   })
 );
 
+// Enable flash messages
+app.use(flash());
+
+// Middleware to make flash messages available in all views
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  next();
+});
+
 app.use(passport.initialize());
 app.use(passport.session());
 
