@@ -10,6 +10,7 @@ const mongoose = require("mongoose");
 const Event = require("./models/events");
 const Book = require("./models/books");
 const methodOverride = require("method-override");
+const flash = require("connect-flash");
 const passport = require("passport");
 const localStrategy = require("passport-local").Strategy;
 const User = require("./models/users");
