@@ -1,0 +1,40 @@
+<div class="container">
+  <h2>Ideas</h2>
+  <section>
+    <% if (currentUser) { %>
+    <a href="/ideas/newidea">Add Idea</a>
+    <% } %>
+    <p></p>
+    <ul style="padding-left: 0em">
+      <% for (let idea of ideas) { %>
+      <li>
+        <%- idea.description %> <% if (currentUser) { %>
+        <a href="/ideas/<%= idea._id %>/editidea">Edit</a>
+        <a href="#" onclick="deleteIdea('<%= idea._id %>')">Delete</a>
+        <% } %>
+      </li>
+      <% } %>
+    </ul>
+    <% if (currentUser) { %>
+    <a href="/ideas/newidea">Add Idea</a>
+    <% } %>
+  </section>
+</div>
+
+<script>
+  async function deleteIdea(ideaId) {
+    try {
+      const response = await fetch(`/ideas/${ideaId}`, {
+        method: "DELETE", // Use DELETE method here
+      });
+
+      if (response.ok) {
+        window.location.href = "/ideas"; // Redirect after successful deletion
+      } else {
+        console.error("Failed to delete idea");
+      }
+    } catch (error) {
+      console.error("Error deleting idea:", error);
+    }
+  }
+</script>

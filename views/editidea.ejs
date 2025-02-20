@@ -1,0 +1,17 @@
+<h1>Edit Idea</h1>
+<body>
+  <form action="/ideas/<%= idea._id %>?_method=PUT" method="post">
+    <div>
+      <label for="description">Description</label>
+      <textarea
+        id="description"
+        name="idea[description]"
+        class="form-control mb-3"
+        rows="3" required>
+<%=idea.description %></textarea
+      >
+    </div>
+    <button class="btn btn-secondary" type="submit">Update Idea</button>
+  </form>
+</body>
+</html>

@@ -8,6 +8,7 @@ const app = express();
 const expressLayouts = require("express-ejs-layouts");
 const mongoose = require("mongoose");
 const Event = require("./models/events");
+const Idea = require("./models/ideas");
 const Book = require("./models/books");
 const methodOverride = require("method-override");
 const flash = require("connect-flash");
@@ -214,6 +215,69 @@ app.delete("/books/:id", isLoggedIn, async (req, res) => {
   } catch (error) {
     console.error("Error deleting event:", error);
     res.status(500).json({ message: "Failed to delete book" });
+  }
+});
+
+app.get("/ideas", async (req, res) => {
+  try {
+    const ideas = await Idea.find({}).sort({});
+    res.render("ideas", { ideas }); //pass events to template ejs page
+  } catch (err) {
+    console.error("Error fetching ideas:", err);
+    next(err);
+  }
+});
+
+app.get("/ideas/newidea", isLoggedIn, (req, res) => {
+  res.render("newidea");
+});
+
+app.get("/ideas/:id/editidea", isLoggedIn, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    // Validate ID format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).send("Invalid Idea ID");
+    }
+    const idea = await Idea.findById(id);
+    // Handle case where the idea doesn't exist
+    if (!idea) {
+      return res.status(404).send("Idea not found");
+    }
+    res.render("editidea", { idea });
+  } catch (err) {
+    console.error("Error fetching idea:", err);
+    next(err);
+  }
+});
+
+app.put("/ideas/:id", isLoggedIn, async (req, res) => {
+  //params returns the id
+  const { id } = req.params;
+  const updatedIdea = req.body.idea;
+  await Idea.findByIdAndUpdate(id, updatedIdea, { new: true });
+  res.redirect("/ideas");
+});
+
+app.delete("/ideas/:id", isLoggedIn, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Idea.findByIdAndDelete(id);
+    res.status(200).json({ message: "Idea deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting idea:", error);
+    res.status(500).json({ message: "Failed to delete idea" });
+  }
+});
+
+app.post("/ideas", isLoggedIn, async (req, res, next) => {
+  try {
+    const idea = new Idea(req.body.idea);
+    await idea.save();
+    res.redirect("/ideas");
+  } catch (err) {
+    console.error("Error saving idea:", err);
+    next(err);
   }
 });
 
