@@ -45,9 +45,9 @@
       <% } %>
       <p>
         <a href="<%= book.link %>" target="_blank">Goodreads</a>
-        <a href="#" onclick="shareBook('<%= book._id %>'); return false;">
+        <a href="#" onclick="shareBook('<%= book._id %>', '<%= book.title %>', '<%= book.author %>'); return false;">
           Share
-        </a>
+      </a>
         </p>
       </p>
       <% if (currentUser) { %>
@@ -118,18 +118,29 @@
     }
   }
 
-  function shareBook(bookId) {
-    const url = new URL(window.location);
-    url.searchParams.set("book", bookId);
-    url.hash = bookId;
-    const shareableLink = url.href;
+  function shareBook(bookId, title, author) {
+    const shareUrl = `https://www.johnlanza.com/books?book=${bookId}`;
+    const shareText = `Summary and notes for "${title}" by ${author} - Check it out! 📚`;
 
-    // Copy to clipboard
-    navigator.clipboard
-      .writeText(shareableLink)
-      .then(() => alert("Link copied to clipboard!"))
-      .catch((err) => console.error("Error copying link:", err));
-  }
+    if (navigator.share) {
+        navigator.share({
+            title: title,
+            text: shareText,
+            url: shareUrl,
+        })
+        .then(() => console.log('Shared successfully!'))
+        .catch((error) => console.log('Error sharing:', error));
+    } else {
+        // Fallback for unsupported browsers
+        const tempInput = document.createElement("input");
+        tempInput.value = `${shareText} ${shareUrl}`;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+        alert("Link copied to clipboard!");
+    }
+}
 
   // Open and scroll to book if ID is in the URL
   window.onload = function () {
