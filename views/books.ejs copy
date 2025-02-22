@@ -32,13 +32,13 @@
           cursor: pointer;
           font-size: 32px;
         ">
-        ↧
+        🔽
       </button>
     </div>
     <div
       id="details-<%= book._id %>"
       class="book-details"
-      style="display: none; margin-left: 5px">
+      style="display: none; margin-left: 20px">
       <p><strong>Summary:</strong> <%= book.summary %></p>
       <% if (book.notes) { %>
       <div class="notes" style="min-height: 100px"><%- book.notes %></div>
@@ -79,7 +79,7 @@
       const previousButton =
         currentExpanded.previousElementSibling.querySelector(".toggle-btn");
       if (previousButton) {
-        previousButton.textContent = "↧";
+        previousButton.textContent = "🔽";
       }
     }
 
@@ -89,7 +89,7 @@
       const button =
         details.previousElementSibling.querySelector(".toggle-btn");
       if (button) {
-        button.textContent = "🔝";
+        button.textContent = "🔼";
       }
       currentExpanded = details;
 
@@ -106,7 +106,7 @@
       const button =
         details.previousElementSibling.querySelector(".toggle-btn");
       if (button) {
-        button.textContent = "↧";
+        button.textContent = "🔽";
       }
       currentExpanded = null;
 

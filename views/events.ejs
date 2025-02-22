@@ -1,11 +1,11 @@
-<div class="container">
+<div class="container" style="padding-left: 5px">
   <h2>Events</h2>
   <section>
     <% if (currentUser) { %>
     <a href="/events/newevent">Add Event</a>
     <% } %>
     <p></p>
-    <ul style="padding-left: 0em">
+    <ul style="padding-left: 5px">
       <% for (let event of events) { %>
       <li>
         In <%= event.year %>, <%- event.description %> <% if (currentUser) { %>

@@ -9,7 +9,7 @@ section {
   font-size: x-large;
   font-family: "Lexend", sans-serif;
   margin-bottom: 1em;
-  margin-left: 1em;
+  margin-left: 5px;
   font-size: 1.5em;
 }
 
@@ -63,8 +63,8 @@ h4 {
 
 .book {
   margin-bottom: 20px; /* Adds space between books */
-  padding: 15px; /* Adds space inside each book's container */
-  border: 1px solid #d5bdaf; /* Light border for separation */
+  padding: 0px; /* Adds space inside each book's container */
+  border: 0px solid #d5bdaf; /* Light border for separation */
   border-radius: 8px; /* Rounded corners for aesthetics */
   background-color: #e3d5ca; /* Subtle background for contrast */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
@@ -85,7 +85,7 @@ h4 {
   transform: scale(1.2); /* Slight zoom on hover */
 }
 .book-details {
-  margin-top: 10px; /*Space between the title and details*/
+  margin-top: 5px; /*Space between the title and details*/
 }
 
 a:visited {
