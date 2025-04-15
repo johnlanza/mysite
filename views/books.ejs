@@ -121,9 +121,9 @@
   }
 }
 
-  function shareBook(bookSlug, bookId, title, author) {
+  function shareBook(bookSlug, title, author) {
     const shareUrl = `https://www.johnlanza.com/books/${bookSlug}`;
-    const shareText = `Summary and notes for "${title}" by ${author} - Check it out! 📚`;
+    const shareText = `Summary and notes for ${title} by ${author} - Check it out! 📚`;
 
     if (navigator.share) {
         navigator.share({
