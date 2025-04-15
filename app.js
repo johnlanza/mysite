@@ -18,6 +18,7 @@ const localStrategy = require("passport-local").Strategy;
 const User = require("./models/users");
 const userRoutes = require("./routes/users");
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
 const { isLoggedIn } = require("./middleware");
 
 const dbUrl = process.env.DB_URL;
@@ -38,12 +39,13 @@ app.use(methodOverride("_method"));
 
 app.use(
   session({
-    secret: process.env.SESSION_KEY, // Replace with a strong secret key
-    resave: false, // Prevents session being saved on every request
-    saveUninitialized: false, // Prevents saving unmodified sessions
+    secret: process.env.SESSION_KEY,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: process.env.DB_URL }),
     cookie: {
-      secure: false, // Set to `true` if using HTTPS
-      maxAge: 1000 * 60 * 60 * 24, // Optional: 1-day cookie expiration
+      secure: false, // set to true if using HTTPS
+      maxAge: 1000 * 60 * 60 * 24,
     },
   })
 );
