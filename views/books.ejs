@@ -45,7 +45,7 @@
       <% } %>
       <p>
         <a href="<%= book.link %>" target="_blank">Goodreads</a>
-        <a href="#" onclick="shareBook('<%= book._id %>', '<%= book.title %>', '<%= book.author %>'); return false;">
+        <a href="#" onclick="shareBook('<%= book.slug %>', '<%= book.title %>', '<%= book.author %>'); return false;">
           Share
       </a>
         </p>
@@ -66,60 +66,63 @@
 </section>
 
 <script>
+  const sharedSlug = "<%= sharedSlug || '' %>";
+</script>
+
+<script>
   let currentExpanded = null;
 
-  function toggleDetails(bookId) {
-    const details = document.getElementById(`details-${bookId}`);
-    const bookElement = document.getElementById(`book-${bookId}`);
-    const isCurrentlyVisible = details.style.display === "block";
+  function toggleDetails(bookId, skipUrlUpdate = false) {
+  const details = document.getElementById(`details-${bookId}`);
+  const bookElement = document.getElementById(`book-${bookId}`);
+  const isCurrentlyVisible = details.style.display === "block";
 
-    // Hide the previously expanded content, if any
-    if (currentExpanded && currentExpanded !== details) {
-      currentExpanded.style.display = "none";
-      const previousButton =
-        currentExpanded.previousElementSibling.querySelector(".toggle-btn");
-      if (previousButton) {
-        previousButton.textContent = "↧";
-      }
+  if (currentExpanded && currentExpanded !== details) {
+    currentExpanded.style.display = "none";
+    const previousButton =
+      currentExpanded.previousElementSibling.querySelector(".toggle-btn");
+    if (previousButton) {
+      previousButton.textContent = "↧";
     }
+  }
 
-    // Toggle the clicked content
-    if (!isCurrentlyVisible) {
-      details.style.display = "block";
-      const button =
-        details.previousElementSibling.querySelector(".toggle-btn");
-      if (button) {
-        button.textContent = "🔝";
-      }
-      currentExpanded = details;
+  if (!isCurrentlyVisible) {
+    details.style.display = "block";
+    const button =
+      details.previousElementSibling.querySelector(".toggle-btn");
+    if (button) {
+      button.textContent = "🔝";
+    }
+    currentExpanded = details;
 
-      // Update the URL with both query param and anchor
+    if (!skipUrlUpdate) {
       const url = new URL(window.location);
       url.searchParams.set("book", bookId);
       url.hash = bookId;
       window.history.pushState({}, "", url);
+    }
 
-      // Scroll into view smoothly
-      bookElement.scrollIntoView({ behavior: "smooth", block: "start" });
-    } else {
-      details.style.display = "none";
-      const button =
-        details.previousElementSibling.querySelector(".toggle-btn");
-      if (button) {
-        button.textContent = "↧";
-      }
-      currentExpanded = null;
+    bookElement.scrollIntoView({ behavior: "smooth", block: "start" });
+  } else {
+    details.style.display = "none";
+    const button =
+      details.previousElementSibling.querySelector(".toggle-btn");
+    if (button) {
+      button.textContent = "↧";
+    }
+    currentExpanded = null;
 
-      // Remove book ID from URL when closed
+    if (!skipUrlUpdate) {
       const url = new URL(window.location);
       url.searchParams.delete("book");
       url.hash = "";
       window.history.pushState({}, "", url);
     }
   }
+}
 
-  function shareBook(bookId, title, author) {
-    const shareUrl = `https://www.johnlanza.com/books?book=${bookId}`;
+  function shareBook(bookSlug, bookId, title, author) {
+    const shareUrl = `https://www.johnlanza.com/books/${bookSlug}`;
     const shareText = `Summary and notes for "${title}" by ${author} - Check it out! 📚`;
 
     if (navigator.share) {
@@ -144,20 +147,56 @@
 
   // Open and scroll to book if ID is in the URL
   window.onload = function () {
-    const urlParams = new URLSearchParams(window.location.search);
-    const bookId = urlParams.get("book");
-    if (bookId) {
-      toggleDetails(bookId);
+  const urlParams = new URLSearchParams(window.location.search);
+  const bookId = urlParams.get("book");
 
-      // Ensure scrolling to the book after opening
-      setTimeout(() => {
-        const bookElement = document.getElementById(`book-${bookId}`);
-        if (bookElement) {
-          bookElement.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (bookId) {
+    toggleDetails(bookId);
+    scrollToBook(bookId);
+  }
+
+  if (sharedSlug) {
+    setTimeout(async () => {
+      try {
+        const response = await fetch(`/books/book-id-from-slug/${sharedSlug}`);
+        if (response.ok) {
+          const data = await response.json();
+          const id = data.id;
+          console.log("Resolved book ID from slug:", id);
+
+          toggleDetails(id, true); // expand the book
+
+          // Wait and scroll after layout is stable
+          setTimeout(() => {
+  const bookElement = document.getElementById(`book-${id}`);
+  console.log("Looking for book element:", `book-${id}`, bookElement);
+
+  if (bookElement) {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        bookElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+  } else {
+    console.warn("Book element NOT found. Maybe not rendered yet?");
+  }
+}, 300);
+        } else {
+          console.warn("Book not found for slug:", sharedSlug);
         }
-      }, 300); // Delay to ensure expansion happens first
-    }
-  };
+      } catch (err) {
+        console.error("Error fetching book ID by slug:", err);
+      }
+    }, 300); // Initial delay for DOM load
+  }
+};
+
+function scrollToBook(bookId) {
+  const bookElement = document.getElementById(`book-${bookId}`);
+  if (bookElement) {
+    bookElement.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
 </script>
 
 <script>

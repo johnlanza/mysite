@@ -4,6 +4,7 @@ if (process.env.NODE_ENV !== "test") {
 
 const express = require("express");
 const path = require("path");
+const slugify = require("slugify");
 const app = express();
 const expressLayouts = require("express-ejs-layouts");
 const mongoose = require("mongoose");
@@ -155,12 +156,12 @@ app.post("/events", isLoggedIn, async (req, res, next) => {
   }
 });
 
-app.get("/books", async (req, res) => {
+app.get("/books", async (req, res, next) => {
   try {
-    const books = await Book.find({}).sort({ author: 1 }); // Sort by author (ascending)
-    res.render("books", { books });
+    const books = await Book.find({}).sort({ author: 1 });
+    res.render("books", { books, sharedSlug: null });
   } catch (err) {
-    console.error("Error fetching events:", err);
+    console.error("Error fetching books:", err);
     next(err);
   }
 });
@@ -171,11 +172,40 @@ app.get("/books/newbook", isLoggedIn, (req, res) => {
 
 app.post("/books", isLoggedIn, async (req, res, next) => {
   try {
-    const book = new Book(req.body.book);
+    const bookData = req.body.book;
+
+    // Generate a slug from the book title
+    const slug = slugify(bookData.title, { lower: true, strict: true });
+    bookData.slug = slug;
+
+    const book = new Book(bookData);
     await book.save();
     res.redirect("/books");
   } catch (err) {
-    console.error("Error saving event:", err);
+    console.error("Error saving book:", err);
+    next(err);
+  }
+});
+
+app.get("/books/book-id-from-slug/:slug", async (req, res) => {
+  try {
+    const book = await Book.findOne({ slug: req.params.slug });
+    if (!book) return res.status(404).json({ error: "Book not found" });
+    res.json({ id: book._id });
+  } catch (err) {
+    console.error("Error fetching book ID by slug:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/books/:slug", async (req, res, next) => {
+  try {
+    const books = await Book.find({}).sort({ author: 1 });
+    const slug = req.params.slug;
+
+    res.render("books", { books, sharedSlug: slug });
+  } catch (err) {
+    console.error("Error loading books page with slug:", err);
     next(err);
   }
 });
