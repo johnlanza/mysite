@@ -1,6 +1,6 @@
 {
   "engines": {
-    "node": "23.1.0"
+    "node": "18.x"
   },
   "scripts": {
     "start": "node app.js",
