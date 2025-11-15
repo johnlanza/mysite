@@ -18,23 +18,21 @@ const LocalStrategy = require("passport-local").Strategy;
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 
-// Models
 const Event = require("./models/events");
 const Idea = require("./models/ideas");
 const Book = require("./models/books");
 const User = require("./models/users");
 
-// Middleware
 const { isLoggedIn } = require("./middleware");
 const userRoutes = require("./routes/users");
 
 // -----------------------
-// Express App Init
+// App Init
 // -----------------------
 const app = express();
 
 // -----------------------
-// MongoDB Connection
+// DB Connection
 // -----------------------
 async function connectDB() {
   try {
@@ -44,17 +42,15 @@ async function connectDB() {
       w: "majority",
       tls: true,
     });
-
     console.log("✅ MongoDB connected successfully");
   } catch (err) {
     console.error("❌ MongoDB connection error:", err.message);
     setTimeout(connectDB, 5000);
   }
 }
-
 connectDB();
 
-// Graceful shutdown on Render
+// Graceful shutdown for Render
 process.on("SIGTERM", () => {
   mongoose.connection.close(() => {
     console.log("MongoDB connection closed due to SIGTERM");
@@ -63,18 +59,16 @@ process.on("SIGTERM", () => {
 });
 
 // -----------------------
-// Middleware Setup
+// Middleware
 // -----------------------
 app.use(expressLayouts);
 app.use(express.static("public"));
 app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
-
-// *** REQUIRED FOR SECURE COOKIES ON RENDER ***
-app.set("trust proxy", 1);
+app.set("trust proxy", 1); // Required for secure cookies
 
 // -----------------------
-// Session Store (correct & final)
+// Session Store
 // -----------------------
 const sessionConfig = {
   secret: process.env.SESSION_KEY || "fallbacksecret",
@@ -82,13 +76,13 @@ const sessionConfig = {
   saveUninitialized: false,
   store: MongoStore.create({
     mongoUrl: process.env.DB_URL,
-    dbName: "mysite", // Your actual DB name
+    dbName: "mysite",
     collectionName: "sessions",
     ttl: 24 * 60 * 60,
     autoRemove: "native",
   }),
   cookie: {
-    secure: process.env.NODE_ENV === "production", // https only
+    secure: process.env.NODE_ENV === "production",
     httpOnly: true,
     sameSite: "lax",
     maxAge: 1000 * 60 * 60 * 24,
@@ -97,17 +91,13 @@ const sessionConfig = {
 
 app.use(session(sessionConfig));
 
-// Flash Messages Middleware
+// -----------------------
+// Flash
+// -----------------------
 app.use(flash());
-app.use((req, res, next) => {
-  res.locals.success = req.flash("success");
-  res.locals.error = req.flash("error");
-  res.locals.currentUser = req.user;
-  next();
-});
 
 // -----------------------
-// Passport Configuration
+// Passport -- MUST BE AFTER session & flash
 // -----------------------
 app.use(passport.initialize());
 app.use(passport.session());
@@ -117,20 +107,27 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 // -----------------------
-// View Engine Setup
+// Locals -- MUST BE AFTER passport.session()
+// -----------------------
+app.use((req, res, next) => {
+  res.locals.currentUser = req.user; // ← THIS is now correct
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  next();
+});
+
+// -----------------------
+// View Engine
 // -----------------------
 app.set("layout", "layouts/boilerplate");
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 // -----------------------
-// User Routes
+// Routes
 // -----------------------
 app.use("/", userRoutes);
 
-// -----------------------
-// Home
-// -----------------------
 app.get("/", (req, res) => {
   res.render("home");
 });
@@ -169,9 +166,9 @@ app.put("/events/:id", isLoggedIn, async (req, res) => {
 app.delete("/events/:id", isLoggedIn, async (req, res) => {
   try {
     await Event.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "Event deleted successfully" });
+    res.status(200).json({ message: "Event deleted" });
   } catch {
-    res.status(500).json({ message: "Failed to delete event" });
+    res.status(500).json({ message: "Delete failed" });
   }
 });
 
@@ -206,21 +203,6 @@ app.post("/books", isLoggedIn, async (req, res, next) => {
     data.slug = slugify(data.title, { lower: true, strict: true });
     await new Book(data).save();
     res.redirect("/books");
-  } catch (err) {
-    next(err);
-  }
-});
-
-app.get("/books/book-id-from-slug/:slug", async (req, res) => {
-  const book = await Book.findOne({ slug: req.params.slug });
-  if (!book) return res.status(404).json({ error: "Book not found" });
-  res.json({ id: book._id });
-});
-
-app.get("/books/:slug", async (req, res, next) => {
-  try {
-    const books = await Book.find({});
-    res.render("books", { books, sharedSlug: req.params.slug });
   } catch (err) {
     next(err);
   }
@@ -284,10 +266,10 @@ app.post("/ideas", isLoggedIn, async (req, res, next) => {
 });
 
 // -----------------------
-// Global Error Handler
+// Error Handler
 // -----------------------
 app.use((err, req, res, next) => {
-  console.error("Unhandled error:", err);
+  console.error("Error:", err);
   res.status(500).send("Something went wrong!");
 });
 
