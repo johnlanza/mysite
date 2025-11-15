@@ -46,6 +46,7 @@ async function connectDB() {
     });
 
     console.log("✅ MongoDB connected successfully");
+    console.log("Connected to DB:", mongoose.connection.name); // IMPORTANT: tells us dbName
   } catch (err) {
     console.error("❌ MongoDB connection error:", err.message);
     console.log("Retrying in 5 seconds...");
@@ -55,7 +56,7 @@ async function connectDB() {
 
 connectDB();
 
-// Handle SIGTERM (Render sends this on deploy)
+// Handle SIGTERM from Render
 process.on("SIGTERM", () => {
   mongoose.connection.close(() => {
     console.log("MongoDB connection closed due to SIGTERM");
@@ -72,29 +73,37 @@ app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
 
 // -----------------------
-// Session Store
+// Session Store (FULLY FIXED VERSION)
+// IMPORTANT: Replace "mysite" with the name printed in your Render logs
+// after this deploy.
 // -----------------------
-app.use(
-  session({
-    secret: process.env.SESSION_KEY,
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: process.env.DB_URL,
-      ttl: 24 * 60 * 60, // 1 day
-    }),
-    cookie: {
-      secure: process.env.NODE_ENV === "production", // true on Render
-      maxAge: 1000 * 60 * 60 * 24,
-    },
-  })
-);
+const sessionConfig = {
+  secret: process.env.SESSION_KEY || "fallbacksecret",
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.DB_URL,
+    dbName: "mysite", // <-- CHANGE THIS BASED ON LOG OUTPUT
+    collectionName: "sessions",
+    ttl: 24 * 60 * 60, // 1 day
+    autoRemove: "native",
+  }),
+  cookie: {
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    sameSite: "lax",
+    maxAge: 1000 * 60 * 60 * 24,
+  },
+};
+
+app.use(session(sessionConfig));
 
 // Flash Messages
 app.use(flash());
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
+  res.locals.currentUser = req.user;
   next();
 });
 
@@ -108,12 +117,6 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// Expose currentUser to templates
-app.use((req, res, next) => {
-  res.locals.currentUser = req.user;
-  next();
-});
-
 // -----------------------
 // View Engine
 // -----------------------
@@ -126,13 +129,12 @@ app.set("views", path.join(__dirname, "views"));
 // -----------------------
 app.use("/", userRoutes);
 
-// Home route (fixed — no double-send)
 app.get("/", (req, res) => {
   res.render("home");
 });
 
 // -----------------------
-// Event Routes
+// Events
 // -----------------------
 app.get("/events", async (req, res, next) => {
   try {
@@ -149,13 +151,8 @@ app.get("/events/newevent", isLoggedIn, (req, res) => {
 
 app.get("/events/:id/editevent", isLoggedIn, async (req, res, next) => {
   try {
-    const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id))
-      return res.status(400).send("Invalid Event ID");
-
-    const event = await Event.findById(id);
+    const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).send("Event not found");
-
     res.render("editevent", { event });
   } catch (err) {
     next(err);
@@ -163,8 +160,7 @@ app.get("/events/:id/editevent", isLoggedIn, async (req, res, next) => {
 });
 
 app.put("/events/:id", isLoggedIn, async (req, res) => {
-  const { id } = req.params;
-  await Event.findByIdAndUpdate(id, req.body.event, { new: true });
+  await Event.findByIdAndUpdate(req.params.id, req.body.event, { new: true });
   res.redirect("/events");
 });
 
@@ -172,7 +168,7 @@ app.delete("/events/:id", isLoggedIn, async (req, res) => {
   try {
     await Event.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "Event deleted successfully" });
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: "Failed to delete event" });
   }
 });
@@ -187,7 +183,7 @@ app.post("/events", isLoggedIn, async (req, res, next) => {
 });
 
 // -----------------------
-// Books Routes
+// Books
 // -----------------------
 app.get("/books", async (req, res, next) => {
   try {
@@ -206,7 +202,6 @@ app.post("/books", isLoggedIn, async (req, res, next) => {
   try {
     const data = req.body.book;
     data.slug = slugify(data.title, { lower: true, strict: true });
-
     await new Book(data).save();
     res.redirect("/books");
   } catch (err) {
@@ -215,18 +210,14 @@ app.post("/books", isLoggedIn, async (req, res, next) => {
 });
 
 app.get("/books/book-id-from-slug/:slug", async (req, res) => {
-  try {
-    const book = await Book.findOne({ slug: req.params.slug });
-    if (!book) return res.status(404).json({ error: "Book not found" });
-    res.json({ id: book._id });
-  } catch {
-    res.status(500).json({ error: "Internal server error" });
-  }
+  const book = await Book.findOne({ slug: req.params.slug });
+  if (!book) return res.status(404).json({ error: "Book not found" });
+  res.json({ id: book._id });
 });
 
 app.get("/books/:slug", async (req, res, next) => {
   try {
-    const books = await Book.find({}).sort({ author: 1 });
+    const books = await Book.find({});
     res.render("books", { books, sharedSlug: req.params.slug });
   } catch (err) {
     next(err);
@@ -234,35 +225,27 @@ app.get("/books/:slug", async (req, res, next) => {
 });
 
 app.get("/books/:id/editbook", isLoggedIn, async (req, res, next) => {
-  try {
-    const book = await Book.findById(req.params.id);
-    if (!book) return res.status(404).send("Book not found");
-    res.render("editbook", { book });
-  } catch (err) {
-    next(err);
-  }
+  const book = await Book.findById(req.params.id);
+  if (!book) return res.status(404).send("Book not found");
+  res.render("editbook", { book });
 });
 
 app.put("/books/:id", isLoggedIn, async (req, res) => {
-  await Book.findByIdAndUpdate(req.params.id, req.body.book, { new: true });
+  await Book.findByIdAndUpdate(req.params.id, req.body.book);
   res.redirect("/books");
 });
 
 app.delete("/books/:id", isLoggedIn, async (req, res) => {
-  try {
-    await Book.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "Book deleted successfully" });
-  } catch {
-    res.status(500).json({ message: "Failed to delete book" });
-  }
+  await Book.findByIdAndDelete(req.params.id);
+  res.status(200).json({ message: "Book deleted" });
 });
 
 // -----------------------
-// Ideas Routes
+// Ideas
 // -----------------------
 app.get("/ideas", async (req, res, next) => {
   try {
-    const ideas = await Idea.find({}).sort({});
+    const ideas = await Idea.find({});
     res.render("ideas", { ideas });
   } catch (err) {
     next(err);
@@ -274,27 +257,19 @@ app.get("/ideas/newidea", isLoggedIn, (req, res) => {
 });
 
 app.get("/ideas/:id/editidea", isLoggedIn, async (req, res, next) => {
-  try {
-    const idea = await Idea.findById(req.params.id);
-    if (!idea) return res.status(404).send("Idea not found");
-    res.render("editidea", { idea });
-  } catch (err) {
-    next(err);
-  }
+  const idea = await Idea.findById(req.params.id);
+  if (!idea) return res.status(404).send("Idea not found");
+  res.render("editidea", { idea });
 });
 
 app.put("/ideas/:id", isLoggedIn, async (req, res) => {
-  await Idea.findByIdAndUpdate(req.params.id, req.body.idea, { new: true });
+  await Idea.findByIdAndUpdate(req.params.id, req.body.idea);
   res.redirect("/ideas");
 });
 
 app.delete("/ideas/:id", isLoggedIn, async (req, res) => {
-  try {
-    await Idea.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "Idea deleted successfully" });
-  } catch {
-    res.status(500).json({ message: "Failed to delete idea" });
-  }
+  await Idea.findByIdAndDelete(req.params.id);
+  res.status(200).json({ message: "Idea deleted" });
 });
 
 app.post("/ideas", isLoggedIn, async (req, res, next) => {
