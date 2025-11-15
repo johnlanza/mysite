@@ -34,7 +34,7 @@ const userRoutes = require("./routes/users");
 const app = express();
 
 // -----------------------
-// Improved MongoDB Connection
+// MongoDB Connection
 // -----------------------
 async function connectDB() {
   try {
@@ -46,17 +46,15 @@ async function connectDB() {
     });
 
     console.log("✅ MongoDB connected successfully");
-    console.log("Connected to DB:", mongoose.connection.name); // IMPORTANT: tells us dbName
   } catch (err) {
     console.error("❌ MongoDB connection error:", err.message);
-    console.log("Retrying in 5 seconds...");
     setTimeout(connectDB, 5000);
   }
 }
 
 connectDB();
 
-// Handle SIGTERM from Render
+// Close gracefully on Render SIGTERM
 process.on("SIGTERM", () => {
   mongoose.connection.close(() => {
     console.log("MongoDB connection closed due to SIGTERM");
@@ -73,9 +71,7 @@ app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
 
 // -----------------------
-// Session Store (FULLY FIXED VERSION)
-// IMPORTANT: Replace "mysite" with the name printed in your Render logs
-// after this deploy.
+// Session Store (FINAL CONFIG)
 // -----------------------
 const sessionConfig = {
   secret: process.env.SESSION_KEY || "fallbacksecret",
@@ -83,9 +79,9 @@ const sessionConfig = {
   saveUninitialized: false,
   store: MongoStore.create({
     mongoUrl: process.env.DB_URL,
-    dbName: "mysite", // <-- CHANGE THIS BASED ON LOG OUTPUT
+    dbName: "mysite", // <-- YOUR ACTUAL DB NAME
     collectionName: "sessions",
-    ttl: 24 * 60 * 60, // 1 day
+    ttl: 24 * 60 * 60,
     autoRemove: "native",
   }),
   cookie: {
