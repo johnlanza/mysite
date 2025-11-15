@@ -25,15 +25,35 @@
     <title>John Lanza</title>
 
     <style>
+      nav.simple-nav {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
       nav.simple-nav a {
         margin-right: 20px;
         font-size: 1.1rem;
         text-decoration: none;
         color: #333;
-        font-family: "Lexend", sans-serif; /* <-- matches site copy */
+        font-family: "Lexend", sans-serif;
       }
+
       nav.simple-nav a:hover {
         text-decoration: underline;
+      }
+
+      /* ----- MOBILE STACKING ----- */
+      @media (max-width: 600px) {
+        nav.simple-nav {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        nav.simple-nav a {
+          margin: 6px 0;
+        }
       }
     </style>
   </head>
@@ -47,13 +67,11 @@
             <a href="/" class="main-header">John Lanza</a>
           </h1>
 
-          <!-- SIMPLE TOP NAV -->
-          <nav class="simple-nav mb-4">
+          <!-- SIMPLE TOP NAV (now responsive) -->
+          <nav class="simple-nav">
             <a href="/books">Book Summaries</a>
             <a href="/events">Timeline</a>
             <a href="/#books-written">Writing</a>
-
-            <!-- Open in new tab -->
             <a
               href="https://category6consulting.com/speaker/john-lanza/"
               target="_blank">
