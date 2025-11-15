@@ -1,106 +1,144 @@
+// Load environment variables except during tests
 if (process.env.NODE_ENV !== "test") {
   require("dotenv").config();
 }
 
+// -----------------------
+// Imports
+// -----------------------
 const express = require("express");
 const path = require("path");
 const slugify = require("slugify");
-const app = express();
 const expressLayouts = require("express-ejs-layouts");
 const mongoose = require("mongoose");
-const Event = require("./models/events");
-const Idea = require("./models/ideas");
-const Book = require("./models/books");
 const methodOverride = require("method-override");
 const flash = require("connect-flash");
 const passport = require("passport");
-const localStrategy = require("passport-local").Strategy;
-const User = require("./models/users");
-const userRoutes = require("./routes/users");
+const LocalStrategy = require("passport-local").Strategy;
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
+
+// Models
+const Event = require("./models/events");
+const Idea = require("./models/ideas");
+const Book = require("./models/books");
+const User = require("./models/users");
+
+// Middleware
 const { isLoggedIn } = require("./middleware");
+const userRoutes = require("./routes/users");
 
-const dbUrl = process.env.DB_URL;
-// const dbUrl = "mongodb://localhost:27017/mysite";
+// -----------------------
+// Express App Init
+// -----------------------
+const app = express();
 
-mongoose.connect(dbUrl);
+// -----------------------
+// Improved MongoDB Connection
+// -----------------------
+async function connectDB() {
+  try {
+    await mongoose.connect(process.env.DB_URL, {
+      serverSelectionTimeoutMS: 30000,
+      retryWrites: true,
+      w: "majority",
+      tls: true,
+    });
 
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "connection error:"));
-db.once("open", () => {
-  console.log("Database connected");
+    console.log("✅ MongoDB connected successfully");
+  } catch (err) {
+    console.error("❌ MongoDB connection error:", err.message);
+    console.log("Retrying in 5 seconds...");
+    setTimeout(connectDB, 5000);
+  }
+}
+
+connectDB();
+
+// Handle SIGTERM (Render sends this on deploy)
+process.on("SIGTERM", () => {
+  mongoose.connection.close(() => {
+    console.log("MongoDB connection closed due to SIGTERM");
+    process.exit(0);
+  });
 });
 
-// Use express-ejs-layouts
+// -----------------------
+// Middleware Setup
+// -----------------------
 app.use(expressLayouts);
 app.use(express.static("public"));
 app.use(methodOverride("_method"));
+app.use(express.urlencoded({ extended: true }));
 
+// -----------------------
+// Session Store
+// -----------------------
 app.use(
   session({
     secret: process.env.SESSION_KEY,
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: process.env.DB_URL }),
+    store: MongoStore.create({
+      mongoUrl: process.env.DB_URL,
+      ttl: 24 * 60 * 60, // 1 day
+    }),
     cookie: {
-      secure: false, // set to true if using HTTPS
+      secure: process.env.NODE_ENV === "production", // true on Render
       maxAge: 1000 * 60 * 60 * 24,
     },
   })
 );
 
-// Enable flash messages
+// Flash Messages
 app.use(flash());
-
-// Middleware to make flash messages available in all views
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
 });
 
+// -----------------------
+// Passport Auth
+// -----------------------
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(passport.initialize());
-app.use(passport.session());
-passport.use(new localStrategy(User.authenticate()));
+passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-//gives access to info in all my templates
+// Expose currentUser to templates
 app.use((req, res, next) => {
   res.locals.currentUser = req.user;
   next();
 });
 
-// Specify the default layout
+// -----------------------
+// View Engine
+// -----------------------
 app.set("layout", "layouts/boilerplate");
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-//need this to parse the res. send in the post request below
-app.use(express.urlencoded({ extended: true }));
-
+// -----------------------
+// Routes
+// -----------------------
 app.use("/", userRoutes);
 
-app.get("/", (req, res, next) => {
-  res.render("home", (err, html) => {
-    if (err) {
-      console.error("Error rendering view:", err);
-      return next(err);
-    }
-    res.send(html);
-  });
+// Home route (fixed — no double-send)
+app.get("/", (req, res) => {
+  res.render("home");
 });
 
-app.get("/events", async (req, res) => {
+// -----------------------
+// Event Routes
+// -----------------------
+app.get("/events", async (req, res, next) => {
   try {
-    const events = await Event.find({}).sort({ year: 1 }); // Sort by year (ascending)
-    res.render("events", { events }); //pass events to template ejs page
+    const events = await Event.find({}).sort({ year: 1 });
+    res.render("events", { events });
   } catch (err) {
-    console.error("Error fetching events:", err);
     next(err);
   }
 });
@@ -112,58 +150,50 @@ app.get("/events/newevent", isLoggedIn, (req, res) => {
 app.get("/events/:id/editevent", isLoggedIn, async (req, res, next) => {
   try {
     const { id } = req.params;
-    // Validate ID format
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!mongoose.Types.ObjectId.isValid(id))
       return res.status(400).send("Invalid Event ID");
-    }
+
     const event = await Event.findById(id);
-    // Handle case where the event doesn't exist
-    if (!event) {
-      return res.status(404).send("Event not found");
-    }
+    if (!event) return res.status(404).send("Event not found");
+
     res.render("editevent", { event });
   } catch (err) {
-    console.error("Error fetching event:", err);
     next(err);
   }
 });
 
 app.put("/events/:id", isLoggedIn, async (req, res) => {
-  //params returns the id
   const { id } = req.params;
-  const updatedEvent = req.body.event;
-  await Event.findByIdAndUpdate(id, updatedEvent, { new: true });
+  await Event.findByIdAndUpdate(id, req.body.event, { new: true });
   res.redirect("/events");
 });
 
 app.delete("/events/:id", isLoggedIn, async (req, res) => {
   try {
-    const { id } = req.params;
-    await Event.findByIdAndDelete(id);
+    await Event.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "Event deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting event:", error);
+  } catch (err) {
     res.status(500).json({ message: "Failed to delete event" });
   }
 });
 
 app.post("/events", isLoggedIn, async (req, res, next) => {
   try {
-    const event = new Event(req.body.event);
-    await event.save();
+    await new Event(req.body.event).save();
     res.redirect("/events");
   } catch (err) {
-    console.error("Error saving event:", err);
     next(err);
   }
 });
 
+// -----------------------
+// Books Routes
+// -----------------------
 app.get("/books", async (req, res, next) => {
   try {
     const books = await Book.find({}).sort({ author: 1 });
     res.render("books", { books, sharedSlug: null });
   } catch (err) {
-    console.error("Error fetching books:", err);
     next(err);
   }
 });
@@ -174,17 +204,12 @@ app.get("/books/newbook", isLoggedIn, (req, res) => {
 
 app.post("/books", isLoggedIn, async (req, res, next) => {
   try {
-    const bookData = req.body.book;
+    const data = req.body.book;
+    data.slug = slugify(data.title, { lower: true, strict: true });
 
-    // Generate a slug from the book title
-    const slug = slugify(bookData.title, { lower: true, strict: true });
-    bookData.slug = slug;
-
-    const book = new Book(bookData);
-    await book.save();
+    await new Book(data).save();
     res.redirect("/books");
   } catch (err) {
-    console.error("Error saving book:", err);
     next(err);
   }
 });
@@ -194,8 +219,7 @@ app.get("/books/book-id-from-slug/:slug", async (req, res) => {
     const book = await Book.findOne({ slug: req.params.slug });
     if (!book) return res.status(404).json({ error: "Book not found" });
     res.json({ id: book._id });
-  } catch (err) {
-    console.error("Error fetching book ID by slug:", err);
+  } catch {
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -203,59 +227,44 @@ app.get("/books/book-id-from-slug/:slug", async (req, res) => {
 app.get("/books/:slug", async (req, res, next) => {
   try {
     const books = await Book.find({}).sort({ author: 1 });
-    const slug = req.params.slug;
-
-    res.render("books", { books, sharedSlug: slug });
+    res.render("books", { books, sharedSlug: req.params.slug });
   } catch (err) {
-    console.error("Error loading books page with slug:", err);
     next(err);
   }
 });
 
 app.get("/books/:id/editbook", isLoggedIn, async (req, res, next) => {
   try {
-    const { id } = req.params;
-    // Validate ID format
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).send("Invalid Event ID");
-    }
-    const book = await Book.findById(id);
-    // Handle case where the book doesn't exist
-    if (!book) {
-      return res.status(404).send("Book not found");
-    }
+    const book = await Book.findById(req.params.id);
+    if (!book) return res.status(404).send("Book not found");
     res.render("editbook", { book });
   } catch (err) {
-    console.error("Error fetching book:", err);
     next(err);
   }
 });
 
 app.put("/books/:id", isLoggedIn, async (req, res) => {
-  //params returns the id
-  const { id } = req.params;
-  const updatedBook = req.body.book;
-  await Book.findByIdAndUpdate(id, updatedBook, { new: true });
+  await Book.findByIdAndUpdate(req.params.id, req.body.book, { new: true });
   res.redirect("/books");
 });
 
 app.delete("/books/:id", isLoggedIn, async (req, res) => {
   try {
-    const { id } = req.params;
-    await Book.findByIdAndDelete(id);
+    await Book.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "Book deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting event:", error);
+  } catch {
     res.status(500).json({ message: "Failed to delete book" });
   }
 });
 
-app.get("/ideas", async (req, res) => {
+// -----------------------
+// Ideas Routes
+// -----------------------
+app.get("/ideas", async (req, res, next) => {
   try {
     const ideas = await Idea.find({}).sort({});
-    res.render("ideas", { ideas }); //pass events to template ejs page
+    res.render("ideas", { ideas });
   } catch (err) {
-    console.error("Error fetching ideas:", err);
     next(err);
   }
 });
@@ -266,56 +275,46 @@ app.get("/ideas/newidea", isLoggedIn, (req, res) => {
 
 app.get("/ideas/:id/editidea", isLoggedIn, async (req, res, next) => {
   try {
-    const { id } = req.params;
-    // Validate ID format
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).send("Invalid Idea ID");
-    }
-    const idea = await Idea.findById(id);
-    // Handle case where the idea doesn't exist
-    if (!idea) {
-      return res.status(404).send("Idea not found");
-    }
+    const idea = await Idea.findById(req.params.id);
+    if (!idea) return res.status(404).send("Idea not found");
     res.render("editidea", { idea });
   } catch (err) {
-    console.error("Error fetching idea:", err);
     next(err);
   }
 });
 
 app.put("/ideas/:id", isLoggedIn, async (req, res) => {
-  //params returns the id
-  const { id } = req.params;
-  const updatedIdea = req.body.idea;
-  await Idea.findByIdAndUpdate(id, updatedIdea, { new: true });
+  await Idea.findByIdAndUpdate(req.params.id, req.body.idea, { new: true });
   res.redirect("/ideas");
 });
 
 app.delete("/ideas/:id", isLoggedIn, async (req, res) => {
   try {
-    const { id } = req.params;
-    await Idea.findByIdAndDelete(id);
+    await Idea.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "Idea deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting idea:", error);
+  } catch {
     res.status(500).json({ message: "Failed to delete idea" });
   }
 });
 
 app.post("/ideas", isLoggedIn, async (req, res, next) => {
   try {
-    const idea = new Idea(req.body.idea);
-    await idea.save();
+    await new Idea(req.body.idea).save();
     res.redirect("/ideas");
   } catch (err) {
-    console.error("Error saving idea:", err);
     next(err);
   }
 });
 
+// -----------------------
+// Global Error Handler
+// -----------------------
 app.use((err, req, res, next) => {
   console.error("Unhandled error:", err);
   res.status(500).send("Something went wrong!");
 });
 
+// -----------------------
+// Start Server
+// -----------------------
 app.listen(3000, () => console.log("Server running 3000"));
