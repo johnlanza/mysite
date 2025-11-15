@@ -54,7 +54,7 @@ async function connectDB() {
 
 connectDB();
 
-// Close gracefully on Render SIGTERM
+// Graceful shutdown on Render
 process.on("SIGTERM", () => {
   mongoose.connection.close(() => {
     console.log("MongoDB connection closed due to SIGTERM");
@@ -70,8 +70,11 @@ app.use(express.static("public"));
 app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
 
+// *** REQUIRED FOR SECURE COOKIES ON RENDER ***
+app.set("trust proxy", 1);
+
 // -----------------------
-// Session Store (FINAL CONFIG)
+// Session Store (correct & final)
 // -----------------------
 const sessionConfig = {
   secret: process.env.SESSION_KEY || "fallbacksecret",
@@ -79,13 +82,13 @@ const sessionConfig = {
   saveUninitialized: false,
   store: MongoStore.create({
     mongoUrl: process.env.DB_URL,
-    dbName: "mysite", // <-- YOUR ACTUAL DB NAME
+    dbName: "mysite", // Your actual DB name
     collectionName: "sessions",
     ttl: 24 * 60 * 60,
     autoRemove: "native",
   }),
   cookie: {
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production", // https only
     httpOnly: true,
     sameSite: "lax",
     maxAge: 1000 * 60 * 60 * 24,
@@ -94,7 +97,7 @@ const sessionConfig = {
 
 app.use(session(sessionConfig));
 
-// Flash Messages
+// Flash Messages Middleware
 app.use(flash());
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
@@ -104,7 +107,7 @@ app.use((req, res, next) => {
 });
 
 // -----------------------
-// Passport Auth
+// Passport Configuration
 // -----------------------
 app.use(passport.initialize());
 app.use(passport.session());
@@ -114,17 +117,20 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 // -----------------------
-// View Engine
+// View Engine Setup
 // -----------------------
 app.set("layout", "layouts/boilerplate");
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 // -----------------------
-// Routes
+// User Routes
 // -----------------------
 app.use("/", userRoutes);
 
+// -----------------------
+// Home
+// -----------------------
 app.get("/", (req, res) => {
   res.render("home");
 });
