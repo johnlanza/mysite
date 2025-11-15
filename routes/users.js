@@ -3,8 +3,10 @@ const router = express.Router();
 const User = require("../models/users");
 const catchAsync = require("../utils/catchAsync");
 const passport = require("passport");
-const { isLoggedIn } = require("../middleware");
 
+// ----------------------------
+// Registration Routes
+// ----------------------------
 router.get("/register", (req, res) => {
   res.render("users/register");
 });
@@ -15,15 +17,22 @@ router.post(
     try {
       const { email, username, password } = req.body;
       const user = new User({ email, username });
-      const registeredUser = await User.register(user, password); //hash and salt added with the .register from passport
-      console.log(registeredUser);
-      res.redirect("/");
+
+      const registeredUser = await User.register(user, password);
+      console.log("Registered user:", registeredUser);
+
+      req.flash("success", "Account created! You can now log in.");
+      res.redirect("/login");
     } catch (e) {
-      res.send(`Error: ${e.message}`);
+      req.flash("error", e.message);
+      res.redirect("/register");
     }
   })
 );
 
+// ----------------------------
+// Login Routes
+// ----------------------------
 router.get("/login", (req, res) => {
   res.render("users/login");
 });
@@ -35,16 +44,24 @@ router.post(
     failureRedirect: "/login",
   }),
   (req, res) => {
-    res.redirect("/");
+    req.flash("success", `Welcome back, ${req.user.username}!`);
+
+    // Support redirecting to the page the user originally wanted
+    const redirectUrl = req.session.returnTo || "/";
+    delete req.session.returnTo;
+
+    res.redirect(redirectUrl);
   }
 );
 
+// ----------------------------
+// Logout Route
+// ----------------------------
 router.get("/logout", (req, res, next) => {
-  req.logout((err) => {
-    if (err) {
-      return next(err); // Pass the error to the error-handling middleware
-    }
-    res.redirect("/"); // Redirect to the homepage after logout
+  req.logout(function (err) {
+    if (err) return next(err);
+    req.flash("success", "You have been logged out.");
+    res.redirect("/");
   });
 });
 
