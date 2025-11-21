@@ -179,7 +179,7 @@ app.post("/events", isLoggedIn, async (req, res, next) => {
 });
 
 // -----------------------
-// BOOKS (CRUD + SLUG FIX)
+// BOOKS
 // -----------------------
 app.get("/books", async (req, res, next) => {
   try {
@@ -194,6 +194,7 @@ app.get("/books/newbook", isLoggedIn, (req, res) => {
   res.render("newbook");
 });
 
+// CREATE
 app.post("/books", isLoggedIn, async (req, res, next) => {
   try {
     const data = req.body.book;
@@ -205,13 +206,14 @@ app.post("/books", isLoggedIn, async (req, res, next) => {
   }
 });
 
+// EDIT FORM
 app.get("/books/:id/editbook", isLoggedIn, async (req, res, next) => {
   const book = await Book.findById(req.params.id);
   if (!book) return res.status(404).send("Book not found");
   res.render("editbook", { book });
 });
 
-// 🟢 **PUT route updated — slug is now regenerated**
+// UPDATE WITH SLUG REGEN
 app.put("/books/:id", isLoggedIn, async (req, res) => {
   const data = req.body.book;
   data.slug = slugify(data.title, { lower: true, strict: true });
@@ -219,6 +221,7 @@ app.put("/books/:id", isLoggedIn, async (req, res) => {
   res.redirect("/books");
 });
 
+// DELETE
 app.delete("/books/:id", isLoggedIn, async (req, res) => {
   await Book.findByIdAndDelete(req.params.id);
   res.status(200).json({ message: "Book deleted" });
@@ -239,9 +242,9 @@ app.get("/books/book-id-from-slug/:slug", async (req, res) => {
 });
 
 // -----------------------
-// Pretty Permalinks
+// Pretty Permalinks — moved to SAFE prefix
 // -----------------------
-app.get("/books/:slug", async (req, res) => {
+app.get("/books/slug/:slug", async (req, res) => {
   try {
     const book = await Book.findOne({ slug: req.params.slug });
     const books = await Book.find({}).sort({ author: 1 });
@@ -263,6 +266,11 @@ app.get("/books/:slug", async (req, res) => {
     console.error("Permalink error:", err);
     res.status(500).send("Server error");
   }
+});
+
+// Backward compatibility redirect for pretty URLs
+app.get("/books/:slug", (req, res) => {
+  res.redirect(`/books/slug/${req.params.slug}`);
 });
 
 // -----------------------
