@@ -1,11 +1,24 @@
 <h1>My Book Summaries</h1>
+
 <div class="container"></div>
+
 <section>
   <% if (currentUser) { %>
   <a href="/books/newbook">Add a Book</a>
   <% } %>
-  <p></p>
-  <p>I'm adding all my book summaries here as I complete them. (And as time permits.)</p>
+
+  <!-- Error Message (for invalid slug) -->
+  <% if (typeof errorMessage !== "undefined" && errorMessage) { %>
+  <p style="color: red; font-weight: bold; margin-bottom: 20px">
+    <%= errorMessage %>
+  </p>
+  <% } %>
+
+  <p>
+    I'm adding all my book summaries here as I complete them. (And as time
+    permits.)
+  </p>
+
   <% for (let book of books) { %>
   <div class="book" id="book-<%= book._id %>">
     <div
@@ -23,6 +36,7 @@
           by <%= book.author %>
         </h4>
       </section>
+
       <button
         class="toggle-btn"
         onclick="toggleDetails('<%= book._id %>')"
@@ -35,21 +49,26 @@
         ↧
       </button>
     </div>
+
     <div
       id="details-<%= book._id %>"
       class="book-details"
       style="display: none; margin-left: 5px">
       <p><strong>Summary:</strong> <%= book.summary %></p>
+
       <% if (book.notes) { %>
       <div class="notes" style="min-height: 100px"><%- book.notes %></div>
       <% } %>
+
       <p>
         <a href="<%= book.link %>" target="_blank">Goodreads</a>
-        <a href="#" onclick="shareBook('<%= book.slug %>', '<%= book.title %>', '<%= book.author %>'); return false;">
+        <a
+          href="#"
+          onclick="shareBook('<%= book.slug %>', '<%= book.title %>', '<%= book.author %>'); return false;">
           Share
-      </a>
-        </p>
+        </a>
       </p>
+
       <% if (currentUser) { %>
       <p>
         <a href="/books/<%= book._id %>/editbook" style="margin-right: 10px"
@@ -73,130 +92,102 @@
   let currentExpanded = null;
 
   function toggleDetails(bookId, skipUrlUpdate = false) {
-  const details = document.getElementById(`details-${bookId}`);
-  const bookElement = document.getElementById(`book-${bookId}`);
-  const isCurrentlyVisible = details.style.display === "block";
+    const details = document.getElementById(`details-${bookId}`);
+    const bookElement = document.getElementById(`book-${bookId}`);
+    const isVisible = details.style.display === "block";
 
-  if (currentExpanded && currentExpanded !== details) {
-    currentExpanded.style.display = "none";
-    const previousButton =
-      currentExpanded.previousElementSibling.querySelector(".toggle-btn");
-    if (previousButton) {
-      previousButton.textContent = "↧";
+    // Collapse previously opened book
+    if (currentExpanded && currentExpanded !== details) {
+      currentExpanded.style.display = "none";
+      const prevBtn =
+        currentExpanded.previousElementSibling.querySelector(".toggle-btn");
+      if (prevBtn) prevBtn.textContent = "↧";
+    }
+
+    if (!isVisible) {
+      details.style.display = "block";
+      const btn = details.previousElementSibling.querySelector(".toggle-btn");
+      if (btn) btn.textContent = "🔝";
+
+      currentExpanded = details;
+
+      if (!skipUrlUpdate) {
+        const url = new URL(window.location);
+        url.searchParams.set("book", bookId);
+        url.hash = bookId;
+        window.history.pushState({}, "", url);
+      }
+
+      bookElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      // Collapse
+      details.style.display = "none";
+      const btn = details.previousElementSibling.querySelector(".toggle-btn");
+      if (btn) btn.textContent = "↧";
+
+      currentExpanded = null;
+
+      if (!skipUrlUpdate) {
+        const url = new URL(window.location);
+        url.searchParams.delete("book");
+        url.hash = "";
+        window.history.pushState({}, "", url);
+      }
     }
   }
-
-  if (!isCurrentlyVisible) {
-    details.style.display = "block";
-    const button =
-      details.previousElementSibling.querySelector(".toggle-btn");
-    if (button) {
-      button.textContent = "🔝";
-    }
-    currentExpanded = details;
-
-    if (!skipUrlUpdate) {
-      const url = new URL(window.location);
-      url.searchParams.set("book", bookId);
-      url.hash = bookId;
-      window.history.pushState({}, "", url);
-    }
-
-    bookElement.scrollIntoView({ behavior: "smooth", block: "start" });
-  } else {
-    details.style.display = "none";
-    const button =
-      details.previousElementSibling.querySelector(".toggle-btn");
-    if (button) {
-      button.textContent = "↧";
-    }
-    currentExpanded = null;
-
-    if (!skipUrlUpdate) {
-      const url = new URL(window.location);
-      url.searchParams.delete("book");
-      url.hash = "";
-      window.history.pushState({}, "", url);
-    }
-  }
-}
 
   function shareBook(bookSlug, title, author) {
-    const shareUrl = `https://www.johnlanza.com/books/${bookSlug}`;
-    const shareText = `Summary and notes for ${title} by ${author} - Check it out! 📚`;
+    const shareUrl = `${window.location.origin}/books/${bookSlug}`;
+    const shareText = `Summary and notes for "${title}" by ${author} — worth reading.`;
 
     if (navigator.share) {
-        navigator.share({
-            title: title,
-            text: shareText,
-            url: shareUrl,
+      navigator
+        .share({
+          title,
+          text: shareText,
+          url: shareUrl,
         })
-        .then(() => console.log('Shared successfully!'))
-        .catch((error) => console.log('Error sharing:', error));
+        .catch((err) => console.warn("Share canceled or failed:", err));
     } else {
-        // Fallback for unsupported browsers
-        const tempInput = document.createElement("input");
-        tempInput.value = `${shareText} ${shareUrl}`;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand("copy");
-        document.body.removeChild(tempInput);
+      navigator.clipboard.writeText(`${shareText}\n${shareUrl}`).then(() => {
         alert("Link copied to clipboard!");
+      });
     }
-}
-
-  // Open and scroll to book if ID is in the URL
-  window.onload = function () {
-  const urlParams = new URLSearchParams(window.location.search);
-  const bookId = urlParams.get("book");
-
-  if (bookId) {
-    toggleDetails(bookId);
-    scrollToBook(bookId);
   }
 
-  if (sharedSlug) {
-    setTimeout(async () => {
+  window.onload = async function () {
+    const params = new URLSearchParams(window.location.search);
+    const bookId = params.get("book");
+
+    // Case 1: /books?book=<id>
+    if (bookId) {
+      setTimeout(() => toggleDetails(bookId), 50);
+      setTimeout(() => scrollToBook(bookId), 200);
+      return;
+    }
+
+    // Case 2: /books/<slug>
+    if (sharedSlug) {
       try {
         const response = await fetch(`/books/book-id-from-slug/${sharedSlug}`);
-        if (response.ok) {
-          const data = await response.json();
-          const id = data.id;
-          console.log("Resolved book ID from slug:", id);
+        if (!response.ok) return;
 
-          toggleDetails(id, true); // expand the book
+        const { id } = await response.json();
 
-          // Wait and scroll after layout is stable
-          setTimeout(() => {
-  const bookElement = document.getElementById(`book-${id}`);
-  console.log("Looking for book element:", `book-${id}`, bookElement);
-
-  if (bookElement) {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        bookElement.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-    });
-  } else {
-    console.warn("Book element NOT found. Maybe not rendered yet?");
-  }
-}, 300);
-        } else {
-          console.warn("Book not found for slug:", sharedSlug);
-        }
+        setTimeout(() => toggleDetails(id, true), 50);
+        setTimeout(() => scrollToBook(id), 200);
       } catch (err) {
-        console.error("Error fetching book ID by slug:", err);
+        console.error("Error resolving slug:", err);
       }
-    }, 300); // Initial delay for DOM load
-  }
-};
+    }
+  };
 
-function scrollToBook(bookId) {
-  const bookElement = document.getElementById(`book-${bookId}`);
-  if (bookElement) {
-    bookElement.scrollIntoView({ behavior: "smooth", block: "start" });
+  function scrollToBook(bookId) {
+    const bookElement = document.getElementById(`book-${bookId}`);
+    if (bookElement) {
+      bookElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }
-}
 </script>
 
 <script>

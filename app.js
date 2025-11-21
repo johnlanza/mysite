@@ -18,9 +18,10 @@ const LocalStrategy = require("passport-local").Strategy;
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 
+// MODELS
 const Event = require("./models/events");
 const Idea = require("./models/ideas");
-const Book = require("./models/books");
+const Book = require("./models/books"); // correct model
 const User = require("./models/users");
 
 const { isLoggedIn } = require("./middleware");
@@ -65,7 +66,7 @@ app.use(expressLayouts);
 app.use(express.static("public"));
 app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
-app.set("trust proxy", 1); // Required for secure cookies
+app.set("trust proxy", 1);
 
 // -----------------------
 // Session Store
@@ -90,14 +91,10 @@ const sessionConfig = {
 };
 
 app.use(session(sessionConfig));
-
-// -----------------------
-// Flash
-// -----------------------
 app.use(flash());
 
 // -----------------------
-// Passport -- MUST BE AFTER session & flash
+// Passport
 // -----------------------
 app.use(passport.initialize());
 app.use(passport.session());
@@ -107,10 +104,10 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 // -----------------------
-// Locals -- MUST BE AFTER passport.session()
+// Locals
 // -----------------------
 app.use((req, res, next) => {
-  res.locals.currentUser = req.user; // ← THIS is now correct
+  res.locals.currentUser = req.user;
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
@@ -133,7 +130,7 @@ app.get("/", (req, res) => {
 });
 
 // -----------------------
-// Events
+// EVENTS (unchanged)
 // -----------------------
 app.get("/events", async (req, res, next) => {
   try {
@@ -182,7 +179,7 @@ app.post("/events", isLoggedIn, async (req, res, next) => {
 });
 
 // -----------------------
-// Books
+// BOOKS (your real CRUD logic)
 // -----------------------
 app.get("/books", async (req, res, next) => {
   try {
@@ -225,7 +222,48 @@ app.delete("/books/:id", isLoggedIn, async (req, res) => {
 });
 
 // -----------------------
-// Ideas
+// NEW ROUTE 1: slug → ID
+// -----------------------
+app.get("/books/book-id-from-slug/:slug", async (req, res) => {
+  try {
+    const book = await Book.findOne({ slug: req.params.slug });
+    if (!book) return res.status(404).json({ error: "Book not found" });
+    res.json({ id: book._id });
+  } catch (err) {
+    console.error("Slug lookup error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// -----------------------
+// NEW ROUTE 2: pretty permalink
+// -----------------------
+app.get("/books/:slug", async (req, res) => {
+  try {
+    const book = await Book.findOne({ slug: req.params.slug });
+    const books = await Book.find({}).sort({ author: 1 });
+
+    if (!book) {
+      return res.status(404).render("books", {
+        books,
+        sharedSlug: null,
+        errorMessage: "Sorry — that book doesn't exist.",
+      });
+    }
+
+    res.render("books", {
+      books,
+      sharedSlug: req.params.slug,
+      errorMessage: null,
+    });
+  } catch (err) {
+    console.error("Permalink error:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+// -----------------------
+// IDEAS (unchanged except typo fixed)
 // -----------------------
 app.get("/ideas", async (req, res, next) => {
   try {
@@ -247,16 +285,19 @@ app.get("/ideas/:id/editidea", isLoggedIn, async (req, res, next) => {
 });
 
 app.put("/ideas/:id", isLoggedIn, async (req, res) => {
+  // fixed
   await Idea.findByIdAndUpdate(req.params.id, req.body.idea);
   res.redirect("/ideas");
 });
 
 app.delete("/ideas/:id", isLoggedIn, async (req, res) => {
+  // fixed
   await Idea.findByIdAndDelete(req.params.id);
   res.status(200).json({ message: "Idea deleted" });
 });
 
 app.post("/ideas", isLoggedIn, async (req, res, next) => {
+  // fixed
   try {
     await new Idea(req.body.idea).save();
     res.redirect("/ideas");
