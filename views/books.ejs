@@ -1,7 +1,5 @@
 <h1>My Book Summaries</h1>
 
-<p style="color: red; font-size: 22px; font-weight: bold">TEST MARKER 12345</p>
-
 <div class="container"></div>
 
 <section>
@@ -63,7 +61,7 @@
       <p>
         <a href="<%= book.link %>" target="_blank">Goodreads</a>
 
-        <!-- 🚀 SAFE SHARE BUTTON USING DATA ATTRIBUTES -->
+        <!-- Modern safe Share button -->
         <a
           href="#"
           class="share-btn"
@@ -76,9 +74,9 @@
 
       <% if (currentUser) { %>
       <p>
-        <a href="/books/<%= book._id %>/editbook" style="margin-right: 10px"
-          >Edit</a
-        >
+        <a href="/books/<%= book._id %>/editbook" style="margin-right: 10px">
+          Edit
+        </a>
         <a href="#" onclick="deleteBook('<%= book._id %>')">Delete</a>
       </p>
       <% } %>
@@ -138,14 +136,14 @@
     }
   }
 
-  function shareBook(bookSlug, title, author) {
-    const shareUrl = `${window.location.origin}/books/${bookSlug}`;
+  function shareBook(slug, title, author) {
+    const shareUrl = `${window.location.origin}/books/${slug}`;
     const shareText = `Summary and notes for "${title}" by ${author} — worth reading.`;
 
     if (navigator.share) {
       navigator
         .share({ title, text: shareText, url: shareUrl })
-        .catch((err) => console.warn("Share canceled:", err));
+        .catch(() => {});
     } else {
       navigator.clipboard.writeText(`${shareText}\n${shareUrl}`).then(() => {
         alert("Link copied to clipboard!");
@@ -153,15 +151,13 @@
     }
   }
 
-  // 🔥 Modern, safe event delegation for Share button
+  // Modern, safe event delegation for Share button
   document.addEventListener("click", function (e) {
     if (e.target.classList.contains("share-btn")) {
       e.preventDefault();
-
       const slug = e.target.dataset.slug;
       const title = e.target.dataset.title;
       const author = e.target.dataset.author;
-
       shareBook(slug, title, author);
     }
   });
@@ -181,7 +177,6 @@
         const response = await fetch(`/books/book-id-from-slug/${sharedSlug}`);
         if (!response.ok) return;
         const { id } = await response.json();
-
         setTimeout(() => toggleDetails(id, true), 50);
         setTimeout(() => scrollToBook(id), 200);
       } catch (err) {

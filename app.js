@@ -43,9 +43,8 @@ async function connectDB() {
       w: "majority",
       tls: true,
     });
-    console.log("✅ MongoDB connected successfully");
   } catch (err) {
-    console.error("❌ MongoDB connection error:", err.message);
+    console.error("MongoDB connection error:", err.message);
     setTimeout(connectDB, 5000);
   }
 }
@@ -54,7 +53,6 @@ connectDB();
 // Graceful shutdown for Render
 process.on("SIGTERM", () => {
   mongoose.connection.close(() => {
-    console.log("MongoDB connection closed due to SIGTERM");
     process.exit(0);
   });
 });
@@ -120,9 +118,6 @@ app.use((req, res, next) => {
 app.set("layout", "layouts/boilerplate");
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
-
-// Debug: Print the views directory Render is using
-console.log("🌿 USING VIEWS DIRECTORY:", app.get("views"));
 
 // -----------------------
 // Routes
@@ -234,7 +229,6 @@ app.get("/books/book-id-from-slug/:slug", async (req, res) => {
     if (!book) return res.status(404).json({ error: "Book not found" });
     res.json({ id: book._id });
   } catch (err) {
-    console.error("Slug lookup error:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
@@ -259,7 +253,6 @@ app.get("/books/:slug", async (req, res) => {
       errorMessage: null,
     });
   } catch (err) {
-    console.error("Permalink error:", err);
     res.status(500).send("Server error");
   }
 });
@@ -303,32 +296,6 @@ app.post("/ideas", isLoggedIn, async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-});
-
-// -----------------------
-// DEBUG ROUTE (IMPORTANT)
-// -----------------------
-app.get("/debug-list-views", (req, res) => {
-  const fs = require("fs");
-
-  const viewsDir = app.get("views");
-  let files = [];
-
-  try {
-    files = fs.readdirSync(viewsDir);
-  } catch (err) {
-    return res.send(`<pre>ERROR reading views dir:\n${err.stack}</pre>`);
-  }
-
-  res.send(`
-    <h1>Views Directory</h1>
-
-    <p><strong>Express is reading views from:</strong></p>
-    <pre>${viewsDir}</pre>
-
-    <h2>Files found:</h2>
-    <pre>${files.join("\n")}</pre>
-  `);
 });
 
 // -----------------------
