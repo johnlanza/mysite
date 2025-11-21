@@ -5,10 +5,7 @@
 <section>
   <% if (currentUser) { %>
   <a href="/books/newbook">Add a Book</a>
-  <% } %>
-
-  <!-- Error Message (for invalid slug) -->
-  <% if (typeof errorMessage !== "undefined" && errorMessage) { %>
+  <% } %> <% if (typeof errorMessage !== "undefined" && errorMessage) { %>
   <p style="color: red; font-weight: bold; margin-bottom: 20px">
     <%= errorMessage %>
   </p>
@@ -64,7 +61,11 @@
         <a href="<%= book.link %>" target="_blank">Goodreads</a>
         <a
           href="#"
-          onclick="shareBook('<%= book.slug %>', '<%= book.title %>', '<%= book.author %>'); return false;">
+          onclick="shareBook(
+              <%- JSON.stringify(book.slug || '') %>,
+              <%- JSON.stringify(book.title || '') %>,
+              <%- JSON.stringify(book.author || '') %>
+            ); return false;">
           Share
         </a>
       </p>
@@ -166,7 +167,7 @@
       return;
     }
 
-    // Case 2: /books/<slug>
+    // Case 2: /books/<slug> (after redirect) or /books/slug/<slug>
     if (sharedSlug) {
       try {
         const response = await fetch(`/books/book-id-from-slug/${sharedSlug}`);
