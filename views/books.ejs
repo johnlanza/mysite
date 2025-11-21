@@ -1,5 +1,7 @@
 <h1>My Book Summaries</h1>
 
+<p style="color: red; font-size: 22px; font-weight: bold">TEST MARKER 12345</p>
+
 <div class="container"></div>
 
 <section>
@@ -61,7 +63,7 @@
       <p>
         <a href="<%= book.link %>" target="_blank">Goodreads</a>
 
-        <!-- FIXED: SAFE JSON-STRINGIFIED ARGUMENTS -->
+        <!-- SAFE SHARE BUTTON -->
         <a
           href="#"
           onclick="shareBook(
@@ -100,7 +102,6 @@
     const bookElement = document.getElementById(`book-${bookId}`);
     const isVisible = details.style.display === "block";
 
-    // Collapse previous
     if (currentExpanded && currentExpanded !== details) {
       currentExpanded.style.display = "none";
       const prevBtn =
@@ -143,12 +144,8 @@
 
     if (navigator.share) {
       navigator
-        .share({
-          title,
-          text: shareText,
-          url: shareUrl,
-        })
-        .catch((err) => console.warn("Share canceled or failed:", err));
+        .share({ title, text: shareText, url: shareUrl })
+        .catch((err) => console.warn("Share canceled:", err));
     } else {
       navigator.clipboard.writeText(`${shareText}\n${shareUrl}`).then(() => {
         alert("Link copied to clipboard!");
@@ -193,10 +190,10 @@
       if (response.ok) {
         window.location.href = "/books";
       } else {
-        console.error("Failed to delete book");
+        console.error("Failed to delete");
       }
-    } catch (error) {
-      console.error("Error deleting book:", error);
+    } catch (err) {
+      console.error("Delete error:", err);
     }
   }
 </script>
