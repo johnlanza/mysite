@@ -21,7 +21,7 @@ const MongoStore = require("connect-mongo");
 // MODELS
 const Event = require("./models/events");
 const Idea = require("./models/ideas");
-const Book = require("./models/books"); // correct model
+const Book = require("./models/books");
 const User = require("./models/users");
 
 const { isLoggedIn } = require("./middleware");
@@ -179,7 +179,7 @@ app.post("/events", isLoggedIn, async (req, res, next) => {
 });
 
 // -----------------------
-// BOOKS (your real CRUD logic)
+// BOOKS (CRUD + SLUG FIX)
 // -----------------------
 app.get("/books", async (req, res, next) => {
   try {
@@ -211,8 +211,11 @@ app.get("/books/:id/editbook", isLoggedIn, async (req, res, next) => {
   res.render("editbook", { book });
 });
 
+// 🟢 **PUT route updated — slug is now regenerated**
 app.put("/books/:id", isLoggedIn, async (req, res) => {
-  await Book.findByIdAndUpdate(req.params.id, req.body.book);
+  const data = req.body.book;
+  data.slug = slugify(data.title, { lower: true, strict: true });
+  await Book.findByIdAndUpdate(req.params.id, data);
   res.redirect("/books");
 });
 
@@ -222,7 +225,7 @@ app.delete("/books/:id", isLoggedIn, async (req, res) => {
 });
 
 // -----------------------
-// NEW ROUTE 1: slug → ID
+// Slug → ID Lookups
 // -----------------------
 app.get("/books/book-id-from-slug/:slug", async (req, res) => {
   try {
@@ -236,7 +239,7 @@ app.get("/books/book-id-from-slug/:slug", async (req, res) => {
 });
 
 // -----------------------
-// NEW ROUTE 2: pretty permalink
+// Pretty Permalinks
 // -----------------------
 app.get("/books/:slug", async (req, res) => {
   try {
@@ -263,7 +266,7 @@ app.get("/books/:slug", async (req, res) => {
 });
 
 // -----------------------
-// IDEAS (unchanged except typo fixed)
+// IDEAS (unchanged)
 // -----------------------
 app.get("/ideas", async (req, res, next) => {
   try {
@@ -285,19 +288,16 @@ app.get("/ideas/:id/editidea", isLoggedIn, async (req, res, next) => {
 });
 
 app.put("/ideas/:id", isLoggedIn, async (req, res) => {
-  // fixed
   await Idea.findByIdAndUpdate(req.params.id, req.body.idea);
   res.redirect("/ideas");
 });
 
 app.delete("/ideas/:id", isLoggedIn, async (req, res) => {
-  // fixed
   await Idea.findByIdAndDelete(req.params.id);
   res.status(200).json({ message: "Idea deleted" });
 });
 
 app.post("/ideas", isLoggedIn, async (req, res, next) => {
-  // fixed
   try {
     await new Idea(req.body.idea).save();
     res.redirect("/ideas");
