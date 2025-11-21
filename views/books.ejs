@@ -63,14 +63,13 @@
       <p>
         <a href="<%= book.link %>" target="_blank">Goodreads</a>
 
-        <!-- SAFE SHARE BUTTON -->
+        <!-- 🚀 SAFE SHARE BUTTON USING DATA ATTRIBUTES -->
         <a
           href="#"
-          onclick="shareBook(
-              <%- JSON.stringify(book.slug || '') %>,
-              <%- JSON.stringify(book.title || '') %>,
-              <%- JSON.stringify(book.author || '') %>
-            ); return false;">
+          class="share-btn"
+          data-slug="<%= book.slug %>"
+          data-title="<%- book.title %>"
+          data-author="<%- book.author %>">
           Share
         </a>
       </p>
@@ -102,6 +101,7 @@
     const bookElement = document.getElementById(`book-${bookId}`);
     const isVisible = details.style.display === "block";
 
+    // Collapse previous
     if (currentExpanded && currentExpanded !== details) {
       currentExpanded.style.display = "none";
       const prevBtn =
@@ -153,6 +153,19 @@
     }
   }
 
+  // 🔥 Modern, safe event delegation for Share button
+  document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("share-btn")) {
+      e.preventDefault();
+
+      const slug = e.target.dataset.slug;
+      const title = e.target.dataset.title;
+      const author = e.target.dataset.author;
+
+      shareBook(slug, title, author);
+    }
+  });
+
   window.onload = async function () {
     const params = new URLSearchParams(window.location.search);
     const bookId = params.get("book");
@@ -167,8 +180,8 @@
       try {
         const response = await fetch(`/books/book-id-from-slug/${sharedSlug}`);
         if (!response.ok) return;
-
         const { id } = await response.json();
+
         setTimeout(() => toggleDetails(id, true), 50);
         setTimeout(() => scrollToBook(id), 200);
       } catch (err) {
