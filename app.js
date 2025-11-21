@@ -89,8 +89,9 @@ const sessionConfig = {
     maxAge: 1000 * 60 * 60 * 24,
   },
 };
-
 app.use(session(sessionConfig));
+
+// Flash
 app.use(flash());
 
 // -----------------------
@@ -120,6 +121,9 @@ app.set("layout", "layouts/boilerplate");
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
+// Debug: Print the views directory Render is using
+console.log("🌿 USING VIEWS DIRECTORY:", app.get("views"));
+
 // -----------------------
 // Routes
 // -----------------------
@@ -130,7 +134,7 @@ app.get("/", (req, res) => {
 });
 
 // -----------------------
-// EVENTS (unchanged)
+// EVENTS
 // -----------------------
 app.get("/events", async (req, res, next) => {
   try {
@@ -179,7 +183,7 @@ app.post("/events", isLoggedIn, async (req, res, next) => {
 });
 
 // -----------------------
-// BOOKS
+// BOOKS + SLUG FIX
 // -----------------------
 app.get("/books", async (req, res, next) => {
   try {
@@ -194,7 +198,6 @@ app.get("/books/newbook", isLoggedIn, (req, res) => {
   res.render("newbook");
 });
 
-// CREATE
 app.post("/books", isLoggedIn, async (req, res, next) => {
   try {
     const data = req.body.book;
@@ -206,14 +209,12 @@ app.post("/books", isLoggedIn, async (req, res, next) => {
   }
 });
 
-// EDIT FORM
 app.get("/books/:id/editbook", isLoggedIn, async (req, res, next) => {
   const book = await Book.findById(req.params.id);
   if (!book) return res.status(404).send("Book not found");
   res.render("editbook", { book });
 });
 
-// UPDATE WITH SLUG REGEN
 app.put("/books/:id", isLoggedIn, async (req, res) => {
   const data = req.body.book;
   data.slug = slugify(data.title, { lower: true, strict: true });
@@ -221,15 +222,12 @@ app.put("/books/:id", isLoggedIn, async (req, res) => {
   res.redirect("/books");
 });
 
-// DELETE
 app.delete("/books/:id", isLoggedIn, async (req, res) => {
   await Book.findByIdAndDelete(req.params.id);
   res.status(200).json({ message: "Book deleted" });
 });
 
-// -----------------------
-// Slug → ID Lookups
-// -----------------------
+// Slug → ID
 app.get("/books/book-id-from-slug/:slug", async (req, res) => {
   try {
     const book = await Book.findOne({ slug: req.params.slug });
@@ -241,10 +239,8 @@ app.get("/books/book-id-from-slug/:slug", async (req, res) => {
   }
 });
 
-// -----------------------
-// Pretty Permalinks — moved to SAFE prefix
-// -----------------------
-app.get("/books/slug/:slug", async (req, res) => {
+// Pretty Permalink
+app.get("/books/:slug", async (req, res) => {
   try {
     const book = await Book.findOne({ slug: req.params.slug });
     const books = await Book.find({}).sort({ author: 1 });
@@ -268,13 +264,8 @@ app.get("/books/slug/:slug", async (req, res) => {
   }
 });
 
-// Backward compatibility redirect for pretty URLs
-app.get("/books/:slug", (req, res) => {
-  res.redirect(`/books/slug/${req.params.slug}`);
-});
-
 // -----------------------
-// IDEAS (unchanged)
+// IDEAS
 // -----------------------
 app.get("/ideas", async (req, res, next) => {
   try {
@@ -312,6 +303,32 @@ app.post("/ideas", isLoggedIn, async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+});
+
+// -----------------------
+// DEBUG ROUTE (IMPORTANT)
+// -----------------------
+app.get("/debug-list-views", (req, res) => {
+  const fs = require("fs");
+
+  const viewsDir = app.get("views");
+  let files = [];
+
+  try {
+    files = fs.readdirSync(viewsDir);
+  } catch (err) {
+    return res.send(`<pre>ERROR reading views dir:\n${err.stack}</pre>`);
+  }
+
+  res.send(`
+    <h1>Views Directory</h1>
+
+    <p><strong>Express is reading views from:</strong></p>
+    <pre>${viewsDir}</pre>
+
+    <h2>Files found:</h2>
+    <pre>${files.join("\n")}</pre>
+  `);
 });
 
 // -----------------------
