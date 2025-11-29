@@ -2,6 +2,55 @@
 
 <div class="container"></div>
 
+<style>
+  /* Book header + image behavior */
+  .book .book-header {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    height: 110px; /* matches games card height you liked */
+    overflow: hidden;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .book .book-text {
+    cursor: pointer;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .book .book-header h3,
+  .book .book-header h4 {
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
+
+  .book .book-image-wrapper {
+    cursor: pointer;
+    margin-right: 4px;
+    display: flex;
+    align-items: stretch;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+
+  /* Show image on hover or when expanded */
+  .book:hover .book-image-wrapper,
+  .book.expanded .book-image-wrapper {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .book .book-image-wrapper img {
+    display: block;
+    height: 100%;
+    width: auto;
+  }
+</style>
+
 <section>
   <% if (currentUser) { %>
   <a href="/books/newbook">Add a Book</a>
@@ -21,19 +70,21 @@
     <div
       class="book-header"
       style="display: flex; justify-content: space-between">
-      <section>
-        <h3
-          style="font-style: italic; cursor: pointer"
-          onclick="toggleDetails('<%= book._id %>')">
-          <%= book.title %>
-        </h3>
+      <section class="book-text" onclick="toggleDetails('<%= book._id %>')">
+        <h3 style="font-style: italic; cursor: pointer"><%= book.title %></h3>
 
-        <h4
-          style="font-style: italic; cursor: pointer; margin: 0"
-          onclick="toggleDetails('<%= book._id %>')">
+        <h4 style="font-style: italic; cursor: pointer; margin: 0">
           by <%= book.author %>
         </h4>
       </section>
+
+      <% if (book.imageUrl) { %>
+      <div
+        class="book-image-wrapper"
+        onclick="toggleDetails('<%= book._id %>')">
+        <img src="<%= book.imageUrl %>" alt="Cover of <%= book.title %>" />
+      </div>
+      <% } %>
 
       <button
         class="toggle-btn"
@@ -105,6 +156,11 @@
       const prevBtn =
         currentExpanded.previousElementSibling.querySelector(".toggle-btn");
       if (prevBtn) prevBtn.textContent = "↧";
+
+      const prevBook = currentExpanded.parentElement;
+      if (prevBook && prevBook.classList) {
+        prevBook.classList.remove("expanded");
+      }
     }
 
     if (!isVisible) {
@@ -112,6 +168,10 @@
       const btn = details.previousElementSibling.querySelector(".toggle-btn");
       if (btn) btn.textContent = "🔝";
       currentExpanded = details;
+
+      if (bookElement && bookElement.classList) {
+        bookElement.classList.add("expanded");
+      }
 
       if (!skipUrlUpdate) {
         const url = new URL(window.location);
@@ -126,6 +186,10 @@
       const btn = details.previousElementSibling.querySelector(".toggle-btn");
       if (btn) btn.textContent = "↧";
       currentExpanded = null;
+
+      if (bookElement && bookElement.classList) {
+        bookElement.classList.remove("expanded");
+      }
 
       if (!skipUrlUpdate) {
         const url = new URL(window.location);
@@ -202,6 +266,47 @@
       }
     } catch (err) {
       console.error("Delete error:", err);
+    }
+  }
+</script>
+
+<div class="container" style="padding-left: 5px">
+  <h2>Events</h2>
+  <section>
+    <% if (currentUser) { %>
+    <a href="/events/newevent">Add Event</a>
+    <% } %>
+    <p></p>
+    <ul style="padding-left: 5px">
+      <% for (let event of events) { %>
+      <li>
+        In <%= event.year %>, <%- event.description %> <% if (currentUser) { %>
+        <a href="/events/<%= event._id %>/editevent">Edit</a>
+        <a href="#" onclick="deleteEvent('<%= event._id %>')">Delete</a>
+        <% } %>
+      </li>
+      <% } %>
+    </ul>
+    <% if (currentUser) { %>
+    <a href="/events/newevent">Add Event</a>
+    <% } %>
+  </section>
+</div>
+
+<script>
+  async function deleteEvent(eventId) {
+    try {
+      const response = await fetch(`/events/${eventId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        window.location.href = "/events";
+      } else {
+        console.error("Failed to delete event");
+      }
+    } catch (error) {
+      console.error("Error deleting event:", error);
     }
   }
 </script>

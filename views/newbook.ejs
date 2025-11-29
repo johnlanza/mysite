@@ -1,79 +1,100 @@
-  </head>
-  <h1>New Book</h1>
-  <div>
-    <body>
-      <form action="/books" method="post">
-        <div>
-          <label for="title">Title</label>
-          <p>
-            <input
-              type="text"
-              id="title"
-              class="form-control"
-              name="book[title]" required autofocus />
-          </p>
-        </div>
-        <div>
-          <label for="author">Author (Last Name First)</label>
-          <p>
-            <input
-              type="text"
-              id="author"
-              class="form-control"
-              name="book[author]" required />
-          </p>
-        </div>
-        <div>
-          <label for="summary">Summary</label>
-          <p>
-            <textarea
-              id="summary"
-              class="form-control"
-              name="book[summary]"
-              rows="10" required></textarea>
-          </p>
-        </div>
-        <div>
-          <label for="notes">Notes</label>
-          <div
-            id="notes-editor"
-            style="height: 200px; border: 1px solid #ccc"></div>
-          <input type="hidden" id="notes" name="book[notes]" />
-        </div>
-        <div>
-          <label for="link">Website Link</label>
-          <p>
-            <input
-              type="url"
-              id="link"
-              class="form-control mb-3"
-              name="book[link]" required/>
-          </p>
-        </div>
-        <button class="btn btn-secondary" type="submit">Add Book</button>
-      </form>
-      <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<h1>Add Book</h1>
 
-      <script>
-        // Initialize Quill
-        const quill = new Quill("#notes-editor", {
-          theme: "snow", // Use the "snow" theme for a simple toolbar
-          modules: {
-            toolbar: [
-              [{ header: [1, 2, false] }], // Header formatting
-              ["bold", "italic", "underline"], // Bold, italic, underline
-              [{ list: "ordered" }, { list: "bullet" }], // Ordered and bullet lists
-              ["link"], // Add links
-              ["clean"], // Remove formatting
-            ],
-          },
-        });
+<div>
+  <form action="/books" method="post" enctype="multipart/form-data">
+    <div>
+      <label for="title">Title</label>
+      <p>
+        <input
+          type="text"
+          id="title"
+          class="form-control"
+          name="book[title]"
+          required
+          autofocus />
+      </p>
+    </div>
 
-        // Sync content to the hidden input for form submission
-        quill.on("text-change", function () {
-          document.getElementById("notes").value = quill.root.innerHTML;
-        });
-      </script>
-    </body>
-  </div>
-</html>
+    <div>
+      <label for="author">Author (Last Name First)</label>
+      <p>
+        <input
+          type="text"
+          id="author"
+          class="form-control"
+          name="book[author]"
+          required />
+      </p>
+    </div>
+
+    <div>
+      <label for="summary">Summary</label>
+      <p>
+        <textarea
+          id="summary"
+          class="form-control"
+          name="book[summary]"
+          rows="10"
+          required></textarea>
+      </p>
+    </div>
+
+    <div>
+      <label for="notes">Notes</label>
+      <div
+        id="notes-editor"
+        style="font-size: medium; height: 200px; border: 1px solid #ccc"></div>
+      <input type="hidden" id="notes" name="book[notes]" />
+    </div>
+
+    <div>
+      <label for="link">Website Link</label>
+      <p>
+        <input
+          type="url"
+          id="link"
+          class="form-control mb-3"
+          name="book[link]"
+          required />
+      </p>
+    </div>
+
+    <div>
+      <label for="image">Cover Image (optional)</label>
+      <p>
+        <input type="file" id="image" name="image" accept="image/*" />
+      </p>
+      <p>Images are automatically resized to a standard box size.</p>
+    </div>
+
+    <button class="btn btn-secondary" type="submit">Add Book</button>
+  </form>
+
+  <!-- Quill JS -->
+  <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet" />
+
+  <script>
+    // Initialize Quill
+    const quill = new Quill("#notes-editor", {
+      theme: "snow",
+      modules: {
+        toolbar: [
+          [{ header: [1, 2, false] }],
+          ["bold", "italic", "underline"],
+          [{ list: "ordered" }, { list: "bullet" }],
+          ["link"],
+          ["clean"],
+        ],
+      },
+    });
+
+    // Sync Quill content to the hidden input for form submission
+    quill.on("text-change", function () {
+      document.getElementById("notes").value = quill.root.innerHTML;
+    });
+
+    // Initialize hidden input empty
+    document.getElementById("notes").value = "";
+  </script>
+</div>

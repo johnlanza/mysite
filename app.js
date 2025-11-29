@@ -124,11 +124,11 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 // -----------------------
-// File Upload Setup (Games Images)
+// File Upload Setup (Games & Books Images)
 // -----------------------
 const upload = multer({ storage: multer.memoryStorage() });
 
-// All game images go here: public/images/games → /images/games/...
+// Game images: public/images/games → /images/games/...
 const GAME_IMAGE_DIR = path.join(__dirname, "public", "images", "games");
 if (!fs.existsSync(GAME_IMAGE_DIR)) {
   fs.mkdirSync(GAME_IMAGE_DIR, { recursive: true });
@@ -138,14 +138,36 @@ async function processGameImage(fileBuffer) {
   const filename = `game-${Date.now()}.jpg`;
   const outPath = path.join(GAME_IMAGE_DIR, filename);
 
+  // Only constrain height; width adjusts to preserve aspect ratio.
   await sharp(fileBuffer)
-    .resize(300, 300, { fit: "cover" })
+    .resize({ height: 300 }) // no width, no cropping
     .toFormat("jpeg")
     .jpeg({ quality: 80 })
     .toFile(outPath);
 
   // Public path (served from "public")
   return `/images/games/${filename}`;
+}
+
+// Book images: public/images/books → /images/books/...
+const BOOK_IMAGE_DIR = path.join(__dirname, "public", "images", "books");
+if (!fs.existsSync(BOOK_IMAGE_DIR)) {
+  fs.mkdirSync(BOOK_IMAGE_DIR, { recursive: true });
+}
+
+async function processBookImage(fileBuffer) {
+  const filename = `book-${Date.now()}.jpg`;
+  const outPath = path.join(BOOK_IMAGE_DIR, filename);
+
+  // Only constrain height; width adjusts to preserve aspect ratio.
+  await sharp(fileBuffer)
+    .resize({ height: 300 }) // no width, no cropping
+    .toFormat("jpeg")
+    .jpeg({ quality: 80 })
+    .toFile(outPath);
+
+  // Public path (served from "public")
+  return `/images/books/${filename}`;
 }
 
 // -----------------------
@@ -207,44 +229,76 @@ app.post("/events", isLoggedIn, async (req, res, next) => {
 });
 
 // -----------------------
-// BOOKS + SLUG FIX
+// BOOKS + SLUG + IMAGE
 // -----------------------
 app.get("/books", async (req, res, next) => {
   try {
     const books = await Book.find({}).sort({ author: 1 });
-    res.render("books", { books, sharedSlug: null, errorMessage: null });
+    const events = await Event.find({}).sort({ year: 1 });
+    res.render("books", {
+      books,
+      events,
+      sharedSlug: null,
+      errorMessage: null,
+    });
   } catch (err) {
     next(err);
   }
 });
 
 app.get("/books/newbook", isLoggedIn, (req, res) => {
-  res.render("newbook");
+  res.render("newbook", { errorMessage: null });
 });
 
-app.post("/books", isLoggedIn, async (req, res, next) => {
-  try {
-    const data = req.body.book;
-    data.slug = slugify(data.title, { lower: true, strict: true });
-    await new Book(data).save();
-    res.redirect("/books");
-  } catch (err) {
-    next(err);
+app.post(
+  "/books",
+  isLoggedIn,
+  upload.single("image"),
+  async (req, res, next) => {
+    try {
+      const data = req.body.book;
+      data.slug = slugify(data.title, { lower: true, strict: true });
+
+      if (req.file && req.file.buffer) {
+        const imageUrl = await processBookImage(req.file.buffer);
+        data.imageUrl = imageUrl;
+      }
+
+      await new Book(data).save();
+      res.redirect("/books");
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 app.get("/books/:id/editbook", isLoggedIn, async (req, res, next) => {
   const book = await Book.findById(req.params.id);
   if (!book) return res.status(404).send("Book not found");
-  res.render("editbook", { book });
+  res.render("editbook", { book, errorMessage: null });
 });
 
-app.put("/books/:id", isLoggedIn, async (req, res) => {
-  const data = req.body.book;
-  data.slug = slugify(data.title, { lower: true, strict: true });
-  await Book.findByIdAndUpdate(req.params.id, data);
-  res.redirect("/books");
-});
+app.put(
+  "/books/:id",
+  isLoggedIn,
+  upload.single("image"),
+  async (req, res, next) => {
+    try {
+      const data = req.body.book;
+      data.slug = slugify(data.title, { lower: true, strict: true });
+
+      if (req.file && req.file.buffer) {
+        const imageUrl = await processBookImage(req.file.buffer);
+        data.imageUrl = imageUrl;
+      }
+
+      await Book.findByIdAndUpdate(req.params.id, data);
+      res.redirect("/books");
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 app.delete("/books/:id", isLoggedIn, async (req, res) => {
   await Book.findByIdAndDelete(req.params.id);
@@ -267,10 +321,12 @@ app.get("/books/:slug", async (req, res) => {
   try {
     const book = await Book.findOne({ slug: req.params.slug });
     const books = await Book.find({}).sort({ author: 1 });
+    const events = await Event.find({}).sort({ year: 1 });
 
     if (!book) {
       return res.status(404).render("books", {
         books,
+        events,
         sharedSlug: null,
         errorMessage: "Sorry — that book doesn't exist.",
       });
@@ -278,6 +334,7 @@ app.get("/books/:slug", async (req, res) => {
 
     res.render("books", {
       books,
+      events,
       sharedSlug: req.params.slug,
       errorMessage: null,
     });

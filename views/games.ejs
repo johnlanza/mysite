@@ -3,35 +3,57 @@
 <div class="container"></div>
 
 <style>
-  /* Hover image popup for games */
-  .game-header {
-    position: relative;
+  /* Keep game headers consistent height and remove vertical padding */
+  .game .book-header {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    height: 110px; /* tweak this if you want slightly taller/shorter boxes */
+    overflow: hidden;
   }
 
-  .game-image-popup {
-    position: absolute;
-    right: 0;
-    top: 100%;
-    transform: translateY(8px);
-    background: #fff;
-    padding: 4px;
-    border-radius: 4px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  .game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch; /* children fill header height */
+    gap: 8px;
+  }
+
+  .game-text {
+    cursor: pointer;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .game .book-header h3,
+  .game .book-header h4 {
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
+
+  /* Image sits to the left of the arrow, same header height, hidden by default */
+  .game .game-image-wrapper {
+    cursor: pointer;
+    margin-right: 4px;
+    display: flex;
+    align-items: stretch;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.15s ease, transform 0.15s ease;
-    z-index: 10;
+    transition: opacity 0.15s ease;
   }
 
-  .game-header:hover .game-image-popup {
+  /* Show image on hover OR when expanded */
+  .game:hover .game-image-wrapper,
+  .game.expanded .game-image-wrapper {
     opacity: 1;
-    transform: translateY(0);
+    pointer-events: auto;
   }
 
-  .game-image-popup img {
+  .game .game-image-wrapper img {
     display: block;
-    max-width: 180px;
-    height: auto;
+    height: 100%; /* match the header height */
+    width: auto;
   }
 </style>
 
@@ -52,19 +74,9 @@
 
   <% for (let game of games) { %>
   <div class="book game" id="game-<%= game._id %>">
-    <div
-      class="book-header game-header"
-      style="
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      ">
-      <section
-        style="cursor: pointer"
-        onclick="toggleGameDetails('<%= game._id %>')">
-        <h3 style="font-style: italic; margin-bottom: 4px">
-          <%= game.title %>
-        </h3>
+    <div class="book-header game-header">
+      <section class="game-text" onclick="toggleGameDetails('<%= game._id %>')">
+        <h3 style="font-style: italic"><%= game.title %></h3>
 
         <% if (game.tagline) { %>
         <h4 style="font-style: italic; margin: 0; font-weight: normal">
@@ -72,6 +84,14 @@
         </h4>
         <% } %>
       </section>
+
+      <% if (game.imageUrl) { %>
+      <div
+        class="game-image-wrapper"
+        onclick="toggleGameDetails('<%= game._id %>')">
+        <img src="<%= game.imageUrl %>" alt="<%= game.title %> box" />
+      </div>
+      <% } %>
 
       <button
         class="toggle-btn"
@@ -84,12 +104,6 @@
         ">
         ↧
       </button>
-
-      <% if (game.imageUrl) { %>
-      <div class="game-image-popup">
-        <img src="<%= game.imageUrl %>" alt="<%= game.title %> box" />
-      </div>
-      <% } %>
     </div>
 
     <div
@@ -189,11 +203,17 @@
     const gameElement = document.getElementById(`game-${gameId}`);
     const isVisible = details.style.display === "block";
 
+    // Collapse previous
     if (currentExpandedGame && currentExpandedGame !== details) {
       currentExpandedGame.style.display = "none";
       const prevBtn =
         currentExpandedGame.previousElementSibling.querySelector(".toggle-btn");
       if (prevBtn) prevBtn.textContent = "↧";
+
+      const prevGame = currentExpandedGame.parentElement;
+      if (prevGame && prevGame.classList) {
+        prevGame.classList.remove("expanded");
+      }
     }
 
     if (!isVisible) {
@@ -201,6 +221,10 @@
       const btn = details.previousElementSibling.querySelector(".toggle-btn");
       if (btn) btn.textContent = "🔝";
       currentExpandedGame = details;
+
+      if (gameElement && gameElement.classList) {
+        gameElement.classList.add("expanded");
+      }
 
       if (!skipUrlUpdate) {
         const url = new URL(window.location);
@@ -215,6 +239,10 @@
       const btn = details.previousElementSibling.querySelector(".toggle-btn");
       if (btn) btn.textContent = "↧";
       currentExpandedGame = null;
+
+      if (gameElement && gameElement.classList) {
+        gameElement.classList.remove("expanded");
+      }
 
       if (!skipUrlUpdate) {
         const url = new URL(window.location);
