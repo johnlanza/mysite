@@ -1,0 +1,180 @@
+<h1>Add a Board Game</h1>
+
+<section style="font-size: 0.9em">
+  <% if (typeof errorMessage !== "undefined" && errorMessage) { %>
+  <p style="color: red; font-weight: bold; margin-bottom: 20px">
+    <%= errorMessage %>
+  </p>
+  <% } %>
+
+  <form action="/games" method="POST" enctype="multipart/form-data">
+    <div>
+      <label for="title">Title*</label><br />
+      <input
+        type="text"
+        id="title"
+        name="game[title]"
+        required
+        style="width: 100%" />
+    </div>
+
+    <div>
+      <label for="tagline">Tagline (short line under title)</label><br />
+      <input
+        type="text"
+        id="tagline"
+        name="game[tagline]"
+        style="width: 100%" />
+    </div>
+
+    <hr />
+
+    <div>
+      <label for="bestFor">Best for</label><br />
+      <input
+        type="text"
+        id="bestFor"
+        name="game[bestFor]"
+        placeholder="High-energy chaos with people who like to yell"
+        style="width: 100%" />
+    </div>
+
+    <div>
+      <label for="players">Players</label><br />
+      <input
+        type="text"
+        id="players"
+        name="game[players]"
+        placeholder="3–8"
+        style="width: 100%" />
+    </div>
+
+    <div style="display: flex; gap: 10px">
+      <div style="flex: 1">
+        <label for="playTime">Play time</label><br />
+        <input
+          type="text"
+          id="playTime"
+          name="game[playTime]"
+          placeholder="10–30 minutes"
+          style="width: 100%" />
+      </div>
+
+      <div style="flex: 1">
+        <label for="teachTime">Teach time</label><br />
+        <input
+          type="text"
+          id="teachTime"
+          name="game[teachTime]"
+          placeholder="~5 minutes (super easy)"
+          style="width: 100%" />
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 10px">
+      <div style="flex: 1">
+        <label for="energy">Energy</label><br />
+        <input
+          type="text"
+          id="energy"
+          name="game[energy]"
+          placeholder="Chaotic / conversational / chill"
+          style="width: 100%" />
+      </div>
+
+      <div style="flex: 1">
+        <label for="brainSpace">Brain space</label><br />
+        <input
+          type="text"
+          id="brainSpace"
+          name="game[brainSpace]"
+          placeholder="Light / medium / heavy"
+          style="width: 100%" />
+      </div>
+
+      <div style="flex: 1">
+        <label for="spiceLevel">Spice</label><br />
+        <input
+          type="text"
+          id="spiceLevel"
+          name="game[spiceLevel]"
+          placeholder="Gentle / spiky / brutal"
+          style="width: 100%" />
+      </div>
+    </div>
+
+    <hr />
+
+    <div>
+      <label for="why">Why I keep this on my shelf</label><br />
+      <textarea
+        id="why"
+        name="game[why]"
+        rows="3"
+        style="width: 100%"></textarea>
+    </div>
+
+    <div>
+      <label for="whenToSkip">When to skip it</label><br />
+      <textarea
+        id="whenToSkip"
+        name="game[whenToSkip]"
+        rows="2"
+        style="width: 100%"></textarea>
+    </div>
+
+    <div>
+      <label for="howToPitch">How to pitch it to your group</label><br />
+      <input
+        type="text"
+        id="howToPitch"
+        name="game[howToPitch]"
+        placeholder='Short line, e.g., "It’s a fast, shouty trading game..."'
+        style="width: 100%" />
+    </div>
+
+    <div>
+      <label for="additionalNotes">Additional notes</label><br />
+      <textarea
+        id="additionalNotes"
+        name="game[additionalNotes]"
+        rows="2"
+        style="width: 100%"></textarea>
+    </div>
+
+    <div>
+      <label for="conversationSpark">Conversation spark</label><br />
+      <textarea
+        id="conversationSpark"
+        name="game[conversationSpark]"
+        rows="2"
+        style="width: 100%"></textarea>
+    </div>
+
+    <div>
+      <label for="notes">Extra notes (HTML allowed)</label><br />
+      <textarea
+        id="notes"
+        name="game[notes]"
+        rows="4"
+        style="width: 100%"></textarea>
+    </div>
+
+    <hr />
+
+    <div>
+      <label for="link">External link (BGG, publisher, etc.)</label><br />
+      <input type="url" id="link" name="game[link]" style="width: 100%" />
+    </div>
+
+    <div>
+      <label for="image">Game image (optional)</label><br />
+      <input type="file" id="image" name="image" accept="image/*" />
+      <br />
+      Images are automatically resized to a standard box size.
+    </div>
+
+    <button type="submit">Save Game</button>
+    <a href="/games" style="margin-left: 10px">Cancel</a>
+  </form>
+</section>

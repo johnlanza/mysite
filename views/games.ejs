@@ -1,0 +1,297 @@
+<h1>Board Games I Actually Play</h1>
+
+<div class="container"></div>
+
+<style>
+  /* Hover image popup for games */
+  .game-header {
+    position: relative;
+  }
+
+  .game-image-popup {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    transform: translateY(8px);
+    background: #fff;
+    padding: 4px;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 10;
+  }
+
+  .game-header:hover .game-image-popup {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .game-image-popup img {
+    display: block;
+    max-width: 180px;
+    height: auto;
+  }
+</style>
+
+<section>
+  <% if (currentUser) { %>
+  <a href="/games/newgame">Add a Game</a>
+  <% } %> <% if (typeof errorMessage !== "undefined" && errorMessage) { %>
+  <p style="color: red; font-weight: bold; margin-bottom: 20px">
+    <%= errorMessage %>
+  </p>
+  <% } %>
+
+  <p>
+    This isn’t a big list of every game on my shelf. These are the games I
+    actually pull out on real game nights. I’m starting with a short, proven
+    list and will add more as they earn their spot.
+  </p>
+
+  <% for (let game of games) { %>
+  <div class="book game" id="game-<%= game._id %>">
+    <div
+      class="book-header game-header"
+      style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      ">
+      <section
+        style="cursor: pointer"
+        onclick="toggleGameDetails('<%= game._id %>')">
+        <h3 style="font-style: italic; margin-bottom: 4px">
+          <%= game.title %>
+        </h3>
+
+        <% if (game.tagline) { %>
+        <h4 style="font-style: italic; margin: 0; font-weight: normal">
+          <%= game.tagline %>
+        </h4>
+        <% } %>
+      </section>
+
+      <button
+        class="toggle-btn"
+        onclick="toggleGameDetails('<%= game._id %>')"
+        style="
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-size: 32px;
+        ">
+        ↧
+      </button>
+
+      <% if (game.imageUrl) { %>
+      <div class="game-image-popup">
+        <img src="<%= game.imageUrl %>" alt="<%= game.title %> box" />
+      </div>
+      <% } %>
+    </div>
+
+    <div
+      id="details-<%= game._id %>"
+      class="game-details"
+      style="display: none; margin-left: 5px">
+      <p>
+        <strong>Best for:</strong>
+        <%= game.bestFor %>
+      </p>
+
+      <p>
+        <strong>Players:</strong> <%= game.players %> <% if (game.playTime) { %>
+        | <strong>Play time:</strong> <%= game.playTime %> <% } %> <% if
+        (game.teachTime) { %> | <strong>Teach time:</strong> <%= game.teachTime
+        %> <% } %>
+      </p>
+
+      <% if (game.energy || game.brainSpace || game.spiceLevel) { %>
+      <p>
+        <% if (game.energy) { %>
+        <strong>Energy:</strong> <%= game.energy %> <% } %> <% if
+        (game.brainSpace) { %> <% if (game.energy) { %> | <% } %>
+        <strong>Brain space:</strong> <%= game.brainSpace %> <% } %> <% if
+        (game.spiceLevel) { %> <% if (game.energy || game.brainSpace) { %> | <%
+        } %> <strong>Spice:</strong> <%= game.spiceLevel %> <% } %>
+      </p>
+      <% } %> <% if (game.why) { %>
+      <p>
+        <strong>Why I keep this on my shelf:</strong>
+        <%= game.why %>
+      </p>
+      <% } %> <% if (game.whenToSkip) { %>
+      <p>
+        <strong>When to skip it:</strong>
+        <%= game.whenToSkip %>
+      </p>
+      <% } %> <% if (game.howToPitch) { %>
+      <p>
+        <strong>How to pitch it to your group:</strong>
+        “<%= game.howToPitch %>”
+      </p>
+      <% } %> <% if (game.additionalNotes) { %>
+      <p>
+        <strong>Additional notes:</strong>
+        <%= game.additionalNotes %>
+      </p>
+      <% } %> <% if (game.conversationSpark) { %>
+      <p>
+        <strong>Conversation spark:</strong>
+        “<%= game.conversationSpark %>”
+      </p>
+      <% } %> <% if (game.notes) { %>
+      <div class="notes" style="min-height: 60px"><%- game.notes %></div>
+      <% } %>
+
+      <p>
+        <% if (game.link) { %>
+        <a href="<%= game.link %>" target="_blank" rel="noopener noreferrer">
+          Learn more about this game
+        </a>
+        <% } %> <% if (game.slug) { %>
+        <a
+          href="#"
+          class="share-game-btn"
+          data-slug="<%= game.slug %>"
+          data-title="<%- game.title %>">
+          Share
+        </a>
+        <% } %>
+      </p>
+
+      <% if (currentUser) { %>
+      <p>
+        <a href="/games/<%= game._id %>/editgame" style="margin-right: 10px">
+          Edit
+        </a>
+        <a href="#" onclick="deleteGame('<%= game._id %>')">Delete</a>
+      </p>
+      <% } %>
+    </div>
+  </div>
+  <% } %> <% if (currentUser) { %>
+  <a href="/games/newgame">Add a Game</a>
+  <% } %>
+</section>
+
+<script>
+  const sharedGameSlug = "<%= sharedSlug || '' %>";
+</script>
+
+<script>
+  let currentExpandedGame = null;
+
+  function toggleGameDetails(gameId, skipUrlUpdate = false) {
+    const details = document.getElementById(`details-${gameId}`);
+    const gameElement = document.getElementById(`game-${gameId}`);
+    const isVisible = details.style.display === "block";
+
+    if (currentExpandedGame && currentExpandedGame !== details) {
+      currentExpandedGame.style.display = "none";
+      const prevBtn =
+        currentExpandedGame.previousElementSibling.querySelector(".toggle-btn");
+      if (prevBtn) prevBtn.textContent = "↧";
+    }
+
+    if (!isVisible) {
+      details.style.display = "block";
+      const btn = details.previousElementSibling.querySelector(".toggle-btn");
+      if (btn) btn.textContent = "🔝";
+      currentExpandedGame = details;
+
+      if (!skipUrlUpdate) {
+        const url = new URL(window.location);
+        url.searchParams.set("game", gameId);
+        url.hash = gameId;
+        window.history.pushState({}, "", url);
+      }
+
+      gameElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      details.style.display = "none";
+      const btn = details.previousElementSibling.querySelector(".toggle-btn");
+      if (btn) btn.textContent = "↧";
+      currentExpandedGame = null;
+
+      if (!skipUrlUpdate) {
+        const url = new URL(window.location);
+        url.searchParams.delete("game");
+        url.hash = "";
+        window.history.pushState({}, "", url);
+      }
+    }
+  }
+
+  function shareGame(slug, title) {
+    const shareUrl = `${window.location.origin}/games/${slug}`;
+    const shareText = `Thoughts on the board game "${title}" and when I like to play it.`;
+
+    if (navigator.share) {
+      navigator
+        .share({ title, text: shareText, url: shareUrl })
+        .catch(() => {});
+    } else {
+      navigator.clipboard.writeText(`${shareText}\n${shareUrl}`).then(() => {
+        alert("Link copied to clipboard!");
+      });
+    }
+  }
+
+  // Event delegation for Share button
+  document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("share-game-btn")) {
+      e.preventDefault();
+      const slug = e.target.dataset.slug;
+      const title = e.target.dataset.title;
+      shareGame(slug, title);
+    }
+  });
+
+  window.onload = async function () {
+    const params = new URLSearchParams(window.location.search);
+    const gameId = params.get("game");
+
+    if (gameId) {
+      setTimeout(() => toggleGameDetails(gameId), 50);
+      setTimeout(() => scrollToGame(gameId), 200);
+      return;
+    }
+
+    if (sharedGameSlug) {
+      try {
+        const response = await fetch(
+          `/games/game-id-from-slug/${sharedGameSlug}`
+        );
+        if (!response.ok) return;
+        const { id } = await response.json();
+        setTimeout(() => toggleGameDetails(id, true), 50);
+        setTimeout(() => scrollToGame(id), 200);
+      } catch (err) {
+        console.error("Error resolving game slug:", err);
+      }
+    }
+  };
+
+  function scrollToGame(gameId) {
+    const el = document.getElementById(`game-${gameId}`);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+</script>
+
+<script>
+  async function deleteGame(gameId) {
+    try {
+      const response = await fetch(`/games/${gameId}`, { method: "DELETE" });
+      if (response.ok) {
+        window.location.href = "/games";
+      } else {
+        console.error("Failed to delete game");
+      }
+    } catch (err) {
+      console.error("Delete game error:", err);
+    }
+  }
+</script>

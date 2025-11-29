@@ -1,0 +1,218 @@
+<h1>Edit Board Game</h1>
+
+<section>
+  <% if (typeof errorMessage !== "undefined" && errorMessage) { %>
+  <p style="color: red; font-weight: bold; margin-bottom: 20px">
+    <%= errorMessage %>
+  </p>
+  <% } %>
+
+  <form
+    action="/games/<%= game._id %>?_method=PUT"
+    method="POST"
+    enctype="multipart/form-data">
+    <div>
+      <label for="title"><strong>Title*</strong></label
+      ><br />
+      <input
+        type="text"
+        id="title"
+        name="game[title]"
+        required
+        value="<%= game.title %>"
+        style="width: 100%" />
+    </div>
+
+    <div>
+      <label for="tagline"><strong>Tagline</strong></label
+      ><br />
+      <input
+        type="text"
+        id="tagline"
+        name="game[tagline]"
+        value="<%= game.tagline || '' %>"
+        style="width: 100%" />
+    </div>
+
+    <hr />
+
+    <div>
+      <label for="bestFor"><strong>Best for</strong></label
+      ><br />
+      <input
+        type="text"
+        id="bestFor"
+        name="game[bestFor]"
+        value="<%= game.bestFor || '' %>"
+        style="width: 100%" />
+    </div>
+
+    <div>
+      <label for="players"><strong>Players</strong></label
+      ><br />
+      <input
+        type="text"
+        id="players"
+        name="game[players]"
+        value="<%= game.players || '' %>"
+        style="width: 100%" />
+    </div>
+
+    <div style="display: flex; gap: 10px">
+      <div style="flex: 1">
+        <label for="playTime"><strong>Play time</strong></label
+        ><br />
+        <input
+          type="text"
+          id="playTime"
+          name="game[playTime]"
+          value="<%= game.playTime || '' %>"
+          style="width: 100%" />
+      </div>
+
+      <div style="flex: 1">
+        <label for="teachTime"><strong>Teach time</strong></label
+        ><br />
+        <input
+          type="text"
+          id="teachTime"
+          name="game[teachTime]"
+          value="<%= game.teachTime || '' %>"
+          style="width: 100%" />
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 10px">
+      <div style="flex: 1">
+        <label for="energy"><strong>Energy</strong></label
+        ><br />
+        <input
+          type="text"
+          id="energy"
+          name="game[energy]"
+          value="<%= game.energy || '' %>"
+          style="width: 100%" />
+      </div>
+
+      <div style="flex: 1">
+        <label for="brainSpace"><strong>Brain space</strong></label
+        ><br />
+        <input
+          type="text"
+          id="brainSpace"
+          name="game[brainSpace]"
+          value="<%= game.brainSpace || '' %>"
+          style="width: 100%" />
+      </div>
+
+      <div style="flex: 1">
+        <label for="spiceLevel"><strong>Spice</strong></label
+        ><br />
+        <input
+          type="text"
+          id="spiceLevel"
+          name="game[spiceLevel]"
+          value="<%= game.spiceLevel || '' %>"
+          style="width: 100%" />
+      </div>
+    </div>
+
+    <hr />
+
+    <div>
+      <label for="why"><strong>Why I keep this on my shelf</strong></label
+      ><br />
+      <textarea id="why" name="game[why]" rows="3" style="width: 100%">
+<%= game.why || '' %></textarea
+      >
+    </div>
+
+    <div>
+      <label for="whenToSkip"><strong>When to skip it</strong></label
+      ><br />
+      <textarea
+        id="whenToSkip"
+        name="game[whenToSkip]"
+        rows="2"
+        style="width: 100%">
+<%= game.whenToSkip || '' %></textarea
+      >
+    </div>
+
+    <div>
+      <label for="howToPitch"
+        ><strong>How to pitch it to your group</strong></label
+      ><br />
+      <input
+        type="text"
+        id="howToPitch"
+        name="game[howToPitch]"
+        value="<%= game.howToPitch || '' %>"
+        style="width: 100%" />
+    </div>
+
+    <div>
+      <label for="additionalNotes"><strong>Additional notes</strong></label
+      ><br />
+      <textarea
+        id="additionalNotes"
+        name="game[additionalNotes]"
+        rows="2"
+        style="width: 100%">
+<%= game.additionalNotes || '' %></textarea
+      >
+    </div>
+
+    <div>
+      <label for="conversationSpark"><strong>Conversation spark</strong></label
+      ><br />
+      <textarea
+        id="conversationSpark"
+        name="game[conversationSpark]"
+        rows="2"
+        style="width: 100%">
+<%= game.conversationSpark || '' %></textarea
+      >
+    </div>
+
+    <div>
+      <label for="notes"><strong>Extra notes (HTML allowed)</strong></label
+      ><br />
+      <textarea id="notes" name="game[notes]" rows="4" style="width: 100%">
+<%= game.notes || '' %></textarea
+      >
+    </div>
+
+    <hr />
+
+    <div>
+      <% if (game.imageUrl) { %>
+      <p><strong>Current image:</strong></p>
+      <img
+        src="<%= game.imageUrl %>"
+        alt="<%= game.title %> box"
+        style="max-width: 180px; height: auto; margin-bottom: 10px" />
+      <% } %>
+
+      <label for="image"><strong>Replace image</strong> (optional)</label><br />
+      <input type="file" id="image" name="image" accept="image/*" />
+      <p style="font-size: 0.9em; color: #555">
+        New images will be resized to the standard box size.
+      </p>
+    </div>
+
+    <div>
+      <label for="link"><strong>External link</strong></label
+      ><br />
+      <input
+        type="url"
+        id="link"
+        name="game[link]"
+        value="<%= game.link || '' %>"
+        style="width: 100%" />
+    </div>
+
+    <button type="submit">Update Game</button>
+    <a href="/games" style="margin-left: 10px">Cancel</a>
+  </form>
+</section>
