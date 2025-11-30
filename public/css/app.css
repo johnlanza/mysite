@@ -7,50 +7,50 @@
   --book-bg: #e3d5ca; /* slightly darker */
   --book-hover-bg: #d9c9b8; /* more darker */
   --book-border: #d5bdaf;
-  --link-color: #00cecb;
+  --link-color: #007a7e; /* deeper teal for better contrast */
   --link-visited-color: #e5383b;
 }
 
 /* Palette 1 – cool colors
    #E0E0E2 — body background
    #416788 — headline / clicked
-   #81D2C7 — unclicked
+   #81D2C7 — original unclicked (now darker)
 */
 :root[data-palette="1"] {
   --body-bg: #e0e0e2; /* lightest */
   --book-bg: #d0d0d4; /* slightly darker */
   --book-hover-bg: #c0c0c6; /* more darker */
   --book-border: #416788;
-  --link-color: #81d2c7; /* unclicked */
-  --link-visited-color: #416788; /* clicked */
+  --link-color: #245b7b; /* darker cool blue, higher contrast */
+  --link-visited-color: #416788;
 }
 
 /* Palette 2 – peach/magenta
    #FFDBB5 — body background
    #C04ABC — headline / clicked
-   #E0A458 — unclicked
+   #E0A458 — original unclicked (now darker)
 */
 :root[data-palette="2"] {
   --body-bg: #ffdbb5; /* lightest */
   --book-bg: #edcba7; /* slightly darker */
   --book-hover-bg: #d9b68e; /* more darker */
   --book-border: #c04abc;
-  --link-color: #e0a458; /* unclicked */
-  --link-visited-color: #c04abc; /* clicked */
+  --link-color: #b5671a; /* deeper burnt orange */
+  --link-visited-color: #c04abc;
 }
 
 /* Palette 3 – green/neutral
    #D5ECD4 — body background
    #6B6054 — headline / clicked
-   #A1B0AB — unclicked
+   #A1B0AB — original unclicked (now darker)
 */
 :root[data-palette="3"] {
   --body-bg: #d5ecd4; /* lightest */
   --book-bg: #c3ddc2; /* slightly darker */
   --book-hover-bg: #b1ceb1; /* more darker */
   --book-border: #6b6054;
-  --link-color: #a1b0ab; /* unclicked */
-  --link-visited-color: #6b6054; /* clicked */
+  --link-color: #3f6b4f; /* darker green, still in family */
+  --link-visited-color: #6b6054;
 }
 
 body {
