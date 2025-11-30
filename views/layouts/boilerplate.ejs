@@ -82,6 +82,7 @@
               Speaking
             </a>
             <a href="/games">Games</a>
+            <a href="#" id="colors-link">Colors</a>
           </nav>
 
           <!-- FLASH MESSAGES -->
@@ -110,5 +111,52 @@
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+    <script>
+      (function () {
+        const TOTAL_PALETTES = 4; // 0 = warm, 1 = cool, 2 & 3 = new palettes
+        const STORAGE_KEY = "sitePaletteIndex";
+
+        function applyPalette(index) {
+          document.documentElement.setAttribute("data-palette", String(index));
+        }
+
+        function loadInitialPalette() {
+          try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            const saved = parseInt(raw, 10);
+
+            if (!Number.isNaN(saved) && saved >= 0 && saved < TOTAL_PALETTES) {
+              applyPalette(saved);
+              return saved;
+            }
+          } catch (e) {
+            // ignore localStorage issues
+          }
+
+          applyPalette(0);
+          return 0;
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+          let current = loadInitialPalette();
+
+          const link = document.getElementById("colors-link");
+          if (!link) return;
+
+          link.addEventListener("click", function (event) {
+            event.preventDefault();
+            current = (current + 1) % TOTAL_PALETTES;
+            applyPalette(current);
+
+            try {
+              localStorage.setItem(STORAGE_KEY, String(current));
+            } catch (e) {
+              // ignore storage errors
+            }
+          });
+        });
+      })();
+    </script>
   </body>
 </html>

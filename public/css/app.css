@@ -1,8 +1,60 @@
 /* //colors pulled from */
 /* //[https://coolors.co/palette/edede9-d6ccc2-f5ebe0-e3d5ca-d5bdaf] */
 
+/* Base palette (default, warm) */
+:root {
+  --body-bg: #f5ebe0; /* lightest */
+  --book-bg: #e3d5ca; /* slightly darker */
+  --book-hover-bg: #d9c9b8; /* more darker */
+  --book-border: #d5bdaf;
+  --link-color: #00cecb;
+  --link-visited-color: #e5383b;
+}
+
+/* Palette 1 – cool colors
+   #E0E0E2 — body background
+   #416788 — headline / clicked
+   #81D2C7 — unclicked
+*/
+:root[data-palette="1"] {
+  --body-bg: #e0e0e2; /* lightest */
+  --book-bg: #d0d0d4; /* slightly darker */
+  --book-hover-bg: #c0c0c6; /* more darker */
+  --book-border: #416788;
+  --link-color: #81d2c7; /* unclicked */
+  --link-visited-color: #416788; /* clicked */
+}
+
+/* Palette 2 – peach/magenta
+   #FFDBB5 — body background
+   #C04ABC — headline / clicked
+   #E0A458 — unclicked
+*/
+:root[data-palette="2"] {
+  --body-bg: #ffdbb5; /* lightest */
+  --book-bg: #edcba7; /* slightly darker */
+  --book-hover-bg: #d9b68e; /* more darker */
+  --book-border: #c04abc;
+  --link-color: #e0a458; /* unclicked */
+  --link-visited-color: #c04abc; /* clicked */
+}
+
+/* Palette 3 – green/neutral
+   #D5ECD4 — body background
+   #6B6054 — headline / clicked
+   #A1B0AB — unclicked
+*/
+:root[data-palette="3"] {
+  --body-bg: #d5ecd4; /* lightest */
+  --book-bg: #c3ddc2; /* slightly darker */
+  --book-hover-bg: #b1ceb1; /* more darker */
+  --book-border: #6b6054;
+  --link-color: #a1b0ab; /* unclicked */
+  --link-visited-color: #6b6054; /* clicked */
+}
+
 body {
-  background-color: #f5ebe0;
+  background-color: var(--body-bg);
 }
 
 section {
@@ -55,45 +107,58 @@ h4 {
   margin: 0; /* Eliminate all default margin */
 }
 
-.book:hover {
-  background-color: #f5ebe0; /* Slightly darker background on hover */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Enhanced shadow */
-  transition: all 0.3s ease; /* Smooth transition for hover effect */
+/* Book/Game cards */
+.book,
+.game {
+  margin-bottom: 20px;
+  padding: 0px;
+  border: 0px solid var(--book-border);
+  border-radius: 8px;
+  background-color: var(--book-bg); /* mid tint */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
-.book {
-  margin-bottom: 20px; /* Adds space between books */
-  padding: 0px; /* Adds space inside each book's container */
-  border: 0px solid #d5bdaf; /* Light border for separation */
-  border-radius: 8px; /* Rounded corners for aesthetics */
-  background-color: #e3d5ca; /* Subtle background for contrast */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+.book:hover,
+.game:hover {
+  background-color: var(--book-hover-bg); /* darker tint on rollover */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
+
+/* Use hover color as background for detail pages */
+.book-detail,
+.game-detail {
+  background-color: var(--book-hover-bg);
+}
+
 .book-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .toggle-btn {
   background: none;
   border: none;
   font-size: 16px;
   cursor: pointer;
-  transition: transform 0.2s ease; /* Subtle animation */
+  transition: transform 0.2s ease;
 }
+
 .toggle-btn:hover {
-  transform: scale(1.2); /* Slight zoom on hover */
+  transform: scale(1.2);
 }
+
 .book-details {
-  margin-top: 5px; /*Space between the title and details*/
+  margin-top: 5px;
 }
 
 a:visited {
-  color: #e5383b; /* Change this to your desired color */
+  color: var(--link-visited-color);
 }
 
 a:link {
-  color: #00cecb; /* Change this to your desired color */
+  color: var(--link-color);
 }
 
 li {
