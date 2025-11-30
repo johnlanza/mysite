@@ -3,47 +3,64 @@
 <div class="container"></div>
 
 <style>
-  /* Keep game headers consistent height and remove vertical padding */
-  .game .book-header {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    height: 110px; /* tweak this if you want slightly taller/shorter boxes */
-    overflow: hidden;
+  /* Fixed-height header with text + image + arrow */
+
+  .game .game-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 8px !important;
+    height: 110px !important; /* fixed height */
+    overflow: hidden !important; /* crop anything that doesn't fit */
+    padding: 0 16px 0 5px !important; /* NO vertical padding so image touches top/bottom */
   }
 
-  .game-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: stretch; /* children fill header height */
-    gap: 8px;
-  }
-
-  .game-text {
+  /* Text column: title on top, tagline at bottom */
+  .game .game-text {
     cursor: pointer;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    overflow: hidden !important; /* text can't bleed under image/arrow */
+    padding-top: 20px !important; /* vertical padding lives here */
+    padding-bottom: 8px !important;
   }
 
-  .game .book-header h3,
-  .game .book-header h4 {
-    margin-top: 4px;
-    margin-bottom: 4px;
+  /* TITLE in header: single line, ellipsis */
+  .game .game-title h3 {
+    margin: 0 0 4px 0 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-style: italic;
+    cursor: pointer;
   }
 
-  /* Image sits to the left of the arrow, same header height, hidden by default */
+  /* TAGLINE in header: can wrap, but we still prevent bleed */
+  .game .game-tagline h4 {
+    margin: 0 !important;
+    line-height: 1.2 !important;
+    font-style: italic;
+    cursor: pointer;
+  }
+
+  /* Image wrapper: fixed width so text knows its limit, flush with bar */
   .game .game-image-wrapper {
     cursor: pointer;
-    margin-right: 4px;
-    display: flex;
-    align-items: stretch;
+    display: flex !important;
+    align-items: stretch !important;
+    flex: 0 0 64px !important; /* fixed width for image */
+    height: 100% !important; /* fills header height (bar height) */
+    margin-left: 8px;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.15s ease;
   }
 
-  /* Show image on hover OR when expanded */
+  /* Show image on hover or when expanded */
   .game:hover .game-image-wrapper,
   .game.expanded .game-image-wrapper {
     opacity: 1;
@@ -51,9 +68,26 @@
   }
 
   .game .game-image-wrapper img {
-    display: block;
-    height: 100%; /* match the header height */
-    width: auto;
+    display: block !important;
+    height: 100% !important; /* align top/bottom with bar */
+    width: auto !important; /* allow full box art width */
+  }
+
+  /* Arrow button: fixed width so it's not squeezed */
+  .game .game-header .toggle-btn {
+    flex: 0 0 32px !important;
+    margin-left: 8px !important;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  /* Material icon styling for games */
+  .game .toggle-btn .material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    font-size: 24px;
+    vertical-align: middle;
   }
 </style>
 
@@ -74,14 +108,16 @@
 
   <% for (let game of games) { %>
   <div class="book game" id="game-<%= game._id %>">
-    <div class="book-header game-header">
+    <div class="game-header">
       <section class="game-text" onclick="toggleGameDetails('<%= game._id %>')">
-        <h3 style="font-style: italic"><%= game.title %></h3>
+        <div class="game-title">
+          <h3><%= game.title %></h3>
+        </div>
 
         <% if (game.tagline) { %>
-        <h4 style="font-style: italic; margin: 0; font-weight: normal">
-          <%= game.tagline %>
-        </h4>
+        <div class="game-tagline">
+          <h4><%= game.tagline %></h4>
+        </div>
         <% } %>
       </section>
 
@@ -96,13 +132,8 @@
       <button
         class="toggle-btn"
         onclick="toggleGameDetails('<%= game._id %>')"
-        style="
-          background: none;
-          border: none;
-          cursor: pointer;
-          font-size: 32px;
-        ">
-        ↧
+        aria-label="Show details">
+        <span class="material-symbols-outlined">expand_more</span>
       </button>
     </div>
 
@@ -203,12 +234,18 @@
     const gameElement = document.getElementById(`game-${gameId}`);
     const isVisible = details.style.display === "block";
 
-    // Collapse previous
+    // Collapse previous expanded game
     if (currentExpandedGame && currentExpandedGame !== details) {
       currentExpandedGame.style.display = "none";
-      const prevBtn =
-        currentExpandedGame.previousElementSibling.querySelector(".toggle-btn");
-      if (prevBtn) prevBtn.textContent = "↧";
+
+      const prevHeader = currentExpandedGame.previousElementSibling;
+      if (prevHeader) {
+        const prevBtn = prevHeader.querySelector(".toggle-btn");
+        if (prevBtn) {
+          const prevIcon = prevBtn.querySelector(".material-symbols-outlined");
+          if (prevIcon) prevIcon.textContent = "expand_more";
+        }
+      }
 
       const prevGame = currentExpandedGame.parentElement;
       if (prevGame && prevGame.classList) {
@@ -218,8 +255,14 @@
 
     if (!isVisible) {
       details.style.display = "block";
-      const btn = details.previousElementSibling.querySelector(".toggle-btn");
-      if (btn) btn.textContent = "🔝";
+
+      const header = details.previousElementSibling;
+      const btn = header ? header.querySelector(".toggle-btn") : null;
+      if (btn) {
+        const icon = btn.querySelector(".material-symbols-outlined");
+        if (icon) icon.textContent = "expand_less";
+      }
+
       currentExpandedGame = details;
 
       if (gameElement && gameElement.classList) {
@@ -236,8 +279,14 @@
       gameElement.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
       details.style.display = "none";
-      const btn = details.previousElementSibling.querySelector(".toggle-btn");
-      if (btn) btn.textContent = "↧";
+
+      const header = details.previousElementSibling;
+      const btn = header ? header.querySelector(".toggle-btn") : null;
+      if (btn) {
+        const icon = btn.querySelector(".material-symbols-outlined");
+        if (icon) icon.textContent = "expand_more";
+      }
+
       currentExpandedGame = null;
 
       if (gameElement && gameElement.classList) {

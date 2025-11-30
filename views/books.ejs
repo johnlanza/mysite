@@ -3,41 +3,63 @@
 <div class="container"></div>
 
 <style>
-  /* Book header + image behavior */
+  /* Fixed-height header with text + image + arrow */
+
   .book .book-header {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    height: 110px; /* matches games card height you liked */
-    overflow: hidden;
-    align-items: stretch;
-    gap: 8px;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 8px !important;
+    height: 110px !important; /* fixed height */
+    overflow: hidden !important; /* crop anything that doesn't fit */
+    padding: 0 16px 0 5px !important; /* NO vertical padding so image touches top/bottom */
   }
 
+  /* Text column: title on top, author at bottom */
   .book .book-text {
     cursor: pointer;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    overflow: hidden !important; /* text can't bleed under image/arrow */
+    padding-top: 20px !important; /* vertical padding lives here */
+    padding-bottom: 8px !important;
   }
 
-  .book .book-header h3,
-  .book .book-header h4 {
-    margin-top: 4px;
-    margin-bottom: 4px;
+  /* TITLE in header: single line, ellipsis */
+  .book .book-title h3 {
+    margin: 0 0 4px 0 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-style: italic;
+    cursor: pointer;
   }
 
+  /* AUTHOR in header: always visible under the title */
+  .book .book-author h4 {
+    margin: 0 !important;
+    line-height: 1.2 !important;
+    font-style: italic;
+    cursor: pointer;
+  }
+
+  /* Image wrapper: fixed width so text knows its limit, flush with bar */
   .book .book-image-wrapper {
     cursor: pointer;
-    margin-right: 4px;
-    display: flex;
-    align-items: stretch;
+    display: flex !important;
+    align-items: stretch !important;
+    flex: 0 0 64px !important; /* fixed width for image */
+    height: 100% !important; /* fills header height (bar height) */
+    margin-left: 8px;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.15s ease;
   }
 
-  /* Show image on hover or when expanded */
   .book:hover .book-image-wrapper,
   .book.expanded .book-image-wrapper {
     opacity: 1;
@@ -45,9 +67,38 @@
   }
 
   .book .book-image-wrapper img {
-    display: block;
-    height: 100%;
-    width: auto;
+    display: block !important;
+    height: 100% !important; /* align top/bottom with bar */
+    width: auto !important; /* allow full cover width */
+  }
+
+  /* Arrow button: fixed width so it's not squeezed */
+  .book .book-header .toggle-btn {
+    flex: 0 0 32px !important;
+    margin-left: 8px !important;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  /* Material icon styling */
+  .book .toggle-btn .material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    font-size: 24px;
+    vertical-align: middle;
+  }
+
+  /* DETAILS: full title + author with normal wrapping (no ellipsis) */
+  .book-details h3 {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    margin-top: 8px;
+  }
+
+  .book-details h4 {
+    margin-top: 0;
   }
 </style>
 
@@ -67,15 +118,15 @@
 
   <% for (let book of books) { %>
   <div class="book" id="book-<%= book._id %>">
-    <div
-      class="book-header"
-      style="display: flex; justify-content: space-between">
+    <div class="book-header">
       <section class="book-text" onclick="toggleDetails('<%= book._id %>')">
-        <h3 style="font-style: italic; cursor: pointer"><%= book.title %></h3>
+        <div class="book-title">
+          <h3><%= book.title %></h3>
+        </div>
 
-        <h4 style="font-style: italic; cursor: pointer; margin: 0">
-          by <%= book.author %>
-        </h4>
+        <div class="book-author">
+          <h4>by <%= book.author %></h4>
+        </div>
       </section>
 
       <% if (book.imageUrl) { %>
@@ -89,20 +140,29 @@
       <button
         class="toggle-btn"
         onclick="toggleDetails('<%= book._id %>')"
-        style="
-          background: none;
-          border: none;
-          cursor: pointer;
-          font-size: 32px;
-        ">
-        ↧
+        aria-label="Show details">
+        <span class="material-symbols-outlined">expand_more</span>
       </button>
     </div>
 
     <div
       id="details-<%= book._id %>"
       class="book-details"
-      style="display: none; margin-left: 5px">
+      style="display: none; margin-left: 5px; overflow: visible">
+      <!-- Full title + author in expanded view (NO truncation here) -->
+      <p
+        style="
+          font-style: italic;
+          font-size: 1.2em;
+          margin: 8px 0 4px 0;
+          white-space: normal;
+          overflow: visible;
+          text-overflow: clip;
+        ">
+        <%= book.title %>
+      </p>
+      <p style="font-style: italic; margin: 0 0 8px 0">by <%= book.author %></p>
+
       <p><strong>Summary:</strong> <%= book.summary %></p>
 
       <% if (book.notes) { %>
@@ -153,9 +213,15 @@
     // Collapse previous
     if (currentExpanded && currentExpanded !== details) {
       currentExpanded.style.display = "none";
-      const prevBtn =
-        currentExpanded.previousElementSibling.querySelector(".toggle-btn");
-      if (prevBtn) prevBtn.textContent = "↧";
+
+      const prevHeader = currentExpanded.previousElementSibling;
+      if (prevHeader) {
+        const prevBtn = prevHeader.querySelector(".toggle-btn");
+        if (prevBtn) {
+          const prevIcon = prevBtn.querySelector(".material-symbols-outlined");
+          if (prevIcon) prevIcon.textContent = "expand_more";
+        }
+      }
 
       const prevBook = currentExpanded.parentElement;
       if (prevBook && prevBook.classList) {
@@ -165,8 +231,12 @@
 
     if (!isVisible) {
       details.style.display = "block";
-      const btn = details.previousElementSibling.querySelector(".toggle-btn");
-      if (btn) btn.textContent = "🔝";
+      const header = details.previousElementSibling;
+      const btn = header ? header.querySelector(".toggle-btn") : null;
+      if (btn) {
+        const icon = btn.querySelector(".material-symbols-outlined");
+        if (icon) icon.textContent = "expand_less";
+      }
       currentExpanded = details;
 
       if (bookElement && bookElement.classList) {
@@ -183,8 +253,12 @@
       bookElement.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
       details.style.display = "none";
-      const btn = details.previousElementSibling.querySelector(".toggle-btn");
-      if (btn) btn.textContent = "↧";
+      const header = details.previousElementSibling;
+      const btn = header ? header.querySelector(".toggle-btn") : null;
+      if (btn) {
+        const icon = btn.querySelector(".material-symbols-outlined");
+        if (icon) icon.textContent = "expand_more";
+      }
       currentExpanded = null;
 
       if (bookElement && bookElement.classList) {
