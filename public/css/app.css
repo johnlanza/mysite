@@ -1,7 +1,7 @@
 /* //colors pulled from */
 /* //[https://coolors.co/palette/edede9-d6ccc2-f5ebe0-e3d5ca-d5bdaf] */
 
-/* Base palette (default, warm) */
+/* Palette 0 – Base palette (default, warm) */
 :root {
   --body-bg: #f5ebe0; /* lightest */
   --book-bg: #e3d5ca; /* slightly darker */
@@ -11,46 +11,36 @@
   --link-visited-color: #e5383b;
 }
 
-/* Palette 1 – cool colors
-   #E0E0E2 — body background
-   #416788 — headline / clicked
-   #81D2C7 — original unclicked (now darker)
+/* Palette 1 – Seahawks (royal + kelly + silver)
+   Royal Blue: #003087
+   Kelly Green: #00843D
+   Silver: #8D9093
+   White: #FFFFFF
 */
 :root[data-palette="1"] {
-  --body-bg: #e0e0e2; /* lightest */
-  --book-bg: #d0d0d4; /* slightly darker */
-  --book-hover-bg: #c0c0c6; /* more darker */
-  --book-border: #416788;
-  --link-color: #245b7b; /* darker cool blue, higher contrast */
-  --link-visited-color: #416788;
+  /* Silver-based background progression */
+  --body-bg: #f1f3f6; /* very pale silver (lightest) */
+  --book-bg: #e0e3e8; /* slightly darker card background */
+  --book-hover-bg: #d0d4da; /* darker for hover + detail pages */
+
+  --book-border: #8d9093; /* helmet/pants silver */
+
+  --link-color: #00843d; /* unclicked = Kelly Green */
+  --link-visited-color: #003087; /* clicked/accent = Royal Blue */
 }
 
-/* Palette 2 – peach/magenta
+/* Palette 2 – Peach/magenta
    #FFDBB5 — body background
    #C04ABC — headline / clicked
-   #E0A458 — original unclicked (now darker)
+   #E0A458 — (family for links)
 */
 :root[data-palette="2"] {
   --body-bg: #ffdbb5; /* lightest */
   --book-bg: #edcba7; /* slightly darker */
   --book-hover-bg: #d9b68e; /* more darker */
   --book-border: #c04abc;
-  --link-color: #b5671a; /* deeper burnt orange */
-  --link-visited-color: #c04abc;
-}
-
-/* Palette 3 – green/neutral
-   #D5ECD4 — body background
-   #6B6054 — headline / clicked
-   #A1B0AB — original unclicked (now darker)
-*/
-:root[data-palette="3"] {
-  --body-bg: #d5ecd4; /* lightest */
-  --book-bg: #c3ddc2; /* slightly darker */
-  --book-hover-bg: #b1ceb1; /* more darker */
-  --book-border: #6b6054;
-  --link-color: #3f6b4f; /* darker green, still in family */
-  --link-visited-color: #6b6054;
+  --link-color: #b5671a; /* deeper burnt orange for contrast */
+  --link-visited-color: #c04abc; /* magenta accent */
 }
 
 body {
