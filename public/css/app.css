@@ -47,6 +47,20 @@ body {
   background-color: var(--body-bg);
 }
 
+.portrait-wrap {
+  margin: 1rem 0 2rem;
+}
+
+.portrait-img {
+  width: 170px;
+  max-width: 60vw;
+  border-radius: 18px;
+  border: 1px solid var(--book-border);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+  object-fit: cover;
+  display: block;
+}
+
 section {
   font-size: x-large;
   font-family: "Lexend", sans-serif;
@@ -74,7 +88,7 @@ h6 {
 
 .main-header {
   font-family: "Apple Garamond", sans-serif;
-  font-size: 1.35em;
+  font-size: inherit;
   font-weight: medium;
 }
 
@@ -87,6 +101,47 @@ h1 {
 h2 {
   font-family: "Apple Garamond", sans-serif;
   font-size: 4em;
+}
+
+.brand-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.65rem;
+  margin-bottom: 0.35rem;
+  --brand-size: 4em;
+}
+
+.brand-row h1 {
+  line-height: 1;
+}
+
+.main-header-portrait {
+  height: var(--brand-size);
+  width: var(--brand-size);
+  border-radius: 16px;
+  border: 1px solid var(--book-border);
+  object-fit: cover;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+  align-self: flex-end;
+}
+
+@media (max-width: 700px) {
+  h1,
+  h2 {
+    font-size: clamp(2.4rem, 8vw, 3.3rem);
+  }
+
+  .brand-row {
+    --brand-size: clamp(2.4rem, 8vw, 3.3rem);
+  }
+
+  section {
+    font-size: 1.25em;
+  }
+
+  label {
+    font-size: 1.25em;
+  }
 }
 
 h3 {
