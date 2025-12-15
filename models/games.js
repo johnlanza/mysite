@@ -89,6 +89,11 @@ const gameSchema = new Schema({
     type: String,
     trim: true,
   },
+
+  // Stored copy so uploads survive redeploys
+  imageFilename: String,
+  imageContentType: String,
+  imageData: Buffer,
 });
 
 module.exports = mongoose.model("Game", gameSchema);

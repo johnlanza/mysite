@@ -7,6 +7,7 @@
   --book-bg: #e3d5ca; /* slightly darker */
   --book-hover-bg: #d9c9b8; /* more darker */
   --book-border: #d5bdaf;
+  --text-color: #111827;
   --link-color: #007a7e; /* deeper teal for better contrast */
   --link-visited-color: #e5383b;
 }
@@ -24,6 +25,7 @@
   --book-hover-bg: #d0d4da; /* darker for hover + detail pages */
 
   --book-border: #8d9093; /* helmet/pants silver */
+  --text-color: #0f172a;
 
   --link-color: #00843d; /* unclicked = Kelly Green */
   --link-visited-color: #003087; /* clicked/accent = Royal Blue */
@@ -39,12 +41,25 @@
   --book-bg: #edcba7; /* slightly darker */
   --book-hover-bg: #d9b68e; /* more darker */
   --book-border: #c04abc;
+  --text-color: #2d0a34;
   --link-color: #b5671a; /* deeper burnt orange for contrast */
   --link-visited-color: #c04abc; /* magenta accent */
 }
 
+/* Palette 3 – Dark mode */
+:root[data-palette="3"] {
+  --body-bg: #0f172a; /* deep navy */
+  --book-bg: #1f2937; /* darker card */
+  --book-hover-bg: #273447; /* hover lift */
+  --book-border: #334155;
+  --text-color: #e2e8f0;
+  --link-color: #7dd3fc; /* soft cyan for unvisited */
+  --link-visited-color: #c084fc; /* violet accent */
+}
+
 body {
   background-color: var(--body-bg);
+  color: var(--text-color);
 }
 
 .portrait-wrap {
@@ -90,6 +105,12 @@ h6 {
   font-family: "Apple Garamond", sans-serif;
   font-size: inherit;
   font-weight: medium;
+  color: var(--text-color);
+}
+
+.main-header:link,
+.main-header:visited {
+  color: var(--text-color);
 }
 
 h1 {

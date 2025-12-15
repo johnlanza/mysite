@@ -139,14 +139,21 @@ async function processGameImage(fileBuffer) {
   const outPath = path.join(GAME_IMAGE_DIR, filename);
 
   // Only constrain height; width adjusts to preserve aspect ratio.
-  await sharp(fileBuffer)
+  const processedBuffer = await sharp(fileBuffer)
     .resize({ height: 300 }) // no width, no cropping
     .toFormat("jpeg")
     .jpeg({ quality: 80 })
-    .toFile(outPath);
+    .toBuffer();
 
-  // Public path (served from "public")
-  return `/images/games/${filename}`;
+  // Keep a local copy for fast serving in dev; DB stores the durable copy.
+  await fs.promises.writeFile(outPath, processedBuffer);
+
+  return {
+    imageUrl: `/images/games/${filename}`,
+    imageFilename: filename,
+    imageContentType: "image/jpeg",
+    imageData: processedBuffer,
+  };
 }
 
 // Book images: public/images/books → /images/books/...
@@ -160,15 +167,70 @@ async function processBookImage(fileBuffer) {
   const outPath = path.join(BOOK_IMAGE_DIR, filename);
 
   // Only constrain height; width adjusts to preserve aspect ratio.
-  await sharp(fileBuffer)
+  const processedBuffer = await sharp(fileBuffer)
     .resize({ height: 300 }) // no width, no cropping
     .toFormat("jpeg")
     .jpeg({ quality: 80 })
-    .toFile(outPath);
+    .toBuffer();
 
-  // Public path (served from "public")
-  return `/images/books/${filename}`;
+  // Keep a local copy for fast serving in dev; DB stores the durable copy.
+  await fs.promises.writeFile(outPath, processedBuffer);
+
+  return {
+    imageUrl: `/images/books/${filename}`,
+    imageFilename: filename,
+    imageContentType: "image/jpeg",
+    imageData: processedBuffer,
+  };
 }
+
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Serve images from Mongo if the on-disk copy disappeared (e.g., after a redeploy)
+async function serveImageFromDb(Model, dirPath, filename, res, next) {
+  const match = await Model.findOne({
+    $or: [
+      { imageFilename: filename },
+      { imageUrl: new RegExp(`${escapeRegex(filename)}$`) },
+    ],
+  });
+
+  if (!match || !match.imageData) return next();
+
+  const contentType = match.imageContentType || "image/jpeg";
+  res.set("Content-Type", contentType);
+
+  // Write a fresh copy to disk so subsequent requests can be served statically.
+  if (dirPath) {
+    const filePath = path.join(dirPath, filename);
+    try {
+      await fs.promises.mkdir(dirPath, { recursive: true });
+      await fs.promises.writeFile(filePath, match.imageData);
+    } catch (err) {
+      console.error("Could not persist image to disk:", err.message);
+    }
+  }
+
+  return res.send(match.imageData);
+}
+
+app.get("/images/books/:filename", async (req, res, next) => {
+  try {
+    await serveImageFromDb(Book, BOOK_IMAGE_DIR, req.params.filename, res, next);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.get("/images/games/:filename", async (req, res, next) => {
+  try {
+    await serveImageFromDb(Game, GAME_IMAGE_DIR, req.params.filename, res, next);
+  } catch (err) {
+    next(err);
+  }
+});
 
 // -----------------------
 // Routes
@@ -260,8 +322,11 @@ app.post(
       data.slug = slugify(data.title, { lower: true, strict: true });
 
       if (req.file && req.file.buffer) {
-        const imageUrl = await processBookImage(req.file.buffer);
-        data.imageUrl = imageUrl;
+        const processedImage = await processBookImage(req.file.buffer);
+        data.imageUrl = processedImage.imageUrl;
+        data.imageFilename = processedImage.imageFilename;
+        data.imageContentType = processedImage.imageContentType;
+        data.imageData = processedImage.imageData;
       }
 
       await new Book(data).save();
@@ -288,8 +353,11 @@ app.put(
       data.slug = slugify(data.title, { lower: true, strict: true });
 
       if (req.file && req.file.buffer) {
-        const imageUrl = await processBookImage(req.file.buffer);
-        data.imageUrl = imageUrl;
+        const processedImage = await processBookImage(req.file.buffer);
+        data.imageUrl = processedImage.imageUrl;
+        data.imageFilename = processedImage.imageFilename;
+        data.imageContentType = processedImage.imageContentType;
+        data.imageData = processedImage.imageData;
       }
 
       await Book.findByIdAndUpdate(req.params.id, data);
@@ -379,8 +447,11 @@ app.post(
       data.slug = slugify(data.title, { lower: true, strict: true });
 
       if (req.file && req.file.buffer) {
-        const imageUrl = await processGameImage(req.file.buffer);
-        data.imageUrl = imageUrl;
+        const processedImage = await processGameImage(req.file.buffer);
+        data.imageUrl = processedImage.imageUrl;
+        data.imageFilename = processedImage.imageFilename;
+        data.imageContentType = processedImage.imageContentType;
+        data.imageData = processedImage.imageData;
       }
 
       await new Game(data).save();
@@ -421,8 +492,11 @@ app.put(
       data.slug = slugify(data.title, { lower: true, strict: true });
 
       if (req.file && req.file.buffer) {
-        const imageUrl = await processGameImage(req.file.buffer);
-        data.imageUrl = imageUrl;
+        const processedImage = await processGameImage(req.file.buffer);
+        data.imageUrl = processedImage.imageUrl;
+        data.imageFilename = processedImage.imageFilename;
+        data.imageContentType = processedImage.imageContentType;
+        data.imageData = processedImage.imageData;
       }
 
       const game = await Game.findByIdAndUpdate(id, data, {
