@@ -131,11 +131,14 @@
         const CYCLE = [0, 1, 2, 3, "auto"]; // auto step lets users get back to automatic mode
 
         let currentPalette = 0;
+        let currentMode = "auto";
         let cycleIndex = 0;
+        let colorsLink = null;
 
         function applyPalette(index) {
           currentPalette = index;
           document.documentElement.setAttribute("data-palette", String(index));
+          updateColorsLinkLabel();
         }
 
         function saveMode(mode) {
@@ -182,6 +185,18 @@
           }
 
           return { mode, palette };
+        }
+
+        function updateColorsLinkLabel() {
+          if (!colorsLink) return;
+          const paletteLabels = ["Warm", "Seahawks", "Peach", "Dark"];
+          if (currentMode === "auto") {
+            colorsLink.textContent = "Colors (Auto)";
+            return;
+          }
+
+          const label = paletteLabels[currentPalette] || "Manual";
+          colorsLink.textContent = "Colors (" + label + ")";
         }
 
         function calculateSunTime(date, lat, lon, isSunrise) {
@@ -287,6 +302,7 @@
         }
 
         function setManualPalette(index) {
+          currentMode = "manual";
           applyPalette(index);
           savePalette(index);
           saveMode("manual");
@@ -294,6 +310,7 @@
         }
 
         function setAutoMode() {
+          currentMode = "auto";
           clearPalette();
           saveMode("auto");
           cycleIndex = CYCLE.indexOf("auto");
@@ -301,6 +318,8 @@
         }
 
         document.addEventListener("DOMContentLoaded", function () {
+          colorsLink = document.getElementById("colors-link");
+
           const stored = getStoredSettings();
           if (stored.mode === "manual" && stored.palette !== null) {
             setManualPalette(stored.palette);
@@ -309,10 +328,9 @@
             setAutoMode();
           }
 
-          const link = document.getElementById("colors-link");
-          if (!link) return;
+          if (!colorsLink) return;
 
-          link.addEventListener("click", function (event) {
+          colorsLink.addEventListener("click", function (event) {
             event.preventDefault();
             cycleIndex = (cycleIndex + 1) % CYCLE.length;
             const next = CYCLE[cycleIndex];
