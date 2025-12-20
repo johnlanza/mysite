@@ -272,13 +272,10 @@
         }
 
         function applyAutoPalette() {
-          // If geolocation fails, fall back to system preference or a night/day band.
+          // If geolocation fails, fall back to a simple local-time band.
           const now = new Date();
-          const prefersDark =
-            window.matchMedia &&
-            window.matchMedia("(prefers-color-scheme: dark)").matches;
           const timeBasedDark = now.getHours() >= 19 || now.getHours() < 6;
-          applyPalette(prefersDark || timeBasedDark ? 3 : 0);
+          applyPalette(timeBasedDark ? 3 : 0);
 
           if (!navigator.geolocation) return;
 
