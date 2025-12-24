@@ -1,8 +1,9 @@
 /* //colors pulled from */
 /* //[https://coolors.co/palette/edede9-d6ccc2-f5ebe0-e3d5ca-d5bdaf] */
 
-/* Palette 0 – Base palette (default, warm) */
+/* Palette 0 – Base palette (default, warm/peach) */
 :root {
+  color-scheme: light;
   --body-bg: #f5ebe0; /* lightest */
   --book-bg: #e3d5ca; /* slightly darker */
   --book-hover-bg: #d9c9b8; /* more darker */
@@ -25,25 +26,25 @@
   --book-hover-bg: #d0d4da; /* darker for hover + detail pages */
 
   --book-border: #8d9093; /* helmet/pants silver */
-  --text-color: #0f172a;
+  --text-color: #003087;
 
   --link-color: #00843d; /* unclicked = Kelly Green */
-  --link-visited-color: #003087; /* clicked/accent = Royal Blue */
+  --link-visited-color: #8d9093; /* clicked/accent = Royal Blue */
 }
 
-/* Palette 2 – Peach/magenta
-   #FFDBB5 — body background
-   #C04ABC — headline / clicked
+/* Palette 2 – 70s vibe
+   #a1c181 — body background
+   #fe7f2d — headline / clicked
    #E0A458 — (family for links)
 */
 :root[data-palette="2"] {
-  --body-bg: #ffdbb5; /* lightest */
-  --book-bg: #edcba7; /* slightly darker */
-  --book-hover-bg: #d9b68e; /* more darker */
-  --book-border: #c04abc;
-  --text-color: #2d0a34;
+  --body-bg: #f4a261; /* lightest */
+  --book-bg: #babd8d; /* slightly darker */
+  --book-hover-bg: #ca6702; /* more darker */
+  --book-border: #fe7f2d;
+  --text-color: #233d4d;
   --link-color: #b5671a; /* deeper burnt orange for contrast */
-  --link-visited-color: #c04abc; /* magenta accent */
+  --link-visited-color: #619b8a; /* magenta accent */
 }
 
 /* Palette 3 – Dark mode */
@@ -55,6 +56,7 @@
   --text-color: #e2e8f0;
   --link-color: #7dd3fc; /* soft cyan for unvisited */
   --link-visited-color: #c084fc; /* violet accent */
+  color-scheme: dark;
 }
 
 body {

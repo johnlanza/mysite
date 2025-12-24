@@ -125,15 +125,17 @@
 
     <script>
       (function () {
-        const TOTAL_PALETTES = 4; // 0 = warm, 1 = Seahawks, 2 = peach/magenta, 3 = dark
+        const TOTAL_PALETTES = 4; // 0 = Warm (default), 1 = Seahawks, 2 = 70s, 3 = Dark
         const STORAGE_KEY = "sitePaletteIndex";
         const MODE_KEY = "sitePaletteMode"; // "auto" | "manual"
         const CYCLE = [0, 1, 2, 3, "auto"]; // auto step lets users get back to automatic mode
+        const AUTO_CHECK_MS = 30 * 60 * 1000; // refresh auto choice every 30 minutes
 
         let currentPalette = 0;
         let currentMode = "auto";
         let cycleIndex = 0;
         let colorsLink = null;
+        let autoTimerId = null;
 
         function applyPalette(index) {
           currentPalette = index;
@@ -177,7 +179,11 @@
 
             const rawPalette = localStorage.getItem(STORAGE_KEY);
             const parsed = parseInt(rawPalette, 10);
-            if (!Number.isNaN(parsed) && parsed >= 0 && parsed < TOTAL_PALETTES) {
+            if (
+              !Number.isNaN(parsed) &&
+              parsed >= 0 &&
+              parsed < TOTAL_PALETTES
+            ) {
               palette = parsed;
             }
           } catch (e) {
@@ -189,7 +195,7 @@
 
         function updateColorsLinkLabel() {
           if (!colorsLink) return;
-          const paletteLabels = ["Warm", "Seahawks", "Peach", "Dark"];
+          const paletteLabels = ["Warm", "Seahawks", "70s", "Dark"];
           if (currentMode === "auto") {
             colorsLink.textContent = "Colors (Auto)";
             return;
@@ -199,106 +205,34 @@
           colorsLink.textContent = "Colors (" + label + ")";
         }
 
-        function calculateSunTime(date, lat, lon, isSunrise) {
-          const toRad = (deg) => (Math.PI / 180) * deg;
-          const toDeg = (rad) => (180 / Math.PI) * rad;
-
-          const year = date.getUTCFullYear();
-          const month = date.getUTCMonth();
-          const day = date.getUTCDate();
-
-          // Day of year (1-366)
-          const N1 = Math.floor((275 * (month + 1)) / 9);
-          const N2 = Math.floor((month + 1 + 9) / 12);
-          const N3 = 1 + Math.floor((year - 4 * Math.floor(year / 4) + 2) / 3);
-          const N = N1 - N2 * N3 + day - 30;
-
-          const lngHour = lon / 15;
-          const t = N + ((isSunrise ? 6 : 18) - lngHour) / 24;
-
-          const M = 0.9856 * t - 3.289;
-          let L =
-            M +
-            1.916 * Math.sin(toRad(M)) +
-            0.020 * Math.sin(toRad(2 * M)) +
-            282.634;
-          L = (L + 360) % 360;
-
-          let RA = toDeg(Math.atan(0.91764 * Math.tan(toRad(L))));
-          RA = (RA + 360) % 360;
-
-          const Lquadrant = Math.floor(L / 90) * 90;
-          const RAquadrant = Math.floor(RA / 90) * 90;
-          RA = (RA + (Lquadrant - RAquadrant)) / 15;
-
-          const sinDec = 0.39782 * Math.sin(toRad(L));
-          const cosDec = Math.cos(Math.asin(sinDec));
-
-          const cosH =
-            (Math.cos(toRad(90.833)) - sinDec * Math.sin(toRad(lat))) /
-            (cosDec * Math.cos(toRad(lat)));
-
-          if (cosH > 1 || cosH < -1) return null; // polar day/night
-
-          let H = Math.acos(cosH);
-          H = isSunrise ? 360 - toDeg(H) : toDeg(H);
-          H /= 15;
-
-          const T = H + RA - 0.06571 * t - 6.622;
-          const UT = (T - lngHour + 24) % 24;
-
-          const hour = Math.floor(UT);
-          const minute = Math.round((UT - hour) * 60);
-          const utcDate = Date.UTC(year, month, day, hour, minute);
-          return new Date(utcDate - date.getTimezoneOffset() * 60000);
-        }
-
-        function getSunTimes(date, lat, lon) {
-          const sunrise = calculateSunTime(date, lat, lon, true);
-          const sunset = calculateSunTime(date, lat, lon, false);
-          return { sunrise, sunset };
-        }
-
-        function isAfterSunset(now, times) {
-          if (!times) return null;
-          const { sunrise, sunset } = times;
-          if (sunrise && sunset) {
-            return now >= sunset || now < sunrise;
-          }
-          if (sunset) {
-            return now >= sunset;
-          }
-          return null;
+        function getClockPalette() {
+          const hour = new Date().getHours();
+          return hour >= 19 || hour < 6 ? 3 : 0;
         }
 
         function applyAutoPalette() {
-          // If geolocation fails, fall back to a simple local-time band.
-          const now = new Date();
-          const timeBasedDark = now.getHours() >= 19 || now.getHours() < 6;
-          applyPalette(timeBasedDark ? 3 : 0);
+          applyPalette(getClockPalette());
+        }
 
-          if (!navigator.geolocation) return;
+        function startAutoTimer() {
+          if (autoTimerId) {
+            clearInterval(autoTimerId);
+          }
+          autoTimerId = window.setInterval(function () {
+            if (currentMode === "auto") {
+              applyAutoPalette();
+            }
+          }, AUTO_CHECK_MS);
+        }
 
-          navigator.geolocation.getCurrentPosition(
-            function (pos) {
-              const { latitude, longitude } = pos.coords;
-              const times = getSunTimes(new Date(), latitude, longitude);
-              const shouldBeDark = isAfterSunset(new Date(), times);
-
-              if (shouldBeDark === true) {
-                applyPalette(3);
-              } else if (shouldBeDark === false) {
-                applyPalette(0);
-              }
-            },
-            function () {
-              // geolocation denied/failed; keep fallback choice
-            },
-            { maximumAge: 6 * 60 * 60 * 1000, timeout: 5000 }
-          );
+        function stopAutoTimer() {
+          if (!autoTimerId) return;
+          clearInterval(autoTimerId);
+          autoTimerId = null;
         }
 
         function setManualPalette(index) {
+          stopAutoTimer();
           currentMode = "manual";
           applyPalette(index);
           savePalette(index);
@@ -312,6 +246,7 @@
           saveMode("auto");
           cycleIndex = CYCLE.indexOf("auto");
           applyAutoPalette();
+          startAutoTimer();
         }
 
         document.addEventListener("DOMContentLoaded", function () {
