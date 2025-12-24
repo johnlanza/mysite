@@ -39,12 +39,12 @@
 */
 :root[data-palette="2"] {
   --body-bg: #f4a261; /* lightest */
-  --book-bg: #babd8d; /* slightly darker */
-  --book-hover-bg: #ca6702; /* more darker */
+  --book-bg: #ca6702; /* slightly darker */
+  --book-hover-bg: #babd8d; /* more darker */
   --book-border: #fe7f2d;
   --text-color: #233d4d;
-  --link-color: #b5671a; /* deeper burnt orange for contrast */
-  --link-visited-color: #619b8a; /* magenta accent */
+  --link-color: #b5610c; /* deeper burnt orange for contrast */
+  --link-visited-color: #137054; /* magenta accent */
 }
 
 /* Palette 3 – Dark mode */
