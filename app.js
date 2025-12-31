@@ -295,7 +295,9 @@ app.post("/events", isLoggedIn, async (req, res, next) => {
 // -----------------------
 app.get("/books", async (req, res, next) => {
   try {
-    const books = await Book.find({}).sort({ author: 1 });
+    const books = await Book.find({})
+      .collation({ locale: "en", strength: 2 })
+      .sort({ author: 1 });
     const events = await Event.find({}).sort({ year: 1 });
     res.render("books", {
       books,
@@ -388,7 +390,9 @@ app.get("/books/book-id-from-slug/:slug", async (req, res) => {
 app.get("/books/:slug", async (req, res) => {
   try {
     const book = await Book.findOne({ slug: req.params.slug });
-    const books = await Book.find({}).sort({ author: 1 });
+    const books = await Book.find({})
+      .collation({ locale: "en", strength: 2 })
+      .sort({ author: 1 });
     const events = await Event.find({}).sort({ year: 1 });
 
     if (!book) {
