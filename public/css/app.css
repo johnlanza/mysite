@@ -235,3 +235,12 @@ a:link {
 li {
   padding-left: 0em;
 }
+
+/* Add extra breathing room on larger screens only */
+@media (min-width: 992px) {
+  .site-shell {
+    padding-left: 5rem !important;
+    padding-right: 5rem !important;
+    max-width: 960px;
+  }
+}
