@@ -103,6 +103,105 @@
   .book-details h4 {
     margin-top: 0;
   }
+
+  /* Share modal */
+  .share-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: block;
+  }
+
+  .share-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+    width: min(520px, 90vw);
+    max-height: 90vh;
+    overflow: auto;
+    padding: 20px;
+    display: block;
+    z-index: 1000;
+  }
+
+  .share-modal h3 {
+    margin: 0 0 8px 0;
+  }
+
+  .share-modal .share-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .share-modal .share-modal-header button {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+  }
+
+  .share-option {
+    margin: 12px 0;
+  }
+
+  .share-option label {
+    display: block;
+    margin-bottom: 6px;
+    cursor: pointer;
+  }
+
+  .share-note-picker {
+    margin: 8px 0 14px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    max-height: 200px;
+    overflow: auto;
+    background: #fafafa;
+  }
+
+  .share-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .share-note span {
+    display: block;
+    line-height: 1.4;
+  }
+
+  .share-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .share-actions button {
+    cursor: pointer;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: #f6f6f6;
+  }
+
+  .share-actions button.primary {
+    background: #0077cc;
+    border-color: #0062a8;
+    color: #fff;
+  }
+
+  .hidden {
+    display: none !important;
+  }
 </style>
 
 <section>
@@ -166,7 +265,10 @@
       </p>
       <p style="font-style: italic; margin: 0 0 8px 0">by <%= book.author %></p>
 
-      <p><strong>Summary:</strong> <%= book.summary %></p>
+      <p>
+        <strong>Summary:</strong>
+        <span class="summary-text"><%= book.summary %></span>
+      </p>
 
       <% if (book.notes) { %>
       <div class="notes" style="min-height: 100px"><%- book.notes %></div>
@@ -179,9 +281,11 @@
         <a
           href="#"
           class="share-btn"
+          data-book-id="<%= book._id %>"
           data-slug="<%= book.slug %>"
           data-title="<%- book.title %>"
-          data-author="<%- book.author %>">
+          data-author="<%- book.author %>"
+          data-image="<%- book.imageUrl || '' %>">
           Share
         </a>
       </p>
@@ -200,6 +304,53 @@
   <a href="/books/newbook">Add a Book</a>
   <% } %>
 </section>
+
+<div id="share-overlay" class="share-overlay hidden"></div>
+<div
+  id="share-modal"
+  class="share-modal hidden"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="share-modal-title">
+  <div class="share-modal-header">
+    <h3 id="share-modal-title"></h3>
+    <button type="button" id="share-close-btn" aria-label="Close share dialog">
+      &times;
+    </button>
+  </div>
+
+  <form id="share-form">
+    <div class="share-option">
+      <label>
+        <input type="checkbox" id="share-summary" checked />
+        Include summary
+      </label>
+    </div>
+
+    <div class="share-option">
+      <p style="margin: 0 0 6px 0; font-weight: bold">Notes</p>
+      <label>
+        <input type="radio" name="share-notes-mode" value="none" />
+        No notes
+      </label>
+      <label>
+        <input type="radio" name="share-notes-mode" value="all" checked />
+        All notes
+      </label>
+      <label>
+        <input type="radio" name="share-notes-mode" value="select" />
+        Choose notes
+      </label>
+    </div>
+
+    <div id="share-note-picker" class="share-note-picker"></div>
+
+    <div class="share-actions">
+      <button type="button" id="share-cancel-btn">Cancel</button>
+      <button type="submit" class="primary">Share</button>
+    </div>
+  </form>
+</div>
 
 <script>
   const sharedSlug = "<%= sharedSlug || '' %>";
@@ -277,30 +428,242 @@
     }
   }
 
-  function shareBook(slug, title, author) {
-    const shareUrl = `${window.location.origin}/books/${slug}`;
-    const shareText = `Summary and notes for "${title}" by ${author} — worth reading.`;
+  const shareOverlay = document.getElementById("share-overlay");
+  const shareModal = document.getElementById("share-modal");
+  const shareModalTitle = document.getElementById("share-modal-title");
+  const shareSummaryCheckbox = document.getElementById("share-summary");
+  const shareNotePicker = document.getElementById("share-note-picker");
+  const shareForm = document.getElementById("share-form");
+  const shareCancelBtn = document.getElementById("share-cancel-btn");
+  const shareCloseBtn = document.getElementById("share-close-btn");
 
-    if (navigator.share) {
-      navigator
-        .share({ title, text: shareText, url: shareUrl })
-        .catch(() => {});
-    } else {
-      navigator.clipboard.writeText(`${shareText}\n${shareUrl}`).then(() => {
-        alert("Link copied to clipboard!");
-      });
-    }
+  function getSummaryText(bookId) {
+    const summaryEl = document.querySelector(
+      `#details-${bookId} .summary-text`
+    );
+    return summaryEl ? summaryEl.innerText.trim() : "";
   }
 
-  // Modern, safe event delegation for Share button
+  function parseNotes(notesEl) {
+    if (!notesEl) return [];
+
+    const listItems = Array.from(notesEl.querySelectorAll("li"))
+      .map((li) => li.innerText.trim())
+      .filter(Boolean);
+
+    if (listItems.length) return listItems;
+
+    return notesEl.innerText
+      .split(/\n+/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+  }
+
+  function buildNotePicker(notes) {
+    shareNotePicker.innerHTML = "";
+
+    if (!notes.length) {
+      const empty = document.createElement("p");
+      empty.textContent = "No notes available for this book.";
+      empty.style.margin = "0";
+      empty.style.color = "#666";
+      shareNotePicker.appendChild(empty);
+      return;
+    }
+
+    notes.forEach((note, idx) => {
+      const label = document.createElement("label");
+      label.className = "share-note";
+
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.name = "share-note";
+      input.value = note;
+      input.checked = true;
+      input.id = `note-${idx}`;
+
+      const textSpan = document.createElement("span");
+      textSpan.textContent = note;
+
+      label.appendChild(input);
+      label.appendChild(textSpan);
+      shareNotePicker.appendChild(label);
+    });
+  }
+
+  function setNotesMode(mode, notesExist) {
+    const noteRadios = document.querySelectorAll('input[name="share-notes-mode"]');
+    noteRadios.forEach((radio) => {
+      radio.disabled = !notesExist && radio.value !== "none";
+      radio.checked =
+        radio.value === (notesExist ? mode : "none");
+    });
+
+    shareNotePicker.style.display =
+      notesExist ? (mode === "select" ? "block" : "none") : "block";
+  }
+
+  function openShareModal({ slug, title, author, bookId, image }) {
+    const details = document.getElementById(`details-${bookId}`);
+    const notesEl = details ? details.querySelector(".notes") : null;
+    const notes = parseNotes(notesEl);
+    const summaryText = getSummaryText(bookId);
+
+    shareModal.dataset.slug = slug;
+    shareModal.dataset.title = title;
+    shareModal.dataset.author = author;
+    shareModal.dataset.bookId = bookId;
+    shareModal.dataset.image = image || "";
+
+    shareModalTitle.textContent = `Share "${title}"`;
+    shareSummaryCheckbox.checked = Boolean(summaryText);
+    shareSummaryCheckbox.disabled = summaryText.length === 0;
+
+    buildNotePicker(notes);
+    setNotesMode(notes.length ? "all" : "none", notes.length > 0);
+
+    shareOverlay.classList.remove("hidden");
+    shareModal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeShareModal() {
+    shareOverlay.classList.add("hidden");
+    shareModal.classList.add("hidden");
+    document.body.style.overflow = "";
+  }
+
   document.addEventListener("click", function (e) {
     if (e.target.classList.contains("share-btn")) {
       e.preventDefault();
       const slug = e.target.dataset.slug;
       const title = e.target.dataset.title;
       const author = e.target.dataset.author;
-      shareBook(slug, title, author);
+      const bookId = e.target.dataset.bookId;
+      const image = e.target.dataset.image || "";
+      openShareModal({ slug, title, author, bookId, image });
     }
+  });
+
+  shareOverlay.addEventListener("click", closeShareModal);
+  shareCancelBtn.addEventListener("click", closeShareModal);
+  shareCloseBtn.addEventListener("click", closeShareModal);
+
+  async function getShareFiles(imageUrl, slug) {
+    if (!imageUrl) return [];
+    try {
+      const res = await fetch(imageUrl, { mode: "cors" });
+      if (!res.ok) throw new Error("Failed to fetch image");
+      const blob = await res.blob();
+      const extension = blob.type.split("/")[1] || "jpg";
+      const file = new File([blob], `book-${slug}.${extension}`, {
+        type: blob.type,
+      });
+      return [file];
+    } catch (err) {
+      console.warn("Could not load image for sharing:", err);
+      return [];
+    }
+  }
+
+  document
+    .querySelectorAll('input[name="share-notes-mode"]')
+    .forEach((radio) => {
+      radio.addEventListener("change", () => {
+        const mode = radio.value;
+        const hasNotes =
+          shareNotePicker.querySelectorAll('input[name="share-note"]').length >
+          0;
+        setNotesMode(mode, hasNotes);
+
+        // When switching to "Choose notes", start with nothing selected
+        if (mode === "select") {
+          shareNotePicker
+            .querySelectorAll('input[name="share-note"]')
+            .forEach((cb) => {
+              cb.checked = false;
+            });
+        }
+      });
+    });
+
+  shareForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const slug = shareModal.dataset.slug;
+    const title = shareModal.dataset.title;
+    const author = shareModal.dataset.author;
+    const bookId = shareModal.dataset.bookId;
+    const image = shareModal.dataset.image;
+    const includeSummary = shareSummaryCheckbox.checked;
+    const summaryText = includeSummary ? getSummaryText(bookId) : "";
+
+    const noteMode =
+      document.querySelector('input[name="share-notes-mode"]:checked')
+        ?.value || "none";
+
+    const details = document.getElementById(`details-${bookId}`);
+    const notesEl = details ? details.querySelector(".notes") : null;
+    const allNotes = parseNotes(notesEl);
+
+    let selectedNotes = [];
+    if (noteMode === "all") {
+      selectedNotes = allNotes;
+    } else if (noteMode === "select") {
+      selectedNotes = Array.from(
+        shareNotePicker.querySelectorAll('input[name="share-note"]:checked')
+      ).map((cb) => cb.value);
+    }
+
+    if (!summaryText && !selectedNotes.length) {
+      alert("Select something to share (summary or notes).");
+      return;
+    }
+
+    const shareParts = [];
+    if (summaryText) shareParts.push(`Summary:\n${summaryText}`);
+    if (selectedNotes.length) {
+      shareParts.push(`Selected notes:\n- ${selectedNotes.join("\n- ")}`);
+    }
+
+    const shareUrl = `${window.location.origin}/books/${slug}`;
+    let shareText = `Here is some information about "${title}" by ${author} I thought you might find interesting.`;
+    if (shareParts.length) {
+      shareText += `\n\n${shareParts.join("\n\n")}`;
+    }
+    shareText += `\n\n${shareUrl}`;
+    if (image) {
+      shareText += `\n${image}`;
+    }
+
+    let shareData = { title: `Sharing notes on ${title}`, text: shareText };
+    const files = await getShareFiles(image, slug);
+    if (
+      files.length &&
+      navigator.canShare &&
+      navigator.canShare({ files })
+    ) {
+      shareData.files = files;
+    }
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        // Retry without files if files caused the failure
+        if (shareData.files) {
+          delete shareData.files;
+          try {
+            await navigator.share(shareData);
+          } catch (err2) {}
+        }
+      }
+    } else {
+      navigator.clipboard.writeText(shareText).then(() => {
+        alert("Selection copied to your clipboard.");
+      });
+    }
+
+    closeShareModal();
   });
 
   window.onload = async function () {
