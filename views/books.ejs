@@ -157,6 +157,39 @@
     cursor: pointer;
   }
 
+  @media (max-width: 640px) {
+    .book .book-header {
+      height: auto !important;
+      padding-top: 10px !important;
+      padding-bottom: 10px !important;
+      gap: 4px !important;
+    }
+
+    .book .book-text {
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      justify-content: center !important;
+      gap: 4px !important;
+      min-width: 0; /* allow text to use available space */
+    }
+
+    .book .book-title h3,
+    .book .book-author h4 {
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+
+    .book .book-image-wrapper {
+      display: none !important; /* reclaim text width on mobile */
+      flex: 0 0 0 !important;
+    }
+
+    .book .book-header .toggle-btn {
+      flex: 0 0 28px !important;
+    }
+  }
+
   .share-note-picker {
     margin: 8px 0 14px 0;
     padding: 10px;

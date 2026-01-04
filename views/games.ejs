@@ -92,6 +92,39 @@
     font-size: 24px;
     vertical-align: middle;
   }
+
+  @media (max-width: 640px) {
+    .game .game-header {
+      height: auto !important;
+      padding-top: 10px !important;
+      padding-bottom: 10px !important;
+      gap: 4px !important;
+    }
+
+    .game .game-text {
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      justify-content: center !important;
+      gap: 4px !important;
+      min-width: 0; /* let text shrink instead of the row overflowing */
+    }
+
+    .game .game-title h3,
+    .game .game-tagline h4 {
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+
+    .game .game-image-wrapper {
+      display: none !important; /* free up space for text on mobile */
+      flex: 0 0 0 !important;
+    }
+
+    .game .game-header .toggle-btn {
+      flex: 0 0 28px !important;
+    }
+  }
 </style>
 
 <section>
