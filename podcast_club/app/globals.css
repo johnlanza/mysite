@@ -1,0 +1,330 @@
+:root {
+  --bg: #f6f3ec;
+  --panel: #fffaf2;
+  --panel-alt: #f3efe4;
+  --ink: #1d231f;
+  --ink-soft: #475249;
+  --accent: #0d7666;
+  --accent-strong: #0b5f52;
+  --line: #d9d0c2;
+  --danger: #af2f2f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: radial-gradient(circle at top right, #d9ece8 0%, transparent 30%), var(--bg);
+  font-family: var(--font-sans), sans-serif;
+}
+
+.page-bg {
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(120deg, rgba(13, 118, 102, 0.04), rgba(157, 94, 39, 0.07));
+  pointer-events: none;
+}
+
+.shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+  position: relative;
+  z-index: 1;
+}
+
+.site-header h1 {
+  font-family: var(--font-serif), serif;
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.site-header p {
+  margin: 0.5rem 0 1rem;
+  color: var(--ink-soft);
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+  text-decoration: none;
+  background: var(--panel);
+}
+
+.nav-link.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.grid.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 1rem;
+}
+
+.card h2,
+.card h3 {
+  margin-top: 0;
+  font-family: var(--font-serif), serif;
+}
+
+.stat {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.7rem;
+  border-radius: 12px;
+  background: var(--panel-alt);
+}
+
+.stat strong {
+  font-size: 1.35rem;
+}
+
+.list {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.item {
+  padding: 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.item h4 {
+  margin: 0 0 0.35rem;
+}
+
+.item p {
+  margin: 0.2rem 0;
+  color: var(--ink-soft);
+}
+
+.form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.95rem;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid #c7bcaa;
+  border-radius: 10px;
+  padding: 0.6rem 0.7rem;
+  background: #fff;
+}
+
+textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+button {
+  width: fit-content;
+  border: 0;
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #2c3f39;
+}
+
+button.ghost {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.6rem;
+}
+
+.checkbox-row input[type='checkbox'] {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.error {
+  color: var(--danger);
+}
+
+.warning-banner {
+  margin: 0.3rem 0;
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  background: var(--danger);
+  color: #fff !important;
+  border: 1px solid #8c2424;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.2rem 0.5rem;
+  background: #e8f4f1;
+  color: var(--accent-strong);
+  border: 1px solid #c4e6df;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.badge.my-podcast {
+  background: #1f8f47;
+  color: #fff;
+  border-color: #1a7a3d;
+}
+
+.badge.tbd {
+  background: #efe7dc;
+  color: #5a4b35;
+  border-color: #d8c7af;
+}
+
+.discussed-card .item p,
+.discussed-card .item a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.carveouts-card .item p,
+.carveouts-card .item a,
+.carveouts-card .item h4 {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.podcasts-to-discuss-card .item p,
+.podcasts-to-discuss-card .item a,
+.podcasts-to-discuss-card .item h4 {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.podcasts-page .badge {
+  flex: 0 0 auto;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.podcasts-page .grid.two > * {
+  min-width: 0;
+}
+
+.podcasts-page .item,
+.podcasts-page .item h4,
+.podcasts-page .item p,
+.podcasts-page .item a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.podcasts-page .podcast-item-head {
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.podcasts-page .podcast-item-head h4 {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.podcasts-page .podcast-item-head .badge {
+  margin-left: auto;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 24, 22, 0.52);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  z-index: 20;
+}
+
+.modal-card {
+  width: min(520px, 100%);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1rem;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.24);
+}
+
+.modal-card h3 {
+  margin-top: 0;
+}
+
+@media (max-width: 760px) {
+  .grid.two {
+    grid-template-columns: 1fr;
+  }
+
+  .shell {
+    padding: 1.25rem 0.75rem 3rem;
+  }
+}

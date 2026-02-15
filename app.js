@@ -20,6 +20,7 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const multer = require("multer");
 const sharp = require("sharp");
+const { createRequire } = require("module");
 
 // MODELS
 const Event = require("./models/events");
@@ -35,6 +36,15 @@ const userRoutes = require("./routes/users");
 // App Init
 // -----------------------
 const app = express();
+
+const podcastClubDir = path.join(__dirname, "podcast_club");
+const podcastRequire = createRequire(path.join(podcastClubDir, "package.json"));
+const next = podcastRequire("next");
+const nextApp = next({
+  dev: process.env.NODE_ENV !== "production",
+  dir: podcastClubDir
+});
+const nextHandler = nextApp.getRequestHandler();
 
 // -----------------------
 // DB Connection
@@ -66,6 +76,7 @@ process.on("SIGTERM", () => {
 // -----------------------
 app.use(expressLayouts);
 app.use(express.static("public"));
+app.use("/music", express.static("music"));
 app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
 app.set("trust proxy", 1);
@@ -239,6 +250,10 @@ app.use("/", userRoutes);
 
 app.get("/", (req, res) => {
   res.render("home");
+});
+
+app.get("/joes-money-quest", (req, res) => {
+  res.sendFile(path.join(__dirname, "joes-money-quest.html"));
 });
 
 // -----------------------
@@ -606,6 +621,13 @@ app.post("/ideas", isLoggedIn, async (req, res, next) => {
 });
 
 // -----------------------
+// Podcast Club (Next.js)
+// -----------------------
+app.all("/podcastclub*", (req, res) => {
+  return nextHandler(req, res);
+});
+
+// -----------------------
 // Error Handler
 // -----------------------
 app.use((err, req, res, next) => {
@@ -617,4 +639,13 @@ app.use((err, req, res, next) => {
 // Start Server
 // -----------------------
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+
+async function startServer() {
+  await nextApp.prepare();
+  app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+}
+
+startServer().catch((err) => {
+  console.error("Failed to start server:", err);
+  process.exit(1);
+});

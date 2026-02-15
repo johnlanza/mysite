@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Joe's Money Quest</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" />
+    <style>
+      :root {
+        --joe-purple: #5b2b82;
+        --joe-blue: #1b6ca8;
+        --joe-green: #3fbf6b;
+        --joe-yellow: #f7c948;
+        --joe-pink: #ff6b8a;
+        --joe-dark: #1d1b33;
+        --joe-light: #fef7e7;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 80px 20px;
+        background: linear-gradient(180deg, #201133 0%, #3a1b53 60%, #e2a93b 100%);
+        font-family: "Press Start 2P", "Courier New", monospace;
+        color: var(--joe-light);
+      }
+
+      .joes-quest__frame {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: rgba(10, 8, 26, 0.92);
+        border: 6px solid #fff1b9;
+        border-radius: 16px;
+        box-shadow: 0 0 0 6px #1d1b33, 0 30px 60px rgba(0, 0, 0, 0.35);
+        padding: 32px;
+      }
+
+      .joes-quest__kicker {
+        color: var(--joe-yellow);
+        margin-bottom: 8px;
+      }
+
+      .joes-quest__title {
+        color: #ffffff;
+        font-size: clamp(1.6rem, 2vw + 1rem, 2.6rem);
+        margin: 0 0 12px;
+        text-transform: uppercase;
+      }
+
+      .joes-quest__subtitle {
+        font-family: "Courier New", monospace;
+        font-size: 1rem;
+        line-height: 1.6;
+        margin-bottom: 24px;
+      }
+
+      .joes-quest__hud {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 20px;
+        font-size: 0.75rem;
+      }
+
+      .joes-quest__stats span,
+      .joes-quest__controls span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        border: 2px solid #ffe6a7;
+        border-radius: 6px;
+        background: rgba(30, 22, 54, 0.6);
+      }
+
+      .joes-quest__controls {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .token {
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+
+      .token--share {
+        background: #f06292;
+        color: #3b0b22;
+      }
+
+      .token--save {
+        background: #3ddc97;
+        color: #0a3a22;
+      }
+
+      .token--spend {
+        background: #ffd54f;
+        color: #4a2c00;
+      }
+
+      .joes-quest__stage {
+        position: relative;
+        border: 6px solid #ffd166;
+        border-radius: 10px;
+        background: #10071e;
+        overflow: hidden;
+      }
+
+      #joes-game {
+        display: block;
+        width: 100%;
+        height: auto;
+        image-rendering: pixelated;
+      }
+
+      .joes-quest__overlay {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        background: rgba(15, 10, 29, 0.82);
+        color: #fff6c7;
+        padding: 24px;
+        gap: 10px;
+      }
+
+      .joes-quest__overlay.hidden {
+        display: none;
+      }
+
+      .joes-quest__overlay-title {
+        font-size: 1.1rem;
+        text-transform: uppercase;
+      }
+
+      .joes-quest__overlay-text {
+        font-family: "Courier New", monospace;
+        font-size: 0.95rem;
+      }
+
+      .joes-quest__message {
+        margin-top: 20px;
+        min-height: 48px;
+        padding: 12px 16px;
+        border: 2px dashed #ffe6a7;
+        border-radius: 8px;
+        font-family: "Courier New", monospace;
+        background: rgba(30, 22, 54, 0.6);
+      }
+
+      @media (max-width: 720px) {
+        body {
+          padding: 40px 16px;
+        }
+
+        .joes-quest__frame {
+          padding: 20px;
+        }
+
+        .joes-quest__hud {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="content">
+      <section class="joes-quest">
+        <div class="joes-quest__frame">
+          <header class="joes-quest__header">
+            <p class="joes-quest__kicker">Joe the Monkey presents</p>
+            <h1 class="joes-quest__title">Money Quest: Share • Save • Spend</h1>
+            <p class="joes-quest__subtitle">
+              Guide Joe through three 8-bit levels. Collect <span class="token token--share">Share Stars</span>,
+              <span class="token token--save">Save Shields</span>, and
+              <span class="token token--spend">Spend Sparks</span>
+              to power up his smart money journey.
+            </p>
+          </header>
+
+          <div class="joes-quest__hud" aria-live="polite">
+            <div class="joes-quest__stats">
+              <span>Level: <strong id="level-name">1</strong></span>
+              <span>Share: <strong id="share-count">0</strong></span>
+              <span>Save: <strong id="save-count">0</strong></span>
+              <span>Spend: <strong id="spend-count">0</strong></span>
+            </div>
+            <div class="joes-quest__controls">
+              <span>Move: ← →</span>
+              <span>Jump: Space</span>
+              <span>Restart: R</span>
+            </div>
+          </div>
+
+          <div class="joes-quest__stage">
+            <canvas id="joes-game" width="800" height="450" aria-label="Joe the Monkey platform game"></canvas>
+            <div class="joes-quest__overlay" id="game-overlay" role="status">
+              <p class="joes-quest__overlay-title">Press Enter to Start</p>
+              <p class="joes-quest__overlay-text">
+                Help Joe learn money moves by collecting tokens and reaching the banana bank!
+              </p>
+            </div>
+          </div>
+
+          <div class="joes-quest__message" id="game-message" role="status" aria-live="polite"></div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      (() => {
+        const canvas = document.getElementById("joes-game");
+        const ctx = canvas.getContext("2d");
+        const overlay = document.getElementById("game-overlay");
+        const messageBox = document.getElementById("game-message");
+        const levelLabel = document.getElementById("level-name");
+        const shareLabel = document.getElementById("share-count");
+        const saveLabel = document.getElementById("save-count");
+        const spendLabel = document.getElementById("spend-count");
+
+        const palette = {
+          sky: "#3a1b53",
+          ground: "#784421",
+          platform: "#f7c948",
+          ladder: "#ff8f1f",
+          joe: "#ffcf5c",
+          joeShadow: "#a85d1a",
+          banana: "#ffe066",
+          share: "#ff6b8a",
+          save: "#3ddc97",
+          spend: "#ffd54f",
+          text: "#fff6c7",
+          accent: "#6de7ff",
+        };
+
+        const baseLevels = [
+          {
+            name: "1",
+            message: "Sharing spreads joy! Grab Share Stars to help friends.",
+            platforms: [
+              { x: 0, y: 400, w: 800, h: 50 },
+              { x: 120, y: 320, w: 150, h: 20 },
+              { x: 340, y: 260, w: 140, h: 20 },
+              { x: 560, y: 310, w: 180, h: 20 },
+            ],
+            tokens: [
+              { type: "share", x: 160, y: 280 },
+              { type: "share", x: 390, y: 220 },
+              { type: "share", x: 610, y: 270 },
+            ],
+            goal: { x: 720, y: 250 },
+            start: { x: 30, y: 340 },
+          },
+          {
+            name: "2",
+            message: "Saving makes big dreams possible. Collect Save Shields!",
+            platforms: [
+              { x: 0, y: 400, w: 800, h: 50 },
+              { x: 60, y: 280, w: 160, h: 20 },
+              { x: 280, y: 230, w: 140, h: 20 },
+              { x: 480, y: 180, w: 160, h: 20 },
+              { x: 660, y: 300, w: 110, h: 20 },
+            ],
+            tokens: [
+              { type: "save", x: 110, y: 240 },
+              { type: "save", x: 320, y: 190 },
+              { type: "save", x: 520, y: 140 },
+            ],
+            goal: { x: 700, y: 260 },
+            start: { x: 30, y: 340 },
+          },
+          {
+            name: "3",
+            message: "Spending smart means picking what matters most!",
+            platforms: [
+              { x: 0, y: 400, w: 800, h: 50 },
+              { x: 80, y: 310, w: 140, h: 20 },
+              { x: 250, y: 250, w: 130, h: 20 },
+              { x: 420, y: 200, w: 150, h: 20 },
+              { x: 600, y: 140, w: 160, h: 20 },
+              { x: 620, y: 330, w: 140, h: 20 },
+            ],
+            tokens: [
+              { type: "spend", x: 120, y: 270 },
+              { type: "spend", x: 300, y: 210 },
+              { type: "spend", x: 470, y: 160 },
+            ],
+            goal: { x: 700, y: 100 },
+            start: { x: 30, y: 340 },
+          },
+        ];
+
+        let state = {
+          levelIndex: 0,
+          isRunning: false,
+          share: 0,
+          save: 0,
+          spend: 0,
+        };
+
+        const player = {
+          x: 0,
+          y: 0,
+          w: 26,
+          h: 30,
+          vx: 0,
+          vy: 0,
+          speed: 2.4,
+          jump: 8.5,
+          onGround: false,
+        };
+
+        const keys = {
+          left: false,
+          right: false,
+          jump: false,
+        };
+
+        const moneyTips = {
+          share: "Sharing shows kindness. Joe spreads joy!",
+          save: "Saving lets Joe plan for big goals.",
+          spend: "Smart spending means choosing wisely.",
+        };
+
+        const resetPlayer = () => {
+          const level = baseLevels[state.levelIndex];
+          player.x = level.start.x;
+          player.y = level.start.y;
+          player.vx = 0;
+          player.vy = 0;
+          player.onGround = false;
+        };
+
+        const resetLevel = () => {
+          const level = baseLevels[state.levelIndex];
+          level.tokens.forEach((token) => {
+            token.collected = false;
+          });
+          resetPlayer();
+          messageBox.textContent = level.message;
+        };
+
+        const updateHUD = () => {
+          levelLabel.textContent = baseLevels[state.levelIndex].name;
+          shareLabel.textContent = state.share;
+          saveLabel.textContent = state.save;
+          spendLabel.textContent = state.spend;
+        };
+
+        const drawPixelText = (text, x, y, color = palette.text) => {
+          ctx.fillStyle = color;
+          ctx.font = "12px 'Press Start 2P', monospace";
+          ctx.fillText(text, x, y);
+        };
+
+        const drawBackground = () => {
+          ctx.fillStyle = palette.sky;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          ctx.fillStyle = "#57216b";
+          ctx.fillRect(0, 300, canvas.width, 150);
+
+          ctx.fillStyle = "#d17f2e";
+          ctx.fillRect(0, 360, canvas.width, 90);
+        };
+
+        const drawPlatforms = (platforms) => {
+          platforms.forEach((platform) => {
+            ctx.fillStyle = palette.platform;
+            ctx.fillRect(platform.x, platform.y, platform.w, platform.h);
+            ctx.fillStyle = "#7f4f24";
+            ctx.fillRect(platform.x, platform.y + platform.h - 6, platform.w, 6);
+          });
+        };
+
+        const drawToken = (token) => {
+          if (token.collected) return;
+          const color = palette[token.type];
+          ctx.fillStyle = color;
+          ctx.fillRect(token.x, token.y, 18, 18);
+          ctx.fillStyle = "#1c0f2e";
+          ctx.fillRect(token.x + 4, token.y + 4, 10, 10);
+        };
+
+        const drawGoal = (goal) => {
+          ctx.fillStyle = palette.banana;
+          ctx.fillRect(goal.x, goal.y, 22, 30);
+          ctx.fillStyle = "#d18a00";
+          ctx.fillRect(goal.x + 4, goal.y + 6, 14, 20);
+        };
+
+        const drawPlayer = () => {
+          ctx.fillStyle = palette.joeShadow;
+          ctx.fillRect(player.x, player.y + 4, player.w, player.h);
+          ctx.fillStyle = palette.joe;
+          ctx.fillRect(player.x, player.y, player.w, player.h);
+          ctx.fillStyle = "#30150b";
+          ctx.fillRect(player.x + 6, player.y + 8, 4, 4);
+          ctx.fillRect(player.x + 16, player.y + 8, 4, 4);
+          ctx.fillStyle = "#4d260f";
+          ctx.fillRect(player.x + 9, player.y + 18, 8, 4);
+        };
+
+        const applyPhysics = (platforms) => {
+          player.vx = 0;
+          if (keys.left) player.vx = -player.speed;
+          if (keys.right) player.vx = player.speed;
+
+          if (keys.jump && player.onGround) {
+            player.vy = -player.jump;
+            player.onGround = false;
+          }
+
+          player.vy += 0.4;
+
+          player.x += player.vx;
+          player.y += player.vy;
+
+          player.x = Math.max(0, Math.min(canvas.width - player.w, player.x));
+          player.onGround = false;
+
+          platforms.forEach((platform) => {
+            const withinX = player.x + player.w > platform.x && player.x < platform.x + platform.w;
+            const landing = player.y + player.h >= platform.y && player.y + player.h <= platform.y + platform.h;
+            if (withinX && landing && player.vy >= 0) {
+              player.y = platform.y - player.h;
+              player.vy = 0;
+              player.onGround = true;
+            }
+          });
+
+          if (player.y > canvas.height) {
+            resetPlayer();
+          }
+        };
+
+        const checkTokens = (tokens) => {
+          tokens.forEach((token) => {
+            if (token.collected) return;
+            const hit =
+              player.x < token.x + 18 &&
+              player.x + player.w > token.x &&
+              player.y < token.y + 18 &&
+              player.y + player.h > token.y;
+            if (hit) {
+              token.collected = true;
+              state[token.type] += 1;
+              messageBox.textContent = moneyTips[token.type];
+            }
+          });
+        };
+
+        const checkGoal = (goal) => {
+          const hit =
+            player.x < goal.x + 22 &&
+            player.x + player.w > goal.x &&
+            player.y < goal.y + 30 &&
+            player.y + player.h > goal.y;
+          if (hit) {
+            state.levelIndex += 1;
+            if (state.levelIndex >= baseLevels.length) {
+              state.levelIndex = 0;
+              state.share = 0;
+              state.save = 0;
+              state.spend = 0;
+              overlay.classList.remove("hidden");
+              overlay.querySelector(".joes-quest__overlay-title").textContent =
+                "You did it! Joe is a Money Hero!";
+              overlay.querySelector(".joes-quest__overlay-text").textContent =
+                "Press Enter to replay the adventure.";
+              state.isRunning = false;
+            } else {
+              resetLevel();
+            }
+            updateHUD();
+          }
+        };
+
+        const render = () => {
+          const level = baseLevels[state.levelIndex];
+          drawBackground();
+          drawPlatforms(level.platforms);
+          level.tokens.forEach(drawToken);
+          drawGoal(level.goal);
+          drawPlayer();
+          drawPixelText(`Level ${level.name}`, 20, 30);
+        };
+
+        const loop = () => {
+          if (!state.isRunning) return;
+          const level = baseLevels[state.levelIndex];
+          applyPhysics(level.platforms);
+          checkTokens(level.tokens);
+          checkGoal(level.goal);
+          render();
+          updateHUD();
+          requestAnimationFrame(loop);
+        };
+
+        const startGame = () => {
+          overlay.classList.add("hidden");
+          state.isRunning = true;
+          resetLevel();
+          updateHUD();
+          requestAnimationFrame(loop);
+        };
+
+        document.addEventListener("keydown", (event) => {
+          if (event.code === "ArrowLeft") keys.left = true;
+          if (event.code === "ArrowRight") keys.right = true;
+          if (event.code === "Space") keys.jump = true;
+          if (event.code === "Enter" && !state.isRunning) startGame();
+          if (event.code === "KeyR") resetLevel();
+        });
+
+        document.addEventListener("keyup", (event) => {
+          if (event.code === "ArrowLeft") keys.left = false;
+          if (event.code === "ArrowRight") keys.right = false;
+          if (event.code === "Space") keys.jump = false;
+        });
+
+        resetLevel();
+        render();
+      })();
+    </script>
+  </body>
+</html>

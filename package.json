@@ -4,7 +4,8 @@
   },
   "scripts": {
     "start": "node app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npm --prefix podcast_club ci --legacy-peer-deps && npm --prefix podcast_club run build"
   },
   "dependencies": {
     "connect-flash": "^0.1.1",
