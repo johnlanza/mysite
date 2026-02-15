@@ -1,11 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, Suspense, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { withBasePath } from '@/lib/base-path';
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const tokenFromQuery = useMemo(() => searchParams.get('token') || '', [searchParams]);
   const [token, setToken] = useState('');
@@ -96,5 +96,22 @@ export default function ResetPasswordPage() {
         </p>
       </div>
     </section>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <section className="grid" style={{ marginTop: '1rem' }}>
+          <div className="card" style={{ maxWidth: '520px' }}>
+            <h2>Reset Password</h2>
+            <p>Loading...</p>
+          </div>
+        </section>
+      }
+    >
+      <ResetPasswordContent />
+    </Suspense>
   );
 }
