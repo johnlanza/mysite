@@ -93,48 +93,50 @@ export default function MembersPage() {
     setError('');
     setSaving(true);
 
-    const payload = {
-      name: form.name,
-      email: form.email,
-      addressLine1: form.addressLine1,
-      addressLine2: form.addressLine2,
-      city: form.city,
-      state: form.state,
-      postalCode: form.postalCode,
-      isAdmin: form.isAdmin,
-      ...(editingId ? {} : { password: form.password })
-    };
+    try {
+      const payload = {
+        name: form.name,
+        email: form.email,
+        addressLine1: form.addressLine1,
+        addressLine2: form.addressLine2,
+        city: form.city,
+        state: form.state,
+        postalCode: form.postalCode,
+        isAdmin: form.isAdmin,
+        ...(editingId ? {} : { password: form.password })
+      };
 
-    const res = await fetch(editingId ? `/api/members/${editingId}` : '/api/members', {
-      method: editingId ? 'PATCH' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+      const res = await fetch(withBasePath(editingId ? `/api/members/${editingId}` : '/api/members'), {
+        method: editingId ? 'PATCH' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
-    if (!res.ok) {
-      const payload = await res.json();
-      setError(payload.message || 'Unable to save member.');
-      setSaving(false);
-      return;
-    }
+      const responsePayload = await res.json().catch(() => ({}));
 
-    if (!editingId) {
-      const payload = await res.json();
-      if (payload.claimCode) {
+      if (!res.ok) {
+        setError(responsePayload.message || 'Unable to save member.');
+        return;
+      }
+
+      if (!editingId && responsePayload.claimCode) {
         setGeneratedClaimCodeByMember((prev) => ({
           ...prev,
-          [payload._id]: {
-            code: String(payload.claimCode),
-            expiresAt: String(payload.claimCodeExpiresAt || '')
+          [responsePayload._id]: {
+            code: String(responsePayload.claimCode),
+            expiresAt: String(responsePayload.claimCodeExpiresAt || '')
           }
         }));
       }
-    }
 
-    setForm(initialForm);
-    setEditingId(null);
-    await loadMembers();
-    setSaving(false);
+      setForm(initialForm);
+      setEditingId(null);
+      await loadMembers();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Unable to save member.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function generateJoinCode() {
@@ -217,7 +219,7 @@ export default function MembersPage() {
     if (confirmation === null) return;
 
     setDeletingId(member._id);
-    const res = await fetch(`/api/members/${member._id}`, {
+    const res = await fetch(withBasePath(`/api/members/${member._id}`), {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ confirmation })
