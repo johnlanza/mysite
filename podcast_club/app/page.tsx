@@ -29,6 +29,7 @@ export default function HomePage() {
   const [showAllCarveOuts, setShowAllCarveOuts] = useState(false);
   const [showAllDiscussedPodcasts, setShowAllDiscussedPodcasts] = useState(false);
   const [showAllPodcastsToDiscuss, setShowAllPodcastsToDiscuss] = useState(false);
+  const [showAllPodcastsToRank, setShowAllPodcastsToRank] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -107,6 +108,7 @@ export default function HomePage() {
       return !myRating || myRating.value === 'No selection';
     });
   }, [pending, member]);
+  const recentPodcastsToRank = useMemo(() => podcastsToRank.slice(0, 3), [podcastsToRank]);
 
   const recentCarveOuts = useMemo(() => {
     return [...carveOuts]
@@ -294,12 +296,12 @@ export default function HomePage() {
         )}
       </div>
 
-      <div className="card">
-        <h3>Podcasts You Need to Rank</h3>
+      <div className="card podcasts-to-rank-card">
+        <h3>Podcasts to Rank</h3>
         {!member ? <p>Sign in to see your personal ranking queue.</p> : null}
         <div className="list">
           {member && podcastsToRank.length === 0 ? <p>You have ranked all available podcasts.</p> : null}
-          {(member ? podcastsToRank : pending).map((podcast) => (
+          {recentPodcastsToRank.map((podcast) => (
             <div key={`rank-queue-${podcast._id}`} className="item">
               <h4>{podcast.title}</h4>
               <p>
@@ -316,6 +318,36 @@ export default function HomePage() {
             </div>
           ))}
         </div>
+        <div className="inline" style={{ marginTop: '0.75rem' }}>
+          <button
+            type="button"
+            className="secondary"
+            onClick={() => setShowAllPodcastsToRank((prev) => !prev)}
+          >
+            {showAllPodcastsToRank ? 'Show Recent Podcasts' : 'Show All Podcasts'}
+          </button>
+        </div>
+        {showAllPodcastsToRank ? (
+          <div className="list" style={{ marginTop: '0.75rem' }}>
+            {member && podcastsToRank.length === 0 ? <p>You have ranked all available podcasts.</p> : null}
+            {podcastsToRank.map((podcast) => (
+              <div key={`rank-queue-all-${podcast._id}`} className="item">
+                <h4>{podcast.title}</h4>
+                <p>
+                  <strong>Host:</strong> {podcast.host || 'Unknown'}
+                </p>
+                <p>
+                  <strong>Episode(s):</strong> {podcast.episodeNames || 'Unknown'}
+                </p>
+                <p>
+                  <a href={podcast.link} target="_blank" rel="noreferrer">
+                    {podcast.link}
+                  </a>
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : null}
         <p>
           <Link className="nav-link" href="/podcasts">
             Rank Podcasts

@@ -263,6 +263,13 @@ button:disabled {
   word-break: break-word;
 }
 
+.podcasts-to-rank-card .item p,
+.podcasts-to-rank-card .item a,
+.podcasts-to-rank-card .item h4 {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .podcasts-page .badge {
   flex: 0 0 auto;
   width: fit-content;

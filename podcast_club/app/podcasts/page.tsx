@@ -27,6 +27,7 @@ export default function PodcastsPage() {
   const [deletingPodcastId, setDeletingPodcastId] = useState<string | null>(null);
   const [deleteModalPodcast, setDeleteModalPodcast] = useState<Podcast | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [showAllToRank, setShowAllToRank] = useState(false);
   const [showAllRanked, setShowAllRanked] = useState(false);
   const [showAllDiscussed, setShowAllDiscussed] = useState(false);
 
@@ -165,6 +166,7 @@ export default function PodcastsPage() {
   const podcastsToRank = useMemo(() => {
     return pending.filter((podcast) => (savedRatings[podcast._id] || 'No selection') === 'No selection');
   }, [pending, savedRatings]);
+  const recentToRank = useMemo(() => podcastsToRank.slice(0, 3), [podcastsToRank]);
   const podcastsRankedByYou = useMemo(() => {
     return pending.filter((podcast) => (savedRatings[podcast._id] || 'No selection') !== 'No selection');
   }, [pending, savedRatings]);
@@ -299,7 +301,7 @@ export default function PodcastsPage() {
 
           <div className="list" style={{ marginTop: '0.75rem' }}>
             {podcastsToRank.length === 0 ? <p>No podcasts left to rank.</p> : null}
-            {podcastsToRank.map((podcast) => (
+            {recentToRank.map((podcast) => (
               <div className="item" key={podcast._id}>
                 <div className="inline podcast-item-head" style={{ justifyContent: 'space-between' }}>
                   <h4>{podcast.title}</h4>
@@ -361,6 +363,77 @@ export default function PodcastsPage() {
               </div>
             ))}
           </div>
+          <div className="inline" style={{ marginTop: '0.75rem' }}>
+            <button type="button" className="secondary" onClick={() => setShowAllToRank((prev) => !prev)}>
+              {showAllToRank ? 'Show Recent Podcasts' : 'Show All Podcasts'}
+            </button>
+          </div>
+          {showAllToRank ? (
+            <div className="list" style={{ marginTop: '0.75rem' }}>
+              {podcastsToRank.length === 0 ? <p>No podcasts left to rank.</p> : null}
+              {podcastsToRank.map((podcast) => (
+                <div className="item" key={`to-rank-all-${podcast._id}`}>
+                  <div className="inline podcast-item-head" style={{ justifyContent: 'space-between' }}>
+                    <h4>{podcast.title}</h4>
+                    {savedRatings[podcast._id] === 'My podcast' ? <span className="badge my-podcast">My Podcast</span> : null}
+                  </div>
+                  <p>
+                    <strong>Host:</strong> {podcast.host || 'Unknown'}
+                  </p>
+                  <p>
+                    <strong># of Episodes:</strong> {podcast.episodeCount || 'Unknown'}
+                  </p>
+                  <p>
+                    <strong>Name of Episode(s):</strong> {podcast.episodeNames || 'Unknown'}
+                  </p>
+                  <p>
+                    <strong>Total Time (approx min):</strong> {podcast.totalTimeMinutes || 'Unknown'}
+                  </p>
+                  <p>
+                    <strong>Link:</strong>{' '}
+                    <a href={podcast.link} target="_blank" rel="noreferrer">
+                      {podcast.link}
+                    </a>
+                  </p>
+                  {podcast.notes ? <p>{podcast.notes}</p> : <p>No notes yet.</p>}
+                  <p>
+                    <strong>Submitted by:</strong> {displayMemberName(podcast.submittedBy)}
+                  </p>
+                  <p>
+                    <strong>Ranking score:</strong> {podcast.rankingScore}
+                  </p>
+                  <p>
+                    <strong>Missing voters:</strong>{' '}
+                    {formatMissingVoters(podcast.missingVoters)}
+                  </p>
+
+                  <div className="inline">
+                    {podcast.submittedBy._id === member._id ? <span className="badge">Locked: your submission</span> : null}
+                    <select
+                      value={draftRatings[podcast._id] || 'No selection'}
+                      onChange={(event) => onDraftRatingChange(podcast, event.target.value)}
+                    >
+                      {getRatingOptions(podcast).map((option) => (
+                        <option
+                          key={option}
+                          value={option}
+                          disabled={option === 'My podcast' && isMyPodcastTakenByAnotherMember(podcast)}
+                        >
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                    <button onClick={() => saveRating(podcast._id)}>Save Rating</button>
+                    {canDeletePodcast(podcast) ? (
+                      <button className="secondary" onClick={() => openDeleteModal(podcast)}>
+                        Delete Podcast
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         <div className="card">
