@@ -39,8 +39,22 @@ export default function MembersPage() {
   >({});
   const [previewingMemberId, setPreviewingMemberId] = useState<string | null>(null);
 
+  async function fetchWithTimeout(
+    input: Parameters<typeof fetch>[0],
+    init?: Parameters<typeof fetch>[1],
+    timeoutMs = 15000
+  ) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(input, { ...init, signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   async function loadMembers() {
-    const meRes = await fetch(withBasePath('/api/auth/me'), { cache: 'no-store' });
+    const meRes = await fetchWithTimeout(withBasePath('/api/auth/me'), { cache: 'no-store' });
     if (!meRes.ok) {
       setCurrentMember(null);
       return;
@@ -49,12 +63,12 @@ export default function MembersPage() {
     const mePayload = await meRes.json();
     setCurrentMember(mePayload.member);
 
-    const membersRes = await fetch(withBasePath('/api/members'));
+    const membersRes = await fetchWithTimeout(withBasePath('/api/members'));
     if (!membersRes.ok) return;
     setMembers(await membersRes.json());
 
     if (mePayload.member.isAdmin) {
-      const codesRes = await fetch(withBasePath('/api/join-codes'));
+      const codesRes = await fetchWithTimeout(withBasePath('/api/join-codes'));
       if (codesRes.ok) {
         const codePayload = await codesRes.json();
         setActiveJoinCodes(Number(codePayload.activeCodes || 0));
@@ -106,11 +120,11 @@ export default function MembersPage() {
         ...(editingId ? {} : { password: form.password })
       };
 
-      const res = await fetch(withBasePath(editingId ? `/api/members/${editingId}` : '/api/members'), {
+      const res = await fetchWithTimeout(withBasePath(editingId ? `/api/members/${editingId}` : '/api/members'), {
         method: editingId ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
-      });
+      }, 20000);
 
       const responsePayload = await res.json().catch(() => ({}));
 

@@ -21,9 +21,18 @@ export async function connectToDatabase() {
   if (cache.conn) return cache.conn;
 
   if (!cache.promise) {
-    cache.promise = mongoose.connect(MONGODB_URI, {
-      dbName: process.env.MONGODB_DB || 'podcast_club'
-    });
+    cache.promise = mongoose
+      .connect(MONGODB_URI, {
+        dbName: process.env.MONGODB_DB || 'podcast_club',
+        serverSelectionTimeoutMS: 10000,
+        connectTimeoutMS: 10000,
+        socketTimeoutMS: 45000,
+        family: 4
+      })
+      .catch((error) => {
+        cache.promise = null;
+        throw error;
+      });
   }
 
   cache.conn = await cache.promise;
