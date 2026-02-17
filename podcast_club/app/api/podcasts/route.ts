@@ -5,7 +5,6 @@ import { formatPodcastForClient, sortPodcastsLikeSheet } from '@/lib/podcasts';
 import { getRatingPoints } from '@/lib/ranking';
 import MemberModel from '@/models/Member';
 import PodcastModel from '@/models/Podcast';
-import '@/models/Meeting';
 
 export async function GET() {
   const session = await requireSession();

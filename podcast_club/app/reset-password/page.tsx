@@ -5,7 +5,7 @@ import { FormEvent, Suspense, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { withBasePath } from '@/lib/base-path';
 
-function ResetPasswordContent() {
+function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const tokenFromQuery = useMemo(() => searchParams.get('token') || '', [searchParams]);
   const [token, setToken] = useState('');
@@ -111,7 +111,7 @@ export default function ResetPasswordPage() {
         </section>
       }
     >
-      <ResetPasswordContent />
+      <ResetPasswordForm />
     </Suspense>
   );
 }

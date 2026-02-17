@@ -38,6 +38,7 @@ export type Podcast = {
   ratings: PodcastRating[];
   rankingScore: number;
   missingVoters: string[];
+  createdAt?: string;
   discussedMeeting?: string | null;
   discussedMeetingDate?: string | null;
 };

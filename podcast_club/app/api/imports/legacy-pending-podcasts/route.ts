@@ -213,7 +213,7 @@ export async function POST(req: Request) {
         continue;
       }
 
-      let submittedBy = owners[0];
+      const submittedBy = owners[0];
       if (owners.length > 1) {
         warnings.push(`Row ${rowNumber}: multiple 'My podcast' owners found; using first match.`);
       }

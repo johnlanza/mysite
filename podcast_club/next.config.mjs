@@ -6,12 +6,6 @@ const basePath =
     : '';
 
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true
-  },
-  typescript: {
-    ignoreBuildErrors: true
-  },
   ...(basePath ? { basePath } : {}),
   experimental: {
     typedRoutes: true

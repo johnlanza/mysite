@@ -8,7 +8,7 @@ declare global {
   } | undefined;
 }
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI: string = process.env.MONGODB_URI || '';
 
 if (!MONGODB_URI) {
   throw new Error('Missing MONGODB_URI in environment variables');
@@ -21,18 +21,9 @@ export async function connectToDatabase() {
   if (cache.conn) return cache.conn;
 
   if (!cache.promise) {
-    cache.promise = mongoose
-      .connect(MONGODB_URI, {
-        dbName: process.env.MONGODB_DB || 'podcast_club',
-        serverSelectionTimeoutMS: 10000,
-        connectTimeoutMS: 10000,
-        socketTimeoutMS: 45000,
-        family: 4
-      })
-      .catch((error) => {
-        cache.promise = null;
-        throw error;
-      });
+    cache.promise = mongoose.connect(MONGODB_URI, {
+      dbName: process.env.MONGODB_DB || 'podcast_club'
+    });
   }
 
   cache.conn = await cache.promise;

@@ -83,6 +83,8 @@ export default function ImportsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deletingBatchId, setDeletingBatchId] = useState<string | null>(null);
+  const [deleteBatchModalId, setDeleteBatchModalId] = useState<string | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
   const selectedImporter = useMemo(
     () => IMPORTERS.find((importer) => importer.id === selectedImporterId) || IMPORTERS[0],
@@ -176,19 +178,30 @@ export default function ImportsPage() {
     setSaving(false);
   }
 
-  async function deleteBatch(batch: string) {
-    const confirmText = window.prompt(`Type DELETE to rollback import batch: ${batch}`);
-    if (confirmText !== 'DELETE') {
-      return;
-    }
+  function openDeleteBatchModal(batch: string) {
+    setError('');
+    setDeleteBatchModalId(batch);
+    setDeleteConfirmText('');
+  }
 
+  function closeDeleteBatchModal() {
+    if (deletingBatchId) return;
+    setDeleteBatchModalId(null);
+    setDeleteConfirmText('');
+  }
+
+  async function confirmDeleteBatch() {
+    if (!deleteBatchModalId) return;
+    if (deleteConfirmText !== 'DELETE') return;
+
+    const batch = deleteBatchModalId;
     setError('');
     setDeletingBatchId(batch);
 
     const res = await fetch(withBasePath(selectedImporter.endpoint), {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ batchId: batch, confirmText })
+      body: JSON.stringify({ batchId: batch, confirmText: deleteConfirmText })
     });
 
     const payload = (await res.json().catch(() => ({}))) as { message?: string };
@@ -203,6 +216,8 @@ export default function ImportsPage() {
     }
 
     await loadBatches(selectedImporter);
+    setDeleteBatchModalId(null);
+    setDeleteConfirmText('');
     setDeletingBatchId(null);
   }
 
@@ -347,7 +362,7 @@ export default function ImportsPage() {
             <code>{batch}</code>
             <button
               className="secondary"
-              onClick={() => void deleteBatch(batch)}
+              onClick={() => openDeleteBatchModal(batch)}
               disabled={deletingBatchId === batch}
               type="button"
             >
@@ -356,6 +371,38 @@ export default function ImportsPage() {
           </div>
         ))}
       </div>
+
+      {deleteBatchModalId ? (
+        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="delete-import-batch-title">
+          <div className="modal-card">
+            <h3 id="delete-import-batch-title">Delete Import Batch</h3>
+            <p>
+              Type <strong>DELETE</strong> to confirm deleting import batch <code>{deleteBatchModalId}</code>.
+            </p>
+            <label>
+              Confirmation
+              <input
+                value={deleteConfirmText}
+                onChange={(event) => setDeleteConfirmText(event.target.value)}
+                placeholder="DELETE"
+              />
+            </label>
+            <div className="inline" style={{ marginTop: '0.5rem' }}>
+              <button
+                className="secondary"
+                onClick={() => void confirmDeleteBatch()}
+                disabled={deletingBatchId === deleteBatchModalId}
+                type="button"
+              >
+                {deletingBatchId === deleteBatchModalId ? 'Deleting...' : 'Delete Batch'}
+              </button>
+              <button className="ghost" onClick={closeDeleteBatchModal} disabled={Boolean(deletingBatchId)} type="button">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

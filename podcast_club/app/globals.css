@@ -91,6 +91,7 @@ body {
 .card h3 {
   margin-top: 0;
   font-family: var(--font-serif), serif;
+  font-size: 1.5rem;
 }
 
 .stat {
@@ -209,6 +210,10 @@ button:disabled {
   color: var(--danger);
 }
 
+.success-message {
+  color: #1a6d3b;
+}
+
 .warning-banner {
   margin: 0.3rem 0;
   padding: 0.45rem 0.6rem;
@@ -235,6 +240,19 @@ button:disabled {
   background: #1f8f47;
   color: #fff;
   border-color: #1a7a3d;
+}
+
+.badge.my-carveout {
+  background: #0d7666;
+  color: #fff;
+  border-color: #0b5f52;
+}
+
+.badge.ranking-score {
+  background: #e8edf9;
+  color: #22407a;
+  border-color: #c9d6f0;
+  font-weight: 600;
 }
 
 .badge.tbd {
@@ -301,6 +319,17 @@ button:disabled {
 
 .podcasts-page .podcast-item-head .badge {
   margin-left: auto;
+}
+
+.carveout-item-head {
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.carveout-item-head h4 {
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .modal-backdrop {

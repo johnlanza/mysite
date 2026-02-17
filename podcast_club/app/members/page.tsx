@@ -38,23 +38,11 @@ export default function MembersPage() {
     Record<string, { code: string; expiresAt: string }>
   >({});
   const [previewingMemberId, setPreviewingMemberId] = useState<string | null>(null);
-
-  async function fetchWithTimeout(
-    input: Parameters<typeof fetch>[0],
-    init?: Parameters<typeof fetch>[1],
-    timeoutMs = 15000
-  ) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-      return await fetch(input, { ...init, signal: controller.signal });
-    } finally {
-      clearTimeout(timer);
-    }
-  }
+  const [deleteModalMember, setDeleteModalMember] = useState<Member | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
   async function loadMembers() {
-    const meRes = await fetchWithTimeout(withBasePath('/api/auth/me'), { cache: 'no-store' });
+    const meRes = await fetch(withBasePath('/api/auth/me'), { cache: 'no-store' });
     if (!meRes.ok) {
       setCurrentMember(null);
       return;
@@ -63,12 +51,12 @@ export default function MembersPage() {
     const mePayload = await meRes.json();
     setCurrentMember(mePayload.member);
 
-    const membersRes = await fetchWithTimeout(withBasePath('/api/members'));
+    const membersRes = await fetch(withBasePath('/api/members'));
     if (!membersRes.ok) return;
     setMembers(await membersRes.json());
 
     if (mePayload.member.isAdmin) {
-      const codesRes = await fetchWithTimeout(withBasePath('/api/join-codes'));
+      const codesRes = await fetch(withBasePath('/api/join-codes'));
       if (codesRes.ok) {
         const codePayload = await codesRes.json();
         setActiveJoinCodes(Number(codePayload.activeCodes || 0));
@@ -107,50 +95,48 @@ export default function MembersPage() {
     setError('');
     setSaving(true);
 
-    try {
-      const payload = {
-        name: form.name,
-        email: form.email,
-        addressLine1: form.addressLine1,
-        addressLine2: form.addressLine2,
-        city: form.city,
-        state: form.state,
-        postalCode: form.postalCode,
-        isAdmin: form.isAdmin,
-        ...(editingId ? {} : { password: form.password })
-      };
+    const payload = {
+      name: form.name,
+      email: form.email,
+      addressLine1: form.addressLine1,
+      addressLine2: form.addressLine2,
+      city: form.city,
+      state: form.state,
+      postalCode: form.postalCode,
+      isAdmin: form.isAdmin,
+      ...(editingId ? {} : { password: form.password })
+    };
 
-      const res = await fetchWithTimeout(withBasePath(editingId ? `/api/members/${editingId}` : '/api/members'), {
-        method: editingId ? 'PATCH' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }, 20000);
+    const res = await fetch(editingId ? `/api/members/${editingId}` : '/api/members', {
+      method: editingId ? 'PATCH' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
 
-      const responsePayload = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const payload = await res.json();
+      setError(payload.message || 'Unable to save member.');
+      setSaving(false);
+      return;
+    }
 
-      if (!res.ok) {
-        setError(responsePayload.message || 'Unable to save member.');
-        return;
-      }
-
-      if (!editingId && responsePayload.claimCode) {
+    if (!editingId) {
+      const payload = await res.json();
+      if (payload.claimCode) {
         setGeneratedClaimCodeByMember((prev) => ({
           ...prev,
-          [responsePayload._id]: {
-            code: String(responsePayload.claimCode),
-            expiresAt: String(responsePayload.claimCodeExpiresAt || '')
+          [payload._id]: {
+            code: String(payload.claimCode),
+            expiresAt: String(payload.claimCodeExpiresAt || '')
           }
         }));
       }
-
-      setForm(initialForm);
-      setEditingId(null);
-      await loadMembers();
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Unable to save member.');
-    } finally {
-      setSaving(false);
     }
+
+    setForm(initialForm);
+    setEditingId(null);
+    await loadMembers();
+    setSaving(false);
   }
 
   async function generateJoinCode() {
@@ -227,28 +213,44 @@ export default function MembersPage() {
     setGeneratingClaimCodeFor(null);
   }
 
-  async function deleteMember(member: Member) {
+  function openDeleteMemberModal(member: Member) {
     setError('');
-    const confirmation = window.prompt(`Type DELETE to permanently delete ${member.name}.`, '');
-    if (confirmation === null) return;
+    setDeleteModalMember(member);
+    setDeleteConfirmText('');
+  }
 
-    setDeletingId(member._id);
-    const res = await fetch(withBasePath(`/api/members/${member._id}`), {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ confirmation })
-    });
+  function closeDeleteMemberModal() {
+    if (deletingId) return;
+    setDeleteModalMember(null);
+    setDeleteConfirmText('');
+  }
 
-    if (!res.ok) {
-      const payload = await res.json();
-      setError(payload.message || 'Unable to delete member.');
-      window.alert(payload.message || 'Unable to delete member.');
+  async function confirmDeleteMember() {
+    if (!deleteModalMember) return;
+
+    setError('');
+    setDeletingId(deleteModalMember._id);
+    try {
+      const res = await fetch(withBasePath(`/api/members/${deleteModalMember._id}`), {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirmation: deleteConfirmText })
+      });
+
+      const payload = (await res.json().catch(() => null)) as { message?: string } | null;
+      if (!res.ok) {
+        setError(payload?.message || 'Unable to delete member.');
+        return;
+      }
+
+      setDeleteModalMember(null);
+      setDeleteConfirmText('');
+      await loadMembers();
+    } catch {
+      setError('Unable to delete member.');
+    } finally {
       setDeletingId(null);
-      return;
     }
-
-    await loadMembers();
-    setDeletingId(null);
   }
 
   async function previewAsMember(member: Member) {
@@ -446,7 +448,7 @@ export default function MembersPage() {
                   <button
                     type="button"
                     className="secondary"
-                    onClick={() => deleteMember(member)}
+                    onClick={() => openDeleteMemberModal(member)}
                     disabled={deletingId === member._id || member._id === currentMember._id}
                   >
                     {deletingId === member._id ? 'Deleting...' : 'Delete'}
@@ -486,6 +488,38 @@ export default function MembersPage() {
           ))}
         </div>
       </div>
+
+      {deleteModalMember ? (
+        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="delete-member-title">
+          <div className="modal-card">
+            <h3 id="delete-member-title">Delete Member</h3>
+            <p>
+              Type <strong>DELETE</strong> to confirm deleting <strong>{deleteModalMember.name}</strong>.
+            </p>
+            <label>
+              Confirmation
+              <input
+                value={deleteConfirmText}
+                onChange={(event) => setDeleteConfirmText(event.target.value)}
+                placeholder="DELETE"
+              />
+            </label>
+            <div className="inline" style={{ marginTop: '0.5rem' }}>
+              <button
+                type="button"
+                className="secondary"
+                onClick={confirmDeleteMember}
+                disabled={deletingId === deleteModalMember._id}
+              >
+                {deletingId === deleteModalMember._id ? 'Deleting...' : 'Delete Member'}
+              </button>
+              <button type="button" className="ghost" onClick={closeDeleteMemberModal} disabled={Boolean(deletingId)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

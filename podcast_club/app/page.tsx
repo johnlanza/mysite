@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { withBasePath } from '@/lib/base-path';
+import { dedupePodcastsByContent } from '@/lib/podcast-dedupe';
 import type { CarveOut, Meeting, Podcast, SessionMember } from '@/lib/types';
 
 function formatDate(value: string) {
@@ -10,7 +11,8 @@ function formatDate(value: string) {
     weekday: 'short',
     month: 'short',
     day: 'numeric',
-    year: 'numeric'
+    year: 'numeric',
+    timeZone: 'UTC'
   });
 }
 
@@ -99,7 +101,25 @@ export default function HomePage() {
   }, [meetings]);
 
   const pending = useMemo(() => podcasts.filter((podcast) => podcast.status === 'pending'), [podcasts]);
-  const recentPendingPodcasts = useMemo(() => pending.slice(0, 3), [pending]);
+  const podcastsToDiscuss = useMemo(() => {
+    const assignedPodcastIds = new Set(
+      meetings
+        .filter((meeting) => !isCompletedMeeting(meeting))
+        .map((meeting) => meeting.podcast?._id)
+        .filter((podcastId): podcastId is string => Boolean(podcastId))
+    );
+
+    return dedupePodcastsByContent(
+      pending
+      .filter((podcast) => !assignedPodcastIds.has(podcast._id))
+      .sort((a, b) => {
+        if (b.rankingScore !== a.rankingScore) return b.rankingScore - a.rankingScore;
+        return a.title.localeCompare(b.title);
+      })
+    );
+  }, [pending, meetings]);
+  const recentPodcastsToDiscuss = useMemo(() => podcastsToDiscuss.slice(0, 3), [podcastsToDiscuss]);
+  const remainingPodcastsToDiscuss = useMemo(() => podcastsToDiscuss.slice(3), [podcastsToDiscuss]);
 
   const podcastsToRank = useMemo(() => {
     if (!member) return [];
@@ -109,6 +129,7 @@ export default function HomePage() {
     });
   }, [pending, member]);
   const recentPodcastsToRank = useMemo(() => podcastsToRank.slice(0, 3), [podcastsToRank]);
+  const remainingPodcastsToRank = useMemo(() => podcastsToRank.slice(3), [podcastsToRank]);
 
   const recentCarveOuts = useMemo(() => {
     return [...carveOuts]
@@ -119,6 +140,7 @@ export default function HomePage() {
   const allCarveOuts = useMemo(() => {
     return [...carveOuts].sort((a, b) => +new Date(b.meeting.date) - +new Date(a.meeting.date));
   }, [carveOuts]);
+  const remainingCarveOuts = useMemo(() => allCarveOuts.slice(3), [allCarveOuts]);
   const previouslyDiscussed = useMemo(
     () => podcasts.filter((podcast) => podcast.status === 'discussed'),
     [podcasts]
@@ -134,8 +156,10 @@ export default function HomePage() {
   const recentDiscussedPodcasts = useMemo(() => {
     return allDiscussedPodcasts.slice(0, 3);
   }, [allDiscussedPodcasts]);
+  const remainingDiscussedPodcasts = useMemo(() => allDiscussedPodcasts.slice(3), [allDiscussedPodcasts]);
   const displayMemberName = (person: { _id: string; name: string }) =>
     member && person._id === member._id ? 'You' : person.name;
+  const isCurrentMemberHost = (meeting: Meeting) => Boolean(member && meeting.host._id === member._id);
   const annotateSelfInList = (name: string) =>
     member && name.trim().toLowerCase() === member.name.trim().toLowerCase() ? `${name} (you)` : name;
   const formatMissingVoters = (names: string[]) =>
@@ -185,8 +209,8 @@ export default function HomePage() {
           </div>
           {showAllDiscussedPodcasts ? (
             <div className="list" style={{ marginTop: '0.75rem' }}>
-              {allDiscussedPodcasts.length === 0 ? <p>No previously discussed podcasts.</p> : null}
-              {allDiscussedPodcasts.map((podcast) => (
+              {remainingDiscussedPodcasts.length === 0 ? <p>No additional previously discussed podcasts.</p> : null}
+              {remainingDiscussedPodcasts.map((podcast) => (
                 <div className="item" key={`public-home-discussed-all-${podcast._id}`}>
                   <h4>{podcast.title}</h4>
                   <p>
@@ -209,7 +233,7 @@ export default function HomePage() {
             {recentCarveOuts.length === 0 ? <p>No carve outs yet.</p> : null}
             {recentCarveOuts.map((carveOut) => (
               <div className="item" key={`public-home-carveout-${carveOut._id}`}>
-                <div className="inline" style={{ justifyContent: 'space-between' }}>
+                <div className="inline carveout-item-head" style={{ justifyContent: 'space-between' }}>
                   <h4>{carveOut.title}</h4>
                   <span className="badge">{carveOut.type}</span>
                 </div>
@@ -234,10 +258,10 @@ export default function HomePage() {
           </div>
           {showAllCarveOuts ? (
             <div className="list" style={{ marginTop: '0.75rem' }}>
-              {allCarveOuts.length === 0 ? <p>No carve outs yet.</p> : null}
-              {allCarveOuts.map((carveOut) => (
+              {remainingCarveOuts.length === 0 ? <p>No additional carve outs.</p> : null}
+              {remainingCarveOuts.map((carveOut) => (
                 <div className="item" key={`public-home-carveout-all-${carveOut._id}`}>
-                  <div className="inline" style={{ justifyContent: 'space-between' }}>
+                  <div className="inline carveout-item-head" style={{ justifyContent: 'space-between' }}>
                     <h4>{carveOut.title}</h4>
                     <span className="badge">{carveOut.type}</span>
                   </div>
@@ -270,6 +294,7 @@ export default function HomePage() {
             <h4>{formatDate(nextMeeting.date)}</h4>
             <p>
               <strong>Host:</strong> {displayMemberName(nextMeeting.host)}
+              {isCurrentMemberHost(nextMeeting) ? <span className="badge" style={{ marginLeft: '0.4rem' }}>Host</span> : null}
             </p>
             <p>
               <strong>Podcast:</strong> {nextMeeting.podcast?.title || <span className="badge tbd">TBD</span>}
@@ -298,9 +323,8 @@ export default function HomePage() {
 
       <div className="card podcasts-to-rank-card">
         <h3>Podcasts to Rank</h3>
-        {!member ? <p>Sign in to see your personal ranking queue.</p> : null}
         <div className="list">
-          {member && podcastsToRank.length === 0 ? <p>You have ranked all available podcasts.</p> : null}
+          {recentPodcastsToRank.length === 0 ? <p>No podcasts left to rank.</p> : null}
           {recentPodcastsToRank.map((podcast) => (
             <div key={`rank-queue-${podcast._id}`} className="item">
               <h4>{podcast.title}</h4>
@@ -318,19 +342,21 @@ export default function HomePage() {
             </div>
           ))}
         </div>
-        <div className="inline" style={{ marginTop: '0.75rem' }}>
-          <button
-            type="button"
-            className="secondary"
-            onClick={() => setShowAllPodcastsToRank((prev) => !prev)}
-          >
-            {showAllPodcastsToRank ? 'Show Recent Podcasts' : 'Show All Podcasts'}
-          </button>
-        </div>
-        {showAllPodcastsToRank ? (
+        {podcastsToRank.length > 0 ? (
+          <div className="inline" style={{ marginTop: '0.75rem' }}>
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => setShowAllPodcastsToRank((prev) => !prev)}
+            >
+              {showAllPodcastsToRank ? 'Show Recent Podcasts' : 'Show All Podcasts'}
+            </button>
+          </div>
+        ) : null}
+        {showAllPodcastsToRank && podcastsToRank.length > 0 ? (
           <div className="list" style={{ marginTop: '0.75rem' }}>
-            {member && podcastsToRank.length === 0 ? <p>You have ranked all available podcasts.</p> : null}
-            {podcastsToRank.map((podcast) => (
+            {remainingPodcastsToRank.length === 0 ? <p>No additional podcasts to rank.</p> : null}
+            {remainingPodcastsToRank.map((podcast) => (
               <div key={`rank-queue-all-${podcast._id}`} className="item">
                 <h4>{podcast.title}</h4>
                 <p>
@@ -348,83 +374,12 @@ export default function HomePage() {
             ))}
           </div>
         ) : null}
-        <p>
-          <Link className="nav-link" href="/podcasts">
-            Rank Podcasts
-          </Link>
-        </p>
-      </div>
-
-      <div className="card podcasts-to-discuss-card">
-        <h3>Podcasts To Discuss</h3>
-        <div className="list">
-          {recentPendingPodcasts.length === 0 ? <p>No recent pending podcasts.</p> : null}
-          {recentPendingPodcasts.map((podcast) => (
-            <div key={podcast._id} className="item">
-              <h4>{podcast.title}</h4>
-              <p>
-                <strong>Description:</strong> {podcast.notes || 'No description yet.'}
-              </p>
-              <p>
-                <strong>Link:</strong>{' '}
-                <a href={podcast.link} target="_blank" rel="noreferrer">
-                  {podcast.link}
-                </a>
-              </p>
-              <p>
-                <strong>Ranking:</strong> {podcast.rankingScore}
-              </p>
-              {podcast.missingVoters.length > 0 ? (
-                <p className="warning-banner">
-                  <strong>Warning:</strong> Missing votes from {formatMissingVoters(podcast.missingVoters)}
-                </p>
-              ) : (
-                <p>
-                  <strong>All members have rated.</strong>
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
-        <div className="inline" style={{ marginTop: '0.75rem' }}>
-          <button
-            type="button"
-            className="secondary"
-            onClick={() => setShowAllPodcastsToDiscuss((prev) => !prev)}
-          >
-            {showAllPodcastsToDiscuss ? 'Show Recent Podcasts' : 'Show All Podcasts'}
-          </button>
-        </div>
-        {showAllPodcastsToDiscuss ? (
-          <div className="list" style={{ marginTop: '0.75rem' }}>
-            {pending.length === 0 ? <p>No pending podcasts.</p> : null}
-            {pending.map((podcast) => (
-              <div key={`pending-all-${podcast._id}`} className="item">
-                <h4>{podcast.title}</h4>
-                <p>
-                  <strong>Description:</strong> {podcast.notes || 'No description yet.'}
-                </p>
-                <p>
-                  <strong>Link:</strong>{' '}
-                  <a href={podcast.link} target="_blank" rel="noreferrer">
-                    {podcast.link}
-                  </a>
-                </p>
-                <p>
-                  <strong>Ranking:</strong> {podcast.rankingScore}
-                </p>
-                {podcast.missingVoters.length > 0 ? (
-                  <p className="warning-banner">
-                    <strong>Warning:</strong> Missing votes from {formatMissingVoters(podcast.missingVoters)}
-                  </p>
-                ) : (
-                  <p>
-                    <strong>All members have rated.</strong>
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
+        {podcastsToRank.length > 0 ? (
+          <p>
+            <Link className="nav-link" href="/podcasts">
+              Rank Podcasts
+            </Link>
+          </p>
         ) : null}
       </div>
 
@@ -435,9 +390,12 @@ export default function HomePage() {
           {recentCarveOuts.length === 0 ? <p>No recent carve outs.</p> : null}
           {recentCarveOuts.map((carveOut) => (
             <div className="item" key={carveOut._id}>
-              <div className="inline" style={{ justifyContent: 'space-between' }}>
+              <div className="inline carveout-item-head" style={{ justifyContent: 'space-between' }}>
                 <h4>{carveOut.title}</h4>
-                <span className="badge">{carveOut.type}</span>
+                <div className="inline" style={{ gap: '0.35rem' }}>
+                  <span className="badge">{carveOut.type}</span>
+                  {carveOut.member._id === member._id ? <span className="badge my-carveout">My Carve Out</span> : null}
+                </div>
               </div>
               <p>
                 <strong>Shared by:</strong> {displayMemberName(carveOut.member)}
@@ -467,12 +425,15 @@ export default function HomePage() {
 
         {showAllCarveOuts ? (
           <div className="list" style={{ marginTop: '0.75rem' }}>
-            {allCarveOuts.length === 0 ? <p>No carve outs yet.</p> : null}
-            {allCarveOuts.map((carveOut) => (
+            {remainingCarveOuts.length === 0 ? <p>No additional carve outs.</p> : null}
+            {remainingCarveOuts.map((carveOut) => (
               <div className="item" key={`all-${carveOut._id}`}>
-                <div className="inline" style={{ justifyContent: 'space-between' }}>
+                <div className="inline carveout-item-head" style={{ justifyContent: 'space-between' }}>
                   <h4>{carveOut.title}</h4>
-                  <span className="badge">{carveOut.type}</span>
+                  <div className="inline" style={{ gap: '0.35rem' }}>
+                    <span className="badge">{carveOut.type}</span>
+                    {carveOut.member._id === member._id ? <span className="badge my-carveout">My Carve Out</span> : null}
+                  </div>
                 </div>
                 <p>
                   <strong>Meeting:</strong> {formatDate(carveOut.meeting.date)}
@@ -490,6 +451,80 @@ export default function HomePage() {
                     'No link provided.'
                   )}
                 </p>
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </div>
+
+      <div className="card podcasts-to-discuss-card">
+        <h3>Podcasts To Discuss</h3>
+        <p>Sorted by ranking score (highest first).</p>
+        <div className="list">
+          {recentPodcastsToDiscuss.length === 0 ? <p>No podcasts to discuss yet.</p> : null}
+          {recentPodcastsToDiscuss.map((podcast) => (
+            <div key={podcast._id} className="item">
+              <div className="inline" style={{ justifyContent: 'space-between' }}>
+                <h4>{podcast.title}</h4>
+                <span className="badge ranking-score">Score: {podcast.rankingScore}</span>
+              </div>
+              <p>
+                <strong>Description:</strong> {podcast.notes || 'No description yet.'}
+              </p>
+              <p>
+                <strong>Link:</strong>{' '}
+                <a href={podcast.link} target="_blank" rel="noreferrer">
+                  {podcast.link}
+                </a>
+              </p>
+              {podcast.missingVoters.length > 0 ? (
+                <p className="warning-banner">
+                  <strong>Warning:</strong> Missing votes from {formatMissingVoters(podcast.missingVoters)}
+                </p>
+              ) : (
+                <p>
+                  <strong>All members have rated.</strong>
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="inline" style={{ marginTop: '0.75rem' }}>
+          <button
+            type="button"
+            className="secondary"
+            onClick={() => setShowAllPodcastsToDiscuss((prev) => !prev)}
+          >
+            {showAllPodcastsToDiscuss ? 'Show Recent Podcasts' : 'Show All Podcasts'}
+          </button>
+        </div>
+        {showAllPodcastsToDiscuss ? (
+          <div className="list" style={{ marginTop: '0.75rem' }}>
+            {remainingPodcastsToDiscuss.length === 0 ? <p>No additional podcasts to discuss.</p> : null}
+            {remainingPodcastsToDiscuss.map((podcast) => (
+              <div key={`pending-all-${podcast._id}`} className="item">
+                <div className="inline" style={{ justifyContent: 'space-between' }}>
+                  <h4>{podcast.title}</h4>
+                  <span className="badge ranking-score">Score: {podcast.rankingScore}</span>
+                </div>
+                <p>
+                  <strong>Description:</strong> {podcast.notes || 'No description yet.'}
+                </p>
+                <p>
+                  <strong>Link:</strong>{' '}
+                  <a href={podcast.link} target="_blank" rel="noreferrer">
+                    {podcast.link}
+                  </a>
+                </p>
+                {podcast.missingVoters.length > 0 ? (
+                  <p className="warning-banner">
+                    <strong>Warning:</strong> Missing votes from {formatMissingVoters(podcast.missingVoters)}
+                  </p>
+                ) : (
+                  <p>
+                    <strong>All members have rated.</strong>
+                  </p>
+                )}
               </div>
             ))}
           </div>
@@ -536,8 +571,8 @@ export default function HomePage() {
         </div>
         {showAllDiscussedPodcasts ? (
           <div className="list" style={{ marginTop: '0.75rem' }}>
-            {allDiscussedPodcasts.length === 0 ? <p>No discussed podcasts yet.</p> : null}
-            {allDiscussedPodcasts.map((podcast) => (
+            {remainingDiscussedPodcasts.length === 0 ? <p>No additional discussed podcasts.</p> : null}
+            {remainingDiscussedPodcasts.map((podcast) => (
               <div className="item" key={`home-discussed-all-${podcast._id}`}>
                 <div className="inline" style={{ justifyContent: 'space-between' }}>
                   <h4>{podcast.title}</h4>
