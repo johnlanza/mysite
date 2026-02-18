@@ -43,11 +43,12 @@ cp .env.example .env
 Required vars:
 
 - `MONGODB_URI`
-- `SESSION_SECRET`
+- `MYSITE_SESSION_KEY`
 
 Optional:
 
 - `MONGODB_DB` (defaults to `podcast_club`)
+- `MYSITE_SESSION_COOKIE` (defaults to `mysite_session`)
 - `APP_BASE_URL` (defaults to `http://localhost:3000`; used for password reset links)
 - `NEXT_PUBLIC_BASE_PATH` (set to `/podcastclub` when deploying under a subpath like `johnlanza.com/podcastclub`)
 - `RESEND_API_KEY` (if set, sends password reset emails through Resend)

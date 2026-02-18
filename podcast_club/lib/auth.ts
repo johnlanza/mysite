@@ -5,7 +5,7 @@ import { connectToDatabase } from '@/lib/db';
 import { formatAddress } from '@/lib/address';
 import MemberModel from '@/models/Member';
 
-const SESSION_COOKIE = 'podcast_club_session';
+const SESSION_COOKIE = process.env.MYSITE_SESSION_COOKIE || 'mysite_session';
 const SESSION_DAYS = 7;
 
 type SessionPayload = {
@@ -16,9 +16,9 @@ type SessionPayload = {
 };
 
 function getSessionSecret() {
-  const secret = process.env.SESSION_SECRET;
+  const secret = process.env.MYSITE_SESSION_KEY;
   if (!secret) {
-    throw new Error('Missing SESSION_SECRET in environment variables');
+    throw new Error('Missing MYSITE_SESSION_KEY in environment variables');
   }
   return secret;
 }
