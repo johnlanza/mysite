@@ -1,5 +1,12 @@
 # Podcast Club
 
+## Source Of Truth
+
+- Active development path: `/Users/johnlanza/Dev/mySite/podcast_club`
+- Canonical git/deploy source: `johnlanza/mysite` (`main`)
+- Render service: `mysite`
+- Do not use the standalone `/Users/johnlanza/Dev/podcast_club` repo for production changes.
+
 Podcast Club web app with email/password auth, ranked voting, admin-managed meetings, and carve outs.
 
 ## Features
