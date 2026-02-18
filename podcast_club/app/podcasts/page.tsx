@@ -334,7 +334,7 @@ export default function PodcastsPage() {
           </div>
 
           {discussed.length > 0 ? (
-            <div className="card">
+            <div className="card podcasts-previously-discussed-card">
               <h3>Podcasts Previously Discussed</h3>
               <div className="list" style={{ marginTop: '0.75rem' }}>
                 {recentDiscussed.map((podcast) => (
@@ -407,7 +407,7 @@ export default function PodcastsPage() {
         </div>
 
         <div className="grid">
-        <div className="card">
+        <div className="card podcasts-to-rank-card">
           <h2 style={{ marginTop: 0 }}>Podcasts to Rank</h2>
           {podcastsToRank.length > 0 ? <p>Rate each pending podcast. Rankings use your point system from the sheet.</p> : null}
 
@@ -476,7 +476,7 @@ export default function PodcastsPage() {
           </div>
         </div>
 
-        <div className="card">
+        <div className="card podcasts-to-discuss-page-card">
           <h2 style={{ marginTop: 0 }}>Podcasts To Discuss</h2>
           <p>Pending podcasts not assigned to a meeting yet, ranked highest to lowest.</p>
 

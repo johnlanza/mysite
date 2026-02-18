@@ -4,6 +4,7 @@ import { requireSession } from '@/lib/auth';
 import { formatPodcastForClient, sortPodcastsLikeSheet } from '@/lib/podcasts';
 import { getRatingPoints } from '@/lib/ranking';
 import MemberModel from '@/models/Member';
+import '@/models/Meeting';
 import PodcastModel from '@/models/Podcast';
 
 export async function GET() {

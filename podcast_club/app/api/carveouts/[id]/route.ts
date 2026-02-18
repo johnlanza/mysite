@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { requireSession } from '@/lib/auth';
 import CarveOutModel from '@/models/CarveOut';
+import '@/models/Meeting';
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   const session = await requireSession();

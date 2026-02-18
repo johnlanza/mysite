@@ -360,6 +360,26 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 
+  .podcasts-to-discuss-card {
+    order: 3;
+  }
+
+  .carveouts-card {
+    order: 4;
+  }
+
+  .podcasts-page .grid.two > .grid {
+    display: contents;
+  }
+
+  .podcasts-page .podcasts-to-discuss-page-card {
+    order: 3;
+  }
+
+  .podcasts-page .podcasts-previously-discussed-card {
+    order: 4;
+  }
+
   .shell {
     padding: 1.25rem 0.75rem 3rem;
   }
