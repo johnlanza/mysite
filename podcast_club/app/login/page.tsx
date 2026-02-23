@@ -58,44 +58,52 @@ export default function LoginPage() {
     event.preventDefault();
     setError('');
     setSaving(true);
+    try {
+      const res = await fetch(withBasePath('/api/auth/login'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(loginForm)
+      });
 
-    const res = await fetch(withBasePath('/api/auth/login'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(loginForm)
-    });
+      if (!res.ok) {
+        const payload = (await res.json().catch(() => null)) as { message?: string } | null;
+        setError(payload?.message || 'Unable to login. Check server logs and environment variables.');
+        setSaving(false);
+        return;
+      }
 
-    if (!res.ok) {
-      const payload = await res.json();
-      setError(payload.message || 'Unable to login.');
+      router.push('/');
+      router.refresh();
+    } catch {
+      setError('Unable to login. Check server logs and environment variables.');
       setSaving(false);
-      return;
     }
-
-    router.push('/');
-    router.refresh();
   }
 
   async function submitRegister(event: FormEvent) {
     event.preventDefault();
     setError('');
     setSaving(true);
+    try {
+      const res = await fetch(withBasePath('/api/auth/register'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(registerForm)
+      });
 
-    const res = await fetch(withBasePath('/api/auth/register'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(registerForm)
-    });
+      if (!res.ok) {
+        const payload = (await res.json().catch(() => null)) as { message?: string } | null;
+        setError(payload?.message || 'Unable to register. Check server logs and environment variables.');
+        setSaving(false);
+        return;
+      }
 
-    if (!res.ok) {
-      const payload = await res.json();
-      setError(payload.message || 'Unable to register.');
+      router.push('/');
+      router.refresh();
+    } catch {
+      setError('Unable to register. Check server logs and environment variables.');
       setSaving(false);
-      return;
     }
-
-    router.push('/');
-    router.refresh();
   }
 
   return (

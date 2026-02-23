@@ -364,6 +364,10 @@ button:disabled {
     order: 3;
   }
 
+  .discussed-card {
+    order: 4;
+  }
+
   .carveouts-card {
     order: 4;
   }
