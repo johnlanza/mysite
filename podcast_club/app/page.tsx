@@ -297,16 +297,19 @@ export default function HomePage() {
               {isCurrentMemberHost(nextMeeting) ? <span className="badge" style={{ marginLeft: '0.4rem' }}>Host</span> : null}
             </p>
             <p>
-              <strong>Podcast:</strong> {nextMeeting.podcast?.title || <span className="badge tbd">TBD</span>}
+              <strong>Podcast Title:</strong>{' '}
+              {nextMeeting.podcast?.title ? (
+                <>
+                  {nextMeeting.podcast.title}
+                  {nextMeeting.podcast.host ? ` (${nextMeeting.podcast.host})` : ''}
+                </>
+              ) : (
+                <span className="badge tbd">TBD</span>
+              )}
             </p>
-            {nextMeeting.podcast?.host ? (
-              <p>
-                <strong>Podcast Host:</strong> {nextMeeting.podcast?.host}
-              </p>
-            ) : null}
             {nextMeeting.podcast?.link ? (
               <p>
-                <strong>Link:</strong>{' '}
+                <strong>Podcast Link:</strong>{' '}
                 <a href={nextMeeting.podcast?.link} target="_blank" rel="noreferrer">
                   {nextMeeting.podcast?.link}
                 </a>

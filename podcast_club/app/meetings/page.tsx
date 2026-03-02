@@ -409,11 +409,22 @@ export default function MeetingsPage() {
                 {isCurrentMemberHost(nextMeeting) ? <span className="badge" style={{ marginLeft: '0.4rem' }}>Host</span> : null}
               </p>
               <p>
-                <strong>Podcast:</strong> {nextMeeting.podcast?.title || <span className="badge tbd">TBD</span>}
+                <strong>Podcast Title:</strong>{' '}
+                {nextMeeting.podcast?.title ? (
+                  <>
+                    {nextMeeting.podcast.title}
+                    {nextMeeting.podcast.host ? ` (${nextMeeting.podcast.host})` : ''}
+                  </>
+                ) : (
+                  <span className="badge tbd">TBD</span>
+                )}
               </p>
-              {nextMeeting.podcast?.host ? (
+              {nextMeeting.podcast?.link ? (
                 <p>
-                  <strong>Podcast Host:</strong> {nextMeeting.podcast?.host}
+                  <strong>Podcast Link:</strong>{' '}
+                  <a href={nextMeeting.podcast?.link} target="_blank" rel="noreferrer">
+                    {nextMeeting.podcast?.link}
+                  </a>
                 </p>
               ) : null}
               <p>
@@ -470,11 +481,22 @@ export default function MeetingsPage() {
                 {isCurrentMemberHost(meeting) ? <span className="badge" style={{ marginLeft: '0.4rem' }}>Host</span> : null}
               </p>
               <p>
-                <strong>Podcast:</strong> {meeting.podcast?.title || <span className="badge tbd">TBD</span>}
+                <strong>Podcast Title:</strong>{' '}
+                {meeting.podcast?.title ? (
+                  <>
+                    {meeting.podcast.title}
+                    {meeting.podcast.host ? ` (${meeting.podcast.host})` : ''}
+                  </>
+                ) : (
+                  <span className="badge tbd">TBD</span>
+                )}
               </p>
-              {meeting.podcast?.host ? (
+              {meeting.podcast?.link ? (
                 <p>
-                  <strong>Podcast Host:</strong> {meeting.podcast?.host}
+                  <strong>Podcast Link:</strong>{' '}
+                  <a href={meeting.podcast?.link} target="_blank" rel="noreferrer">
+                    {meeting.podcast?.link}
+                  </a>
                 </p>
               ) : null}
               <p>
@@ -521,11 +543,22 @@ export default function MeetingsPage() {
                   {isCurrentMemberHost(meeting) ? <span className="badge" style={{ marginLeft: '0.4rem' }}>Host</span> : null}
                 </p>
                 <p>
-                  <strong>Podcast:</strong> {meeting.podcast?.title || <span className="badge tbd">TBD</span>}
+                  <strong>Podcast Title:</strong>{' '}
+                  {meeting.podcast?.title ? (
+                    <>
+                      {meeting.podcast.title}
+                      {meeting.podcast.host ? ` (${meeting.podcast.host})` : ''}
+                    </>
+                  ) : (
+                    <span className="badge tbd">TBD</span>
+                  )}
                 </p>
-                {meeting.podcast?.host ? (
+                {meeting.podcast?.link ? (
                   <p>
-                    <strong>Podcast Host:</strong> {meeting.podcast?.host}
+                    <strong>Podcast Link:</strong>{' '}
+                    <a href={meeting.podcast?.link} target="_blank" rel="noreferrer">
+                      {meeting.podcast?.link}
+                    </a>
                   </p>
                 ) : null}
                 <p>
