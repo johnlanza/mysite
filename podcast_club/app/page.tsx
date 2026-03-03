@@ -178,7 +178,7 @@ export default function HomePage() {
 
   if (!member) {
     return (
-      <section className="grid two" style={{ marginTop: '1rem' }}>
+      <section className="home-page grid two" style={{ marginTop: '1rem' }}>
         <div className="card discussed-card">
           <h3>Podcasts Previously Discussed</h3>
           <div className="list">
@@ -286,38 +286,49 @@ export default function HomePage() {
   }
 
   return (
-    <section className="grid two" style={{ marginTop: '1rem' }}>
+    <section className="home-page grid two" style={{ marginTop: '1rem' }}>
       <div className="card">
         <h2>Next Meeting</h2>
         {nextMeeting ? (
-          <div className="item">
-            <h4>{formatDate(nextMeeting.date)}</h4>
-            <p>
-              <strong>Host:</strong> {displayMemberName(nextMeeting.host)}
-              {isCurrentMemberHost(nextMeeting) ? <span className="badge" style={{ marginLeft: '0.4rem' }}>Host</span> : null}
-            </p>
-            <p>
-              <strong>Podcast Title:</strong>{' '}
+          <div className="list">
+            <div className="item">
+              <h4>Meeting</h4>
+              <p>
+                <strong>Date:</strong> {formatDate(nextMeeting.date)}
+              </p>
+              <p>
+                <strong>Host:</strong> {displayMemberName(nextMeeting.host)}
+                {isCurrentMemberHost(nextMeeting) ? <span className="badge" style={{ marginLeft: '0.4rem' }}>Host</span> : null}
+              </p>
+              <p>
+                <strong>Location:</strong> {nextMeeting.location}
+              </p>
+            </div>
+            <div className="item">
+              <h4>Podcast</h4>
               {nextMeeting.podcast?.title ? (
                 <>
-                  {nextMeeting.podcast.title}
-                  {nextMeeting.podcast.host ? ` (${nextMeeting.podcast.host})` : ''}
+                  <p>
+                    <strong>Title:</strong> {nextMeeting.podcast.title}
+                  </p>
+                  <p>
+                    <strong>Description:</strong> {nextMeeting.podcast.notes || 'No description yet.'}
+                  </p>
+                  <p>
+                    <strong>Link:</strong>{' '}
+                    {nextMeeting.podcast.link ? (
+                      <a href={nextMeeting.podcast.link} target="_blank" rel="noreferrer">
+                        {nextMeeting.podcast.link}
+                      </a>
+                    ) : (
+                      'No link provided.'
+                    )}
+                  </p>
                 </>
               ) : (
-                <span className="badge tbd">TBD</span>
+                <p>Awaiting host podcast pick.</p>
               )}
-            </p>
-            {nextMeeting.podcast?.link ? (
-              <p>
-                <strong>Podcast Link:</strong>{' '}
-                <a href={nextMeeting.podcast?.link} target="_blank" rel="noreferrer">
-                  {nextMeeting.podcast?.link}
-                </a>
-              </p>
-            ) : null}
-            <p>
-              <strong>Location:</strong> {nextMeeting.location}
-            </p>
+            </div>
           </div>
         ) : (
           <p>No upcoming meeting scheduled yet.</p>
@@ -557,9 +568,6 @@ export default function HomePage() {
                   {podcast.link}
                 </a>
               </p>
-              <p>
-                <strong>Final ranking:</strong> {podcast.rankingScore}
-              </p>
             </div>
           ))}
         </div>
@@ -593,9 +601,6 @@ export default function HomePage() {
                   <a href={podcast.link} target="_blank" rel="noreferrer">
                     {podcast.link}
                   </a>
-                </p>
-                <p>
-                  <strong>Final ranking:</strong> {podcast.rankingScore}
                 </p>
               </div>
             ))}

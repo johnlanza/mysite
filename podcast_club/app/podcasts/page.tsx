@@ -352,9 +352,6 @@ export default function PodcastsPage() {
                         {podcast.link}
                       </a>
                     </p>
-                    <p>
-                      <strong>Final ranking score:</strong> {podcast.rankingScore}
-                    </p>
                     {canDeletePodcast(podcast) ? (
                       <div className="inline" style={{ marginTop: '0.4rem' }}>
                         <button className="secondary" onClick={() => openDeleteModal(podcast)}>
@@ -387,9 +384,6 @@ export default function PodcastsPage() {
                         <a href={podcast.link} target="_blank" rel="noreferrer">
                           {podcast.link}
                         </a>
-                      </p>
-                      <p>
-                        <strong>Final ranking score:</strong> {podcast.rankingScore}
                       </p>
                       {canDeletePodcast(podcast) ? (
                         <div className="inline" style={{ marginTop: '0.4rem' }}>

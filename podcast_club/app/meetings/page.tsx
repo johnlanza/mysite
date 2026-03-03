@@ -312,7 +312,7 @@ export default function MeetingsPage() {
     person._id === currentMember._id ? `${person.name} (you)` : person.name;
 
   return (
-    <section className="grid" style={{ marginTop: '1rem' }}>
+    <section className="meetings-page grid" style={{ marginTop: '1rem' }}>
       <div className="grid two">
         <div className="card">
           <h2>{editingMeetingId ? 'Edit Meeting' : 'Schedule / Log Meeting'}</h2>
@@ -402,39 +402,50 @@ export default function MeetingsPage() {
         <div className="card">
           <h2>Next Meeting</h2>
           {nextMeeting ? (
-            <div className="item">
-              <h4>{formatDate(nextMeeting.date)}</h4>
-              <p>
-                <strong>Host:</strong> {displayMemberName(nextMeeting.host)}
-                {isCurrentMemberHost(nextMeeting) ? <span className="badge" style={{ marginLeft: '0.4rem' }}>Host</span> : null}
-              </p>
-              <p>
-                <strong>Podcast Title:</strong>{' '}
+            <div className="list">
+              <div className="item">
+                <h4>Meeting</h4>
+                <p>
+                  <strong>Date:</strong> {formatDate(nextMeeting.date)}
+                </p>
+                <p>
+                  <strong>Host:</strong> {displayMemberName(nextMeeting.host)}
+                  {isCurrentMemberHost(nextMeeting) ? <span className="badge" style={{ marginLeft: '0.4rem' }}>Host</span> : null}
+                </p>
+                <p>
+                  <strong>Location:</strong> {nextMeeting.location}
+                </p>
+                {nextMeeting.notes ? (
+                  <p>
+                    <strong>Notes:</strong> {nextMeeting.notes}
+                  </p>
+                ) : null}
+              </div>
+              <div className="item">
+                <h4>Podcast</h4>
                 {nextMeeting.podcast?.title ? (
                   <>
-                    {nextMeeting.podcast.title}
-                    {nextMeeting.podcast.host ? ` (${nextMeeting.podcast.host})` : ''}
+                    <p>
+                      <strong>Title:</strong> {nextMeeting.podcast.title}
+                    </p>
+                    <p>
+                      <strong>Description:</strong> {nextMeeting.podcast.notes || 'No description yet.'}
+                    </p>
+                    <p>
+                      <strong>Link:</strong>{' '}
+                      {nextMeeting.podcast.link ? (
+                        <a href={nextMeeting.podcast.link} target="_blank" rel="noreferrer">
+                          {nextMeeting.podcast.link}
+                        </a>
+                      ) : (
+                        'No link provided.'
+                      )}
+                    </p>
                   </>
                 ) : (
-                  <span className="badge tbd">TBD</span>
+                  <p>Awaiting host podcast pick.</p>
                 )}
-              </p>
-              {nextMeeting.podcast?.link ? (
-                <p>
-                  <strong>Podcast Link:</strong>{' '}
-                  <a href={nextMeeting.podcast?.link} target="_blank" rel="noreferrer">
-                    {nextMeeting.podcast?.link}
-                  </a>
-                </p>
-              ) : null}
-              <p>
-                <strong>Location:</strong> {nextMeeting.location}
-              </p>
-              {nextMeeting.notes ? (
-                <p>
-                  <strong>Notes:</strong> {nextMeeting.notes}
-                </p>
-              ) : null}
+              </div>
 
               {canEditMeeting(nextMeeting) ? (
                 <div className="inline" style={{ marginTop: '0.5rem' }}>

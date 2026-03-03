@@ -321,6 +321,42 @@ button:disabled {
   margin-left: auto;
 }
 
+.home-page > * {
+  min-width: 0;
+}
+
+.home-page .badge {
+  flex: 0 0 auto;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.home-page .item,
+.home-page .item h4,
+.home-page .item p,
+.home-page .item a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.meetings-page .grid.two > * {
+  min-width: 0;
+}
+
+.meetings-page .badge {
+  flex: 0 0 auto;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.meetings-page .item,
+.meetings-page .item h4,
+.meetings-page .item p,
+.meetings-page .item a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .carveout-item-head {
   flex-wrap: nowrap;
   align-items: flex-start;
