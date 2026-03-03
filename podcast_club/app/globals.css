@@ -357,6 +357,12 @@ button:disabled {
   word-break: break-word;
 }
 
+.meetings-page input[type='date'] {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
 .carveout-item-head {
   flex-wrap: nowrap;
   align-items: flex-start;
