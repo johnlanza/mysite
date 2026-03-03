@@ -372,9 +372,16 @@ button:disabled {
 }
 
 .meetings-page input[type='date'] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
   min-width: 0;
+  min-inline-size: 0;
   width: 100%;
   max-width: 100%;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  overflow: hidden;
 }
 
 .carveout-item-head {
