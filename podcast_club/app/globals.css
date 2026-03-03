@@ -357,6 +357,20 @@ button:disabled {
   word-break: break-word;
 }
 
+.meetings-page .form,
+.meetings-page .form label {
+  min-width: 0;
+}
+
+.meetings-page .form input,
+.meetings-page .form select,
+.meetings-page .form textarea {
+  display: block;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
 .meetings-page input[type='date'] {
   min-width: 0;
   width: 100%;
