@@ -428,7 +428,11 @@ export default function MembersPage() {
               <div className="inline">
                 <h4>{annotateSelfInList(member)}</h4>
                 {member.isAdmin ? <span className="badge">Admin</span> : null}
-                {member.accountStatus === 'pending' ? <span className="badge">Pending Claim</span> : null}
+                {member.accountStatus === 'pending' ? (
+                  <span className="badge account-status-pending">Pending Claim</span>
+                ) : (
+                  <span className="badge account-status-claimed">Claimed</span>
+                )}
               </div>
               <p>{member.email}</p>
               <p>{member.address}</p>

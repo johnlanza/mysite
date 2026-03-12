@@ -261,6 +261,18 @@ button:disabled {
   border-color: #d8c7af;
 }
 
+.badge.account-status-pending {
+  background: #f6ecdf;
+  color: #7d4f15;
+  border-color: #ebd1a9;
+}
+
+.badge.account-status-claimed {
+  background: #e8f4f1;
+  color: #0b5f52;
+  border-color: #c4e6df;
+}
+
 .discussed-card .item p,
 .discussed-card .item a {
   overflow-wrap: anywhere;
