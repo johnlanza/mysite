@@ -39,7 +39,10 @@ export async function POST(req: Request) {
       record.member,
       {
         passwordHash,
-        passwordChangedAt: new Date()
+        passwordChangedAt: new Date(),
+        accountStatus: 'claimed',
+        claimCodeHash: null,
+        claimCodeExpiresAt: null
       },
       { new: true }
     ).lean();

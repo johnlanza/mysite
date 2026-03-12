@@ -3,6 +3,7 @@ import { createHash, randomBytes } from 'crypto';
 const TOKEN_BYTES = 32;
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const CODE_LENGTH = 12;
+const CODE_REGEX = new RegExp(`^[${CODE_ALPHABET}]{${CODE_LENGTH}}$`);
 
 export function createPasswordResetToken() {
   const token = randomBytes(TOKEN_BYTES).toString('base64url');
@@ -14,7 +15,16 @@ export function hashToken(value: string) {
 }
 
 export function normalizeToken(value: string) {
-  return String(value || '').trim();
+  const trimmed = String(value || '').trim();
+  const compactCode = trimmed.toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+  // Human-entered reset codes should be forgiving (case/dash/whitespace),
+  // while emailed URL tokens must stay exact and case-sensitive.
+  if (CODE_REGEX.test(compactCode)) {
+    return `${compactCode.slice(0, 4)}-${compactCode.slice(4, 8)}-${compactCode.slice(8)}`;
+  }
+
+  return trimmed;
 }
 
 export function hashIp(ip: string) {
@@ -29,5 +39,5 @@ export function createPasswordResetCode() {
   }
 
   const code = `${raw.slice(0, 4)}-${raw.slice(4, 8)}-${raw.slice(8)}`;
-  return { code, tokenHash: hashToken(code) };
+  return { code, tokenHash: hashToken(normalizeToken(code)) };
 }

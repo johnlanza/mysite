@@ -22,16 +22,28 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'Invalid email or password.' }, { status: 401 });
     }
 
-    if (member.accountStatus === 'pending' || !member.passwordHash) {
+    if (member.accountStatus === 'pending' && !member.passwordHash) {
       return NextResponse.json(
         { message: 'This account has not been claimed yet. Use Claim Account to set your password.' },
         { status: 403 }
       );
     }
 
+    if (!member.passwordHash) {
+      return NextResponse.json({ message: 'Invalid email or password.' }, { status: 401 });
+    }
+
     const valid = await bcrypt.compare(password, member.passwordHash);
     if (!valid) {
       return NextResponse.json({ message: 'Invalid email or password.' }, { status: 401 });
+    }
+
+    if (member.accountStatus === 'pending') {
+      await MemberModel.findByIdAndUpdate(member._id, {
+        accountStatus: 'claimed',
+        claimCodeHash: null,
+        claimCodeExpiresAt: null
+      });
     }
 
     const response = NextResponse.json({
