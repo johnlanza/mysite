@@ -56,6 +56,7 @@ export type Meeting = {
     episodeNames?: string;
     totalTimeMinutes?: number;
     notes?: string;
+    submittedBy?: { _id: string; name: string };
   } | null;
   location: string;
   status?: 'scheduled' | 'completed';

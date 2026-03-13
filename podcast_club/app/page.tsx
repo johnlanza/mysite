@@ -160,6 +160,8 @@ export default function HomePage() {
   const displayMemberName = (person: { _id: string; name: string }) =>
     member && person._id === member._id ? 'You' : person.name;
   const isCurrentMemberHost = (meeting: Meeting) => Boolean(member && meeting.host._id === member._id);
+  const isMyPodcast = (meeting: Meeting) =>
+    Boolean(member && meeting.podcast?.submittedBy?._id === member._id);
   const annotateSelfInList = (name: string) =>
     member && name.trim().toLowerCase() === member.name.trim().toLowerCase() ? `${name} (you)` : name;
   const formatMissingVoters = (names: string[]) =>
@@ -324,6 +326,14 @@ export default function HomePage() {
                       'No link provided.'
                     )}
                   </p>
+                  {nextMeeting.podcast.submittedBy ? (
+                    <p>
+                      <strong>Submitted by:</strong> {displayMemberName(nextMeeting.podcast.submittedBy)}
+                      {isMyPodcast(nextMeeting) ? (
+                        <span className="badge my-podcast" style={{ marginLeft: '0.4rem' }}>My Podcast</span>
+                      ) : null}
+                    </p>
+                  ) : null}
                 </>
               ) : (
                 <p>Awaiting host podcast pick.</p>

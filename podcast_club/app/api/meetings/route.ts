@@ -15,7 +15,7 @@ export async function GET() {
 
   const meetings = await MeetingModel.find()
     .populate('host', 'name address')
-    .populate('podcast', 'title host episodeCount episodeNames totalTimeMinutes link notes description')
+    .populate('podcast', 'title host episodeCount episodeNames totalTimeMinutes link notes description submittedBy')
     .sort({ date: -1, createdAt: -1 })
     .lean();
 
@@ -100,7 +100,7 @@ export async function POST(req: Request) {
 
     const populated = await MeetingModel.findById(meeting._id)
       .populate('host', 'name address')
-      .populate('podcast', 'title host episodeCount episodeNames totalTimeMinutes link notes description')
+      .populate('podcast', 'title host episodeCount episodeNames totalTimeMinutes link notes description submittedBy')
       .lean();
 
     return NextResponse.json(

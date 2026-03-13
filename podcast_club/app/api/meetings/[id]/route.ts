@@ -83,7 +83,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       { new: true, runValidators: true }
     )
       .populate('host', 'name address')
-      .populate('podcast', 'title host episodeCount episodeNames totalTimeMinutes link notes description')
+      .populate('podcast', 'title host episodeCount episodeNames totalTimeMinutes link notes description submittedBy')
       .lean();
 
     if (!updated) {

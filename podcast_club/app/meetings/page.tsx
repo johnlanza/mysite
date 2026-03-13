@@ -306,6 +306,7 @@ export default function MeetingsPage() {
   );
   const canEditMeeting = (meeting: Meeting) => currentMember.isAdmin || meeting.host._id === currentMember._id;
   const isCurrentMemberHost = (meeting: Meeting) => meeting.host._id === currentMember._id;
+  const isMyPodcast = (meeting: Meeting) => meeting.podcast?.submittedBy?._id === currentMember._id;
   const displayMemberName = (person: { _id: string; name: string }) =>
     person._id === currentMember._id ? 'You' : person.name;
   const annotateSelfInList = (person: { _id: string; name: string }) =>
@@ -441,6 +442,14 @@ export default function MeetingsPage() {
                         'No link provided.'
                       )}
                     </p>
+                    {nextMeeting.podcast.submittedBy ? (
+                      <p>
+                        <strong>Submitted by:</strong> {displayMemberName(nextMeeting.podcast.submittedBy)}
+                        {isMyPodcast(nextMeeting) ? (
+                          <span className="badge my-podcast" style={{ marginLeft: '0.4rem' }}>My Podcast</span>
+                        ) : null}
+                      </p>
+                    ) : null}
                   </>
                 ) : (
                   <p>Awaiting host podcast pick.</p>
