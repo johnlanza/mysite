@@ -5,6 +5,7 @@ const MeetingSchema = new Schema(
     date: { type: Date, required: true },
     host: { type: Schema.Types.ObjectId, ref: 'Member', required: true },
     podcast: { type: Schema.Types.ObjectId, ref: 'Podcast', default: null },
+    podcasts: { type: [{ type: Schema.Types.ObjectId, ref: 'Podcast' }], default: [] },
     location: { type: String, required: true, trim: true },
     notes: { type: String, trim: true },
     status: { type: String, enum: ['scheduled', 'completed'], default: 'scheduled' },
@@ -20,8 +21,9 @@ export type Meeting = InferSchemaType<typeof MeetingSchema>;
 const existingMeetingModel = mongoose.models.Meeting as Model<Meeting> | undefined;
 const existingPodcastRequired =
   (existingMeetingModel?.schema.path('podcast') as { options?: { required?: boolean } } | undefined)?.options?.required;
+const existingPodcastsPath = existingMeetingModel?.schema.path('podcasts');
 
-if (existingMeetingModel && existingPodcastRequired === true) {
+if (existingMeetingModel && (existingPodcastRequired === true || !existingPodcastsPath)) {
   mongoose.deleteModel('Meeting');
 }
 

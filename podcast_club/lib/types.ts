@@ -47,6 +47,17 @@ export type Meeting = {
   _id: string;
   date: string;
   host: { _id: string; name: string; address?: string };
+  podcasts?: {
+    _id: string;
+    title: string;
+    link: string;
+    host?: string;
+    episodeCount?: number;
+    episodeNames?: string;
+    totalTimeMinutes?: number;
+    notes?: string;
+    submittedBy?: { _id: string; name: string };
+  }[];
   podcast?: {
     _id: string;
     title: string;

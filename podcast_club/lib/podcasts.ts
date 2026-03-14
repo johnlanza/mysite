@@ -48,7 +48,11 @@ export function formatPodcastForClient(podcast: PodcastLeanLike, members: Member
   }));
 
   const rankingScore = ratings.reduce((total, rating) => total + rating.points, 0);
-  const voterIds = new Set(ratings.map((rating) => String(rating.member._id)));
+  const voterIds = new Set(
+    ratings
+      .filter((rating) => rating.value !== 'No selection' && rating.value !== 'No Selection')
+      .map((rating) => String(rating.member._id))
+  );
   const missingVoters = members
     .filter((member) => !voterIds.has(String(member._id)))
     .map((member) => member.name)

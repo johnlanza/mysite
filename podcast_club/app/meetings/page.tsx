@@ -3,12 +3,13 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { withBasePath } from '@/lib/base-path';
+import { MAX_MEETING_PODCASTS } from '@/lib/meeting-podcasts';
 import type { Meeting, Member, Podcast, SessionMember } from '@/lib/types';
 
 const initialForm = {
   date: '',
   host: '',
-  podcast: '',
+  podcasts: [] as string[],
   location: '',
   notes: ''
 };
@@ -31,7 +32,12 @@ function isCompletedMeeting(meeting: Meeting) {
   if (meeting.status === 'completed') return true;
   if (meeting.status === 'scheduled') return false;
   if (meeting.completedAt) return true;
-  return new Date(meeting.date).getTime() < Date.now();
+  return false;
+}
+
+function getMeetingPodcasts(meeting: Meeting) {
+  if (meeting.podcasts && meeting.podcasts.length > 0) return meeting.podcasts;
+  return meeting.podcast ? [meeting.podcast] : [];
 }
 
 function toDateInputValue(value: string) {
@@ -98,7 +104,7 @@ export default function MeetingsPage() {
       return {
         ...prev,
         host,
-        podcast: prev.podcast || '',
+        podcasts: prev.podcasts || [],
         location: prev.location || getHostAddress(host, memberData)
       };
     });
@@ -115,12 +121,19 @@ export default function MeetingsPage() {
   }, [meetings]);
 
   const availablePodcasts = useMemo(() => podcasts.filter((podcast) => podcast.status === 'pending'), [podcasts]);
+  const selectedPodcasts = useMemo(() => {
+    return form.podcasts
+      .map((podcastId) => podcasts.find((podcast) => podcast._id === podcastId))
+      .filter((podcast): podcast is Podcast => Boolean(podcast));
+  }, [form.podcasts, podcasts]);
   const podcastOptions = useMemo(() => {
-    const selected = podcasts.find((podcast) => podcast._id === form.podcast);
-    if (!selected) return availablePodcasts;
-    if (availablePodcasts.some((podcast) => podcast._id === selected._id)) return availablePodcasts;
-    return [selected, ...availablePodcasts];
-  }, [availablePodcasts, form.podcast, podcasts]);
+    const selectedIds = new Set(form.podcasts);
+    const selectedMissingFromPending = selectedPodcasts.filter(
+      (podcast) => !availablePodcasts.some((availablePodcast) => availablePodcast._id === podcast._id)
+    );
+
+    return [...selectedMissingFromPending, ...availablePodcasts].filter((podcast) => !selectedIds.has(podcast._id));
+  }, [availablePodcasts, form.podcasts, selectedPodcasts]);
 
   const pastMeetings = useMemo(() => {
     return meetings
@@ -137,7 +150,7 @@ export default function MeetingsPage() {
     setForm({
       ...initialForm,
       host,
-      podcast: '',
+      podcasts: [],
       location: getHostAddress(host, members)
     });
   }
@@ -148,7 +161,7 @@ export default function MeetingsPage() {
     setForm({
       date: toDateInputValue(meeting.date),
       host: meeting.host._id,
-      podcast: meeting.podcast?._id || '',
+      podcasts: getMeetingPodcasts(meeting).map((podcast) => podcast._id),
       location: meeting.location,
       notes: meeting.notes || ''
     });
@@ -162,7 +175,7 @@ export default function MeetingsPage() {
     try {
       const payload = {
         ...form,
-        podcast: form.podcast || null,
+        podcasts: form.podcasts,
         date: new Date(form.date).toISOString()
       };
 
@@ -306,11 +319,51 @@ export default function MeetingsPage() {
   );
   const canEditMeeting = (meeting: Meeting) => currentMember.isAdmin || meeting.host._id === currentMember._id;
   const isCurrentMemberHost = (meeting: Meeting) => meeting.host._id === currentMember._id;
-  const isMyPodcast = (meeting: Meeting) => meeting.podcast?.submittedBy?._id === currentMember._id;
   const displayMemberName = (person: { _id: string; name: string }) =>
     person._id === currentMember._id ? 'You' : person.name;
   const annotateSelfInList = (person: { _id: string; name: string }) =>
     person._id === currentMember._id ? `${person.name} (you)` : person.name;
+  const renderMeetingPodcasts = (meeting: Meeting) => {
+    const selectedMeetingPodcasts = getMeetingPodcasts(meeting);
+
+    if (selectedMeetingPodcasts.length === 0) {
+      return <p>Awaiting host podcast picks.</p>;
+    }
+
+    return (
+      <div className="list">
+        {selectedMeetingPodcasts.map((podcast) => (
+          <div className="item" key={podcast._id}>
+            <p>
+              <strong>Title:</strong> {podcast.title}
+              {podcast.host ? ` (${podcast.host})` : ''}
+            </p>
+            {podcast.notes ? (
+              <p>
+                <strong>Description:</strong> {podcast.notes}
+              </p>
+            ) : null}
+            {podcast.link ? (
+              <p>
+                <strong>Link:</strong>{' '}
+                <a href={podcast.link} target="_blank" rel="noreferrer">
+                  {podcast.link}
+                </a>
+              </p>
+            ) : null}
+            {podcast.submittedBy ? (
+              <p>
+                <strong>Submitted by:</strong> {displayMemberName(podcast.submittedBy)}
+                {podcast.submittedBy._id === currentMember._id ? (
+                  <span className="badge my-podcast" style={{ marginLeft: '0.4rem' }}>My Podcast</span>
+                ) : null}
+              </p>
+            ) : null}
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <section className="meetings-page grid" style={{ marginTop: '1rem' }}>
@@ -347,21 +400,61 @@ export default function MeetingsPage() {
                 </select>
               </label>
               <label>
-                Podcast
-                <select
-                  value={form.podcast}
-                  onChange={(event) => setForm((prev) => ({ ...prev, podcast: event.target.value }))}
-                >
-                  <option value="">TBD</option>
-                  {podcastOptions.map((podcast) => (
-                    <option key={podcast._id} value={podcast._id}>
-                      {podcast.title}
-                      {podcast.episodeNames ? ` | ${podcast.episodeNames}` : ''}
-                      {podcast.totalTimeMinutes ? ` | ${podcast.totalTimeMinutes} min` : ''}
-                      {getHostname(podcast.link) ? ` | ${getHostname(podcast.link)}` : ''}
-                    </option>
+                Podcasts
+                <div className="list">
+                  {selectedPodcasts.length === 0 ? <p>No podcasts selected yet. Leave empty for TBD.</p> : null}
+                  {selectedPodcasts.map((podcast) => (
+                    <div className="item" key={podcast._id}>
+                      <div className="inline" style={{ justifyContent: 'space-between' }}>
+                        <div>
+                          <strong>{podcast.title}</strong>
+                          <p>
+                            {podcast.episodeNames ? `${podcast.episodeNames} | ` : ''}
+                            {podcast.totalTimeMinutes ? `${podcast.totalTimeMinutes} min | ` : ''}
+                            {getHostname(podcast.link) || podcast.link}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          className="ghost"
+                          onClick={() =>
+                            setForm((prev) => ({
+                              ...prev,
+                              podcasts: prev.podcasts.filter((podcastId) => podcastId !== podcast._id)
+                            }))
+                          }
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
                   ))}
-                </select>
+                  {form.podcasts.length < MAX_MEETING_PODCASTS ? (
+                    <select
+                      value=""
+                      onChange={(event) => {
+                        const podcastId = event.target.value;
+                        if (!podcastId) return;
+                        setForm((prev) => ({
+                          ...prev,
+                          podcasts: [...prev.podcasts, podcastId]
+                        }));
+                      }}
+                    >
+                      <option value="">Add a podcast...</option>
+                      {podcastOptions.map((podcast) => (
+                        <option key={podcast._id} value={podcast._id}>
+                          {podcast.title}
+                          {podcast.episodeNames ? ` | ${podcast.episodeNames}` : ''}
+                          {podcast.totalTimeMinutes ? ` | ${podcast.totalTimeMinutes} min` : ''}
+                          {getHostname(podcast.link) ? ` | ${getHostname(podcast.link)}` : ''}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <p>You can select up to {MAX_MEETING_PODCASTS} podcasts for one meeting.</p>
+                  )}
+                </div>
               </label>
               <label>
                 Location
@@ -423,37 +516,8 @@ export default function MeetingsPage() {
                 ) : null}
               </div>
               <div className="item">
-                <h4>Podcast</h4>
-                {nextMeeting.podcast?.title ? (
-                  <>
-                    <p>
-                      <strong>Title:</strong> {nextMeeting.podcast.title}
-                    </p>
-                    <p>
-                      <strong>Description:</strong> {nextMeeting.podcast.notes || 'No description yet.'}
-                    </p>
-                    <p>
-                      <strong>Link:</strong>{' '}
-                      {nextMeeting.podcast.link ? (
-                        <a href={nextMeeting.podcast.link} target="_blank" rel="noreferrer">
-                          {nextMeeting.podcast.link}
-                        </a>
-                      ) : (
-                        'No link provided.'
-                      )}
-                    </p>
-                    {nextMeeting.podcast.submittedBy ? (
-                      <p>
-                        <strong>Submitted by:</strong> {displayMemberName(nextMeeting.podcast.submittedBy)}
-                        {isMyPodcast(nextMeeting) ? (
-                          <span className="badge my-podcast" style={{ marginLeft: '0.4rem' }}>My Podcast</span>
-                        ) : null}
-                      </p>
-                    ) : null}
-                  </>
-                ) : (
-                  <p>Awaiting host podcast pick.</p>
-                )}
+                <h4>Podcasts</h4>
+                {renderMeetingPodcasts(nextMeeting)}
               </div>
 
               {canEditMeeting(nextMeeting) ? (
@@ -501,24 +565,9 @@ export default function MeetingsPage() {
                 {isCurrentMemberHost(meeting) ? <span className="badge" style={{ marginLeft: '0.4rem' }}>Host</span> : null}
               </p>
               <p>
-                <strong>Podcast Title:</strong>{' '}
-                {meeting.podcast?.title ? (
-                  <>
-                    {meeting.podcast.title}
-                    {meeting.podcast.host ? ` (${meeting.podcast.host})` : ''}
-                  </>
-                ) : (
-                  <span className="badge tbd">TBD</span>
-                )}
+                <strong>Podcasts:</strong>
               </p>
-              {meeting.podcast?.link ? (
-                <p>
-                  <strong>Podcast Link:</strong>{' '}
-                  <a href={meeting.podcast?.link} target="_blank" rel="noreferrer">
-                    {meeting.podcast?.link}
-                  </a>
-                </p>
-              ) : null}
+              {renderMeetingPodcasts(meeting)}
               <p>
                 <strong>Location:</strong> {meeting.location}
               </p>
@@ -563,24 +612,9 @@ export default function MeetingsPage() {
                   {isCurrentMemberHost(meeting) ? <span className="badge" style={{ marginLeft: '0.4rem' }}>Host</span> : null}
                 </p>
                 <p>
-                  <strong>Podcast Title:</strong>{' '}
-                  {meeting.podcast?.title ? (
-                    <>
-                      {meeting.podcast.title}
-                      {meeting.podcast.host ? ` (${meeting.podcast.host})` : ''}
-                    </>
-                  ) : (
-                    <span className="badge tbd">TBD</span>
-                  )}
+                  <strong>Podcasts:</strong>
                 </p>
-                {meeting.podcast?.link ? (
-                  <p>
-                    <strong>Podcast Link:</strong>{' '}
-                    <a href={meeting.podcast?.link} target="_blank" rel="noreferrer">
-                      {meeting.podcast?.link}
-                    </a>
-                  </p>
-                ) : null}
+                {renderMeetingPodcasts(meeting)}
                 <p>
                   <strong>Location:</strong> {meeting.location}
                 </p>

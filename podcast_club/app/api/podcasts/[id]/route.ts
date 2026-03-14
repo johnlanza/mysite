@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { requireSession } from '@/lib/auth';
-import CarveOutModel from '@/models/CarveOut';
 import MeetingModel from '@/models/Meeting';
 import PodcastModel from '@/models/Podcast';
 
@@ -29,7 +28,11 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
       return NextResponse.json({ message: 'Only admins or the submitter can delete this podcast.' }, { status: 403 });
     }
 
-    const meetingsUsingPodcast = await MeetingModel.find({ podcast: params.id }).select('_id').lean();
+    const meetingsUsingPodcast = await MeetingModel.find({
+      $or: [{ podcast: params.id }, { podcasts: params.id }]
+    })
+      .select('_id podcast podcasts')
+      .lean();
 
     if (!session.member.isAdmin) {
       if (podcast.status === 'discussed') {
@@ -45,11 +48,18 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     }
 
     if (session.member.isAdmin && meetingsUsingPodcast.length > 0) {
-      const meetingIds = meetingsUsingPodcast.map((meeting) => meeting._id);
-      await Promise.all([
-        CarveOutModel.deleteMany({ meeting: { $in: meetingIds } }),
-        MeetingModel.deleteMany({ _id: { $in: meetingIds } })
-      ]);
+      await Promise.all(
+        meetingsUsingPodcast.map((meeting) => {
+          const nextPodcasts = Array.isArray(meeting.podcasts)
+            ? meeting.podcasts.map((podcastId) => String(podcastId)).filter((podcastId) => podcastId !== params.id)
+            : [];
+
+          return MeetingModel.findByIdAndUpdate(meeting._id, {
+            podcasts: nextPodcasts,
+            podcast: nextPodcasts[0] || null
+          });
+        })
+      );
     }
 
     await PodcastModel.findByIdAndDelete(params.id);

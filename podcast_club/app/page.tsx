@@ -20,7 +20,12 @@ function isCompletedMeeting(meeting: Meeting) {
   if (meeting.status === 'completed') return true;
   if (meeting.status === 'scheduled') return false;
   if (meeting.completedAt) return true;
-  return new Date(meeting.date).getTime() < Date.now();
+  return false;
+}
+
+function getMeetingPodcasts(meeting: Meeting) {
+  if (meeting.podcasts && meeting.podcasts.length > 0) return meeting.podcasts;
+  return meeting.podcast ? [meeting.podcast] : [];
 }
 
 export default function HomePage() {
@@ -105,7 +110,7 @@ export default function HomePage() {
     const assignedPodcastIds = new Set(
       meetings
         .filter((meeting) => !isCompletedMeeting(meeting))
-        .map((meeting) => meeting.podcast?._id)
+        .flatMap((meeting) => getMeetingPodcasts(meeting).map((podcast) => podcast._id))
         .filter((podcastId): podcastId is string => Boolean(podcastId))
     );
 
@@ -160,8 +165,6 @@ export default function HomePage() {
   const displayMemberName = (person: { _id: string; name: string }) =>
     member && person._id === member._id ? 'You' : person.name;
   const isCurrentMemberHost = (meeting: Meeting) => Boolean(member && meeting.host._id === member._id);
-  const isMyPodcast = (meeting: Meeting) =>
-    Boolean(member && meeting.podcast?.submittedBy?._id === member._id);
   const annotateSelfInList = (name: string) =>
     member && name.trim().toLowerCase() === member.name.trim().toLowerCase() ? `${name} (you)` : name;
   const formatMissingVoters = (names: string[]) =>
@@ -307,36 +310,40 @@ export default function HomePage() {
               </p>
             </div>
             <div className="item">
-              <h4>Podcast</h4>
-              {nextMeeting.podcast?.title ? (
-                <>
-                  <p>
-                    <strong>Title:</strong> {nextMeeting.podcast.title}
-                  </p>
-                  <p>
-                    <strong>Description:</strong> {nextMeeting.podcast.notes || 'No description yet.'}
-                  </p>
-                  <p>
-                    <strong>Link:</strong>{' '}
-                    {nextMeeting.podcast.link ? (
-                      <a href={nextMeeting.podcast.link} target="_blank" rel="noreferrer">
-                        {nextMeeting.podcast.link}
-                      </a>
-                    ) : (
-                      'No link provided.'
-                    )}
-                  </p>
-                  {nextMeeting.podcast.submittedBy ? (
-                    <p>
-                      <strong>Submitted by:</strong> {displayMemberName(nextMeeting.podcast.submittedBy)}
-                      {isMyPodcast(nextMeeting) ? (
-                        <span className="badge my-podcast" style={{ marginLeft: '0.4rem' }}>My Podcast</span>
+              <h4>Podcasts</h4>
+              {getMeetingPodcasts(nextMeeting).length > 0 ? (
+                <div className="list">
+                  {getMeetingPodcasts(nextMeeting).map((podcast) => (
+                    <div key={podcast._id} className="item">
+                      <p>
+                        <strong>Title:</strong> {podcast.title}
+                      </p>
+                      <p>
+                        <strong>Description:</strong> {podcast.notes || 'No description yet.'}
+                      </p>
+                      <p>
+                        <strong>Link:</strong>{' '}
+                        {podcast.link ? (
+                          <a href={podcast.link} target="_blank" rel="noreferrer">
+                            {podcast.link}
+                          </a>
+                        ) : (
+                          'No link provided.'
+                        )}
+                      </p>
+                      {podcast.submittedBy ? (
+                        <p>
+                          <strong>Submitted by:</strong> {displayMemberName(podcast.submittedBy)}
+                          {podcast.submittedBy._id === member._id ? (
+                            <span className="badge my-podcast" style={{ marginLeft: '0.4rem' }}>My Podcast</span>
+                          ) : null}
+                        </p>
                       ) : null}
-                    </p>
-                  ) : null}
-                </>
+                    </div>
+                  ))}
+                </div>
               ) : (
-                <p>Awaiting host podcast pick.</p>
+                <p>Awaiting host podcast picks.</p>
               )}
             </div>
           </div>

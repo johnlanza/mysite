@@ -1,10 +1,26 @@
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { requireAdmin, requireSession } from '@/lib/auth';
+import { MAX_MEETING_PODCASTS, normalizeMeetingPodcastIds } from '@/lib/meeting-podcasts';
 import CarveOutModel from '@/models/CarveOut';
 import MeetingModel from '@/models/Meeting';
 import MemberModel from '@/models/Member';
 import PodcastModel from '@/models/Podcast';
+
+function formatMeetingPayload<T extends { podcasts?: unknown[] | null; podcast?: unknown | null }>(meeting: T) {
+  const podcasts =
+    Array.isArray(meeting.podcasts) && meeting.podcasts.length > 0
+      ? meeting.podcasts
+      : meeting.podcast
+        ? [meeting.podcast]
+        : [];
+
+  return {
+    ...meeting,
+    podcasts,
+    podcast: podcasts[0] || null
+  };
+}
 
 async function getFinalLocation(host: string, location?: string) {
   const hostMember = await MemberModel.findById(host).select('address').lean();
@@ -30,6 +46,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     const body = (await req.json()) as {
       date?: string;
       host?: string;
+      podcasts?: string[] | null;
       podcast?: string | null;
       location?: string;
       notes?: string;
@@ -55,18 +72,27 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       return NextResponse.json({ message: locationResult.message }, { status: locationResult.status });
     }
 
-    const oldPodcast = existingMeeting.podcast ? String(existingMeeting.podcast) : null;
-    const hasPodcastField = Object.prototype.hasOwnProperty.call(body, 'podcast');
-    const nextPodcast = hasPodcastField
-      ? (typeof body.podcast === 'string' && body.podcast.trim() ? body.podcast.trim() : null)
-      : oldPodcast;
+    const oldPodcastIds = normalizeMeetingPodcastIds({
+      podcasts: Array.isArray(existingMeeting.podcasts) ? existingMeeting.podcasts.map((podcast) => String(podcast)) : [],
+      podcast: existingMeeting.podcast ? String(existingMeeting.podcast) : null
+    });
+    const hasPodcastField =
+      Object.prototype.hasOwnProperty.call(body, 'podcast') || Object.prototype.hasOwnProperty.call(body, 'podcasts');
+    const nextPodcastIds = hasPodcastField
+      ? normalizeMeetingPodcastIds({ podcasts: body.podcasts, podcast: body.podcast })
+      : oldPodcastIds;
 
-    if (nextPodcast && nextPodcast !== oldPodcast) {
-      const selectedPodcast = await PodcastModel.findById(nextPodcast).select('status').lean();
-      if (!selectedPodcast) {
-        return NextResponse.json({ message: 'Podcast not found.' }, { status: 404 });
+    if (nextPodcastIds.length > MAX_MEETING_PODCASTS) {
+      return NextResponse.json({ message: `Meetings can include up to ${MAX_MEETING_PODCASTS} podcasts.` }, { status: 400 });
+    }
+
+    const newlyAddedPodcastIds = nextPodcastIds.filter((podcastId) => !oldPodcastIds.includes(podcastId));
+    if (newlyAddedPodcastIds.length > 0) {
+      const selectedPodcasts = await PodcastModel.find({ _id: { $in: newlyAddedPodcastIds } }).select('status').lean();
+      if (selectedPodcasts.length !== newlyAddedPodcastIds.length) {
+        return NextResponse.json({ message: 'One or more podcasts were not found.' }, { status: 404 });
       }
-      if (selectedPodcast.status !== 'pending') {
+      if (selectedPodcasts.some((selectedPodcast) => selectedPodcast.status !== 'pending')) {
         return NextResponse.json({ message: 'Only Podcasts To Discuss can be selected for meetings.' }, { status: 400 });
       }
     }
@@ -76,36 +102,50 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       {
         ...(date ? { date } : {}),
         ...(isAdmin && host ? { host } : {}),
-        ...(hasPodcastField ? { podcast: nextPodcast } : {}),
+        ...(hasPodcastField ? { podcast: nextPodcastIds[0] || null, podcasts: nextPodcastIds } : {}),
         location: locationResult.finalLocation,
         ...(typeof notes === 'string' ? { notes } : {})
       },
       { new: true, runValidators: true }
     )
       .populate('host', 'name address')
-      .populate('podcast', 'title host episodeCount episodeNames totalTimeMinutes link notes description submittedBy')
+      .populate({
+        path: 'podcast',
+        select: 'title host episodeCount episodeNames totalTimeMinutes link notes description submittedBy',
+        populate: { path: 'submittedBy', select: 'name' }
+      })
+      .populate({
+        path: 'podcasts',
+        select: 'title host episodeCount episodeNames totalTimeMinutes link notes description submittedBy',
+        populate: { path: 'submittedBy', select: 'name' }
+      })
       .lean();
 
     if (!updated) {
       return NextResponse.json({ message: 'Meeting not found.' }, { status: 404 });
     }
 
-    if (existingMeeting.status === 'completed' && nextPodcast !== oldPodcast) {
-      if (oldPodcast) {
-        await PodcastModel.findOneAndUpdate(
-          { _id: oldPodcast, discussedMeeting: existingMeeting._id },
+    if (existingMeeting.status === 'completed' && hasPodcastField) {
+      const removedPodcastIds = oldPodcastIds.filter((podcastId) => !nextPodcastIds.includes(podcastId));
+
+      if (removedPodcastIds.length > 0) {
+        await PodcastModel.updateMany(
+          { _id: { $in: removedPodcastIds }, discussedMeeting: existingMeeting._id },
           { status: 'pending', discussedMeeting: null }
         );
       }
-      if (nextPodcast) {
-        await PodcastModel.findByIdAndUpdate(nextPodcast, {
-          status: 'discussed',
-          discussedMeeting: existingMeeting._id
-        });
+      if (nextPodcastIds.length > 0) {
+        await PodcastModel.updateMany(
+          { _id: { $in: nextPodcastIds } },
+          {
+            status: 'discussed',
+            discussedMeeting: existingMeeting._id
+          }
+        );
       }
     }
 
-    return NextResponse.json(updated);
+    return NextResponse.json(formatMeetingPayload(updated));
   } catch (error) {
     return NextResponse.json(
       { message: error instanceof Error ? error.message : 'Unable to update meeting.' },
@@ -130,8 +170,11 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
       return NextResponse.json({ message: 'Meeting not found.' }, { status: 404 });
     }
 
-    const isCompleted =
-      meeting.status === 'completed' || Boolean(meeting.completedAt) || new Date(meeting.date).getTime() < Date.now();
+    const isCompleted = meeting.status === 'completed' || Boolean(meeting.completedAt);
+    const meetingPodcastIds = normalizeMeetingPodcastIds({
+      podcasts: Array.isArray(meeting.podcasts) ? meeting.podcasts.map((podcast) => String(podcast)) : [],
+      podcast: meeting.podcast ? String(meeting.podcast) : null
+    });
 
     if (isCompleted && body.confirmText !== 'DELETE') {
       return NextResponse.json(
@@ -142,9 +185,9 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 
     await Promise.all([MeetingModel.findByIdAndDelete(params.id), CarveOutModel.deleteMany({ meeting: meeting._id })]);
 
-    if (isCompleted && meeting.podcast) {
-      await PodcastModel.findOneAndUpdate(
-        { _id: meeting.podcast, discussedMeeting: meeting._id },
+    if (isCompleted && meetingPodcastIds.length > 0) {
+      await PodcastModel.updateMany(
+        { _id: { $in: meetingPodcastIds }, discussedMeeting: meeting._id },
         { status: 'pending', discussedMeeting: null }
       );
     }

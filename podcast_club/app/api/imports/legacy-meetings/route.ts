@@ -193,6 +193,7 @@ export async function POST(req: Request) {
         date: meetingDate,
         host: meetingHost._id,
         podcast: podcast._id,
+        podcasts: [podcast._id],
         location: meetingLocation,
         notes: meetingNotes,
         status: 'completed',

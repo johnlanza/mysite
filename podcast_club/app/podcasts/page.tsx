@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { withBasePath } from '@/lib/base-path';
 import { dedupePodcastsByContent } from '@/lib/podcast-dedupe';
@@ -21,7 +21,14 @@ function isCompletedMeeting(meeting: Meeting) {
   if (meeting.status === 'completed') return true;
   if (meeting.status === 'scheduled') return false;
   if (meeting.completedAt) return true;
-  return new Date(meeting.date).getTime() < Date.now();
+  return false;
+}
+
+function getMeetingPodcastIds(meeting: Meeting) {
+  if (meeting.podcasts && meeting.podcasts.length > 0) {
+    return meeting.podcasts.map((podcast) => podcast._id);
+  }
+  return meeting.podcast?._id ? [meeting.podcast._id] : [];
 }
 
 export default function PodcastsPage() {
@@ -34,11 +41,44 @@ export default function PodcastsPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [saving, setSaving] = useState(false);
+  const [savingRatingId, setSavingRatingId] = useState<string | null>(null);
+  const [ratingToast, setRatingToast] = useState('');
+  const [recentlySavedRatings, setRecentlySavedRatings] = useState<
+    Record<string, { value: string; title: string; fading: boolean }>
+  >({});
   const [deletingPodcastId, setDeletingPodcastId] = useState<string | null>(null);
   const [deleteModalPodcast, setDeleteModalPodcast] = useState<Podcast | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [showAllPodcastsToDiscuss, setShowAllPodcastsToDiscuss] = useState(false);
   const [showAllDiscussed, setShowAllDiscussed] = useState(false);
+  const ratingFadeTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const ratingRemoveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const ratingToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function clearRatingTimers(podcastId: string) {
+    const fadeTimer = ratingFadeTimers.current[podcastId];
+    if (fadeTimer) {
+      clearTimeout(fadeTimer);
+      delete ratingFadeTimers.current[podcastId];
+    }
+
+    const removeTimer = ratingRemoveTimers.current[podcastId];
+    if (removeTimer) {
+      clearTimeout(removeTimer);
+      delete ratingRemoveTimers.current[podcastId];
+    }
+  }
+
+  function showRatingToast(message: string) {
+    setRatingToast(message);
+    if (ratingToastTimer.current) {
+      clearTimeout(ratingToastTimer.current);
+    }
+    ratingToastTimer.current = setTimeout(() => {
+      setRatingToast('');
+      ratingToastTimer.current = null;
+    }, 3000);
+  }
 
   async function loadPageData() {
     const meRes = await fetch(withBasePath('/api/auth/me'), { cache: 'no-store' });
@@ -77,6 +117,19 @@ export default function PodcastsPage() {
     void loadPageData();
   }, []);
 
+  useEffect(() => {
+    const fadeTimers = ratingFadeTimers.current;
+    const removeTimers = ratingRemoveTimers.current;
+
+    return () => {
+      Object.values(fadeTimers).forEach((timer) => clearTimeout(timer));
+      Object.values(removeTimers).forEach((timer) => clearTimeout(timer));
+      if (ratingToastTimer.current) {
+        clearTimeout(ratingToastTimer.current);
+      }
+    };
+  }, []);
+
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setError('');
@@ -108,24 +161,62 @@ export default function PodcastsPage() {
     const rating = draftRatings[podcastId] || 'No selection';
 
     if (isSubmitter && rating !== 'My podcast') {
+      showRatingToast("You can't rate your podcast.");
       setError('You cannot change your own submitted podcast rating from "My podcast".');
       return;
     }
 
-    const res = await fetch(`/api/podcasts/${podcastId}/vote`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ rating })
-    });
+    setError('');
+    setSuccess('');
+    setSavingRatingId(podcastId);
 
-    if (!res.ok) {
-      const payload = await res.json();
-      setError(payload.message || 'Unable to save rating.');
-      return;
+    try {
+      const res = await fetch(withBasePath(`/api/podcasts/${podcastId}/vote`), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating })
+      });
+
+      if (!res.ok) {
+        const payload = (await res.json().catch(() => null)) as { message?: string } | null;
+        setError(payload?.message || 'Unable to save rating.');
+        return;
+      }
+
+      clearRatingTimers(podcastId);
+      setSavedRatings((prev) => ({ ...prev, [podcastId]: rating }));
+      setDraftRatings((prev) => ({ ...prev, [podcastId]: rating }));
+      setRecentlySavedRatings((prev) => ({
+        ...prev,
+        [podcastId]: { value: rating, title: targetPodcast?.title || 'Podcast', fading: false }
+      }));
+      showRatingToast(`Your rating for "${targetPodcast?.title || 'Podcast'}" was saved.`);
+
+      ratingFadeTimers.current[podcastId] = setTimeout(() => {
+        setRecentlySavedRatings((prev) =>
+          prev[podcastId]
+            ? {
+                ...prev,
+                [podcastId]: { ...prev[podcastId], fading: true }
+              }
+            : prev
+        );
+        delete ratingFadeTimers.current[podcastId];
+      }, 1800);
+
+      ratingRemoveTimers.current[podcastId] = setTimeout(() => {
+        setRecentlySavedRatings((prev) => {
+          const next = { ...prev };
+          delete next[podcastId];
+          return next;
+        });
+        delete ratingRemoveTimers.current[podcastId];
+      }, 2600);
+
+      await loadPageData();
+    } finally {
+      setSavingRatingId((current) => (current === podcastId ? null : current));
     }
-
-    setSavedRatings((prev) => ({ ...prev, [podcastId]: rating }));
-    await loadPageData();
   }
 
   function canDeletePodcast(podcast: Podcast) {
@@ -186,13 +277,16 @@ export default function PodcastsPage() {
       });
   }, [podcasts]);
   const podcastsToRank = useMemo(() => {
-    return pending.filter((podcast) => (savedRatings[podcast._id] || 'No selection') === 'No selection');
-  }, [pending, savedRatings]);
+    return pending.filter((podcast) => {
+      if (recentlySavedRatings[podcast._id]) return true;
+      return (savedRatings[podcast._id] || 'No selection') === 'No selection';
+    });
+  }, [pending, recentlySavedRatings, savedRatings]);
   const podcastsToDiscuss = useMemo(() => {
     const assignedPodcastIds = new Set(
       meetings
         .filter((meeting) => !isCompletedMeeting(meeting))
-        .map((meeting) => meeting.podcast?._id)
+        .flatMap((meeting) => getMeetingPodcastIds(meeting))
         .filter((podcastId): podcastId is string => Boolean(podcastId))
     );
 
@@ -236,6 +330,7 @@ export default function PodcastsPage() {
     }
 
     if (isSubmitter && value !== 'My podcast') {
+      showRatingToast("You can't rate your podcast.");
       setError('You cannot change your own submitted podcast rating from "My podcast".');
       return;
     }
@@ -244,6 +339,66 @@ export default function PodcastsPage() {
       ...prev,
       [podcast._id]: value
     }));
+  }
+
+  function renderPodcastDetails(podcast: Podcast) {
+    return (
+      <>
+        <p>
+          <strong>Host:</strong> {podcast.host || 'Unknown'}
+        </p>
+        <p>
+          <strong># of Episodes:</strong> {podcast.episodeCount || 'Unknown'}
+        </p>
+        <p>
+          <strong>Name of Episode(s):</strong> {podcast.episodeNames || 'Unknown'}
+        </p>
+        <p>
+          <strong>Total Time (approx min):</strong> {podcast.totalTimeMinutes || 'Unknown'}
+        </p>
+        {podcast.notes ? <p>{podcast.notes}</p> : <p>No notes yet.</p>}
+        <p>
+          <strong>Submitted by:</strong> {displayMemberName(podcast.submittedBy)}
+        </p>
+      </>
+    );
+  }
+
+  function renderRatingActions(podcast: Podcast, buttonLabel: string) {
+    return (
+      <div className="podcast-action-bar">
+        <div className="inline podcast-action-bar-inner">
+          {podcast.submittedBy._id === member?._id ? <span className="badge">Locked: your submission</span> : null}
+          <select
+            value={draftRatings[podcast._id] || 'No selection'}
+            onChange={(event) => onDraftRatingChange(podcast, event.target.value)}
+            disabled={savingRatingId === podcast._id}
+          >
+            {getRatingOptions(podcast).map((option) => (
+              <option
+                key={option}
+                value={option}
+                disabled={option === 'My podcast' && isMyPodcastTakenByAnotherMember(podcast)}
+              >
+                {option}
+              </option>
+            ))}
+          </select>
+          <button onClick={() => saveRating(podcast._id)} disabled={savingRatingId === podcast._id}>
+            {savingRatingId === podcast._id
+              ? 'Saving...'
+              : recentlySavedRatings[podcast._id] && buttonLabel === 'Save Rating'
+                ? 'Saved'
+                : buttonLabel}
+          </button>
+          {canDeletePodcast(podcast) ? (
+            <button className="secondary" onClick={() => openDeleteModal(podcast)}>
+              Delete Podcast
+            </button>
+          ) : null}
+        </div>
+      </div>
+    );
   }
 
   if (!member) {
@@ -262,6 +417,8 @@ export default function PodcastsPage() {
 
   return (
     <section className="grid podcasts-page" style={{ marginTop: '1rem' }}>
+      {ratingToast ? <div className="toast-banner">{ratingToast}</div> : null}
+      {error ? <div className="error-banner">{error}</div> : null}
       <div className="grid two" style={{ alignItems: 'start' }}>
         <div className="grid">
           <div className="card">
@@ -328,7 +485,6 @@ export default function PodcastsPage() {
                 />
               </label>
               <button disabled={saving}>{saving ? 'Saving...' : 'Add Podcast'}</button>
-              {error ? <p className="error">{error}</p> : null}
               {success ? <p className="success-message">{success}</p> : null}
             </form>
           </div>
@@ -408,30 +564,21 @@ export default function PodcastsPage() {
           <div className="list" style={{ marginTop: '0.75rem' }}>
             {podcastsToRank.length === 0 ? <p>No podcasts left to rank.</p> : null}
             {podcastsToRank.map((podcast) => (
-              <div className="item" key={podcast._id}>
+              <div
+                className={`item${recentlySavedRatings[podcast._id]?.fading ? ' item-fading-out' : ''}`}
+                key={podcast._id}
+              >
                 <div className="inline podcast-item-head" style={{ justifyContent: 'space-between' }}>
                   <h4>{podcast.title}</h4>
                   {savedRatings[podcast._id] === 'My podcast' ? <span className="badge my-podcast">My Podcast</span> : null}
                 </div>
                 <p>
-                  <strong>Host:</strong> {podcast.host || 'Unknown'}
-                </p>
-                <p>
-                  <strong># of Episodes:</strong> {podcast.episodeCount || 'Unknown'}
-                </p>
-                <p>
-                  <strong>Name of Episode(s):</strong> {podcast.episodeNames || 'Unknown'}
-                </p>
-                <p>
-                  <strong>Total Time (approx min):</strong> {podcast.totalTimeMinutes || 'Unknown'}
-                </p>
-                {podcast.notes ? <p>{podcast.notes}</p> : <p>No notes yet.</p>}
-                <p>
-                  <strong>Submitted by:</strong> {displayMemberName(podcast.submittedBy)}
-                </p>
-                <p>
                   <strong>Ranking score:</strong> {podcast.rankingScore}
                 </p>
+                <details className="podcast-details">
+                  <summary>Details</summary>
+                  <div className="podcast-details-body">{renderPodcastDetails(podcast)}</div>
+                </details>
                 {podcast.missingVoters.length > 0 ? (
                   <p className="warning-banner">
                     <strong>Warning:</strong> Missing votes from {formatMissingVoters(podcast.missingVoters)}
@@ -441,30 +588,12 @@ export default function PodcastsPage() {
                     <strong>All members have rated.</strong>
                   </p>
                 )}
-
-                <div className="inline">
-                  {podcast.submittedBy._id === member._id ? <span className="badge">Locked: your submission</span> : null}
-                  <select
-                    value={draftRatings[podcast._id] || 'No selection'}
-                    onChange={(event) => onDraftRatingChange(podcast, event.target.value)}
-                  >
-                    {getRatingOptions(podcast).map((option) => (
-                      <option
-                        key={option}
-                        value={option}
-                        disabled={option === 'My podcast' && isMyPodcastTakenByAnotherMember(podcast)}
-                      >
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                  <button onClick={() => saveRating(podcast._id)}>Save Rating</button>
-                  {canDeletePodcast(podcast) ? (
-                    <button className="secondary" onClick={() => openDeleteModal(podcast)}>
-                      Delete Podcast
-                    </button>
-                  ) : null}
-                </div>
+                {recentlySavedRatings[podcast._id] ? (
+                  <p className="success-message rating-confirmation">
+                    Saved: {recentlySavedRatings[podcast._id].value}. This podcast will move out of your ranking queue.
+                  </p>
+                ) : null}
+                {renderRatingActions(podcast, 'Save Rating')}
               </div>
             ))}
           </div>
@@ -485,22 +614,10 @@ export default function PodcastsPage() {
                     {savedRatings[podcast._id] === 'My podcast' ? <span className="badge my-podcast">My Podcast</span> : null}
                   </div>
                 </div>
-                <p>
-                  <strong>Host:</strong> {podcast.host || 'Unknown'}
-                </p>
-                <p>
-                  <strong># of Episodes:</strong> {podcast.episodeCount || 'Unknown'}
-                </p>
-                <p>
-                  <strong>Name of Episode(s):</strong> {podcast.episodeNames || 'Unknown'}
-                </p>
-                <p>
-                  <strong>Total Time (approx min):</strong> {podcast.totalTimeMinutes || 'Unknown'}
-                </p>
-                {podcast.notes ? <p>{podcast.notes}</p> : <p>No notes yet.</p>}
-                <p>
-                  <strong>Submitted by:</strong> {displayMemberName(podcast.submittedBy)}
-                </p>
+                <details className="podcast-details">
+                  <summary>Details</summary>
+                  <div className="podcast-details-body">{renderPodcastDetails(podcast)}</div>
+                </details>
                 {podcast.missingVoters.length > 0 ? (
                   <p className="warning-banner">
                     <strong>Warning:</strong> Missing votes from {formatMissingVoters(podcast.missingVoters)}
@@ -513,29 +630,7 @@ export default function PodcastsPage() {
                 <p>
                   <strong>Your rating:</strong> {savedRatings[podcast._id]}
                 </p>
-                <div className="inline">
-                  {podcast.submittedBy._id === member._id ? <span className="badge">Locked: your submission</span> : null}
-                  <select
-                    value={draftRatings[podcast._id] || 'No selection'}
-                    onChange={(event) => onDraftRatingChange(podcast, event.target.value)}
-                  >
-                    {getRatingOptions(podcast).map((option) => (
-                      <option
-                        key={option}
-                        value={option}
-                        disabled={option === 'My podcast' && isMyPodcastTakenByAnotherMember(podcast)}
-                      >
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                  <button onClick={() => saveRating(podcast._id)}>Update Rating</button>
-                  {canDeletePodcast(podcast) ? (
-                    <button className="secondary" onClick={() => openDeleteModal(podcast)}>
-                      Delete Podcast
-                    </button>
-                  ) : null}
-                </div>
+                {renderRatingActions(podcast, 'Update Rating')}
               </div>
             ))}
           </div>
@@ -558,22 +653,10 @@ export default function PodcastsPage() {
                       ) : null}
                     </div>
                   </div>
-                  <p>
-                    <strong>Host:</strong> {podcast.host || 'Unknown'}
-                  </p>
-                  <p>
-                    <strong># of Episodes:</strong> {podcast.episodeCount || 'Unknown'}
-                  </p>
-                  <p>
-                    <strong>Name of Episode(s):</strong> {podcast.episodeNames || 'Unknown'}
-                  </p>
-                  <p>
-                    <strong>Total Time (approx min):</strong> {podcast.totalTimeMinutes || 'Unknown'}
-                  </p>
-                  {podcast.notes ? <p>{podcast.notes}</p> : <p>No notes yet.</p>}
-                  <p>
-                    <strong>Submitted by:</strong> {displayMemberName(podcast.submittedBy)}
-                  </p>
+                  <details className="podcast-details">
+                    <summary>Details</summary>
+                    <div className="podcast-details-body">{renderPodcastDetails(podcast)}</div>
+                  </details>
                   {podcast.missingVoters.length > 0 ? (
                     <p className="warning-banner">
                       <strong>Warning:</strong> Missing votes from {formatMissingVoters(podcast.missingVoters)}
@@ -586,29 +669,7 @@ export default function PodcastsPage() {
                   <p>
                     <strong>Your rating:</strong> {savedRatings[podcast._id]}
                   </p>
-                  <div className="inline">
-                    {podcast.submittedBy._id === member._id ? <span className="badge">Locked: your submission</span> : null}
-                    <select
-                      value={draftRatings[podcast._id] || 'No selection'}
-                      onChange={(event) => onDraftRatingChange(podcast, event.target.value)}
-                    >
-                      {getRatingOptions(podcast).map((option) => (
-                        <option
-                          key={option}
-                          value={option}
-                          disabled={option === 'My podcast' && isMyPodcastTakenByAnotherMember(podcast)}
-                        >
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                    <button onClick={() => saveRating(podcast._id)}>Update Rating</button>
-                    {canDeletePodcast(podcast) ? (
-                      <button className="secondary" onClick={() => openDeleteModal(podcast)}>
-                        Delete Podcast
-                      </button>
-                    ) : null}
-                  </div>
+                  {renderRatingActions(podcast, 'Update Rating')}
                 </div>
               ))}
             </div>

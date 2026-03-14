@@ -116,6 +116,12 @@ body {
   border: 1px solid var(--line);
   border-radius: 12px;
   background: #fff;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.item-fading-out {
+  opacity: 0;
+  transform: translateY(-6px);
 }
 
 .item h4 {
@@ -212,6 +218,55 @@ button:disabled {
 
 .success-message {
   color: #1a6d3b;
+}
+
+.toast-banner {
+  position: sticky;
+  top: 1rem;
+  z-index: 20;
+  margin: 0 auto 0.5rem;
+  padding: 0.8rem 1rem;
+  max-width: 32rem;
+  width: min(32rem, calc(100vw - 2rem));
+  border: 1px solid #0b5f52;
+  border-radius: 14px;
+  background: rgba(11, 95, 82, 0.96);
+  color: #fff;
+  box-shadow: 0 12px 30px rgba(18, 43, 31, 0.16);
+  backdrop-filter: blur(8px);
+  text-align: center;
+  animation: toast-enter 220ms ease-out;
+}
+
+.error-banner {
+  margin: 0 auto 0.5rem;
+  padding: 0.8rem 1rem;
+  width: min(32rem, calc(100vw - 2rem));
+  border: 1px solid #8c2424;
+  border-radius: 14px;
+  background: rgba(175, 47, 47, 0.96);
+  color: #fff;
+  text-align: center;
+}
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rating-confirmation {
+  margin-top: 0.55rem !important;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #b7dac7;
+  border-radius: 10px;
+  background: #f4fbf6;
 }
 
 .warning-banner {
@@ -331,6 +386,42 @@ button:disabled {
 
 .podcasts-page .podcast-item-head .badge {
   margin-left: auto;
+}
+
+.podcast-details {
+  margin: 0.45rem 0 0.6rem;
+}
+
+.podcast-details summary {
+  cursor: pointer;
+  color: var(--accent-strong);
+  font-weight: 600;
+  list-style: none;
+}
+
+.podcast-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.podcast-details summary::after {
+  content: '+';
+  margin-left: 0.45rem;
+}
+
+.podcast-details[open] summary::after {
+  content: '-';
+}
+
+.podcast-details-body {
+  margin-top: 0.55rem;
+}
+
+.podcast-action-bar {
+  margin-top: 0.65rem;
+}
+
+.podcast-action-bar-inner {
+  width: 100%;
 }
 
 .home-page > * {
@@ -461,5 +552,28 @@ button:disabled {
 
   .shell {
     padding: 1.25rem 0.75rem 3rem;
+  }
+
+  .podcast-action-bar {
+    position: sticky;
+    bottom: 0.5rem;
+    z-index: 5;
+    margin: 0.9rem -0.1rem -0.1rem;
+    padding: 0.55rem;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: rgba(255, 250, 242, 0.96);
+    box-shadow: 0 10px 24px rgba(29, 35, 31, 0.08);
+    backdrop-filter: blur(8px);
+  }
+
+  .podcast-action-bar-inner {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .podcast-action-bar-inner select,
+  .podcast-action-bar-inner button {
+    width: 100%;
   }
 }
