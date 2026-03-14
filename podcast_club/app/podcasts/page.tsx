@@ -356,7 +356,9 @@ export default function PodcastsPage() {
         <p>
           <strong>Total Time (approx min):</strong> {podcast.totalTimeMinutes || 'Unknown'}
         </p>
-        {podcast.notes ? <p>{podcast.notes}</p> : <p>No notes yet.</p>}
+        <p>
+          <strong>Description:</strong> {podcast.notes || 'No description yet.'}
+        </p>
         <p>
           <strong>Submitted by:</strong> {displayMemberName(podcast.submittedBy)}
         </p>
