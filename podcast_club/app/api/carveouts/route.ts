@@ -9,15 +9,18 @@ export async function GET() {
   await connectToDatabase();
 
   if (!session.ok) {
-    const carveOuts = await CarveOutModel.find().populate('meeting', 'date').sort({ createdAt: -1 }).lean();
+    const carveOuts = await CarveOutModel.find()
+      .populate('meeting', 'date')
+      .populate('fistBumps.member', 'name')
+      .sort({ createdAt: -1 })
+      .lean();
 
     return NextResponse.json(
       carveOuts
         .filter((carveOut) => carveOut.meeting)
         .map((carveOut) => ({
           ...carveOut,
-          member: { _id: '', name: 'Club Member' },
-          fistBumps: []
+          member: { _id: '', name: 'Club Member' }
         }))
     );
   }
