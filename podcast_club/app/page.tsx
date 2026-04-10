@@ -33,6 +33,7 @@ export default function HomePage() {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [carveOuts, setCarveOuts] = useState<CarveOut[]>([]);
+  const [fistBumpingId, setFistBumpingId] = useState<string | null>(null);
   const [showAllCarveOuts, setShowAllCarveOuts] = useState(false);
   const [showAllDiscussedPodcasts, setShowAllDiscussedPodcasts] = useState(false);
   const [showAllPodcastsToDiscuss, setShowAllPodcastsToDiscuss] = useState(false);
@@ -169,6 +170,112 @@ export default function HomePage() {
     member && name.trim().toLowerCase() === member.name.trim().toLowerCase() ? `${name} (you)` : name;
   const formatMissingVoters = (names: string[]) =>
     names.length > 0 ? names.map((name) => annotateSelfInList(name)).join(', ') : 'None';
+  const hasFistBumped = (carveOut: CarveOut) =>
+    Boolean(member && carveOut.fistBumps?.some((entry) => entry.member._id === member._id));
+  const canFistBump = (carveOut: CarveOut) =>
+    Boolean(member && carveOut.member._id !== member._id && !hasFistBumped(carveOut));
+  const canRemoveFistBump = (carveOut: CarveOut) =>
+    Boolean(member && carveOut.member._id !== member._id && hasFistBumped(carveOut));
+  const getFistBumpNames = (carveOut: CarveOut) =>
+    (carveOut.fistBumps || []).map((entry) => displayMemberName(entry.member));
+  const getInitials = (name: string) =>
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() || '')
+      .join('');
+  const formatFistBumps = (carveOut: CarveOut) => {
+    const names = getFistBumpNames(carveOut);
+    if (names.length === 0) return 'No fist bumps yet.';
+    if (names.length === 1) return `Fist bumped by ${names[0]}.`;
+    if (names.length === 2) return `Fist bumped by ${names[0]} and ${names[1]}.`;
+    return `Fist bumped by ${names[0]}, ${names[1]}, and ${names.length - 2} others.`;
+  };
+
+  async function giveFistBump(carveOutId: string) {
+    setFistBumpingId(carveOutId);
+
+    try {
+      const res = await fetch(withBasePath(`/api/carveouts/${carveOutId}/fist-bump`), {
+        method: 'POST'
+      });
+
+      const payload = (await res.json().catch(() => null)) as (CarveOut & { message?: string }) | null;
+      if (!res.ok || !payload) return;
+
+      setCarveOuts((prev) => prev.map((carveOut) => (carveOut._id === carveOutId ? payload : carveOut)));
+    } finally {
+      setFistBumpingId(null);
+    }
+  }
+
+  async function removeFistBump(carveOutId: string) {
+    setFistBumpingId(carveOutId);
+
+    try {
+      const res = await fetch(withBasePath(`/api/carveouts/${carveOutId}/fist-bump`), {
+        method: 'DELETE'
+      });
+
+      const payload = (await res.json().catch(() => null)) as (CarveOut & { message?: string }) | null;
+      if (!res.ok || !payload) return;
+
+      setCarveOuts((prev) => prev.map((carveOut) => (carveOut._id === carveOutId ? payload : carveOut)));
+    } finally {
+      setFistBumpingId(null);
+    }
+  }
+
+  function renderFistBumpStrip(carveOut: CarveOut, interactive: boolean) {
+    const names = getFistBumpNames(carveOut);
+    const visibleNames = names.slice(0, 3);
+    const extraCount = Math.max(0, names.length - visibleNames.length);
+
+    return (
+      <div className="carveout-appreciation-strip">
+        {interactive ? (
+          carveOut.member._id !== member?._id ? (
+            <button
+              type="button"
+              className={`fist-bump-pill${hasFistBumped(carveOut) ? ' is-sent' : ''}`}
+              onClick={() => (hasFistBumped(carveOut) ? removeFistBump(carveOut._id) : giveFistBump(carveOut._id))}
+              disabled={(!canFistBump(carveOut) && !canRemoveFistBump(carveOut)) || fistBumpingId === carveOut._id}
+            >
+              <span className="fist-bump-pill-mark" aria-hidden="true">
+                👊
+              </span>
+              <span>
+                {fistBumpingId === carveOut._id
+                  ? 'Sending...'
+                  : hasFistBumped(carveOut)
+                    ? 'Undo fist bump'
+                    : 'Give fist bump'}
+              </span>
+            </button>
+          ) : (
+            <div className="fist-bump-owner-note">Your carve out</div>
+          )
+        ) : (
+          <div className="fist-bump-owner-note">Club appreciation</div>
+        )}
+
+        <div className="carveout-fist-bumps-meta">
+          {names.length > 0 ? (
+            <div className="fist-bump-avatar-row" aria-hidden="true">
+              {visibleNames.map((name) => (
+                <span key={`${carveOut._id}-${name}`} className="fist-bump-avatar">
+                  {getInitials(name)}
+                </span>
+              ))}
+              {extraCount > 0 ? <span className="fist-bump-avatar extra">+{extraCount}</span> : null}
+            </div>
+          ) : null}
+          <p>{formatFistBumps(carveOut)}</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -253,6 +360,7 @@ export default function HomePage() {
                   </p>
                 ) : null}
                 {carveOut.notes ? <p>{carveOut.notes}</p> : null}
+                {renderFistBumpStrip(carveOut, false)}
               </div>
             ))}
           </div>
@@ -281,6 +389,7 @@ export default function HomePage() {
                     </p>
                   ) : null}
                   {carveOut.notes ? <p>{carveOut.notes}</p> : null}
+                  {renderFistBumpStrip(carveOut, false)}
                 </div>
               ))}
             </div>
@@ -444,6 +553,8 @@ export default function HomePage() {
                   'No link provided.'
                 )}
               </p>
+              {carveOut.notes ? <p>{carveOut.notes}</p> : null}
+              {renderFistBumpStrip(carveOut, true)}
             </div>
           ))}
         </div>
@@ -482,6 +593,8 @@ export default function HomePage() {
                     'No link provided.'
                   )}
                 </p>
+                {carveOut.notes ? <p>{carveOut.notes}</p> : null}
+                {renderFistBumpStrip(carveOut, true)}
               </div>
             ))}
           </div>

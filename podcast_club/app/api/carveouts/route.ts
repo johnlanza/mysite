@@ -16,12 +16,18 @@ export async function GET() {
         .filter((carveOut) => carveOut.meeting)
         .map((carveOut) => ({
           ...carveOut,
-          member: { _id: '', name: 'Club Member' }
+          member: { _id: '', name: 'Club Member' },
+          fistBumps: []
         }))
     );
   }
 
-  const carveOuts = await CarveOutModel.find().populate('member', 'name').populate('meeting', 'date').sort({ createdAt: -1 }).lean();
+  const carveOuts = await CarveOutModel.find()
+    .populate('member', 'name')
+    .populate('meeting', 'date')
+    .populate('fistBumps.member', 'name')
+    .sort({ createdAt: -1 })
+    .lean();
 
   return NextResponse.json(carveOuts.filter((carveOut) => carveOut.member && carveOut.meeting));
 }
@@ -45,6 +51,7 @@ export async function POST(req: Request) {
     const populated = await CarveOutModel.findById(carveOut._id)
       .populate('member', 'name')
       .populate('meeting', 'date')
+      .populate('fistBumps.member', 'name')
       .lean();
 
     return NextResponse.json(populated, { status: 201 });

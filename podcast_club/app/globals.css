@@ -498,6 +498,100 @@ button:disabled {
   flex: 1 1 auto;
 }
 
+.carveout-appreciation-strip {
+  margin-top: 0.6rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #d8d1c4;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(243, 239, 228, 0.95));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.fist-bump-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid #cfdccd;
+  border-radius: 999px;
+  padding: 0.55rem 0.85rem;
+  background: linear-gradient(135deg, #f5fbf7, #eaf4ef);
+  color: #25463e;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.fist-bump-pill.is-sent {
+  background: linear-gradient(135deg, #e7f2ec, #dcebe4);
+  color: #32544b;
+}
+
+.fist-bump-pill-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: rgba(13, 118, 102, 0.12);
+  color: #0b5f52;
+  font-size: 0.72rem;
+  letter-spacing: -0.08em;
+  font-weight: 700;
+}
+
+.fist-bump-owner-note {
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+
+.carveout-fist-bumps-meta {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: grid;
+  justify-items: end;
+  gap: 0.35rem;
+}
+
+.carveout-fist-bumps-meta p {
+  margin: 0;
+  text-align: right;
+  font-size: 0.92rem;
+}
+
+.fist-bump-avatar-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.fist-bump-avatar {
+  width: 1.7rem;
+  height: 1.7rem;
+  margin-left: -0.28rem;
+  border-radius: 999px;
+  border: 1px solid #efe8da;
+  background: #2f4b43;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(29, 35, 31, 0.12);
+}
+
+.fist-bump-avatar:first-child {
+  margin-left: 0;
+}
+
+.fist-bump-avatar.extra {
+  background: #efe7dc;
+  color: #5a4b35;
+  border-color: #d8c7af;
+}
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -575,5 +669,27 @@ button:disabled {
   .podcast-action-bar-inner select,
   .podcast-action-bar-inner button {
     width: 100%;
+  }
+
+  .carveout-appreciation-strip {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .carveout-fist-bumps-meta {
+    justify-items: start;
+  }
+
+  .carveout-fist-bumps-meta p {
+    text-align: left;
+  }
+
+  .fist-bump-avatar-row {
+    justify-content: flex-start;
+  }
+
+  .fist-bump-pill {
+    width: 100%;
+    justify-content: center;
   }
 }

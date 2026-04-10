@@ -49,6 +49,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     )
       .populate('member', 'name')
       .populate('meeting', 'date')
+      .populate('fistBumps.member', 'name')
       .lean();
 
     if (!updated) {

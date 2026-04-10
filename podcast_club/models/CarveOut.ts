@@ -1,5 +1,13 @@
 import mongoose, { Schema, type InferSchemaType, type Model } from 'mongoose';
 
+const FistBumpSchema = new Schema(
+  {
+    member: { type: Schema.Types.ObjectId, ref: 'Member', required: true },
+    createdAt: { type: Date, default: Date.now }
+  },
+  { _id: false }
+);
+
 const CarveOutSchema = new Schema(
   {
     title: { type: String, required: true, trim: true },
@@ -12,6 +20,7 @@ const CarveOutSchema = new Schema(
     notes: { type: String, trim: true },
     member: { type: Schema.Types.ObjectId, ref: 'Member', required: true },
     meeting: { type: Schema.Types.ObjectId, ref: 'Meeting', required: true },
+    fistBumps: { type: [FistBumpSchema], default: [] },
     importBatchId: { type: String, trim: true, default: null, index: true },
     importSource: { type: String, trim: true, default: null }
   },
@@ -19,6 +28,13 @@ const CarveOutSchema = new Schema(
 );
 
 export type CarveOut = InferSchemaType<typeof CarveOutSchema>;
+
+const existingCarveOutModel = mongoose.models.CarveOut as Model<CarveOut> | undefined;
+const existingFistBumpsPath = existingCarveOutModel?.schema.path('fistBumps');
+
+if (existingCarveOutModel && !existingFistBumpsPath) {
+  mongoose.deleteModel('CarveOut');
+}
 
 const CarveOutModel =
   (mongoose.models.CarveOut as Model<CarveOut>) || mongoose.model<CarveOut>('CarveOut', CarveOutSchema);

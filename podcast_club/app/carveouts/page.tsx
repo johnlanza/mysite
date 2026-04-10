@@ -39,6 +39,7 @@ export default function CarveOutsPage() {
   const [deleteModalCarveOut, setDeleteModalCarveOut] = useState<CarveOut | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [deletingCarveOutId, setDeletingCarveOutId] = useState<string | null>(null);
+  const [fistBumpingId, setFistBumpingId] = useState<string | null>(null);
   const [showAllCarveOuts, setShowAllCarveOuts] = useState(false);
 
   async function loadPageData() {
@@ -83,6 +84,27 @@ export default function CarveOutsPage() {
     member && person._id === member._id ? 'You' : person.name;
   const canManageCarveOut = (carveOut: CarveOut) =>
     Boolean(member && (member.isAdmin || carveOut.member._id === member._id));
+  const hasFistBumped = (carveOut: CarveOut) =>
+    Boolean(member && carveOut.fistBumps?.some((entry) => entry.member._id === member._id));
+  const canFistBump = (carveOut: CarveOut) =>
+    Boolean(member && carveOut.member._id !== member._id && !hasFistBumped(carveOut));
+  const canRemoveFistBump = (carveOut: CarveOut) =>
+    Boolean(member && carveOut.member._id !== member._id && hasFistBumped(carveOut));
+  const getFistBumpNames = (carveOut: CarveOut) => (carveOut.fistBumps || []).map((entry) => displayMemberName(entry.member));
+  const getInitials = (name: string) =>
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() || '')
+      .join('');
+  const formatFistBumps = (carveOut: CarveOut) => {
+    const names = getFistBumpNames(carveOut);
+    if (names.length === 0) return 'No fist bumps yet.';
+    if (names.length === 1) return `Fist bumped by ${names[0]}.`;
+    if (names.length === 2) return `Fist bumped by ${names[0]} and ${names[1]}.`;
+    return `Fist bumped by ${names[0]}, ${names[1]}, and ${names.length - 2} others.`;
+  };
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -201,6 +223,110 @@ export default function CarveOutsPage() {
     }
   }
 
+  async function giveFistBump(carveOutId: string) {
+    setError('');
+    setSuccess('');
+    setFistBumpingId(carveOutId);
+
+    try {
+      const res = await fetch(withBasePath(`/api/carveouts/${carveOutId}/fist-bump`), {
+        method: 'POST'
+      });
+
+      const payload = (await res.json().catch(() => null)) as (CarveOut & { message?: string }) | null;
+      if (!res.ok) {
+        setError(payload?.message || 'Unable to fist bump carve out.');
+        return;
+      }
+      if (!payload) {
+        setError('Unable to fist bump carve out.');
+        return;
+      }
+
+      setCarveOuts((prev) => prev.map((carveOut) => (carveOut._id === carveOutId ? payload : carveOut)));
+      setSuccess('Fist bump sent.');
+    } catch {
+      setError('Unable to fist bump carve out.');
+    } finally {
+      setFistBumpingId(null);
+    }
+  }
+
+  async function removeFistBump(carveOutId: string) {
+    setError('');
+    setSuccess('');
+    setFistBumpingId(carveOutId);
+
+    try {
+      const res = await fetch(withBasePath(`/api/carveouts/${carveOutId}/fist-bump`), {
+        method: 'DELETE'
+      });
+
+      const payload = (await res.json().catch(() => null)) as (CarveOut & { message?: string }) | null;
+      if (!res.ok) {
+        setError(payload?.message || 'Unable to remove fist bump.');
+        return;
+      }
+      if (!payload) {
+        setError('Unable to remove fist bump.');
+        return;
+      }
+
+      setCarveOuts((prev) => prev.map((carveOut) => (carveOut._id === carveOutId ? payload : carveOut)));
+      setSuccess('Fist bump removed.');
+    } catch {
+      setError('Unable to remove fist bump.');
+    } finally {
+      setFistBumpingId(null);
+    }
+  }
+
+  function renderFistBumpStrip(carveOut: CarveOut) {
+    const names = getFistBumpNames(carveOut);
+    const visibleNames = names.slice(0, 3);
+    const extraCount = Math.max(0, names.length - visibleNames.length);
+
+    return (
+      <div className="carveout-appreciation-strip">
+        {carveOut.member._id !== member?._id ? (
+          <button
+            type="button"
+            className={`fist-bump-pill${hasFistBumped(carveOut) ? ' is-sent' : ''}`}
+            onClick={() => (hasFistBumped(carveOut) ? removeFistBump(carveOut._id) : giveFistBump(carveOut._id))}
+            disabled={(!canFistBump(carveOut) && !canRemoveFistBump(carveOut)) || fistBumpingId === carveOut._id}
+          >
+            <span className="fist-bump-pill-mark" aria-hidden="true">
+              👊
+            </span>
+            <span>
+              {fistBumpingId === carveOut._id
+                ? 'Sending...'
+                : hasFistBumped(carveOut)
+                  ? 'Undo fist bump'
+                  : 'Give fist bump'}
+            </span>
+          </button>
+        ) : (
+          <div className="fist-bump-owner-note">Your carve out</div>
+        )}
+
+        <div className="carveout-fist-bumps-meta">
+          {names.length > 0 ? (
+            <div className="fist-bump-avatar-row" aria-hidden="true">
+              {visibleNames.map((name) => (
+                <span key={`${carveOut._id}-${name}`} className="fist-bump-avatar">
+                  {getInitials(name)}
+                </span>
+              ))}
+              {extraCount > 0 ? <span className="fist-bump-avatar extra">+{extraCount}</span> : null}
+            </div>
+          ) : null}
+          <p>{formatFistBumps(carveOut)}</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!member) {
     return (
       <section className="grid" style={{ marginTop: '1rem' }}>
@@ -302,6 +428,7 @@ export default function CarveOutsPage() {
                 </p>
               ) : null}
               {carveOut.notes ? <p>{carveOut.notes}</p> : null}
+              {renderFistBumpStrip(carveOut)}
               {canManageCarveOut(carveOut) ? (
                 <div className="inline" style={{ marginTop: '0.4rem' }}>
                   <button type="button" className="secondary" onClick={() => openEditModal(carveOut)}>
@@ -346,6 +473,7 @@ export default function CarveOutsPage() {
                   </p>
                 ) : null}
                 {carveOut.notes ? <p>{carveOut.notes}</p> : null}
+                {renderFistBumpStrip(carveOut)}
                 {canManageCarveOut(carveOut) ? (
                   <div className="inline" style={{ marginTop: '0.4rem' }}>
                     <button type="button" className="secondary" onClick={() => openEditModal(carveOut)}>

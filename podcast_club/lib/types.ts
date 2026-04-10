@@ -83,4 +83,5 @@ export type CarveOut = {
   notes?: string;
   member: { _id: string; name: string };
   meeting: { _id: string; date: string };
+  fistBumps?: { member: { _id: string; name: string }; createdAt?: string }[];
 };
