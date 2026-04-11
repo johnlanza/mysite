@@ -192,6 +192,12 @@ export default function HomePage() {
     if (names.length === 2) return `Fist bumped by ${names[0]} and ${names[1]}.`;
     return `Fist bumped by ${names[0]}, ${names[1]}, and ${names.length - 2} others.`;
   };
+  const formatPublicFistBumps = (carveOut: CarveOut) => {
+    const count = carveOut.fistBumps?.length || 0;
+    if (count === 0) return 'No fist bumps yet.';
+    if (count === 1) return '1 fist bump';
+    return `${count} fist bumps`;
+  };
 
   async function giveFistBump(carveOutId: string) {
     setFistBumpingId(carveOutId);
@@ -261,7 +267,7 @@ export default function HomePage() {
         )}
 
         <div className="carveout-fist-bumps-meta">
-          {names.length > 0 ? (
+          {interactive && names.length > 0 ? (
             <div className="fist-bump-avatar-row" aria-hidden="true">
               {visibleNames.map((name) => (
                 <span key={`${carveOut._id}-${name}`} className="fist-bump-avatar">
@@ -271,7 +277,7 @@ export default function HomePage() {
               {extraCount > 0 ? <span className="fist-bump-avatar extra">+{extraCount}</span> : null}
             </div>
           ) : null}
-          <p>{formatFistBumps(carveOut)}</p>
+          <p>{interactive ? formatFistBumps(carveOut) : formatPublicFistBumps(carveOut)}</p>
         </div>
       </div>
     );

@@ -20,7 +20,11 @@ export async function GET() {
         .filter((carveOut) => carveOut.meeting)
         .map((carveOut) => ({
           ...carveOut,
-          member: { _id: '', name: 'Club Member' }
+          member: { _id: '', name: 'Club Member' },
+          fistBumps: (carveOut.fistBumps || []).map((entry) => ({
+            ...entry,
+            member: { _id: '', name: '' }
+          }))
         }))
     );
   }
