@@ -6,6 +6,8 @@ import { withBasePath } from '@/lib/base-path';
 import { MAX_MEETING_PODCASTS } from '@/lib/meeting-podcasts';
 import type { Meeting, Member, Podcast, SessionMember } from '@/lib/types';
 
+type MeetingTab = 'next' | 'schedule' | 'history';
+
 const initialForm = {
   date: '',
   host: '',
@@ -46,6 +48,20 @@ function toDateInputValue(value: string) {
   return parsed.toISOString().slice(0, 10);
 }
 
+function formatDateInputLabel(value: string) {
+  if (!value) return 'Choose a date';
+  const [year, month, day] = value.split('-').map(Number);
+  if (!year || !month || !day) return 'Choose a date';
+
+  return new Date(Date.UTC(year, month - 1, day)).toLocaleDateString(undefined, {
+    weekday: 'short',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC'
+  });
+}
+
 function getHostname(link?: string) {
   if (!link) return '';
   try {
@@ -70,6 +86,8 @@ export default function MeetingsPage() {
   const [completeNotes, setCompleteNotes] = useState('');
   const [deleteModalMeeting, setDeleteModalMeeting] = useState<Meeting | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [activeTab, setActiveTab] = useState<MeetingTab>('next');
+  const [podcastPickerOpen, setPodcastPickerOpen] = useState(false);
 
   async function loadPageData() {
     const meRes = await fetch(withBasePath('/api/auth/me'), { cache: 'no-store' });
@@ -100,7 +118,7 @@ export default function MeetingsPage() {
     setMeetings(meetingData);
 
     setForm((prev) => {
-      const host = prev.host || memberData[0]?._id || '';
+      const host = prev.host || '';
       return {
         ...prev,
         host,
@@ -142,22 +160,28 @@ export default function MeetingsPage() {
       .sort((a, b) => +new Date(b.date) - +new Date(a.date));
   }, [meetings, nextMeeting]);
   const recentPastMeetings = useMemo(() => pastMeetings.slice(0, 3), [pastMeetings]);
-  const remainingPastMeetings = useMemo(() => pastMeetings.slice(3), [pastMeetings]);
+  const selectedHostAddress = form.host ? getHostAddress(form.host, members) : '';
+  const locationSource = form.host && form.location
+    ? form.location === selectedHostAddress
+      ? 'Host address'
+      : 'Custom'
+    : '';
 
   function resetFormToCreate() {
     setEditingMeetingId(null);
-    const host = members[0]?._id || '';
+    setPodcastPickerOpen(false);
     setForm({
       ...initialForm,
-      host,
       podcasts: [],
-      location: getHostAddress(host, members)
+      location: ''
     });
   }
 
   function startEditMeeting(meeting: Meeting) {
     setEditingMeetingId(meeting._id);
     setError('');
+    setActiveTab('schedule');
+    setPodcastPickerOpen(false);
     setForm({
       date: toDateInputValue(meeting.date),
       host: meeting.host._id,
@@ -196,6 +220,7 @@ export default function MeetingsPage() {
 
       resetFormToCreate();
       await loadPageData();
+      setActiveTab('next');
     } catch {
       setError('Unable to save meeting.');
     } finally {
@@ -323,328 +348,408 @@ export default function MeetingsPage() {
     person._id === currentMember._id ? 'You' : person.name;
   const annotateSelfInList = (person: { _id: string; name: string }) =>
     person._id === currentMember._id ? `${person.name} (you)` : person.name;
-  const renderMeetingPodcasts = (meeting: Meeting) => {
+  const renderMeetingPodcastRows = (meeting: Meeting) => {
     const selectedMeetingPodcasts = getMeetingPodcasts(meeting);
 
     if (selectedMeetingPodcasts.length === 0) {
-      return <p>Awaiting host podcast picks.</p>;
+      return <p className="muted-line">Awaiting host podcast picks.</p>;
     }
 
     return (
-      <div className="list">
-        {selectedMeetingPodcasts.map((podcast) => (
-          <div className="item" key={podcast._id}>
-            <p>
-              <strong>Title:</strong> {podcast.title}
-              {podcast.host ? ` (${podcast.host})` : ''}
-            </p>
-            {podcast.notes ? (
-              <p>
-                <strong>Description:</strong> {podcast.notes}
-              </p>
-            ) : null}
-            {podcast.link ? (
-              <p>
-                <strong>Link:</strong>{' '}
-                <a href={podcast.link} target="_blank" rel="noreferrer">
-                  {podcast.link}
-                </a>
-              </p>
-            ) : null}
-            {podcast.submittedBy ? (
-              <p>
-                <strong>Submitted by:</strong> {displayMemberName(podcast.submittedBy)}
-                {podcast.submittedBy._id === currentMember._id ? (
-                  <span className="badge my-podcast" style={{ marginLeft: '0.4rem' }}>My Podcast</span>
-                ) : null}
-              </p>
-            ) : null}
+      <div className="compact-list">
+        {selectedMeetingPodcasts.map((podcast) => {
+          const content = (
+            <>
+              <span>
+                <strong>{podcast.title}</strong>
+                <small>
+                  {podcast.totalTimeMinutes ? `${podcast.totalTimeMinutes} min` : podcast.host || 'Podcast'}
+                  {podcast.submittedBy ? ` | ${displayMemberName(podcast.submittedBy)}` : ''}
+                </small>
+              </span>
+              <span aria-hidden="true">&gt;</span>
+            </>
+          );
+
+          return podcast.link ? (
+            <a key={podcast._id} className="compact-row" href={podcast.link} target="_blank" rel="noreferrer">
+              {content}
+            </a>
+          ) : (
+            <div key={podcast._id} className="compact-row">
+              {content}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+  const renderMeetingMeta = (meeting: Meeting) => {
+    const meetingPodcasts = getMeetingPodcasts(meeting);
+    const completed = isCompletedMeeting(meeting);
+
+    return (
+      <div className="meeting-detail-grid">
+        <div>
+          <span>Host</span>
+          <strong>{displayMemberName(meeting.host)}</strong>
+        </div>
+        <div>
+          <span>Podcasts</span>
+          <strong>{meetingPodcasts.length || 'TBD'}</strong>
+        </div>
+        <div>
+          <span>Status</span>
+          <strong>{completed ? 'Completed' : 'Scheduled'}</strong>
+        </div>
+        <div>
+          <span>Role</span>
+          <strong>{isCurrentMemberHost(meeting) ? 'Host' : 'Member'}</strong>
+        </div>
+      </div>
+    );
+  };
+  const renderMeetingLocation = (meeting: Meeting) => (
+    <div className="meeting-location-card">
+      <span>Location</span>
+      <strong>{meeting.location || 'TBD'}</strong>
+    </div>
+  );
+  const renderMeetingNotes = (meeting: Meeting) =>
+    meeting.notes ? (
+      <div className="meeting-notes-card">
+        <span>Notes</span>
+        <p>{meeting.notes}</p>
+      </div>
+    ) : null;
+  const renderMeetingActions = (meeting: Meeting, options: { allowComplete?: boolean } = {}) => {
+    if (!canEditMeeting(meeting)) return null;
+    const working = workingMeetingId === meeting._id;
+
+    return (
+      <div className="meeting-action-panel">
+        <div className="meeting-primary-actions">
+          <button type="button" className="ghost" onClick={() => startEditMeeting(meeting)}>
+            Edit
+          </button>
+          {currentMember.isAdmin && options.allowComplete ? (
+            <button type="button" onClick={() => openCompleteMeetingModal(meeting)} disabled={working}>
+              {working ? 'Saving...' : 'Complete'}
+            </button>
+          ) : null}
+        </div>
+        {currentMember.isAdmin ? (
+          <div className="meeting-danger-section">
+            <div>
+              <strong>Delete meeting</strong>
+              <small>{isCompletedMeeting(meeting) ? 'Remove this meeting from history.' : 'Remove this scheduled meeting.'}</small>
+            </div>
+            <button type="button" className="secondary" onClick={() => openDeleteMeetingModal(meeting)} disabled={working}>
+              Delete
+            </button>
           </div>
-        ))}
+        ) : null}
       </div>
     );
   };
 
   return (
-    <section className="meetings-page grid" style={{ marginTop: '1rem' }}>
-      <div className="grid two">
-        <div className="card">
-          <h2>{editingMeetingId ? 'Edit Meeting' : 'Schedule / Log Meeting'}</h2>
+    <section className="meetings-page page-stack">
+      {error ? <div className="error-banner">{error}</div> : null}
+
+      <div className="podcast-tabs meeting-tabs" role="tablist" aria-label="Meeting sections">
+        {[
+          { id: 'next' as const, label: 'Next', count: nextMeeting ? 1 : 0 },
+          { id: 'schedule' as const, label: editingMeetingId ? 'Edit' : 'Schedule' },
+          { id: 'history' as const, label: 'History', count: pastMeetings.length }
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            className={activeTab === tab.id ? 'podcast-tab active' : 'podcast-tab'}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            <span>{tab.label}</span>
+            {typeof tab.count === 'number' ? <small>{tab.count}</small> : null}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'next' ? (
+        <div className="section-panel meeting-hero-panel">
+          {nextMeeting ? (
+            <>
+              <div className="hero-heading-row">
+                <div>
+                  <p className="section-kicker">Next Meeting</p>
+                  <h2>{formatDate(nextMeeting.date)}</h2>
+                </div>
+                {isCurrentMemberHost(nextMeeting) ? <span className="badge">Host</span> : null}
+              </div>
+              {renderMeetingMeta(nextMeeting)}
+              {renderMeetingLocation(nextMeeting)}
+              {renderMeetingNotes(nextMeeting)}
+              <div className="meeting-detail-section">
+                <div className="podcast-detail-heading">
+                  <strong>Podcasts</strong>
+                  <span className="badge">{getMeetingPodcasts(nextMeeting).length || 'TBD'}</span>
+                </div>
+                {renderMeetingPodcastRows(nextMeeting)}
+              </div>
+              {renderMeetingActions(nextMeeting, { allowComplete: true })}
+            </>
+          ) : (
+            <div className="empty-state">
+              <h3>No meeting scheduled</h3>
+              <p>Create the next meeting when the club has a date.</p>
+              {currentMember.isAdmin ? (
+                <button type="button" className="ghost" onClick={() => setActiveTab('schedule')}>
+                  Schedule Meeting
+                </button>
+              ) : null}
+            </div>
+          )}
+        </div>
+      ) : null}
+
+      {activeTab === 'schedule' ? (
+        <div className="section-panel schedule-meeting-panel">
+          <h2>{editingMeetingId ? 'Edit Meeting' : 'Schedule Meeting'}</h2>
           {canManageMeetingForm ? (
-            <form className="form" onSubmit={onSubmit}>
-              <label>
-                Date
-                <input
-                  type="date"
-                  value={form.date}
-                  onChange={(event) => setForm((prev) => ({ ...prev, date: event.target.value }))}
-                  required
-                />
-              </label>
-              <label>
-                Host
-                <select
-                  value={form.host}
-                  disabled={!currentMember.isAdmin}
-                  onChange={(event) => {
-                    const host = event.target.value;
-                    setForm((prev) => ({ ...prev, host, location: getHostAddress(host, members) }));
-                  }}
-                  required
-                >
-                  {members.map((member) => (
-                    <option key={member._id} value={member._id}>
-                      {annotateSelfInList(member)}
+            <form className="form schedule-meeting-form" onSubmit={onSubmit}>
+              <div className="schedule-form-section">
+                <h3>Meeting Details</h3>
+                <label>
+                  Date
+                  <span className="date-picker-control">
+                    <span className="date-picker-icon" aria-hidden="true">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                        <path d="M7 3v4" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" />
+                        <path d="M17 3v4" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" />
+                        <path d="M4.5 8h15" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" />
+                        <rect x="4" y="5" width="16" height="16" rx="2.5" stroke="currentColor" strokeWidth="2.1" />
+                      </svg>
+                    </span>
+                    <span className="date-picker-copy">
+                      <strong>{formatDateInputLabel(form.date)}</strong>
+                      <small>{form.date ? 'Tap to change' : 'Tap to open calendar'}</small>
+                    </span>
+                    <span className="date-picker-action">Select</span>
+                    <input
+                      className="date-picker-native"
+                      aria-label="Meeting date"
+                      type="date"
+                      value={form.date}
+                      onChange={(event) => setForm((prev) => ({ ...prev, date: event.target.value }))}
+                      required
+                    />
+                  </span>
+                </label>
+                <label>
+                  Host
+                  <select
+                    value={form.host}
+                    disabled={!currentMember.isAdmin}
+                    onChange={(event) => {
+                      const host = event.target.value;
+                      setForm((prev) => ({ ...prev, host, location: getHostAddress(host, members) }));
+                    }}
+                    required
+                  >
+                    <option value="" disabled>
+                      Add a host...
                     </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                Podcasts
-                <div className="list">
-                  {selectedPodcasts.length === 0 ? <p>No podcasts selected yet. Leave empty for TBD.</p> : null}
+                    {members.map((member) => (
+                      <option key={member._id} value={member._id}>
+                        {annotateSelfInList(member)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <div className="schedule-form-section">
+                <div className="schedule-section-heading">
+                  <h3>Podcasts</h3>
+                  <span className="badge">{selectedPodcasts.length}/{MAX_MEETING_PODCASTS}</span>
+                </div>
+                <div className="meeting-form-podcast-list">
+                  {selectedPodcasts.length === 0 ? <p className="muted-line">No podcasts selected yet. Leave empty for TBD.</p> : null}
                   {selectedPodcasts.map((podcast) => (
-                    <div className="item" key={podcast._id}>
-                      <div className="inline" style={{ justifyContent: 'space-between' }}>
-                        <div>
-                          <strong>{podcast.title}</strong>
-                          <p>
-                            {podcast.episodeNames ? `${podcast.episodeNames} | ` : ''}
-                            {podcast.totalTimeMinutes ? `${podcast.totalTimeMinutes} min | ` : ''}
-                            {getHostname(podcast.link) || podcast.link}
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          className="ghost"
-                          onClick={() =>
-                            setForm((prev) => ({
-                              ...prev,
-                              podcasts: prev.podcasts.filter((podcastId) => podcastId !== podcast._id)
-                            }))
-                          }
-                        >
-                          Remove
-                        </button>
-                      </div>
+                    <div className="meeting-form-podcast" key={podcast._id}>
+                      <span>
+                        <strong>{podcast.title}</strong>
+                        <small>
+                          {podcast.episodeNames ? `${podcast.episodeNames} | ` : ''}
+                          {podcast.totalTimeMinutes ? `${podcast.totalTimeMinutes} min | ` : ''}
+                          {getHostname(podcast.link) || podcast.link}
+                        </small>
+                      </span>
+                      <button
+                        type="button"
+                        className="ghost"
+                        onClick={() =>
+                          setForm((prev) => ({
+                            ...prev,
+                            podcasts: prev.podcasts.filter((podcastId) => podcastId !== podcast._id)
+                          }))
+                        }
+                      >
+                        Remove
+                      </button>
                     </div>
                   ))}
                   {form.podcasts.length < MAX_MEETING_PODCASTS ? (
-                    <select
-                      value=""
-                      onChange={(event) => {
-                        const podcastId = event.target.value;
-                        if (!podcastId) return;
-                        setForm((prev) => ({
-                          ...prev,
-                          podcasts: [...prev.podcasts, podcastId]
-                        }));
-                      }}
+                    <details
+                      className="meeting-podcast-picker"
+                      open={podcastPickerOpen}
+                      onToggle={(event) => setPodcastPickerOpen(event.currentTarget.open)}
                     >
-                      <option value="">Add a podcast...</option>
-                      {podcastOptions.map((podcast) => (
-                        <option key={podcast._id} value={podcast._id}>
-                          {podcast.title}
-                          {podcast.episodeNames ? ` | ${podcast.episodeNames}` : ''}
-                          {podcast.totalTimeMinutes ? ` | ${podcast.totalTimeMinutes} min` : ''}
-                          {getHostname(podcast.link) ? ` | ${getHostname(podcast.link)}` : ''}
-                        </option>
-                      ))}
-                    </select>
+                      <summary className="meeting-picker-summary">
+                        <span>
+                          <strong>Add Podcast</strong>
+                          <small>{podcastOptions.length} available</small>
+                        </span>
+                        <span aria-hidden="true">+</span>
+                      </summary>
+                      <div className="meeting-picker-list">
+                        {podcastOptions.length === 0 ? <p className="muted-line">No more podcasts available.</p> : null}
+                        {podcastOptions.map((podcast) => (
+                          <button
+                            type="button"
+                            className="meeting-picker-option"
+                            key={podcast._id}
+                            onClick={() => {
+                              setForm((prev) => ({
+                                ...prev,
+                                podcasts: [...prev.podcasts, podcast._id]
+                              }));
+                              setPodcastPickerOpen(false);
+                            }}
+                          >
+                            <span>
+                              <strong>{podcast.title}</strong>
+                              <small>
+                                {podcast.episodeNames ? `${podcast.episodeNames} | ` : ''}
+                                {podcast.totalTimeMinutes ? `${podcast.totalTimeMinutes} min | ` : ''}
+                                {getHostname(podcast.link) || podcast.link}
+                              </small>
+                            </span>
+                            <span aria-hidden="true">+</span>
+                          </button>
+                        ))}
+                      </div>
+                    </details>
                   ) : (
-                    <p>You can select up to {MAX_MEETING_PODCASTS} podcasts for one meeting.</p>
+                    <p className="muted-line">You can select up to {MAX_MEETING_PODCASTS} podcasts for one meeting.</p>
                   )}
                 </div>
-              </label>
-              <label>
-                Location
-                <input
-                  value={form.location}
-                  placeholder="Host address or custom location"
-                  onChange={(event) => setForm((prev) => ({ ...prev, location: event.target.value }))}
-                  required
-                />
-              </label>
-              <label>
-                Notes
-                <textarea
-                  value={form.notes}
-                  onChange={(event) => setForm((prev) => ({ ...prev, notes: event.target.value }))}
-                />
-              </label>
-              <div className="inline">
+              </div>
+
+              <div className="schedule-form-section">
+                <div className="schedule-section-heading">
+                  <h3>Location</h3>
+                  {locationSource ? <span className="badge">{locationSource}</span> : null}
+                </div>
+                <label>
+                  <span className="sr-only">Location</span>
+                  <input
+                    value={form.location}
+                    placeholder={form.host ? 'Host address or custom location' : 'Select a host first'}
+                    disabled={!form.host}
+                    onChange={(event) => setForm((prev) => ({ ...prev, location: event.target.value }))}
+                    required={Boolean(form.host)}
+                  />
+                </label>
+              </div>
+
+              <div className="schedule-form-section">
+                <h3>Notes</h3>
+                <label>
+                  <span className="sr-only">Notes</span>
+                  <textarea
+                    value={form.notes}
+                    onChange={(event) => setForm((prev) => ({ ...prev, notes: event.target.value }))}
+                  />
+                </label>
+              </div>
+
+              <div className="meeting-action-row meeting-save-bar">
                 <button disabled={saving}>{saving ? 'Saving...' : editingMeetingId ? 'Save Changes' : 'Save Meeting'}</button>
                 {editingMeetingId ? (
-                  <button type="button" className="secondary" onClick={resetFormToCreate} disabled={saving}>
-                    Cancel Edit
+                  <button
+                    type="button"
+                    className="ghost"
+                    onClick={() => {
+                      resetFormToCreate();
+                      setActiveTab('next');
+                    }}
+                    disabled={saving}
+                  >
+                    Cancel
                   </button>
                 ) : null}
               </div>
               {editingMeetingId ? null : (
-                <p>
-                  New meetings become the Next Meeting only when no scheduled meeting already exists. Otherwise they are archived as a past meeting.
+                <p className="muted-line">
+                  New meetings become the Next Meeting only when no scheduled meeting already exists. Otherwise they are archived as history.
                 </p>
               )}
-              {availablePodcasts.length === 0 ? <p>No podcasts to discuss right now. Select TBD if needed.</p> : null}
-              {error ? <p className="error">{error}</p> : null}
+              {availablePodcasts.length === 0 ? <p className="muted-line">No podcasts to discuss right now. Select TBD if needed.</p> : null}
             </form>
           ) : (
             <p>Only admins can create meetings. Hosts can edit meetings assigned to them.</p>
           )}
         </div>
+      ) : null}
 
-        <div className="card">
-          <h2>Next Meeting</h2>
-          {nextMeeting ? (
-            <div className="list">
-              <div className="item">
-                <h4>Meeting</h4>
-                <p>
-                  <strong>Date:</strong> {formatDate(nextMeeting.date)}
-                </p>
-                <p>
-                  <strong>Host:</strong> {displayMemberName(nextMeeting.host)}
-                  {isCurrentMemberHost(nextMeeting) ? <span className="badge" style={{ marginLeft: '0.4rem' }}>Host</span> : null}
-                </p>
-                <p>
-                  <strong>Location:</strong> {nextMeeting.location}
-                </p>
-                {nextMeeting.notes ? (
-                  <p>
-                    <strong>Notes:</strong> {nextMeeting.notes}
-                  </p>
-                ) : null}
-              </div>
-              <div className="item">
-                <h4>Podcasts</h4>
-                {renderMeetingPodcasts(nextMeeting)}
-              </div>
-
-              {canEditMeeting(nextMeeting) ? (
-                <div className="inline" style={{ marginTop: '0.5rem' }}>
-                  <button type="button" className="secondary" onClick={() => startEditMeeting(nextMeeting)}>
-                    Edit
-                  </button>
-                  {currentMember.isAdmin ? (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => openCompleteMeetingModal(nextMeeting)}
-                        disabled={workingMeetingId === nextMeeting._id}
-                      >
-                        {workingMeetingId === nextMeeting._id ? 'Saving...' : 'Meeting Completed'}
-                      </button>
-                      <button
-                        type="button"
-                        className="secondary"
-                        onClick={() => openDeleteMeetingModal(nextMeeting)}
-                        disabled={workingMeetingId === nextMeeting._id}
-                      >
-                        Delete Next Meeting
-                      </button>
-                    </>
-                  ) : null}
-                </div>
-              ) : null}
-            </div>
-          ) : (
-            <p>No scheduled next meeting.</p>
-          )}
-        </div>
-      </div>
-
-      <div className="card">
-        <h2>Past Meetings</h2>
-        <div className="list">
-          {recentPastMeetings.length === 0 ? <p>No past meetings yet.</p> : null}
-          {recentPastMeetings.map((meeting) => (
-            <div className="item" key={meeting._id}>
-              <h4>{formatDate(meeting.date)}</h4>
-              <p>
-                <strong>Host:</strong> {displayMemberName(meeting.host)}
-                {isCurrentMemberHost(meeting) ? <span className="badge" style={{ marginLeft: '0.4rem' }}>Host</span> : null}
-              </p>
-              <p>
-                <strong>Podcasts:</strong>
-              </p>
-              {renderMeetingPodcasts(meeting)}
-              <p>
-                <strong>Location:</strong> {meeting.location}
-              </p>
-              {meeting.notes ? (
-                <p>
-                  <strong>Notes:</strong> {meeting.notes}
-                </p>
-              ) : null}
-              {canEditMeeting(meeting) ? (
-                <div className="inline" style={{ marginTop: '0.5rem' }}>
-                  <button type="button" className="secondary" onClick={() => startEditMeeting(meeting)}>
-                    Edit
-                  </button>
-                  {currentMember.isAdmin ? (
-                    <button
-                      type="button"
-                      className="secondary"
-                      onClick={() => openDeleteMeetingModal(meeting)}
-                      disabled={workingMeetingId === meeting._id}
-                    >
-                      Delete (type DELETE)
-                    </button>
-                  ) : null}
-                </div>
-              ) : null}
-            </div>
-          ))}
-        </div>
-        <div className="inline" style={{ marginTop: '0.75rem' }}>
-          <button type="button" className="secondary" onClick={() => setShowAllPastMeetings((prev) => !prev)}>
-            {showAllPastMeetings ? 'Show Recent Meetings' : 'Show All Meetings'}
-          </button>
-        </div>
-        {showAllPastMeetings ? (
-          <div className="list" style={{ marginTop: '0.75rem' }}>
-            {remainingPastMeetings.length === 0 ? <p>No additional past meetings.</p> : null}
-            {remainingPastMeetings.map((meeting) => (
-              <div className="item" key={`past-all-${meeting._id}`}>
-                <h4>{formatDate(meeting.date)}</h4>
-                <p>
-                  <strong>Host:</strong> {displayMemberName(meeting.host)}
-                  {isCurrentMemberHost(meeting) ? <span className="badge" style={{ marginLeft: '0.4rem' }}>Host</span> : null}
-                </p>
-                <p>
-                  <strong>Podcasts:</strong>
-                </p>
-                {renderMeetingPodcasts(meeting)}
-                <p>
-                  <strong>Location:</strong> {meeting.location}
-                </p>
-                {meeting.notes ? (
-                  <p>
-                    <strong>Notes:</strong> {meeting.notes}
-                  </p>
-                ) : null}
-                {canEditMeeting(meeting) ? (
-                  <div className="inline" style={{ marginTop: '0.5rem' }}>
-                    <button type="button" className="secondary" onClick={() => startEditMeeting(meeting)}>
-                      Edit
-                    </button>
-                    {currentMember.isAdmin ? (
-                      <button
-                        type="button"
-                        className="secondary"
-                        onClick={() => openDeleteMeetingModal(meeting)}
-                        disabled={workingMeetingId === meeting._id}
-                      >
-                        Delete (type DELETE)
-                      </button>
-                    ) : null}
+      {activeTab === 'history' ? (
+        <div className="section-panel meetings-history-panel">
+          <div className="section-title-row">
+            <h2>Past Meetings</h2>
+            <span className="badge">{pastMeetings.length}</span>
+          </div>
+          <div className="meeting-history-list">
+            {recentPastMeetings.length === 0 ? <p>No past meetings yet.</p> : null}
+            {(showAllPastMeetings ? pastMeetings : recentPastMeetings).map((meeting) => (
+              <div className="meeting-history-card" key={meeting._id}>
+                <div className="library-podcast-head">
+                  <h3>{formatDate(meeting.date)}</h3>
+                  <div className="podcast-meta-row">
+                    <span className="badge">{isCompletedMeeting(meeting) ? 'Completed' : 'Scheduled'}</span>
+                    {isCurrentMemberHost(meeting) ? <span className="badge">Host</span> : null}
                   </div>
-                ) : null}
+                </div>
+                {renderMeetingMeta(meeting)}
+                {renderMeetingLocation(meeting)}
+                <details className="podcast-details">
+                  <summary>Podcasts and notes</summary>
+                  <div className="podcast-details-body">
+                    <div className="podcast-detail-stack">
+                      {renderMeetingNotes(meeting)}
+                      <div className="meeting-detail-section">
+                        <div className="podcast-detail-heading">
+                          <strong>Podcasts</strong>
+                          <span className="badge">{getMeetingPodcasts(meeting).length || 'TBD'}</span>
+                        </div>
+                        {renderMeetingPodcastRows(meeting)}
+                      </div>
+                      {renderMeetingActions(meeting)}
+                    </div>
+                  </div>
+                </details>
               </div>
             ))}
           </div>
-        ) : null}
-      </div>
+          {pastMeetings.length > 3 ? (
+            <button type="button" className="ghost full-width-action" onClick={() => setShowAllPastMeetings((prev) => !prev)}>
+              {showAllPastMeetings ? 'Show Recent' : `Show All (${pastMeetings.length})`}
+            </button>
+          ) : null}
+        </div>
+      ) : null}
 
       {completeModalMeeting ? (
         <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="complete-meeting-title">

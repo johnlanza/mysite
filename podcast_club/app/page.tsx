@@ -6,6 +6,21 @@ import { withBasePath } from '@/lib/base-path';
 import { dedupePodcastsByContent } from '@/lib/podcast-dedupe';
 import type { CarveOut, Meeting, Podcast, SessionMember } from '@/lib/types';
 
+const PODCAST_LIBRARY_HREF = '/podcasts?tab=library';
+const PODCAST_RANK_HREF = '/podcasts?tab=rank';
+const PODCAST_SUBMIT_HREF = '/podcasts?tab=submit';
+const CARVE_OUT_SHARE_HREF = '/carveouts?tab=share';
+const MEETINGS_HREF = '/meetings';
+
+type HomeAction = {
+  kicker: string;
+  title: string;
+  detail: string;
+  href: typeof PODCAST_RANK_HREF | typeof MEETINGS_HREF | typeof CARVE_OUT_SHARE_HREF | typeof PODCAST_SUBMIT_HREF;
+  label: string;
+  count: string;
+};
+
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString(undefined, {
     weekday: 'short',
@@ -36,8 +51,6 @@ export default function HomePage() {
   const [fistBumpingId, setFistBumpingId] = useState<string | null>(null);
   const [showAllCarveOuts, setShowAllCarveOuts] = useState(false);
   const [showAllDiscussedPodcasts, setShowAllDiscussedPodcasts] = useState(false);
-  const [showAllPodcastsToDiscuss, setShowAllPodcastsToDiscuss] = useState(false);
-  const [showAllPodcastsToRank, setShowAllPodcastsToRank] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -125,7 +138,6 @@ export default function HomePage() {
     );
   }, [pending, meetings]);
   const recentPodcastsToDiscuss = useMemo(() => podcastsToDiscuss.slice(0, 3), [podcastsToDiscuss]);
-  const remainingPodcastsToDiscuss = useMemo(() => podcastsToDiscuss.slice(3), [podcastsToDiscuss]);
 
   const podcastsToRank = useMemo(() => {
     if (!member) return [];
@@ -135,7 +147,6 @@ export default function HomePage() {
     });
   }, [pending, member]);
   const recentPodcastsToRank = useMemo(() => podcastsToRank.slice(0, 3), [podcastsToRank]);
-  const remainingPodcastsToRank = useMemo(() => podcastsToRank.slice(3), [podcastsToRank]);
 
   const recentCarveOuts = useMemo(() => {
     return [...carveOuts]
@@ -165,11 +176,50 @@ export default function HomePage() {
   const remainingDiscussedPodcasts = useMemo(() => allDiscussedPodcasts.slice(3), [allDiscussedPodcasts]);
   const displayMemberName = (person: { _id: string; name: string }) =>
     member && person._id === member._id ? 'You' : person.name;
+  const primaryAction: HomeAction = (() => {
+    if (podcastsToRank.length > 0) {
+      return {
+        kicker: 'Priority',
+        title: 'Rank podcasts',
+        detail: `${podcastsToRank.length} podcast${podcastsToRank.length === 1 ? ' needs' : 's need'} your rating.`,
+        href: PODCAST_RANK_HREF,
+        label: 'Start Ranking',
+        count: `${podcastsToRank.length} left`
+      };
+    }
+
+    if (nextMeeting) {
+      return {
+        kicker: 'Up next',
+        title: 'View the next meeting',
+        detail: `${formatDate(nextMeeting.date)} with ${displayMemberName(nextMeeting.host)}.`,
+        href: MEETINGS_HREF,
+        label: 'View Meeting',
+        count: getMeetingPodcasts(nextMeeting).length > 0 ? `${getMeetingPodcasts(nextMeeting).length} podcasts` : 'TBD'
+      };
+    }
+
+    if (recentCarveOuts.length === 0) {
+      return {
+        kicker: 'Start sharing',
+        title: 'Share a carve out',
+        detail: 'Add a book, article, video, or idea that landed with you.',
+        href: CARVE_OUT_SHARE_HREF,
+        label: 'Share Carve Out',
+        count: 'New'
+      };
+    }
+
+    return {
+      kicker: 'Keep it moving',
+      title: 'Submit a podcast',
+      detail: 'Add something for the club to consider next.',
+      href: PODCAST_SUBMIT_HREF,
+      label: 'Submit Podcast',
+      count: 'Next'
+    };
+  })();
   const isCurrentMemberHost = (meeting: Meeting) => Boolean(member && meeting.host._id === member._id);
-  const annotateSelfInList = (name: string) =>
-    member && name.trim().toLowerCase() === member.name.trim().toLowerCase() ? `${name} (you)` : name;
-  const formatMissingVoters = (names: string[]) =>
-    names.length > 0 ? names.map((name) => annotateSelfInList(name)).join(', ') : 'None';
   const hasFistBumped = (carveOut: CarveOut) =>
     Boolean(member && carveOut.fistBumps?.some((entry) => entry.member._id === member._id));
   const canFistBump = (carveOut: CarveOut) =>
@@ -322,7 +372,7 @@ export default function HomePage() {
               className="secondary"
               onClick={() => setShowAllDiscussedPodcasts((prev) => !prev)}
             >
-              {showAllDiscussedPodcasts ? 'Show Recent Podcasts' : 'Show All Podcasts'}
+              {showAllDiscussedPodcasts ? 'Show Recent' : 'Show All'}
             </button>
           </div>
           {showAllDiscussedPodcasts ? (
@@ -372,7 +422,7 @@ export default function HomePage() {
           </div>
           <div className="inline" style={{ marginTop: '0.75rem' }}>
             <button type="button" className="secondary" onClick={() => setShowAllCarveOuts((prev) => !prev)}>
-              {showAllCarveOuts ? 'Show Recent Carve Outs' : 'Show All Carve Outs'}
+              {showAllCarveOuts ? 'Show Recent' : 'Show All'}
             </button>
           </div>
           {showAllCarveOuts ? (
@@ -405,343 +455,204 @@ export default function HomePage() {
     );
   }
 
+  const nextMeetingPodcasts = nextMeeting ? getMeetingPodcasts(nextMeeting) : [];
+
   return (
-    <section className="home-page grid two" style={{ marginTop: '1rem' }}>
-      <div className="card">
-        <h2>Next Meeting</h2>
-        {nextMeeting ? (
-          <div className="list">
-            <div className="item">
-              <h4>Meeting</h4>
-              <p>
-                <strong>Date:</strong> {formatDate(nextMeeting.date)}
-              </p>
-              <p>
-                <strong>Host:</strong> {displayMemberName(nextMeeting.host)}
-                {isCurrentMemberHost(nextMeeting) ? <span className="badge" style={{ marginLeft: '0.4rem' }}>Host</span> : null}
-              </p>
-              <p>
-                <strong>Location:</strong> {nextMeeting.location}
-              </p>
-            </div>
-            <div className="item">
-              <h4>Podcasts</h4>
-              {getMeetingPodcasts(nextMeeting).length > 0 ? (
-                <div className="list">
-                  {getMeetingPodcasts(nextMeeting).map((podcast) => (
-                    <div key={podcast._id} className="item">
-                      <p>
-                        <strong>Title:</strong> {podcast.title}
-                      </p>
-                      <p>
-                        <strong>Description:</strong> {podcast.notes || 'No description yet.'}
-                      </p>
-                      <p>
-                        <strong>Link:</strong>{' '}
-                        {podcast.link ? (
-                          <a href={podcast.link} target="_blank" rel="noreferrer">
-                            {podcast.link}
-                          </a>
-                        ) : (
-                          'No link provided.'
-                        )}
-                      </p>
-                      {podcast.submittedBy ? (
-                        <p>
-                          <strong>Submitted by:</strong> {displayMemberName(podcast.submittedBy)}
-                          {podcast.submittedBy._id === member._id ? (
-                            <span className="badge my-podcast" style={{ marginLeft: '0.4rem' }}>My Podcast</span>
-                          ) : null}
-                        </p>
-                      ) : null}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p>Awaiting host podcast picks.</p>
-              )}
-            </div>
+    <section className="home-dashboard page-stack">
+      <div className="section-panel command-panel">
+        <div>
+          <p className="section-kicker">{primaryAction.kicker}</p>
+          <div className="hero-heading-row">
+            <h2>{primaryAction.title}</h2>
+            <span className="badge">{primaryAction.count}</span>
           </div>
+          <p className="muted-line">{primaryAction.detail}</p>
+        </div>
+        <Link className="action-link full-width-action" href={primaryAction.href}>
+          {primaryAction.label}
+        </Link>
+      </div>
+
+      <div className="section-panel todo-panel">
+        <div className="section-title-row">
+          <h2>Quick Actions</h2>
+          <span className="badge">{podcastsToRank.length} to rank</span>
+        </div>
+        <div className="todo-list">
+          <Link className={`todo-row${podcastsToRank.length > 0 ? ' primary' : ''}`} href={PODCAST_RANK_HREF}>
+            <span>
+              <strong>{podcastsToRank.length > 0 ? 'Rank podcasts' : 'Ranking complete'}</strong>
+              <small>
+                {podcastsToRank.length > 0
+                  ? `${podcastsToRank.length} podcast${podcastsToRank.length === 1 ? ' needs' : 's need'} your rating.`
+                  : 'Browse candidates or add something new.'}
+              </small>
+            </span>
+            <span aria-hidden="true">&gt;</span>
+          </Link>
+          <Link className="todo-row" href={MEETINGS_HREF}>
+            <span>
+              <strong>{nextMeeting ? 'View meeting' : 'Meetings'}</strong>
+              <small>{nextMeeting ? `${formatDate(nextMeeting.date)} is next.` : 'Review meeting history.'}</small>
+            </span>
+            <span aria-hidden="true">&gt;</span>
+          </Link>
+          <Link className="todo-row" href={CARVE_OUT_SHARE_HREF}>
+            <span>
+              <strong>Share a carve out</strong>
+              <small>Post something that made an impact.</small>
+            </span>
+            <span aria-hidden="true">&gt;</span>
+          </Link>
+          <Link className="todo-row" href={PODCAST_SUBMIT_HREF}>
+            <span>
+              <strong>Submit a podcast</strong>
+              <small>Add something for the club to consider.</small>
+            </span>
+            <span aria-hidden="true">&gt;</span>
+          </Link>
+        </div>
+      </div>
+
+      <div className="dashboard-hero section-panel">
+        <p className="section-kicker">Next Meeting</p>
+        {nextMeeting ? (
+          <>
+            <div className="hero-heading-row">
+              <h2>{formatDate(nextMeeting.date)}</h2>
+              {isCurrentMemberHost(nextMeeting) ? <span className="badge">Host</span> : null}
+            </div>
+            <div className="hero-meta-grid">
+              <div>
+                <span>Host</span>
+                <strong>{displayMemberName(nextMeeting.host)}</strong>
+              </div>
+              <div>
+                <span>Podcasts</span>
+                <strong>{nextMeetingPodcasts.length > 0 ? nextMeetingPodcasts.length : 'TBD'}</strong>
+              </div>
+            </div>
+            <p className="location-line">{nextMeeting.location}</p>
+            {nextMeetingPodcasts.length > 0 ? (
+              <div className="compact-list">
+                {nextMeetingPodcasts.slice(0, 2).map((podcast) => (
+                  <a key={podcast._id} className="compact-row" href={podcast.link} target="_blank" rel="noreferrer">
+                    <span>
+                      <strong>{podcast.title}</strong>
+                      <small>
+                        {podcast.totalTimeMinutes ? `${podcast.totalTimeMinutes} min` : podcast.host || 'Podcast'}
+                      </small>
+                    </span>
+                    <span aria-hidden="true">&gt;</span>
+                  </a>
+                ))}
+                {nextMeetingPodcasts.length > 2 ? (
+                  <p className="muted-line">+{nextMeetingPodcasts.length - 2} more selected</p>
+                ) : null}
+              </div>
+            ) : (
+              <p className="muted-line">Awaiting host podcast picks.</p>
+            )}
+            <Link className="action-link full-width-action" href="/meetings">
+              View Meeting
+            </Link>
+          </>
         ) : (
-          <p>No upcoming meeting scheduled yet.</p>
+          <>
+            <h2>No meeting scheduled</h2>
+            <p className="muted-line">Check the meetings page for past discussions or schedule the next one.</p>
+            <Link className="action-link full-width-action" href="/meetings">
+              View Meetings
+            </Link>
+          </>
         )}
       </div>
 
-      <div className="card podcasts-to-rank-card">
-        <h3>Podcasts to Rank</h3>
-        <div className="list">
-          {recentPodcastsToRank.length === 0 ? <p>No podcasts left to rank.</p> : null}
-          {recentPodcastsToRank.map((podcast) => (
-            <div key={`rank-queue-${podcast._id}`} className="item">
-              <h4>{podcast.title}</h4>
-              <p>
-                <strong>Host:</strong> {podcast.host || 'Unknown'}
-              </p>
-              <p>
-                <strong>Episode(s):</strong> {podcast.episodeNames || 'Unknown'}
-              </p>
-              <p>
-                <a href={podcast.link} target="_blank" rel="noreferrer">
-                  {podcast.link}
-                </a>
-              </p>
-            </div>
-          ))}
-        </div>
-        {podcastsToRank.length > 0 ? (
-          <div className="inline" style={{ marginTop: '0.75rem' }}>
-            <button
-              type="button"
-              className="secondary"
-              onClick={() => setShowAllPodcastsToRank((prev) => !prev)}
-            >
-              {showAllPodcastsToRank ? 'Show Recent Podcasts' : 'Show All Podcasts'}
-            </button>
+      {podcastsToRank.length > 0 ? (
+        <div className="section-panel podcasts-to-rank-card">
+          <div className="section-title-row">
+            <h2>Up Next to Rank</h2>
+            <Link href={PODCAST_RANK_HREF}>Rank All</Link>
           </div>
-        ) : null}
-        {showAllPodcastsToRank && podcastsToRank.length > 0 ? (
-          <div className="list" style={{ marginTop: '0.75rem' }}>
-            {remainingPodcastsToRank.length === 0 ? <p>No additional podcasts to rank.</p> : null}
-            {remainingPodcastsToRank.map((podcast) => (
-              <div key={`rank-queue-all-${podcast._id}`} className="item">
-                <h4>{podcast.title}</h4>
-                <p>
-                  <strong>Host:</strong> {podcast.host || 'Unknown'}
-                </p>
-                <p>
-                  <strong>Episode(s):</strong> {podcast.episodeNames || 'Unknown'}
-                </p>
-                <p>
-                  <a href={podcast.link} target="_blank" rel="noreferrer">
-                    {podcast.link}
-                  </a>
-                </p>
-              </div>
+          <div className="compact-list">
+            {recentPodcastsToRank.map((podcast) => (
+              <Link key={`rank-queue-${podcast._id}`} className="compact-row" href={PODCAST_RANK_HREF}>
+                <span>
+                  <strong>{podcast.title}</strong>
+                  <small>
+                    {podcast.totalTimeMinutes ? `${podcast.totalTimeMinutes} min` : podcast.host || 'Unknown host'}
+                    {podcast.episodeNames ? ` | ${podcast.episodeNames}` : ''}
+                  </small>
+                </span>
+                <span aria-hidden="true">&gt;</span>
+              </Link>
             ))}
           </div>
-        ) : null}
-        {podcastsToRank.length > 0 ? (
-          <p>
-            <Link className="nav-link" href="/podcasts">
-              Rank Podcasts
-            </Link>
-          </p>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
 
-      <div className="card carveouts-card">
-        <h3>Carve Outs</h3>
-
-        <div className="list">
+      <div className="section-panel carveouts-card">
+        <div className="section-title-row">
+          <h2>Recent Carve Outs</h2>
+          <Link href="/carveouts">View All</Link>
+        </div>
+        <div className="compact-list">
           {recentCarveOuts.length === 0 ? <p>No recent carve outs.</p> : null}
           {recentCarveOuts.map((carveOut) => (
-            <div className="item" key={carveOut._id}>
-              <div className="inline carveout-item-head" style={{ justifyContent: 'space-between' }}>
-                <h4>{carveOut.title}</h4>
-                <div className="inline" style={{ gap: '0.35rem' }}>
-                  <span className="badge">{carveOut.type}</span>
-                  {carveOut.member._id === member._id ? <span className="badge my-carveout">My Carve Out</span> : null}
-                </div>
+            <div className="compact-card" key={carveOut._id}>
+              <div className="compact-card-head">
+                <h3>{carveOut.title}</h3>
+                <span className="badge">{carveOut.type}</span>
               </div>
               <p>
-                <strong>Shared by:</strong> {displayMemberName(carveOut.member)}
-              </p>
-              <p>
-                <strong>Meeting:</strong> {formatDate(carveOut.meeting.date)}
-              </p>
-              <p>
-                <strong>Link:</strong>{' '}
-                {carveOut.url ? (
-                  <a href={carveOut.url} target="_blank" rel="noreferrer">
-                    {carveOut.url}
-                  </a>
-                ) : (
-                  'No link provided.'
-                )}
+                Shared by {displayMemberName(carveOut.member)} for {formatDate(carveOut.meeting.date)}
               </p>
               {carveOut.notes ? <p>{carveOut.notes}</p> : null}
               {renderFistBumpStrip(carveOut, true)}
             </div>
           ))}
         </div>
-
-        <div className="inline" style={{ marginTop: '0.75rem' }}>
-          <button type="button" className="secondary" onClick={() => setShowAllCarveOuts((prev) => !prev)}>
-            {showAllCarveOuts ? 'Show Recent Carve Outs' : 'Show All Carve Outs'}
-          </button>
-        </div>
-
-        {showAllCarveOuts ? (
-          <div className="list" style={{ marginTop: '0.75rem' }}>
-            {remainingCarveOuts.length === 0 ? <p>No additional carve outs.</p> : null}
-            {remainingCarveOuts.map((carveOut) => (
-              <div className="item" key={`all-${carveOut._id}`}>
-                <div className="inline carveout-item-head" style={{ justifyContent: 'space-between' }}>
-                  <h4>{carveOut.title}</h4>
-                  <div className="inline" style={{ gap: '0.35rem' }}>
-                    <span className="badge">{carveOut.type}</span>
-                    {carveOut.member._id === member._id ? <span className="badge my-carveout">My Carve Out</span> : null}
-                  </div>
-                </div>
-                <p>
-                  <strong>Meeting:</strong> {formatDate(carveOut.meeting.date)}
-                </p>
-                <p>
-                  <strong>Shared by:</strong> {displayMemberName(carveOut.member)}
-                </p>
-                <p>
-                  <strong>Link:</strong>{' '}
-                  {carveOut.url ? (
-                    <a href={carveOut.url} target="_blank" rel="noreferrer">
-                      {carveOut.url}
-                    </a>
-                  ) : (
-                    'No link provided.'
-                  )}
-                </p>
-                {carveOut.notes ? <p>{carveOut.notes}</p> : null}
-                {renderFistBumpStrip(carveOut, true)}
-              </div>
-            ))}
-          </div>
-        ) : null}
       </div>
 
-      <div className="card podcasts-to-discuss-card">
-        <h3>Podcasts To Discuss</h3>
-        <p>Sorted by ranking score (highest first).</p>
-        <div className="list">
+      <div className="section-panel podcasts-to-discuss-card">
+        <div className="section-title-row">
+          <h2>Top Candidates</h2>
+          <Link href={PODCAST_LIBRARY_HREF}>View All</Link>
+        </div>
+        <div className="compact-list">
           {recentPodcastsToDiscuss.length === 0 ? <p>No podcasts to discuss yet.</p> : null}
           {recentPodcastsToDiscuss.map((podcast) => (
-            <div key={podcast._id} className="item">
-              <div className="inline" style={{ justifyContent: 'space-between' }}>
-                <h4>{podcast.title}</h4>
-                <span className="badge ranking-score">Score: {podcast.rankingScore}</span>
-              </div>
-              <p>
-                <strong>Description:</strong> {podcast.notes || 'No description yet.'}
-              </p>
-              <p>
-                <strong>Link:</strong>{' '}
-                <a href={podcast.link} target="_blank" rel="noreferrer">
-                  {podcast.link}
-                </a>
-              </p>
-              {podcast.missingVoters.length > 0 ? (
-                <p className="warning-banner">
-                  <strong>Warning:</strong> Missing votes from {formatMissingVoters(podcast.missingVoters)}
-                </p>
-              ) : (
-                <p>
-                  <strong>All members have rated.</strong>
-                </p>
-              )}
-            </div>
+            <Link key={podcast._id} className="compact-row" href={PODCAST_LIBRARY_HREF}>
+              <span>
+                <strong>{podcast.title}</strong>
+                <small>
+                  Score {podcast.rankingScore}
+                  {podcast.missingVoters.length > 0 ? ` | Missing ${podcast.missingVoters.length}` : ' | Fully rated'}
+                </small>
+              </span>
+              <span aria-hidden="true">&gt;</span>
+            </Link>
           ))}
         </div>
-        <div className="inline" style={{ marginTop: '0.75rem' }}>
-          <button
-            type="button"
-            className="secondary"
-            onClick={() => setShowAllPodcastsToDiscuss((prev) => !prev)}
-          >
-            {showAllPodcastsToDiscuss ? 'Show Recent Podcasts' : 'Show All Podcasts'}
-          </button>
-        </div>
-        {showAllPodcastsToDiscuss ? (
-          <div className="list" style={{ marginTop: '0.75rem' }}>
-            {remainingPodcastsToDiscuss.length === 0 ? <p>No additional podcasts to discuss.</p> : null}
-            {remainingPodcastsToDiscuss.map((podcast) => (
-              <div key={`pending-all-${podcast._id}`} className="item">
-                <div className="inline" style={{ justifyContent: 'space-between' }}>
-                  <h4>{podcast.title}</h4>
-                  <span className="badge ranking-score">Score: {podcast.rankingScore}</span>
-                </div>
-                <p>
-                  <strong>Description:</strong> {podcast.notes || 'No description yet.'}
-                </p>
-                <p>
-                  <strong>Link:</strong>{' '}
-                  <a href={podcast.link} target="_blank" rel="noreferrer">
-                    {podcast.link}
-                  </a>
-                </p>
-                {podcast.missingVoters.length > 0 ? (
-                  <p className="warning-banner">
-                    <strong>Warning:</strong> Missing votes from {formatMissingVoters(podcast.missingVoters)}
-                  </p>
-                ) : (
-                  <p>
-                    <strong>All members have rated.</strong>
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : null}
       </div>
 
-      <div className="card discussed-card">
-        <h3>Podcasts Discussed</h3>
-        <div className="list">
+      <div className="section-panel discussed-card">
+        <div className="section-title-row">
+          <h2>Recently Discussed</h2>
+          <Link href={PODCAST_LIBRARY_HREF}>View Library</Link>
+        </div>
+        <div className="compact-list">
           {recentDiscussedPodcasts.length === 0 ? <p>No recent discussed podcasts yet.</p> : null}
           {recentDiscussedPodcasts.map((podcast) => (
-            <div className="item" key={`home-discussed-${podcast._id}`}>
-              <div className="inline" style={{ justifyContent: 'space-between' }}>
-                <h4>{podcast.title}</h4>
-                <span className="badge">Discussed</span>
-              </div>
-              <p>
-                <strong>Meeting:</strong>{' '}
-                {podcast.discussedMeetingDate ? formatDate(podcast.discussedMeetingDate) : 'Unknown'}
-              </p>
-              <p>
-                <strong>Description:</strong> {podcast.notes || 'No description yet.'}
-              </p>
-              <p>
-                <strong>Link:</strong>{' '}
-                <a href={podcast.link} target="_blank" rel="noreferrer">
-                  {podcast.link}
-                </a>
-              </p>
-            </div>
+            <Link key={`home-discussed-${podcast._id}`} className="compact-row" href={PODCAST_LIBRARY_HREF}>
+              <span>
+                <strong>{podcast.title}</strong>
+                <small>{podcast.discussedMeetingDate ? formatDate(podcast.discussedMeetingDate) : 'Meeting unknown'}</small>
+              </span>
+              <span aria-hidden="true">&gt;</span>
+            </Link>
           ))}
         </div>
-        <div className="inline" style={{ marginTop: '0.75rem' }}>
-          <button
-            type="button"
-            className="secondary"
-            onClick={() => setShowAllDiscussedPodcasts((prev) => !prev)}
-          >
-            {showAllDiscussedPodcasts ? 'Show Recent Podcasts' : 'Show All Podcasts'}
-          </button>
-        </div>
-        {showAllDiscussedPodcasts ? (
-          <div className="list" style={{ marginTop: '0.75rem' }}>
-            {remainingDiscussedPodcasts.length === 0 ? <p>No additional discussed podcasts.</p> : null}
-            {remainingDiscussedPodcasts.map((podcast) => (
-              <div className="item" key={`home-discussed-all-${podcast._id}`}>
-                <div className="inline" style={{ justifyContent: 'space-between' }}>
-                  <h4>{podcast.title}</h4>
-                  <span className="badge">Discussed</span>
-                </div>
-                <p>
-                  <strong>Meeting:</strong>{' '}
-                  {podcast.discussedMeetingDate ? formatDate(podcast.discussedMeetingDate) : 'Unknown'}
-                </p>
-                <p>
-                  <strong>Description:</strong> {podcast.notes || 'No description yet.'}
-                </p>
-                <p>
-                  <strong>Link:</strong>{' '}
-                  <a href={podcast.link} target="_blank" rel="noreferrer">
-                    {podcast.link}
-                  </a>
-                </p>
-              </div>
-            ))}
-          </div>
-        ) : null}
       </div>
     </section>
   );

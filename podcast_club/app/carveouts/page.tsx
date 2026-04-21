@@ -14,6 +14,8 @@ const initialForm = {
 };
 
 type CarveOutForm = typeof initialForm;
+type CarveOutTab = 'library' | 'share';
+const CARVE_OUT_TABS = new Set<CarveOutTab>(['library', 'share']);
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString(undefined, {
@@ -23,6 +25,19 @@ function formatDate(value: string) {
     year: 'numeric',
     timeZone: 'UTC'
   });
+}
+
+function getCarveOutTypeLabel(value: string) {
+  const labels: Record<string, string> = {
+    article: 'Article',
+    book: 'Book',
+    movie: 'Movie',
+    podcast: 'Podcast',
+    video: 'Video',
+    other: 'Other'
+  };
+
+  return labels[value] || value;
 }
 
 export default function CarveOutsPage() {
@@ -41,6 +56,7 @@ export default function CarveOutsPage() {
   const [deletingCarveOutId, setDeletingCarveOutId] = useState<string | null>(null);
   const [fistBumpingId, setFistBumpingId] = useState<string | null>(null);
   const [showAllCarveOuts, setShowAllCarveOuts] = useState(false);
+  const [activeTab, setActiveTab] = useState<CarveOutTab>('library');
 
   async function loadPageData() {
     const meRes = await fetch(withBasePath('/api/auth/me'), { cache: 'no-store' });
@@ -74,12 +90,19 @@ export default function CarveOutsPage() {
     void loadPageData();
   }, []);
 
+  useEffect(() => {
+    const requestedTab = new URLSearchParams(window.location.search).get('tab') as CarveOutTab | null;
+    if (requestedTab && CARVE_OUT_TABS.has(requestedTab)) {
+      setActiveTab(requestedTab);
+    }
+  }, []);
+
   const visibleCarveOuts = useMemo(
     () => carveOuts.filter((carveOut) => carveOut.meeting && carveOut.member),
     [carveOuts]
   );
   const recentCarveOuts = useMemo(() => visibleCarveOuts.slice(0, 3), [visibleCarveOuts]);
-  const remainingCarveOuts = useMemo(() => visibleCarveOuts.slice(3), [visibleCarveOuts]);
+  const displayedCarveOuts = showAllCarveOuts ? visibleCarveOuts : recentCarveOuts;
   const displayMemberName = (person: { _id: string; name: string }) =>
     member && person._id === member._id ? 'You' : person.name;
   const canManageCarveOut = (carveOut: CarveOut) =>
@@ -105,6 +128,13 @@ export default function CarveOutsPage() {
     if (names.length === 2) return `Fist bumped by ${names[0]} and ${names[1]}.`;
     return `Fist bumped by ${names[0]}, ${names[1]}, and ${names.length - 2} others.`;
   };
+  const getUrlLabel = (value: string) => {
+    try {
+      return new URL(value).hostname.replace(/^www\./, '');
+    } catch {
+      return 'Open link';
+    }
+  };
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -128,6 +158,7 @@ export default function CarveOutsPage() {
     setForm((prev) => ({ ...initialForm, meeting: prev.meeting }));
     await loadPageData();
     setSuccess('Carve out submitted successfully.');
+    setActiveTab('library');
     setSaving(false);
   }
 
@@ -288,6 +319,10 @@ export default function CarveOutsPage() {
 
     return (
       <div className="carveout-appreciation-strip">
+        <div className="carveout-appreciation-copy">
+          <strong>Appreciation</strong>
+          <small>{formatFistBumps(carveOut)}</small>
+        </div>
         {carveOut.member._id !== member?._id ? (
           <button
             type="button"
@@ -302,8 +337,8 @@ export default function CarveOutsPage() {
               {fistBumpingId === carveOut._id
                 ? 'Sending...'
                 : hasFistBumped(carveOut)
-                  ? 'Undo fist bump'
-                  : 'Give fist bump'}
+                  ? 'Fist bumped'
+                  : 'Fist bump'}
             </span>
           </button>
         ) : (
@@ -321,9 +356,75 @@ export default function CarveOutsPage() {
               {extraCount > 0 ? <span className="fist-bump-avatar extra">+{extraCount}</span> : null}
             </div>
           ) : null}
-          <p>{formatFistBumps(carveOut)}</p>
         </div>
       </div>
+    );
+  }
+
+  function renderCarveOutCard(carveOut: CarveOut) {
+    return (
+      <article className="carveout-library-card" key={carveOut._id}>
+        <div className="carveout-card-head">
+          <div>
+            <h3>{carveOut.title}</h3>
+          </div>
+        </div>
+
+        <div className="podcast-meta-row">
+          <span className="badge">{getCarveOutTypeLabel(carveOut.type)}</span>
+          {carveOut.member._id === member?._id ? <span className="badge my-carveout">Mine</span> : null}
+        </div>
+
+        <div className="carveout-detail-grid">
+          <div>
+            <span>Shared by</span>
+            <strong>{displayMemberName(carveOut.member)}</strong>
+          </div>
+          <div>
+            <span>Meeting</span>
+            <strong>{formatDate(carveOut.meeting.date)}</strong>
+          </div>
+        </div>
+
+        {carveOut.notes ? (
+          <section className="carveout-notes-card">
+            <span>Why it landed</span>
+            <p>{carveOut.notes}</p>
+          </section>
+        ) : null}
+
+        {carveOut.url ? (
+          <a className="carveout-link-row" href={carveOut.url} target="_blank" rel="noreferrer">
+            <span>
+              <strong>Open resource</strong>
+              <small>{getUrlLabel(carveOut.url)}</small>
+            </span>
+            <span aria-hidden="true">&gt;</span>
+          </a>
+        ) : null}
+
+        {renderFistBumpStrip(carveOut)}
+
+        {canManageCarveOut(carveOut) ? (
+          <details className="podcast-details carveout-manage-details">
+            <summary>Manage</summary>
+            <div className="carveout-manage-panel">
+              <button type="button" className="ghost" onClick={() => openEditModal(carveOut)}>
+                Edit
+              </button>
+              <div className="meeting-danger-section">
+                <div>
+                  <strong>Delete carve out</strong>
+                  <small>Remove this shared resource.</small>
+                </div>
+                <button type="button" className="secondary" onClick={() => openDeleteModal(carveOut)}>
+                  Delete
+                </button>
+              </div>
+            </div>
+          </details>
+        ) : null}
+      </article>
     );
   }
 
@@ -342,153 +443,134 @@ export default function CarveOutsPage() {
   }
 
   return (
-    <section className="grid two" style={{ marginTop: '1rem' }}>
-      <div className="card">
-        <h2>Add Carve Out</h2>
-        <form className="form" onSubmit={onSubmit}>
-          <label>
-            Title
-            <input
-              value={form.title}
-              onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
-              required
-            />
-          </label>
-          <label>
-            Type
-            <select value={form.type} onChange={(event) => setForm((prev) => ({ ...prev, type: event.target.value }))}>
-              <option value="book">Book</option>
-              <option value="video">Video</option>
-              <option value="movie">Movie</option>
-              <option value="podcast">Podcast</option>
-              <option value="article">Article</option>
-              <option value="other">Other</option>
-            </select>
-          </label>
-          <label>
-            URL
-            <input
-              type="url"
-              value={form.url}
-              onChange={(event) => setForm((prev) => ({ ...prev, url: event.target.value }))}
-            />
-          </label>
-          <label>
-            Meeting
-            <select
-              value={form.meeting}
-              onChange={(event) => setForm((prev) => ({ ...prev, meeting: event.target.value }))}
-              required
-            >
-              {meetings.map((meeting) => (
-                <option key={meeting._id} value={meeting._id}>
-                  {formatDate(meeting.date)} - {displayMemberName(meeting.host)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Notes
-            <textarea
-              value={form.notes}
-              onChange={(event) => setForm((prev) => ({ ...prev, notes: event.target.value }))}
-            />
-          </label>
-          <button disabled={saving || meetings.length === 0}>{saving ? 'Saving...' : 'Add Carve Out'}</button>
-          {meetings.length === 0 ? <p>Create a meeting first to attach carve outs.</p> : null}
-          {error ? <p className="error">{error}</p> : null}
-          {success ? <p className="success-message">{success}</p> : null}
-        </form>
+    <section className="carveouts-page page-stack">
+      {error ? <div className="error-banner">{error}</div> : null}
+      {success ? <div className="toast-banner">{success}</div> : null}
+
+      <div className="podcast-tabs carveout-tabs" role="tablist" aria-label="Carve out sections">
+        {[
+          { id: 'library' as const, label: 'Library', count: visibleCarveOuts.length },
+          { id: 'share' as const, label: 'Share' }
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            className={activeTab === tab.id ? 'podcast-tab active' : 'podcast-tab'}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            <span>{tab.label}</span>
+            {typeof tab.count === 'number' ? <small>{tab.count}</small> : null}
+          </button>
+        ))}
       </div>
 
-      <div className="card carveouts-card">
-        <h2>Carve Out Library</h2>
-        <div className="list">
-          {recentCarveOuts.length === 0 ? <p>No carve outs saved yet.</p> : null}
-          {recentCarveOuts.map((carveOut) => (
-            <div className="item" key={carveOut._id}>
-              <div className="inline carveout-item-head" style={{ justifyContent: 'space-between' }}>
-                <h4>{carveOut.title}</h4>
-                <div className="inline" style={{ gap: '0.35rem' }}>
-                  <span className="badge">{carveOut.type}</span>
-                  {carveOut.member._id === member._id ? <span className="badge my-carveout">My Carve Out</span> : null}
-                </div>
-              </div>
-              <p>
-                <strong>Shared by:</strong> {displayMemberName(carveOut.member)}
-              </p>
-              <p>
-                <strong>Meeting:</strong> {formatDate(carveOut.meeting.date)}
-              </p>
-              {carveOut.url ? (
-                <p>
-                  <a href={carveOut.url} target="_blank" rel="noreferrer">
-                    {carveOut.url}
-                  </a>
-                </p>
-              ) : null}
-              {carveOut.notes ? <p>{carveOut.notes}</p> : null}
-              {renderFistBumpStrip(carveOut)}
-              {canManageCarveOut(carveOut) ? (
-                <div className="inline" style={{ marginTop: '0.4rem' }}>
-                  <button type="button" className="secondary" onClick={() => openEditModal(carveOut)}>
-                    Edit Carve Out
-                  </button>
-                  <button type="button" className="secondary" onClick={() => openDeleteModal(carveOut)}>
-                    Delete Carve Out
-                  </button>
-                </div>
-              ) : null}
-            </div>
-          ))}
-        </div>
-        <div className="inline" style={{ marginTop: '0.75rem' }}>
-          <button type="button" className="secondary" onClick={() => setShowAllCarveOuts((prev) => !prev)}>
-            {showAllCarveOuts ? 'Show Recent Carve Outs' : 'Show All Carve Outs'}
-          </button>
-        </div>
-        {showAllCarveOuts ? (
-          <div className="list" style={{ marginTop: '0.75rem' }}>
-            {remainingCarveOuts.length === 0 ? <p>No additional carve outs.</p> : null}
-            {remainingCarveOuts.map((carveOut) => (
-              <div className="item" key={`all-${carveOut._id}`}>
-                <div className="inline carveout-item-head" style={{ justifyContent: 'space-between' }}>
-                  <h4>{carveOut.title}</h4>
-                  <div className="inline" style={{ gap: '0.35rem' }}>
-                    <span className="badge">{carveOut.type}</span>
-                    {carveOut.member._id === member._id ? <span className="badge my-carveout">My Carve Out</span> : null}
-                  </div>
-                </div>
-                <p>
-                  <strong>Shared by:</strong> {displayMemberName(carveOut.member)}
-                </p>
-                <p>
-                  <strong>Meeting:</strong> {formatDate(carveOut.meeting.date)}
-                </p>
-                {carveOut.url ? (
-                  <p>
-                    <a href={carveOut.url} target="_blank" rel="noreferrer">
-                      {carveOut.url}
-                    </a>
-                  </p>
-                ) : null}
-                {carveOut.notes ? <p>{carveOut.notes}</p> : null}
-                {renderFistBumpStrip(carveOut)}
-                {canManageCarveOut(carveOut) ? (
-                  <div className="inline" style={{ marginTop: '0.4rem' }}>
-                    <button type="button" className="secondary" onClick={() => openEditModal(carveOut)}>
-                      Edit Carve Out
-                    </button>
-                    <button type="button" className="secondary" onClick={() => openDeleteModal(carveOut)}>
-                      Delete Carve Out
-                    </button>
-                  </div>
-                ) : null}
-              </div>
-            ))}
+      {activeTab === 'library' ? (
+        <div className="section-panel carveouts-library-panel">
+          <div className="section-title-row">
+            <h2>Carve Outs</h2>
+            <span className="badge">{visibleCarveOuts.length} saved</span>
           </div>
-        ) : null}
-      </div>
+          <p className="muted-line">Browse what members shared and send a fist bump when something lands.</p>
+
+          {visibleCarveOuts.length === 0 ? (
+            <div className="empty-state">
+              <h3>No carve outs yet</h3>
+              <p>Share the first book, article, video, or side thread from a meeting.</p>
+              <button type="button" className="ghost" onClick={() => setActiveTab('share')}>
+                Share Carve Out
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="carveout-library-list">{displayedCarveOuts.map((carveOut) => renderCarveOutCard(carveOut))}</div>
+
+              {visibleCarveOuts.length > 3 ? (
+                <button type="button" className="ghost carveout-show-all" onClick={() => setShowAllCarveOuts((prev) => !prev)}>
+                  {showAllCarveOuts ? 'Show Recent' : `Show All (${visibleCarveOuts.length})`}
+                </button>
+              ) : null}
+            </>
+          )}
+        </div>
+      ) : null}
+
+      {activeTab === 'share' ? (
+        <div className="section-panel carveout-share-panel">
+          <div className="section-title-row">
+            <h2>Share a Carve Out</h2>
+            <span className="badge">{meetings.length === 1 ? '1 meeting' : `${meetings.length} meetings`}</span>
+          </div>
+
+          <form className="form carveout-share-form" onSubmit={onSubmit}>
+            <div className="carveout-form-section">
+              <h3>Resource</h3>
+              <label>
+                Title
+                <input
+                  value={form.title}
+                  onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
+                  required
+                />
+              </label>
+              <label>
+                Type
+                <select value={form.type} onChange={(event) => setForm((prev) => ({ ...prev, type: event.target.value }))}>
+                  <option value="book">Book</option>
+                  <option value="video">Video</option>
+                  <option value="movie">Movie</option>
+                  <option value="podcast">Podcast</option>
+                  <option value="article">Article</option>
+                  <option value="other">Other</option>
+                </select>
+              </label>
+              <label>
+                URL
+                <input
+                  type="url"
+                  value={form.url}
+                  onChange={(event) => setForm((prev) => ({ ...prev, url: event.target.value }))}
+                />
+              </label>
+            </div>
+
+            <div className="carveout-form-section">
+              <h3>Context</h3>
+              <label>
+                Meeting
+                <select
+                  value={form.meeting}
+                  onChange={(event) => setForm((prev) => ({ ...prev, meeting: event.target.value }))}
+                  required
+                >
+                  {meetings.map((meeting) => (
+                    <option key={meeting._id} value={meeting._id}>
+                      {formatDate(meeting.date)} - {displayMemberName(meeting.host)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <div className="carveout-form-section">
+              <h3>Why it landed</h3>
+              <label>
+                <span className="sr-only">Notes</span>
+                <textarea
+                  value={form.notes}
+                  onChange={(event) => setForm((prev) => ({ ...prev, notes: event.target.value }))}
+                />
+              </label>
+            </div>
+
+            {meetings.length === 0 ? <p className="muted-line">Create a meeting first to attach carve outs.</p> : null}
+            <button className="full-width-action" disabled={saving || meetings.length === 0}>
+              {saving ? 'Saving...' : 'Add Carve Out'}
+            </button>
+          </form>
+        </div>
+      ) : null}
 
       {editModalCarveOut ? (
         <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="edit-carveout-title">

@@ -25,7 +25,7 @@ export function AuthStatus() {
 
   if (!member) {
     return (
-      <div className="inline" style={{ justifyContent: 'flex-end' }}>
+      <div className="inline auth-status" style={{ justifyContent: 'flex-end' }}>
         <Link className="nav-link" href="/login">
           Login
         </Link>
@@ -34,8 +34,8 @@ export function AuthStatus() {
   }
 
   return (
-    <div className="inline" style={{ justifyContent: 'space-between' }}>
-      <span>
+    <div className="inline auth-status" style={{ justifyContent: 'space-between' }}>
+      <span className="auth-status-copy">
         {member.isImpersonating ? (
           <>
             Previewing as <strong>{member.name}</strong> ({member.isAdmin ? 'Admin' : 'Member'}) from{' '}
@@ -47,7 +47,7 @@ export function AuthStatus() {
           </>
         )}
       </span>
-      <div className="inline">
+      <div className="inline auth-status-actions">
         {member.isImpersonating ? (
           <button className="secondary" onClick={stopPreview}>
             Exit Preview

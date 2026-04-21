@@ -7,6 +7,9 @@ import { dedupePodcastsByContent } from '@/lib/podcast-dedupe';
 import type { Meeting, Podcast, SessionMember } from '@/lib/types';
 import { RATING_OPTIONS } from '@/lib/ranking';
 
+type PodcastTab = 'rank' | 'submit' | 'library';
+const PODCAST_TABS = new Set<PodcastTab>(['rank', 'submit', 'library']);
+
 const initialForm = {
   title: '',
   host: '',
@@ -31,6 +34,44 @@ function getMeetingPodcastIds(meeting: Meeting) {
   return meeting.podcast?._id ? [meeting.podcast._id] : [];
 }
 
+function getRatingDisplay(option: string) {
+  switch (option) {
+    case 'I like it a lot.':
+      return {
+        label: 'Love it',
+        detail: 'A strong candidate for a meeting.'
+      };
+    case 'I like it.':
+      return {
+        label: 'Like it',
+        detail: 'Worth keeping in the mix.'
+      };
+    case 'Meh':
+      return {
+        label: 'Meh',
+        detail: 'Not a priority right now.'
+      };
+    case 'My podcast':
+      return {
+        label: 'My Podcast',
+        detail: 'Locked to your submission.'
+      };
+    default:
+      return {
+        label: option,
+        detail: 'Save this rating.'
+      };
+  }
+}
+
+function getPodcastLinkHost(link: string) {
+  try {
+    return new URL(link).hostname.replace(/^www\./, '');
+  } catch {
+    return 'Podcast link';
+  }
+}
+
 export default function PodcastsPage() {
   const [member, setMember] = useState<SessionMember | null>(null);
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
@@ -51,6 +92,7 @@ export default function PodcastsPage() {
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [showAllPodcastsToDiscuss, setShowAllPodcastsToDiscuss] = useState(false);
   const [showAllDiscussed, setShowAllDiscussed] = useState(false);
+  const [activeTab, setActiveTab] = useState<PodcastTab>('rank');
   const ratingFadeTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const ratingRemoveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const ratingToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -118,6 +160,13 @@ export default function PodcastsPage() {
   }, []);
 
   useEffect(() => {
+    const requestedTab = new URLSearchParams(window.location.search).get('tab') as PodcastTab | null;
+    if (requestedTab && PODCAST_TABS.has(requestedTab)) {
+      setActiveTab(requestedTab);
+    }
+  }, []);
+
+  useEffect(() => {
     const fadeTimers = ratingFadeTimers.current;
     const removeTimers = ratingRemoveTimers.current;
 
@@ -155,10 +204,10 @@ export default function PodcastsPage() {
     setSaving(false);
   }
 
-  async function saveRating(podcastId: string) {
+  async function saveRating(podcastId: string, selectedRating?: string) {
     const targetPodcast = podcasts.find((podcast) => podcast._id === podcastId);
     const isSubmitter = targetPodcast ? targetPodcast.submittedBy._id === member?._id : false;
-    const rating = draftRatings[podcastId] || 'No selection';
+    const rating = selectedRating || draftRatings[podcastId] || 'No selection';
 
     if (isSubmitter && rating !== 'My podcast') {
       showRatingToast("You can't rate your podcast.");
@@ -168,6 +217,7 @@ export default function PodcastsPage() {
 
     setError('');
     setSuccess('');
+    setDraftRatings((prev) => ({ ...prev, [podcastId]: rating }));
     setSavingRatingId(podcastId);
 
     try {
@@ -190,7 +240,6 @@ export default function PodcastsPage() {
         ...prev,
         [podcastId]: { value: rating, title: targetPodcast?.title || 'Podcast', fading: false }
       }));
-      showRatingToast(`Your rating for "${targetPodcast?.title || 'Podcast'}" was saved.`);
 
       ratingFadeTimers.current[podcastId] = setTimeout(() => {
         setRecentlySavedRatings((prev) =>
@@ -282,6 +331,13 @@ export default function PodcastsPage() {
       return (savedRatings[podcast._id] || 'No selection') === 'No selection';
     });
   }, [pending, recentlySavedRatings, savedRatings]);
+  const activeRankCount = useMemo(() => {
+    return pending.filter((podcast) => {
+      if (recentlySavedRatings[podcast._id]) return false;
+      return (savedRatings[podcast._id] || 'No selection') === 'No selection';
+    }).length;
+  }, [pending, recentlySavedRatings, savedRatings]);
+  const savedRankCount = podcastsToRank.length - activeRankCount;
   const podcastsToDiscuss = useMemo(() => {
     const assignedPodcastIds = new Set(
       meetings
@@ -300,9 +356,7 @@ export default function PodcastsPage() {
     );
   }, [pending, meetings]);
   const recentPodcastsToDiscuss = useMemo(() => podcastsToDiscuss.slice(0, 3), [podcastsToDiscuss]);
-  const remainingPodcastsToDiscuss = useMemo(() => podcastsToDiscuss.slice(3), [podcastsToDiscuss]);
   const recentDiscussed = useMemo(() => discussed.slice(0, 3), [discussed]);
-  const remainingDiscussed = useMemo(() => discussed.slice(3), [discussed]);
   const displayMemberName = (person: { _id: string; name: string }) =>
     member && person._id === member._id ? 'You' : person.name;
   const annotateSelfInList = (name: string) =>
@@ -316,9 +370,9 @@ export default function PodcastsPage() {
 
   function getRatingOptions(podcast: Podcast) {
     if (podcast.submittedBy._id === member?._id) {
-      return RATING_OPTIONS;
+      return RATING_OPTIONS.filter((option) => option === 'My podcast');
     }
-    return RATING_OPTIONS.filter((option) => option !== 'My podcast');
+    return RATING_OPTIONS.filter((option) => option !== 'My podcast' && option !== 'No selection');
   }
 
   function onDraftRatingChange(podcast: Podcast, value: string) {
@@ -341,63 +395,120 @@ export default function PodcastsPage() {
     }));
   }
 
-  function renderPodcastDetails(podcast: Podcast) {
+  function renderPodcastDetails(podcast: Podcast, options: { includeRating?: boolean; includeManage?: boolean } = {}) {
+    const currentRating = savedRatings[podcast._id] || 'No selection';
+    const hostLabel = podcast.host || 'Unknown';
+    const episodeCountLabel = podcast.episodeCount ? String(podcast.episodeCount) : 'Unknown';
+    const timeLabel = podcast.totalTimeMinutes ? `${podcast.totalTimeMinutes} min` : 'Unknown';
+    const canManage = options.includeManage !== false && canDeletePodcast(podcast);
+
     return (
-      <>
-        <p>
-          <strong>Host:</strong> {podcast.host || 'Unknown'}
-        </p>
-        <p>
-          <strong># of Episodes:</strong> {podcast.episodeCount || 'Unknown'}
-        </p>
-        <p>
-          <strong>Name of Episode(s):</strong> {podcast.episodeNames || 'Unknown'}
-        </p>
-        <p>
-          <strong>Total Time (approx min):</strong> {podcast.totalTimeMinutes || 'Unknown'}
-        </p>
-        <p>
-          <strong>Description:</strong> {podcast.notes || 'No description yet.'}
-        </p>
-        <p>
-          <strong>Submitted by:</strong> {displayMemberName(podcast.submittedBy)}
-        </p>
-      </>
+      <div className="podcast-detail-stack">
+        <section className="podcast-detail-section">
+          <div className="podcast-detail-heading">
+            <strong>Overview</strong>
+          </div>
+          <dl className="podcast-detail-grid">
+            <div>
+              <dt>Host</dt>
+              <dd>{hostLabel}</dd>
+            </div>
+            <div>
+              <dt>Episodes</dt>
+              <dd>{episodeCountLabel}</dd>
+            </div>
+            <div>
+              <dt>Total time</dt>
+              <dd>{timeLabel}</dd>
+            </div>
+            <div>
+              <dt>Submitted by</dt>
+              <dd>{displayMemberName(podcast.submittedBy)}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section className="podcast-detail-section">
+          <div className="podcast-detail-heading">
+            <strong>Episode</strong>
+          </div>
+          <p className="podcast-detail-copy">{podcast.episodeNames || 'Unknown episode'}</p>
+          <p className="podcast-detail-copy">{podcast.notes || 'No description yet.'}</p>
+        </section>
+
+        <a className="podcast-link-card" href={podcast.link} target="_blank" rel="noreferrer">
+          <span>
+            <strong>Open podcast</strong>
+            <small>{getPodcastLinkHost(podcast.link)}</small>
+          </span>
+          <span aria-hidden="true">&gt;</span>
+        </a>
+
+        {podcast.missingVoters.length > 0 ? (
+          <p className="warning-banner">
+            <strong>Missing votes:</strong> {formatMissingVoters(podcast.missingVoters)}
+          </p>
+        ) : null}
+
+        {options.includeRating ? (
+          <section className="podcast-detail-section podcast-rating-section">
+            <div className="podcast-detail-heading">
+              <strong>Your rating</strong>
+              <span className="badge">{currentRating}</span>
+            </div>
+            {renderRatingControls(podcast)}
+          </section>
+        ) : null}
+
+        {canManage ? (
+          <section className="podcast-manage-section">
+            <div>
+              <strong>Manage podcast</strong>
+              <small>Remove this item from the club library.</small>
+            </div>
+            <button type="button" className="secondary" onClick={() => openDeleteModal(podcast)}>
+              Delete Podcast
+            </button>
+          </section>
+        ) : null}
+      </div>
     );
   }
 
-  function renderRatingActions(podcast: Podcast, buttonLabel: string) {
+  function renderRatingControls(podcast: Podcast) {
+    const selectedRating = draftRatings[podcast._id] || 'No selection';
+    const isSubmitter = podcast.submittedBy._id === member?._id;
+
     return (
-      <div className="podcast-action-bar">
-        <div className="inline podcast-action-bar-inner">
-          {podcast.submittedBy._id === member?._id ? <span className="badge">Locked: your submission</span> : null}
-          <select
-            value={draftRatings[podcast._id] || 'No selection'}
-            onChange={(event) => onDraftRatingChange(podcast, event.target.value)}
-            disabled={savingRatingId === podcast._id}
-          >
-            {getRatingOptions(podcast).map((option) => (
-              <option
+      <div className="rating-choice-panel">
+        {isSubmitter ? <span className="badge">Locked: your submission</span> : null}
+        <div className="rating-choice-grid" role="group" aria-label={`Rate ${podcast.title}`}>
+          {getRatingOptions(podcast).map((option) => {
+            const selected = selectedRating === option;
+            const savingThis = savingRatingId === podcast._id;
+            const ratingDisplay = getRatingDisplay(option);
+            return (
+              <button
                 key={option}
-                value={option}
-                disabled={option === 'My podcast' && isMyPodcastTakenByAnotherMember(podcast)}
+                type="button"
+                className={`rating-choice${selected ? ' selected' : ''}`}
+                aria-pressed={selected}
+                onClick={() => {
+                  onDraftRatingChange(podcast, option);
+                  void saveRating(podcast._id, option);
+                }}
+                disabled={savingThis || (option === 'My podcast' && isMyPodcastTakenByAnotherMember(podcast))}
               >
-                {option}
-              </option>
-            ))}
-          </select>
-          <button onClick={() => saveRating(podcast._id)} disabled={savingRatingId === podcast._id}>
-            {savingRatingId === podcast._id
-              ? 'Saving...'
-              : recentlySavedRatings[podcast._id] && buttonLabel === 'Save Rating'
-                ? 'Saved'
-                : buttonLabel}
-          </button>
-          {canDeletePodcast(podcast) ? (
-            <button className="secondary" onClick={() => openDeleteModal(podcast)}>
-              Delete Podcast
-            </button>
-          ) : null}
+                <span>
+                  <strong>{savingThis && selected ? 'Saving...' : ratingDisplay.label}</strong>
+                  <small>{ratingDisplay.detail}</small>
+                </span>
+                <span className="rating-choice-status" aria-hidden="true">
+                  {selected ? 'Selected' : 'Tap'}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
     );
@@ -418,30 +529,148 @@ export default function PodcastsPage() {
   }
 
   return (
-    <section className="grid podcasts-page" style={{ marginTop: '1rem' }}>
+    <section className="podcasts-page page-stack">
       {ratingToast ? <div className="toast-banner">{ratingToast}</div> : null}
       {error ? <div className="error-banner">{error}</div> : null}
-      <div className="grid two" style={{ alignItems: 'start' }}>
-        <div className="grid">
-          <div className="card">
-            <h2>Submit Podcast</h2>
-            <form className="form" onSubmit={onSubmit}>
-              <label>
-                Podcast Title
-                <input
-                  value={form.title}
-                  onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
-                  required
-                />
-              </label>
-              <label>
-                Host
-                <input
-                  value={form.host}
-                  onChange={(event) => setForm((prev) => ({ ...prev, host: event.target.value }))}
-                  required
-                />
-              </label>
+
+      <div className="podcast-tabs" role="tablist" aria-label="Podcast sections">
+        {[
+          { id: 'rank' as const, label: 'Rank', count: activeRankCount },
+          { id: 'submit' as const, label: 'Submit' },
+          { id: 'library' as const, label: 'Library', count: podcastsToDiscuss.length + discussed.length }
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            className={activeTab === tab.id ? 'podcast-tab active' : 'podcast-tab'}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            <span>{tab.label}</span>
+            {typeof tab.count === 'number' ? <small>{tab.count}</small> : null}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'rank' ? (
+        <div className="section-panel podcasts-to-rank-card">
+          <div className="section-title-row">
+            <h2>Rank Podcasts</h2>
+            <span className="badge">{activeRankCount} left</span>
+          </div>
+          <div className="rank-flow-status" aria-live="polite">
+            <strong>{savedRankCount > 0 ? 'Saved' : activeRankCount === 0 ? 'All ranked' : 'Queue ready'}</strong>
+            <span>
+              {savedRankCount > 0
+                ? `${savedRankCount} saved and clearing from the queue.`
+                : activeRankCount === 1
+                  ? '1 podcast is waiting for your rating.'
+                  : `${activeRankCount} podcasts are waiting for your ratings.`}
+            </span>
+          </div>
+
+          <div className="rank-card-list">
+            {podcastsToRank.length === 0 ? (
+              <div className="empty-state rank-empty-state">
+                <span className="empty-state-kicker">All caught up</span>
+                <h3>Ranking complete</h3>
+                <p>You are caught up on pending podcast ratings. Browse the library or add something new for the group to consider.</p>
+                <div className="empty-state-actions">
+                  <button type="button" onClick={() => setActiveTab('library')}>
+                    Browse Library
+                  </button>
+                  <button type="button" className="ghost" onClick={() => setActiveTab('submit')}>
+                    Submit Podcast
+                  </button>
+                </div>
+              </div>
+            ) : null}
+            {podcastsToRank.map((podcast) => {
+              const savedRating = recentlySavedRatings[podcast._id];
+              return (
+                <div
+                  className={`rank-podcast-card${savedRating ? ' rating-saved' : ''}${savedRating?.fading ? ' item-fading-out' : ''}`}
+                  key={podcast._id}
+                >
+                  <div className="rank-podcast-head">
+                    <div>
+                      <h3>{podcast.title}</h3>
+                      <p>
+                        {podcast.totalTimeMinutes ? `${podcast.totalTimeMinutes} min` : podcast.host || 'Unknown host'}
+                        {podcast.submittedBy ? ` | ${displayMemberName(podcast.submittedBy)}` : ''}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="podcast-meta-row">
+                    <span className="badge ranking-score">Score {podcast.rankingScore}</span>
+                    <span className="badge">{podcast.missingVoters.length > 0 ? `${podcast.missingVoters.length} missing` : 'Fully rated'}</span>
+                    {savedRatings[podcast._id] === 'My podcast' ? <span className="badge my-podcast">My Podcast</span> : null}
+                  </div>
+
+                  {savedRating ? (
+                    <div className="rank-saved-message" role="status">
+                      <strong>Saved</strong>
+                      <span>{getRatingDisplay(savedRating.value).label}. Moving to the next podcast.</span>
+                    </div>
+                  ) : (
+                    <>
+                      <details className="podcast-details">
+                        <summary>Details</summary>
+                        <div className="podcast-details-body">
+                          {renderPodcastDetails(podcast, { includeManage: false })}
+                        </div>
+                      </details>
+
+                      {renderRatingControls(podcast)}
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+
+      {activeTab === 'submit' ? (
+        <div className="section-panel submit-podcast-panel">
+          <h2>Submit Podcast</h2>
+          <form className="form" onSubmit={onSubmit}>
+            <label>
+              Podcast Title
+              <input
+                value={form.title}
+                onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
+                required
+              />
+            </label>
+            <label>
+              Link
+              <input
+                type="url"
+                value={form.link}
+                onChange={(event) => setForm((prev) => ({ ...prev, link: event.target.value }))}
+                required
+              />
+            </label>
+            <label>
+              Host
+              <input
+                value={form.host}
+                onChange={(event) => setForm((prev) => ({ ...prev, host: event.target.value }))}
+                required
+              />
+            </label>
+            <label>
+              Name of Episode(s)
+              <input
+                value={form.episodeNames}
+                onChange={(event) => setForm((prev) => ({ ...prev, episodeNames: event.target.value }))}
+                required
+              />
+            </label>
+            <div className="form-grid-two">
               <label>
                 # of Episodes
                 <input
@@ -453,15 +682,7 @@ export default function PodcastsPage() {
                 />
               </label>
               <label>
-                Name of Episode(s)
-                <input
-                  value={form.episodeNames}
-                  onChange={(event) => setForm((prev) => ({ ...prev, episodeNames: event.target.value }))}
-                  required
-                />
-              </label>
-              <label>
-                Total Time (approx min)
+                Total Minutes
                 <input
                   type="number"
                   min={1}
@@ -470,216 +691,92 @@ export default function PodcastsPage() {
                   required
                 />
               </label>
-              <label>
-                Link
-                <input
-                  type="url"
-                  value={form.link}
-                  onChange={(event) => setForm((prev) => ({ ...prev, link: event.target.value }))}
-                  required
-                />
-              </label>
-              <label>
-                Notes
-                <textarea
-                  value={form.notes}
-                  onChange={(event) => setForm((prev) => ({ ...prev, notes: event.target.value }))}
-                />
-              </label>
-              <button disabled={saving}>{saving ? 'Saving...' : 'Add Podcast'}</button>
-              {success ? <p className="success-message">{success}</p> : null}
-            </form>
-          </div>
-
-          {discussed.length > 0 ? (
-            <div className="card podcasts-previously-discussed-card">
-              <h3>Podcasts Previously Discussed</h3>
-              <div className="list" style={{ marginTop: '0.75rem' }}>
-                {recentDiscussed.map((podcast) => (
-                  <div className="item" key={podcast._id}>
-                    <div className="inline podcast-item-head" style={{ justifyContent: 'space-between' }}>
-                      <h4>{podcast.title}</h4>
-                      <span className="badge">Discussed</span>
-                    </div>
-                    <p>
-                      <strong>Description:</strong> {podcast.notes || 'No description yet.'}
-                    </p>
-                    <p>
-                      <strong>Link:</strong>{' '}
-                      <a href={podcast.link} target="_blank" rel="noreferrer">
-                        {podcast.link}
-                      </a>
-                    </p>
-                    {canDeletePodcast(podcast) ? (
-                      <div className="inline" style={{ marginTop: '0.4rem' }}>
-                        <button className="secondary" onClick={() => openDeleteModal(podcast)}>
-                          Delete Podcast
-                        </button>
-                      </div>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-              <div className="inline" style={{ marginTop: '0.75rem' }}>
-                <button type="button" className="secondary" onClick={() => setShowAllDiscussed((prev) => !prev)}>
-                  {showAllDiscussed ? 'Show Recent Podcasts' : 'Show All Podcasts'}
-                </button>
-              </div>
-              {showAllDiscussed ? (
-                <div className="list" style={{ marginTop: '0.75rem' }}>
-                  {remainingDiscussed.length === 0 ? <p>No additional previously discussed podcasts.</p> : null}
-                  {remainingDiscussed.map((podcast) => (
-                    <div className="item" key={`discussed-all-${podcast._id}`}>
-                      <div className="inline podcast-item-head" style={{ justifyContent: 'space-between' }}>
-                        <h4>{podcast.title}</h4>
-                        <span className="badge">Discussed</span>
-                      </div>
-                      <p>
-                        <strong>Description:</strong> {podcast.notes || 'No description yet.'}
-                      </p>
-                      <p>
-                        <strong>Link:</strong>{' '}
-                        <a href={podcast.link} target="_blank" rel="noreferrer">
-                          {podcast.link}
-                        </a>
-                      </p>
-                      {canDeletePodcast(podcast) ? (
-                        <div className="inline" style={{ marginTop: '0.4rem' }}>
-                          <button className="secondary" onClick={() => openDeleteModal(podcast)}>
-                            Delete Podcast
-                          </button>
-                        </div>
-                      ) : null}
-                    </div>
-                  ))}
-                </div>
-              ) : null}
             </div>
-          ) : null}
+            <label>
+              Notes
+              <textarea
+                value={form.notes}
+                onChange={(event) => setForm((prev) => ({ ...prev, notes: event.target.value }))}
+              />
+            </label>
+            <button disabled={saving}>{saving ? 'Saving...' : 'Add Podcast'}</button>
+            {success ? <p className="success-message">{success}</p> : null}
+          </form>
         </div>
+      ) : null}
 
-        <div className="grid">
-        <div className="card podcasts-to-rank-card">
-          <h2 style={{ marginTop: 0 }}>Podcasts to Rank</h2>
-          {podcastsToRank.length > 0 ? <p>Rate each pending podcast. Rankings use your point system from the sheet.</p> : null}
-
-          <div className="list" style={{ marginTop: '0.75rem' }}>
-            {podcastsToRank.length === 0 ? <p>No podcasts left to rank.</p> : null}
-            {podcastsToRank.map((podcast) => (
-              <div
-                className={`item${recentlySavedRatings[podcast._id]?.fading ? ' item-fading-out' : ''}`}
-                key={podcast._id}
-              >
-                <div className="inline podcast-item-head" style={{ justifyContent: 'space-between' }}>
-                  <h4>{podcast.title}</h4>
-                  {savedRatings[podcast._id] === 'My podcast' ? <span className="badge my-podcast">My Podcast</span> : null}
-                </div>
-                <p>
-                  <strong>Ranking score:</strong> {podcast.rankingScore}
-                </p>
-                <details className="podcast-details">
-                  <summary>Details</summary>
-                  <div className="podcast-details-body">{renderPodcastDetails(podcast)}</div>
-                </details>
-                {podcast.missingVoters.length > 0 ? (
-                  <p className="warning-banner">
-                    <strong>Warning:</strong> Missing votes from {formatMissingVoters(podcast.missingVoters)}
-                  </p>
-                ) : (
-                  <p>
-                    <strong>All members have rated.</strong>
-                  </p>
-                )}
-                {recentlySavedRatings[podcast._id] ? (
-                  <p className="success-message rating-confirmation">
-                    Saved: {recentlySavedRatings[podcast._id].value}. This podcast will move out of your ranking queue.
-                  </p>
-                ) : null}
-                {renderRatingActions(podcast, 'Save Rating')}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="card podcasts-to-discuss-page-card">
-          <h2 style={{ marginTop: 0 }}>Podcasts To Discuss</h2>
-          <p>Pending podcasts not assigned to a meeting yet, ranked highest to lowest.</p>
-
-          <div className="list" style={{ marginTop: '0.75rem' }}>
-            {recentPodcastsToDiscuss.length === 0 ? <p>No podcasts to discuss right now.</p> : null}
-            {recentPodcastsToDiscuss.map((podcast) => (
-              <div className="item" key={`ranked-${podcast._id}`}>
-                <div className="inline podcast-item-head" style={{ justifyContent: 'space-between' }}>
-                  <h4>{podcast.title}</h4>
-                  <div className="inline" style={{ gap: '0.35rem' }}>
-                    <span className="badge ranking-score">Score: {podcast.rankingScore}</span>
+      {activeTab === 'library' ? (
+        <div className="podcast-library-stack">
+          <div className="section-panel podcasts-to-discuss-page-card">
+            <div className="section-title-row">
+              <h2>To Discuss</h2>
+              <span className="badge">{podcastsToDiscuss.length}</span>
+            </div>
+            <div className="library-list">
+              {recentPodcastsToDiscuss.length === 0 ? <p>No podcasts to discuss right now.</p> : null}
+              {(showAllPodcastsToDiscuss ? podcastsToDiscuss : recentPodcastsToDiscuss).map((podcast) => (
+                <div className="library-podcast-row" key={`ranked-${podcast._id}`}>
+                  <div className="library-podcast-head">
+                    <h3>{podcast.title}</h3>
+                  </div>
+                  <div className="podcast-meta-row">
+                    <span className="badge ranking-score">Score {podcast.rankingScore}</span>
+                    <span className="badge">{podcast.missingVoters.length > 0 ? `${podcast.missingVoters.length} missing` : 'Fully rated'}</span>
                     {savedRatings[podcast._id] === 'My podcast' ? <span className="badge my-podcast">My Podcast</span> : null}
                   </div>
-                </div>
-                <details className="podcast-details">
-                  <summary>Details</summary>
-                  <div className="podcast-details-body">{renderPodcastDetails(podcast)}</div>
-                </details>
-                {podcast.missingVoters.length > 0 ? (
-                  <p className="warning-banner">
-                    <strong>Warning:</strong> Missing votes from {formatMissingVoters(podcast.missingVoters)}
-                  </p>
-                ) : (
                   <p>
-                    <strong>All members have rated.</strong>
+                    {podcast.totalTimeMinutes ? `${podcast.totalTimeMinutes} min` : podcast.host || 'Unknown host'}
+                    {` | Your rating: ${savedRatings[podcast._id] || 'No selection'}`}
                   </p>
-                )}
-                <p>
-                  <strong>Your rating:</strong> {savedRatings[podcast._id]}
-                </p>
-                {renderRatingActions(podcast, 'Update Rating')}
-              </div>
-            ))}
-          </div>
-          <div className="inline" style={{ marginTop: '0.75rem' }}>
-            <button type="button" className="secondary" onClick={() => setShowAllPodcastsToDiscuss((prev) => !prev)}>
-              {showAllPodcastsToDiscuss ? 'Show Recent Podcasts' : 'Show All Podcasts'}
-            </button>
-          </div>
-          {showAllPodcastsToDiscuss ? (
-            <div className="list" style={{ marginTop: '0.75rem' }}>
-              {remainingPodcastsToDiscuss.length === 0 ? <p>No additional podcasts to discuss.</p> : null}
-              {remainingPodcastsToDiscuss.map((podcast) => (
-                <div className="item" key={`ranked-all-${podcast._id}`}>
-                  <div className="inline podcast-item-head" style={{ justifyContent: 'space-between' }}>
-                    <h4>{podcast.title}</h4>
-                    <div className="inline" style={{ gap: '0.35rem' }}>
-                      <span className="badge ranking-score">Score: {podcast.rankingScore}</span>
-                      {savedRatings[podcast._id] === 'My podcast' ? (
-                        <span className="badge my-podcast">My Podcast</span>
-                      ) : null}
-                    </div>
-                  </div>
                   <details className="podcast-details">
-                    <summary>Details</summary>
-                    <div className="podcast-details-body">{renderPodcastDetails(podcast)}</div>
+                    <summary>Details and rating</summary>
+                    <div className="podcast-details-body">
+                      {renderPodcastDetails(podcast, { includeRating: true })}
+                    </div>
                   </details>
-                  {podcast.missingVoters.length > 0 ? (
-                    <p className="warning-banner">
-                      <strong>Warning:</strong> Missing votes from {formatMissingVoters(podcast.missingVoters)}
-                    </p>
-                  ) : (
-                    <p>
-                      <strong>All members have rated.</strong>
-                    </p>
-                  )}
-                  <p>
-                    <strong>Your rating:</strong> {savedRatings[podcast._id]}
-                  </p>
-                  {renderRatingActions(podcast, 'Update Rating')}
                 </div>
               ))}
             </div>
-          ) : null}
-        </div>
+            {podcastsToDiscuss.length > 3 ? (
+              <button type="button" className="ghost full-width-action" onClick={() => setShowAllPodcastsToDiscuss((prev) => !prev)}>
+                {showAllPodcastsToDiscuss ? 'Show Recent' : `Show All (${podcastsToDiscuss.length})`}
+              </button>
+            ) : null}
+          </div>
 
+          <div className="section-panel podcasts-previously-discussed-card">
+            <div className="section-title-row">
+              <h2>Discussed</h2>
+              <span className="badge">{discussed.length}</span>
+            </div>
+            <div className="library-list">
+              {discussed.length === 0 ? <p>No previously discussed podcasts.</p> : null}
+              {(showAllDiscussed ? discussed : recentDiscussed).map((podcast) => (
+                <div className="library-podcast-row" key={`discussed-${podcast._id}`}>
+                  <div className="library-podcast-head">
+                    <h3>{podcast.title}</h3>
+                  </div>
+                  <div className="podcast-meta-row">
+                    <span className="badge">Discussed</span>
+                  </div>
+                  <p>{podcast.notes || 'No description yet.'}</p>
+                  <details className="podcast-details">
+                    <summary>Details</summary>
+                    <div className="podcast-details-body">
+                      {renderPodcastDetails(podcast, { includeManage: true })}
+                    </div>
+                  </details>
+                </div>
+              ))}
+            </div>
+            {discussed.length > 3 ? (
+              <button type="button" className="ghost full-width-action" onClick={() => setShowAllDiscussed((prev) => !prev)}>
+                {showAllDiscussed ? 'Show Recent' : `Show All (${discussed.length})`}
+              </button>
+            ) : null}
+          </div>
         </div>
-      </div>
+      ) : null}
 
       {deleteModalPodcast ? (
         <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="delete-podcast-title">
