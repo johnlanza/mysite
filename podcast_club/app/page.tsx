@@ -372,10 +372,6 @@ export default function HomePage() {
             <span>Episodes</span>
             <strong>{podcast.episodeCount || 'Unknown'}</strong>
           </div>
-          <div>
-            <span>Club score</span>
-            <strong>{podcast.rankingScore}</strong>
-          </div>
         </div>
 
         {podcast.episodeNames ? (
