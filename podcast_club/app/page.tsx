@@ -248,6 +248,21 @@ export default function HomePage() {
     if (count === 1) return '1 fist bump';
     return `${count} fist bumps`;
   };
+  const getUrlLabel = (value: string) => {
+    try {
+      return new URL(value).hostname.replace(/^www\./, '');
+    } catch {
+      return value;
+    }
+  };
+  const getCarveOutTypeLabel = (value: string) => {
+    if (!value) return 'Resource';
+    return value
+      .split(/[\s_-]+/)
+      .filter(Boolean)
+      .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1).toLowerCase()}`)
+      .join(' ');
+  };
 
   async function giveFistBump(carveOutId: string) {
     setFistBumpingId(carveOutId);
@@ -333,10 +348,107 @@ export default function HomePage() {
     );
   }
 
+  function renderPublicPodcastCard(podcast: Podcast, keyPrefix: string) {
+    return (
+      <article className="public-library-card" key={`${keyPrefix}-${podcast._id}`}>
+        <div className="public-card-head">
+          <div>
+            <h3>{podcast.title}</h3>
+            <p>{podcast.host || 'Podcast'}</p>
+          </div>
+          <span className="badge">Discussed</span>
+        </div>
+
+        <div className="podcast-detail-grid public-detail-grid">
+          <div>
+            <span>Discussed</span>
+            <strong>{podcast.discussedMeetingDate ? formatDate(podcast.discussedMeetingDate) : 'Meeting date unavailable'}</strong>
+          </div>
+          <div>
+            <span>Runtime</span>
+            <strong>{podcast.totalTimeMinutes ? `${podcast.totalTimeMinutes} min` : 'Unknown'}</strong>
+          </div>
+          <div>
+            <span>Episodes</span>
+            <strong>{podcast.episodeCount || 'Unknown'}</strong>
+          </div>
+          <div>
+            <span>Club score</span>
+            <strong>{podcast.rankingScore}</strong>
+          </div>
+        </div>
+
+        {podcast.episodeNames ? (
+          <section className="public-copy-section">
+            <span>Episode name{podcast.episodeCount === 1 ? '' : 's'}</span>
+            <p>{podcast.episodeNames}</p>
+          </section>
+        ) : null}
+
+        {podcast.notes ? (
+          <section className="public-copy-section">
+            <span>Notes</span>
+            <p>{podcast.notes}</p>
+          </section>
+        ) : null}
+
+        <a className="podcast-link-card" href={podcast.link} target="_blank" rel="noreferrer">
+          <span>
+            <strong>Open podcast</strong>
+            <small>{getUrlLabel(podcast.link)}</small>
+          </span>
+          <span aria-hidden="true">&gt;</span>
+        </a>
+      </article>
+    );
+  }
+
+  function renderPublicCarveOutCard(carveOut: CarveOut, keyPrefix: string) {
+    return (
+      <article className="public-library-card" key={`${keyPrefix}-${carveOut._id}`}>
+        <div className="public-card-head">
+          <div>
+            <h3>{carveOut.title}</h3>
+            <p>Shared with the club</p>
+          </div>
+          <span className="badge">{getCarveOutTypeLabel(carveOut.type)}</span>
+        </div>
+
+        <div className="podcast-detail-grid public-detail-grid">
+          <div>
+            <span>Meeting</span>
+            <strong>{formatDate(carveOut.meeting.date)}</strong>
+          </div>
+          <div>
+            <span>Appreciation</span>
+            <strong>{formatPublicFistBumps(carveOut)}</strong>
+          </div>
+        </div>
+
+        {carveOut.notes ? (
+          <section className="public-copy-section">
+            <span>Why it landed</span>
+            <p>{carveOut.notes}</p>
+          </section>
+        ) : null}
+
+        {carveOut.url ? (
+          <a className="carveout-link-row" href={carveOut.url} target="_blank" rel="noreferrer">
+            <span>
+              <strong>Open resource</strong>
+              <small>{getUrlLabel(carveOut.url)}</small>
+            </span>
+            <span aria-hidden="true">&gt;</span>
+          </a>
+        ) : null}
+      </article>
+    );
+  }
+
   if (loading) {
     return (
-      <section className="grid" style={{ marginTop: '1rem' }}>
-        <div className="card">
+      <section className="page-stack">
+        <div className="section-panel">
           <h2>Home</h2>
           <p>Loading...</p>
         </div>
@@ -346,109 +458,88 @@ export default function HomePage() {
 
   if (!member) {
     return (
-      <section className="home-page grid two" style={{ marginTop: '1rem' }}>
-        <div className="card discussed-card">
-          <h3>Podcasts Previously Discussed</h3>
-          <div className="list">
-            {recentDiscussedPodcasts.length === 0 ? <p>No previously discussed podcasts.</p> : null}
-            {recentDiscussedPodcasts.map((podcast) => (
-              <div className="item" key={`public-home-discussed-${podcast._id}`}>
-                <h4>{podcast.title}</h4>
-                <p>
-                  <strong>Description:</strong> {podcast.notes || 'No description yet.'}
-                </p>
-                <p>
-                  <strong>Link:</strong>{' '}
-                  <a href={podcast.link} target="_blank" rel="noreferrer">
-                    {podcast.link}
-                  </a>
-                </p>
+      <section className="public-home page-stack">
+        <div className="section-panel command-panel public-welcome-panel">
+          <div>
+            <p className="section-kicker">Royal Podcast Society</p>
+            <div className="hero-heading-row">
+              <h2>Podcast notes and shared finds</h2>
+              <span className="badge">{allDiscussedPodcasts.length} discussed</span>
+            </div>
+            <p className="muted-line">
+              Browse the episodes the club has already discussed and the carve outs members shared along the way.
+            </p>
+          </div>
+          <Link className="action-link full-width-action" href="/login">
+            Member Login
+          </Link>
+        </div>
+
+        <div className="section-panel public-library-panel discussed-card">
+          <div className="section-title-row">
+            <h2>Discussed Podcasts</h2>
+            <span className="badge">{allDiscussedPodcasts.length}</span>
+          </div>
+          <p className="muted-line">Only completed discussions are public. Candidate podcasts stay private to members.</p>
+
+          <div className="public-library-list">
+            {recentDiscussedPodcasts.length === 0 ? (
+              <div className="empty-state">
+                <span className="empty-state-kicker">No archive yet</span>
+                <h3>No discussed podcasts</h3>
+                <p>Completed podcast discussions will appear here once the archive has entries.</p>
               </div>
-            ))}
+            ) : null}
+            {recentDiscussedPodcasts.map((podcast) => renderPublicPodcastCard(podcast, 'public-home-discussed'))}
           </div>
-          <div className="inline" style={{ marginTop: '0.75rem' }}>
-            <button
-              type="button"
-              className="secondary"
-              onClick={() => setShowAllDiscussedPodcasts((prev) => !prev)}
-            >
-              {showAllDiscussedPodcasts ? 'Show Recent' : 'Show All'}
-            </button>
-          </div>
+
           {showAllDiscussedPodcasts ? (
-            <div className="list" style={{ marginTop: '0.75rem' }}>
+            <div className="public-library-list public-expanded-list">
               {remainingDiscussedPodcasts.length === 0 ? <p>No additional previously discussed podcasts.</p> : null}
-              {remainingDiscussedPodcasts.map((podcast) => (
-                <div className="item" key={`public-home-discussed-all-${podcast._id}`}>
-                  <h4>{podcast.title}</h4>
-                  <p>
-                    <strong>Description:</strong> {podcast.notes || 'No description yet.'}
-                  </p>
-                  <p>
-                    <strong>Link:</strong>{' '}
-                    <a href={podcast.link} target="_blank" rel="noreferrer">
-                      {podcast.link}
-                    </a>
-                  </p>
-                </div>
-              ))}
+              {remainingDiscussedPodcasts.map((podcast) => renderPublicPodcastCard(podcast, 'public-home-discussed-all'))}
             </div>
           ) : null}
-        </div>
-        <div className="card carveouts-card">
-          <h3>Carve Outs</h3>
-          <div className="list">
-            {recentCarveOuts.length === 0 ? <p>No carve outs yet.</p> : null}
-            {recentCarveOuts.map((carveOut) => (
-              <div className="item" key={`public-home-carveout-${carveOut._id}`}>
-                <div className="inline carveout-item-head" style={{ justifyContent: 'space-between' }}>
-                  <h4>{carveOut.title}</h4>
-                  <span className="badge">{carveOut.type}</span>
-                </div>
-                <p>
-                  <strong>Meeting:</strong> {formatDate(carveOut.meeting.date)}
-                </p>
-                {carveOut.url ? (
-                  <p>
-                    <a href={carveOut.url} target="_blank" rel="noreferrer">
-                      {carveOut.url}
-                    </a>
-                  </p>
-                ) : null}
-                {carveOut.notes ? <p>{carveOut.notes}</p> : null}
-                {renderFistBumpStrip(carveOut, false)}
-              </div>
-            ))}
-          </div>
-          <div className="inline" style={{ marginTop: '0.75rem' }}>
-            <button type="button" className="secondary" onClick={() => setShowAllCarveOuts((prev) => !prev)}>
-              {showAllCarveOuts ? 'Show Recent' : 'Show All'}
+
+          {remainingDiscussedPodcasts.length > 0 ? (
+            <button
+              type="button"
+              className="ghost public-show-all"
+              onClick={() => setShowAllDiscussedPodcasts((prev) => !prev)}
+            >
+              {showAllDiscussedPodcasts ? 'Show Recent' : `Show All ${allDiscussedPodcasts.length}`}
             </button>
+          ) : null}
+        </div>
+
+        <div className="section-panel public-library-panel carveouts-card">
+          <div className="section-title-row">
+            <h2>Carve Outs</h2>
+            <span className="badge">{allCarveOuts.length}</span>
           </div>
+          <p className="muted-line">Resources and ideas shared after meetings. Member names stay private; appreciation counts are public.</p>
+
+          <div className="public-library-list">
+            {recentCarveOuts.length === 0 ? (
+              <div className="empty-state">
+                <span className="empty-state-kicker">No shared finds yet</span>
+                <h3>No carve outs</h3>
+                <p>Shared resources will appear here after members add them to the club archive.</p>
+              </div>
+            ) : null}
+            {recentCarveOuts.map((carveOut) => renderPublicCarveOutCard(carveOut, 'public-home-carveout'))}
+          </div>
+
           {showAllCarveOuts ? (
-            <div className="list" style={{ marginTop: '0.75rem' }}>
+            <div className="public-library-list public-expanded-list">
               {remainingCarveOuts.length === 0 ? <p>No additional carve outs.</p> : null}
-              {remainingCarveOuts.map((carveOut) => (
-                <div className="item" key={`public-home-carveout-all-${carveOut._id}`}>
-                  <div className="inline carveout-item-head" style={{ justifyContent: 'space-between' }}>
-                    <h4>{carveOut.title}</h4>
-                    <span className="badge">{carveOut.type}</span>
-                  </div>
-                  <p>
-                    <strong>Meeting:</strong> {formatDate(carveOut.meeting.date)}
-                  </p>
-                  {carveOut.url ? (
-                    <p>
-                      <a href={carveOut.url} target="_blank" rel="noreferrer">
-                        {carveOut.url}
-                      </a>
-                    </p>
-                  ) : null}
-                  {carveOut.notes ? <p>{carveOut.notes}</p> : null}
-                  {renderFistBumpStrip(carveOut, false)}
-                </div>
-              ))}
+              {remainingCarveOuts.map((carveOut) => renderPublicCarveOutCard(carveOut, 'public-home-carveout-all'))}
             </div>
+          ) : null}
+
+          {remainingCarveOuts.length > 0 ? (
+            <button type="button" className="ghost public-show-all" onClick={() => setShowAllCarveOuts((prev) => !prev)}>
+              {showAllCarveOuts ? 'Show Recent' : `Show All ${allCarveOuts.length}`}
+            </button>
           ) : null}
         </div>
       </section>
