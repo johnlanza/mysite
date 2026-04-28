@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-28T13:43:55.153Z",
+  "generatedAt": "2026-04-28T13:59:24.918Z",
   "sourceDirectories": [
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages"
   ],
@@ -60,8 +60,8 @@
     "totalNotes": 988,
     "taggedNotes": 988,
     "books": 77,
-    "suspiciousNotes": 136,
-    "newNotes": 432
+    "suspiciousNotes": 134,
+    "newNotes": 1
   },
   "notes": [
     {
@@ -153,7 +153,7 @@
       "originType": "pages",
       "originFile": "Cloud Cuckoo Land %7C Anthony Doerr.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -189,7 +189,7 @@
       "originType": "pages",
       "originFile": "The Power of Habit%3A Why We Do What We Do in Life and Business %7C Charles Duhigg.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -227,7 +227,7 @@
       "originType": "pages",
       "originFile": "The Daily Stoic %7C Ryan Holiday & Stephen Hanselman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -247,7 +247,7 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -283,7 +283,7 @@
       "originType": "pages",
       "originFile": "Richer, Wiser, Happier%3A How the World's Greatest Investors Win in Markets and Life.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -301,7 +301,7 @@
       "originType": "pages",
       "originFile": "Richer, Wiser, Happier%3A How the World's Greatest Investors Win in Markets and Life.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -319,7 +319,7 @@
       "originType": "pages",
       "originFile": "Richer, Wiser, Happier%3A How the World's Greatest Investors Win in Markets and Life.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -355,7 +355,7 @@
       "originType": "pages",
       "originFile": "Richer, Wiser, Happier%3A How the World's Greatest Investors Win in Markets and Life.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -373,7 +373,7 @@
       "originType": "pages",
       "originFile": "A Calendar of Wisdom%3A Daily Thoughts to Nourish the Soul %7C Leo Tolstoy and Peter Sekirin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -445,7 +445,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -465,7 +465,7 @@
       "originType": "pages",
       "originFile": "Using Behavioral Science in Marketing%3A Drive Customer Action and Loyalty by Prompting instinctive Responses %7C Nancy Harhut.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -556,7 +556,7 @@
       "originType": "pages",
       "originFile": "Brave New World %7C Aldous Huxley.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -574,7 +574,7 @@
       "originType": "pages",
       "originFile": "NurtureShock%3A New Thinking About Children %7C Po Bronson & Ashley Merryman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -592,7 +592,7 @@
       "originType": "pages",
       "originFile": "A Calendar of Wisdom%3A Daily Thoughts to Nourish the Soul %7C Leo Tolstoy and Peter Sekirin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -646,7 +646,7 @@
       "originType": "pages",
       "originFile": "Thinking Fast and Slow %7C Daniel Kahneman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -683,7 +683,7 @@
       "originType": "pages",
       "originFile": "Keep Going%3A 10 Ways to Stay Creative in Good Times and Bad %7C Austin Kleon.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -758,7 +758,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -776,7 +776,7 @@
       "originType": "pages",
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -812,7 +812,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -902,7 +902,7 @@
       "originType": "pages",
       "originFile": "Simple Marketing For Smart People%3A The One Question You Need to Win Customers without Gimmicks, Hype, or Hard Selling %7C Billy Broas & Tiago Forte.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -993,7 +993,7 @@
       "originType": "pages",
       "originFile": "Top Dog%3A The Science of Winning and Losing %7C Po Bronson and Ashley Merryman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1030,7 +1030,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1049,7 +1049,7 @@
       "originType": "pages",
       "originFile": "Finite and Infinte Games %7C James Carse.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1127,7 +1127,7 @@
       "originType": "pages",
       "originFile": "Influence%3A The Psychology of Persuasion %7C Robert Cialdini.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1183,7 +1183,7 @@
       "originType": "pages",
       "originFile": "Growth Hacker Marketing%3A A Primer on the Future of PR, Marketing, and Advertising %7C Ryan Holiday.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1220,7 +1220,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1239,7 +1239,7 @@
       "originType": "pages",
       "originFile": "The Daily Stoic %7C Ryan Holiday & Stephen Hanselman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1276,7 +1276,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1483,7 +1483,7 @@
       "originType": "pages",
       "originFile": "Thinking Fast and Slow %7C Daniel Kahneman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1537,7 +1537,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1575,7 +1575,7 @@
       "originType": "pages",
       "originFile": "Digital Minimalism%3A Choosing a Focused Life in a Noisy World %7C Cal Newport.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1611,7 +1611,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1629,7 +1629,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1721,7 +1721,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1739,7 +1739,7 @@
       "originType": "pages",
       "originFile": "On the Shortness of Life %7C Seneca.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1848,7 +1848,7 @@
       "originType": "pages",
       "originFile": "Succeed%3A How We Can Reach Our Goals %7C Heidi Grant Halvorson Ph.D. and Carol S. Dweck.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1867,7 +1867,7 @@
       "originType": "pages",
       "originFile": "On the Shortness of Life %7C Seneca.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1904,7 +1904,7 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -2015,7 +2015,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2035,7 +2035,7 @@
       "originType": "pages",
       "originFile": "Thinking Fast and Slow %7C Daniel Kahneman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2071,7 +2071,7 @@
       "originType": "pages",
       "originFile": "Zero to One%3A Notes on Startups, or How to Build the Future %7C Peter Thiel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2089,7 +2089,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2107,7 +2107,7 @@
       "originType": "pages",
       "originFile": "Churchill %7C Paul Johnson.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2144,7 +2144,7 @@
       "originType": "pages",
       "originFile": "Top Dog%3A The Science of Winning and Losing %7C Po Bronson and Ashley Merryman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -2202,7 +2202,7 @@
       "originType": "pages",
       "originFile": "Influence%3A The Psychology of Persuasion %7C Robert Cialdini.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2294,7 +2294,7 @@
       "originType": "pages",
       "originFile": "The Daily Stoic %7C Ryan Holiday & Stephen Hanselman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2404,7 +2404,7 @@
       "originType": "pages",
       "originFile": "How to Raise an Adult%3A Break Free of the Overparenting Trap and Prepare Your Kid for Success %7C Julie Lythcott-Haims.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -2424,7 +2424,7 @@
       "originType": "pages",
       "originFile": "Banking on Digital Growth%3A The Strategic Marketing Manifesto to Transform Financial Brands %7C James Robert Lay.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2442,7 +2442,7 @@
       "originType": "pages",
       "originFile": "The Power of Now%3A A Guide to Spiritual Enlightenment %7C Eckhart Tolle.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2574,7 +2574,7 @@
       "originType": "pages",
       "originFile": "Banking on Digital Growth%3A The Strategic Marketing Manifesto to Transform Financial Brands %7C James Robert Lay.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2720,7 +2720,7 @@
       "originType": "pages",
       "originFile": "Team of Rivals%3A The Political Genius of Abraham Lincoln %7C Doris Kearns Goodwin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2779,7 +2779,7 @@
       "originType": "pages",
       "originFile": "Stumbling on Happiness %7C Dan Gilbert.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2798,7 +2798,7 @@
       "originType": "pages",
       "originFile": "Stumbling on Happiness %7C Dan Gilbert.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2816,7 +2816,7 @@
       "originType": "pages",
       "originFile": "It's Complicated%3A The Social Lives of Networked Teens %7C Danah Boyd.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2834,7 +2834,7 @@
       "originType": "pages",
       "originFile": "The 4-Hour Workweek, Expanded and Updated %7C Timothy Ferriss.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -2854,7 +2854,7 @@
       "originType": "pages",
       "originFile": "Atomic Habits%3A An Easy & Proven Way to Build Good Habits & Break Bad Ones %7C James Clear.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2891,7 +2891,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2931,7 +2931,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2968,7 +2968,7 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2986,7 +2986,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3004,7 +3004,7 @@
       "originType": "pages",
       "originFile": "Richer, Wiser, Happier%3A How the World's Greatest Investors Win in Markets and Life.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3022,7 +3022,7 @@
       "originType": "pages",
       "originFile": "On Bullshit %7C Harry G. Frankfurt.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3059,7 +3059,7 @@
       "originType": "pages",
       "originFile": "The Talent Code%3A Unlocking the Secret of Skill in Sports, Art, Music, Math, and Just About Everything Else %7C Daniel Coyle.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3095,7 +3095,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3113,7 +3113,7 @@
       "originType": "pages",
       "originFile": "Richer, Wiser, Happier%3A How the World's Greatest Investors Win in Markets and Life.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3150,7 +3150,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3206,7 +3206,7 @@
       "originType": "pages",
       "originFile": "On the Shortness of Life %7C Seneca.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3224,7 +3224,7 @@
       "originType": "pages",
       "originFile": "Flow%3A The Psychology of Optimal Experience %7C Mihaly Csikszentmihalyi.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -3244,7 +3244,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3352,7 +3352,7 @@
       "originType": "pages",
       "originFile": "On the Shortness of Life %7C Seneca.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3389,7 +3389,7 @@
       "originType": "pages",
       "originFile": "Thinking Fast and Slow %7C Daniel Kahneman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3407,7 +3407,7 @@
       "originType": "pages",
       "originFile": "On the Shortness of Life %7C Seneca.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -3427,7 +3427,7 @@
       "originType": "pages",
       "originFile": "Succeed%3A How We Can Reach Our Goals %7C Heidi Grant Halvorson Ph.D. and Carol S. Dweck.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -3466,7 +3466,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3540,7 +3540,7 @@
       "originType": "pages",
       "originFile": "Bird by Bird%3A Some Instructions on Writing and Life %7C Anne Lamott.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3671,7 +3671,7 @@
       "originType": "pages",
       "originFile": "Dead Wake%3A The Last Crossing of the Lusitania %7C Eric Larson.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3707,7 +3707,7 @@
       "originType": "pages",
       "originFile": "Team of Rivals%3A The Political Genius of Abraham Lincoln %7C Doris Kearns Goodwin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3725,7 +3725,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3743,7 +3743,7 @@
       "originType": "pages",
       "originFile": "Churchill %7C Paul Johnson.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3761,7 +3761,7 @@
       "originType": "pages",
       "originFile": "Churchill %7C Paul Johnson.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3780,7 +3780,7 @@
       "originType": "pages",
       "originFile": "Breaking Smart%3A Season One%3A How Software is Eating the World %7C Venkatesh Rao.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3836,7 +3836,7 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3854,7 +3854,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3928,7 +3928,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4019,7 +4019,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4037,7 +4037,7 @@
       "originType": "pages",
       "originFile": "Enough%3A True Measures of Money, Business, and Life %7C John C. Bogle.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4055,7 +4055,7 @@
       "originType": "pages",
       "originFile": "Top Dog%3A The Science of Winning and Losing %7C Po Bronson and Ashley Merryman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4094,7 +4094,7 @@
       "originType": "pages",
       "originFile": "A Calendar of Wisdom%3A Daily Thoughts to Nourish the Soul %7C Leo Tolstoy and Peter Sekirin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4112,7 +4112,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4131,7 +4131,7 @@
       "originType": "pages",
       "originFile": "The Daily Laws%3A 366 Meditations %7C Robert Greene.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4168,7 +4168,7 @@
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -4206,7 +4206,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4225,7 +4225,7 @@
       "originType": "pages",
       "originFile": "On Writing %7C Stephen King.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4261,7 +4261,7 @@
       "originType": "pages",
       "originFile": "The Power of Habit%3A Why We Do What We Do in Life and Business %7C Charles Duhigg.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4298,7 +4298,7 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4317,7 +4317,7 @@
       "originType": "pages",
       "originFile": "Stumbling on Happiness %7C Dan Gilbert.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4336,7 +4336,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4372,7 +4372,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4390,7 +4390,7 @@
       "originType": "pages",
       "originFile": "The Power of Now%3A A Guide to Spiritual Enlightenment %7C Eckhart Tolle.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -4447,7 +4447,7 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -4467,7 +4467,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4577,7 +4577,7 @@
       "originType": "pages",
       "originFile": "All Minus One%3A John Stuart Mill's Ideas on Free Speech Illustrated %7C Jonathan Haidt, David Cicirelli, and Richard Reeves.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4635,7 +4635,7 @@
       "originType": "pages",
       "originFile": "On the Shortness of Life %7C Seneca.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4654,7 +4654,7 @@
       "originType": "pages",
       "originFile": "Atomic Habits%3A An Easy & Proven Way to Build Good Habits & Break Bad Ones %7C James Clear.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4693,7 +4693,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4819,7 +4819,7 @@
       "originType": "pages",
       "originFile": "Digital Minimalism%3A Choosing a Focused Life in a Noisy World %7C Cal Newport.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4838,7 +4838,7 @@
       "originType": "pages",
       "originFile": "Atomic Habits%3A An Easy & Proven Way to Build Good Habits & Break Bad Ones %7C James Clear.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4856,7 +4856,7 @@
       "originType": "pages",
       "originFile": "Banking on Digital Growth%3A The Strategic Marketing Manifesto to Transform Financial Brands %7C James Robert Lay.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4892,7 +4892,7 @@
       "originType": "pages",
       "originFile": "Churchill %7C Paul Johnson.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4910,7 +4910,7 @@
       "originType": "pages",
       "originFile": "Richer, Wiser, Happier%3A How the World's Greatest Investors Win in Markets and Life.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4946,7 +4946,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4964,7 +4964,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5018,7 +5018,7 @@
       "originType": "pages",
       "originFile": "Yes! %7C Robert Cialdini.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5037,7 +5037,7 @@
       "originType": "pages",
       "originFile": "Influence%3A The Psychology of Persuasion %7C Robert Cialdini.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5073,7 +5073,7 @@
       "originType": "pages",
       "originFile": "On Bullshit %7C Harry G. Frankfurt.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5091,7 +5091,7 @@
       "originType": "pages",
       "originFile": "On Bullshit %7C Harry G. Frankfurt.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5109,7 +5109,7 @@
       "originType": "pages",
       "originFile": "On the Shortness of Life %7C Seneca.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5145,7 +5145,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5163,7 +5163,7 @@
       "originType": "pages",
       "originFile": "Succeed%3A How We Can Reach Our Goals %7C Heidi Grant Halvorson Ph.D. and Carol S. Dweck.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5181,7 +5181,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5314,7 +5314,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5368,7 +5368,7 @@
       "originType": "pages",
       "originFile": "Richer, Wiser, Happier%3A How the World's Greatest Investors Win in Markets and Life.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5386,7 +5386,7 @@
       "originType": "pages",
       "originFile": "It's Complicated%3A The Social Lives of Networked Teens %7C Danah Boyd.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -5533,7 +5533,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5587,14 +5587,14 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
     {
       "id": "pages:How to Raise an Adult%3A Break Free of the Overparenting Trap and Prepare Your Kid for Success %7C Julie Lythcott-Haims.md:47",
-      "text": "Here’s the point—and this is so much more important than I realized until rather recently when the data started coming in: The research shows that figuring out for themselves is a critical element to a person’s mental health. Your kids have to be there for themselves. (#mywords I love this.) That’s a harder truth to swallow when your kid is in the midst of a problem or worse, a crisis, but taking the long view, it’s the best medicine for them.",
-      "note": null,
+      "text": "Here’s the point—and this is so much more important than I realized until rather recently when the data started coming in: The research shows that figuring out for themselves is a critical element to a person’s mental health. Your kids have to be there for themselves.",
+      "note": "I love this.) That’s a harder truth to swallow when your kid is in the midst of a problem or worse, a crisis, but taking the long view, it’s the best medicine for them.",
       "bookTitle": "How to Raise an Adult",
       "bookAuthor": "Julie Lythcott-Haims",
       "sourcePageTitle": "How to Raise an Adult: Break Free of the Overparenting Trap and Prepare Your Kid for Success | Julie Lythcott-Haims",
@@ -5605,10 +5605,8 @@
       "originType": "pages",
       "originFile": "How to Raise an Adult%3A Break Free of the Overparenting Trap and Prepare Your Kid for Success %7C Julie Lythcott-Haims.md",
       "review": {
-        "isNew": false,
-        "flags": [
-          "long-note"
-        ]
+        "isNew": true,
+        "flags": []
       }
     },
     {
@@ -5643,7 +5641,7 @@
       "originType": "pages",
       "originFile": "Churchill %7C Paul Johnson.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5662,7 +5660,7 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5773,7 +5771,7 @@
       "originType": "pages",
       "originFile": "The Wisest Investment %7C Robin Taub.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5827,7 +5825,7 @@
       "originType": "pages",
       "originFile": "On Bullshit %7C Harry G. Frankfurt.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5866,7 +5864,7 @@
       "originType": "pages",
       "originFile": "Happy Money%3A The Science of Smarter Spending %7C Elizabeth Dunn &  Michael Norton.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5943,7 +5941,7 @@
       "originType": "pages",
       "originFile": "Essentialism%3A The Disciplined Pursuit of Less %7C Greg McKeown.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5961,7 +5959,7 @@
       "originType": "pages",
       "originFile": "The Power of Now%3A A Guide to Spiritual Enlightenment %7C Eckhart Tolle.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6071,7 +6069,7 @@
       "originType": "pages",
       "originFile": "Bird by Bird%3A Some Instructions on Writing and Life %7C Anne Lamott.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -6129,7 +6127,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6225,7 +6223,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6261,7 +6259,7 @@
       "originType": "pages",
       "originFile": "Thinking Fast and Slow %7C Daniel Kahneman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6393,7 +6391,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6411,7 +6409,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6430,7 +6428,7 @@
       "originType": "pages",
       "originFile": "Six Easy Pieces%3A Essentials of Physics Explained by Its Most Brilliant Teacher %7C Richard P. Feynman, Robert B. Leighton, and Matthew Sands.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6449,7 +6447,7 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6503,7 +6501,7 @@
       "originType": "pages",
       "originFile": "The Revolt of the Public and the Crisis of Authority in the New Millennium %7C Martin Gurri.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6539,7 +6537,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6612,7 +6610,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6666,7 +6664,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6684,7 +6682,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6702,7 +6700,7 @@
       "originType": "pages",
       "originFile": "Zero to One%3A Notes on Startups, or How to Build the Future %7C Peter Thiel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6738,7 +6736,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6756,7 +6754,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6774,7 +6772,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6793,7 +6791,7 @@
       "originType": "pages",
       "originFile": "Zen To Done%3A The Ultimate Simple Productivity System %7C Leo Babauta.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6829,7 +6827,7 @@
       "originType": "pages",
       "originFile": "The Power of Now%3A A Guide to Spiritual Enlightenment %7C Eckhart Tolle.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -6849,7 +6847,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6867,7 +6865,7 @@
       "originType": "pages",
       "originFile": "The Daily Laws%3A 366 Meditations %7C Robert Greene.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6921,7 +6919,7 @@
       "originType": "pages",
       "originFile": "Richer, Wiser, Happier%3A How the World's Greatest Investors Win in Markets and Life.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6939,7 +6937,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6993,7 +6991,7 @@
       "originType": "pages",
       "originFile": "Banking on Digital Growth%3A The Strategic Marketing Manifesto to Transform Financial Brands %7C James Robert Lay.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -7011,7 +7009,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -7065,7 +7063,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -7085,7 +7083,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -7103,7 +7101,7 @@
       "originType": "pages",
       "originFile": "The Revolt of the Public and the Crisis of Authority in the New Millennium %7C Martin Gurri.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -7121,7 +7119,7 @@
       "originType": "pages",
       "originFile": "The Psychology of Money%3A Timeless lessons on wealth, greed, and happiness %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -7196,7 +7194,7 @@
       "originType": "pages",
       "originFile": "Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -7214,7 +7212,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -7289,7 +7287,7 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -7325,7 +7323,7 @@
       "originType": "pages",
       "originFile": "Team of Rivals%3A The Political Genius of Abraham Lincoln %7C Doris Kearns Goodwin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -7346,7 +7344,7 @@
       "originType": "pages",
       "originFile": "Succeed%3A How We Can Reach Our Goals %7C Heidi Grant Halvorson Ph.D. and Carol S. Dweck.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -7366,7 +7364,7 @@
       "originType": "pages",
       "originFile": "Thinking Fast and Slow %7C Daniel Kahneman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -7425,7 +7423,7 @@
       "originType": "pages",
       "originFile": "Richer, Wiser, Happier%3A How the World's Greatest Investors Win in Markets and Life.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -7461,7 +7459,7 @@
       "originType": "pages",
       "originFile": "Top Dog%3A The Science of Winning and Losing %7C Po Bronson and Ashley Merryman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -7481,7 +7479,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -7518,7 +7516,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -7538,7 +7536,7 @@
       "originType": "pages",
       "originFile": "The Power of Now%3A A Guide to Spiritual Enlightenment %7C Eckhart Tolle.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -7596,7 +7594,7 @@
       "originType": "pages",
       "originFile": "Atomic Habits%3A An Easy & Proven Way to Build Good Habits & Break Bad Ones %7C James Clear.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -7650,7 +7648,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -7704,7 +7702,7 @@
       "originType": "pages",
       "originFile": "Top Dog%3A The Science of Winning and Losing %7C Po Bronson and Ashley Merryman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -7725,7 +7723,7 @@
       "originType": "pages",
       "originFile": "Give and Take%3A Why Helping Others Drives Our Success %7C Adam M. Grant Ph.D.___.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -7797,7 +7795,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -7927,7 +7925,7 @@
       "originType": "pages",
       "originFile": "On the Shortness of Life %7C Seneca.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -7945,7 +7943,7 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -7982,7 +7980,7 @@
       "originType": "pages",
       "originFile": "On Bullshit %7C Harry G. Frankfurt.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8000,7 +7998,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8022,7 +8020,7 @@
       "originType": "pages",
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8040,7 +8038,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8058,7 +8056,7 @@
       "originType": "pages",
       "originFile": "Scientific Advertising %7C Claude Hopkins.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8095,7 +8093,7 @@
       "originType": "pages",
       "originFile": "The Inevitable%3A Understanding the 12 Technological Forces That Will Shape Our Future %7C Kevin Kelly.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8113,7 +8111,7 @@
       "originType": "pages",
       "originFile": "The Daily Laws%3A 366 Meditations %7C Robert Greene.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8149,7 +8147,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8314,7 +8312,7 @@
       "originType": "pages",
       "originFile": "Churchill %7C Paul Johnson.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8332,7 +8330,7 @@
       "originType": "pages",
       "originFile": "Churchill %7C Paul Johnson.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8351,7 +8349,7 @@
       "originType": "pages",
       "originFile": "Simple Marketing For Smart People%3A The One Question You Need to Win Customers without Gimmicks, Hype, or Hard Selling %7C Billy Broas & Tiago Forte.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8369,7 +8367,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -8407,7 +8405,7 @@
       "originType": "pages",
       "originFile": "Anything You Want%3A 40 Lessons for a New Kind of Entrepreneur %7C Derek Sivers.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8463,7 +8461,7 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8482,7 +8480,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8500,7 +8498,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -8521,7 +8519,7 @@
       "originType": "pages",
       "originFile": "Six Easy Pieces%3A Essentials of Physics Explained by Its Most Brilliant Teacher %7C Richard P. Feynman, Robert B. Leighton, and Matthew Sands.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8539,7 +8537,7 @@
       "originType": "pages",
       "originFile": "Top Dog%3A The Science of Winning and Losing %7C Po Bronson and Ashley Merryman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8575,7 +8573,7 @@
       "originType": "pages",
       "originFile": "Yes! %7C Robert Cialdini.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -8595,7 +8593,7 @@
       "originType": "pages",
       "originFile": "Yes! %7C Robert Cialdini.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -8635,7 +8633,7 @@
       "originType": "pages",
       "originFile": "Meditations %7C Marcus Aurelius.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8802,7 +8800,7 @@
       "originType": "pages",
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8821,7 +8819,7 @@
       "originType": "pages",
       "originFile": "Succeed%3A How We Can Reach Our Goals %7C Heidi Grant Halvorson Ph.D. and Carol S. Dweck.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -8878,7 +8876,7 @@
       "originType": "pages",
       "originFile": "Atomic Habits%3A An Easy & Proven Way to Build Good Habits & Break Bad Ones %7C James Clear.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8897,7 +8895,7 @@
       "originType": "pages",
       "originFile": "On the Shortness of Life %7C Seneca.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8915,7 +8913,7 @@
       "originType": "pages",
       "originFile": "Succeed%3A How We Can Reach Our Goals %7C Heidi Grant Halvorson Ph.D. and Carol S. Dweck.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -8933,7 +8931,7 @@
       "originType": "pages",
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -8953,7 +8951,7 @@
       "originType": "pages",
       "originFile": "Team of Rivals%3A The Political Genius of Abraham Lincoln %7C Doris Kearns Goodwin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -8991,7 +8989,7 @@
       "originType": "pages",
       "originFile": "The Wisest Investment %7C Robin Taub.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -9009,7 +9007,7 @@
       "originType": "pages",
       "originFile": "Enough%3A True Measures of Money, Business, and Life %7C John C. Bogle.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -9027,7 +9025,7 @@
       "originType": "pages",
       "originFile": "On the Shortness of Life %7C Seneca.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -9063,7 +9061,7 @@
       "originType": "pages",
       "originFile": "Churchill %7C Paul Johnson.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -9119,7 +9117,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -9137,7 +9135,7 @@
       "originType": "pages",
       "originFile": "The Power of Now%3A A Guide to Spiritual Enlightenment %7C Eckhart Tolle.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -9191,7 +9189,7 @@
       "originType": "pages",
       "originFile": "Thinking Fast and Slow %7C Daniel Kahneman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -9300,7 +9298,7 @@
       "originType": "pages",
       "originFile": "Using Behavioral Science in Marketing%3A Drive Customer Action and Loyalty by Prompting instinctive Responses %7C Nancy Harhut.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -9321,7 +9319,7 @@
       "originType": "pages",
       "originFile": "On Bullshit %7C Harry G. Frankfurt.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -9396,7 +9394,7 @@
       "originType": "pages",
       "originFile": "The Power of Now%3A A Guide to Spiritual Enlightenment %7C Eckhart Tolle.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -9601,7 +9599,7 @@
       "originType": "pages",
       "originFile": "Scientific Advertising %7C Claude Hopkins.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -9620,7 +9618,7 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -9638,7 +9636,7 @@
       "originType": "pages",
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -9710,7 +9708,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -9766,7 +9764,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -9784,7 +9782,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -9802,7 +9800,7 @@
       "originType": "pages",
       "originFile": "The Daily Stoic %7C Ryan Holiday & Stephen Hanselman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -9839,7 +9837,7 @@
       "originType": "pages",
       "originFile": "On the Shortness of Life %7C Seneca.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -9894,7 +9892,7 @@
       "originType": "pages",
       "originFile": "Team of Rivals%3A The Political Genius of Abraham Lincoln %7C Doris Kearns Goodwin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -9930,7 +9928,7 @@
       "originType": "pages",
       "originFile": "Stumbling on Happiness %7C Dan Gilbert.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -9948,7 +9946,7 @@
       "originType": "pages",
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -9966,7 +9964,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10039,7 +10037,7 @@
       "originType": "pages",
       "originFile": "On the Shortness of Life %7C Seneca.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10057,7 +10055,7 @@
       "originType": "pages",
       "originFile": "Thinking Fast and Slow %7C Daniel Kahneman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10076,7 +10074,7 @@
       "originType": "pages",
       "originFile": "Thinking Fast and Slow %7C Daniel Kahneman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10094,7 +10092,7 @@
       "originType": "pages",
       "originFile": "The Talent Code%3A Unlocking the Secret of Skill in Sports, Art, Music, Math, and Just About Everything Else %7C Daniel Coyle.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -10134,7 +10132,7 @@
       "originType": "pages",
       "originFile": "On Bullshit %7C Harry G. Frankfurt.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10152,7 +10150,7 @@
       "originType": "pages",
       "originFile": "Influence%3A The Psychology of Persuasion %7C Robert Cialdini.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10170,7 +10168,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10224,7 +10222,7 @@
       "originType": "pages",
       "originFile": "Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10242,7 +10240,7 @@
       "originType": "pages",
       "originFile": "Happy Money%3A The Science of Smarter Spending %7C Elizabeth Dunn &  Michael Norton.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10260,7 +10258,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10338,7 +10336,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10410,7 +10408,7 @@
       "originType": "pages",
       "originFile": "The Power of Now%3A A Guide to Spiritual Enlightenment %7C Eckhart Tolle.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10485,7 +10483,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10503,7 +10501,7 @@
       "originType": "pages",
       "originFile": "Meditations %7C Marcus Aurelius.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10595,7 +10593,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10613,7 +10611,7 @@
       "originType": "pages",
       "originFile": "The Inevitable%3A Understanding the 12 Technological Forces That Will Shape Our Future %7C Kevin Kelly.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10685,7 +10683,7 @@
       "originType": "pages",
       "originFile": "Meditations %7C Marcus Aurelius.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10706,7 +10704,7 @@
       "originType": "pages",
       "originFile": "Thinking Fast and Slow %7C Daniel Kahneman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10742,7 +10740,7 @@
       "originType": "pages",
       "originFile": "Top Dog%3A The Science of Winning and Losing %7C Po Bronson and Ashley Merryman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10796,7 +10794,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10869,7 +10867,7 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -10926,7 +10924,7 @@
       "originType": "pages",
       "originFile": "Scientific Advertising %7C Claude Hopkins.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10963,7 +10961,7 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11001,7 +10999,7 @@
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11020,7 +11018,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11039,7 +11037,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -11077,7 +11075,7 @@
       "originType": "pages",
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11113,7 +11111,7 @@
       "originType": "pages",
       "originFile": "Six Easy Pieces%3A Essentials of Physics Explained by Its Most Brilliant Teacher %7C Richard P. Feynman, Robert B. Leighton, and Matthew Sands.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11206,7 +11204,7 @@
       "originType": "pages",
       "originFile": "Atomic Habits%3A An Easy & Proven Way to Build Good Habits & Break Bad Ones %7C James Clear.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11225,7 +11223,7 @@
       "originType": "pages",
       "originFile": "On Bullshit %7C Harry G. Frankfurt.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -11245,7 +11243,7 @@
       "originType": "pages",
       "originFile": "On Writing %7C Stephen King.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11285,7 +11283,7 @@
       "originType": "pages",
       "originFile": "On the Shortness of Life %7C Seneca.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11303,7 +11301,7 @@
       "originType": "pages",
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11339,7 +11337,7 @@
       "originType": "pages",
       "originFile": "Digital Minimalism%3A Choosing a Focused Life in a Noisy World %7C Cal Newport.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11489,7 +11487,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -11509,7 +11507,7 @@
       "originType": "pages",
       "originFile": "Anything You Want%3A 40 Lessons for a New Kind of Entrepreneur %7C Derek Sivers.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11527,7 +11525,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11602,7 +11600,7 @@
       "originType": "pages",
       "originFile": "Influence%3A The Psychology of Persuasion %7C Robert Cialdini.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11620,7 +11618,7 @@
       "originType": "pages",
       "originFile": "The Power of Habit%3A Why We Do What We Do in Life and Business %7C Charles Duhigg.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11657,7 +11655,7 @@
       "originType": "pages",
       "originFile": "Using Behavioral Science in Marketing%3A Drive Customer Action and Loyalty by Prompting instinctive Responses %7C Nancy Harhut.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11675,7 +11673,7 @@
       "originType": "pages",
       "originFile": "Churchill %7C Paul Johnson.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11711,7 +11709,7 @@
       "originType": "pages",
       "originFile": "How to Raise an Adult%3A Break Free of the Overparenting Trap and Prepare Your Kid for Success %7C Julie Lythcott-Haims.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11729,7 +11727,7 @@
       "originType": "pages",
       "originFile": "Atomic Habits%3A An Easy & Proven Way to Build Good Habits & Break Bad Ones %7C James Clear.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11747,7 +11745,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11765,7 +11763,7 @@
       "originType": "pages",
       "originFile": "The Simple Path to Wealth %7C JL Collins.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11801,7 +11799,7 @@
       "originType": "pages",
       "originFile": "Richer, Wiser, Happier%3A How the World's Greatest Investors Win in Markets and Life.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11821,7 +11819,7 @@
       "originType": "pages",
       "originFile": "Stumbling on Happiness %7C Dan Gilbert.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11839,7 +11837,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11875,7 +11873,7 @@
       "originType": "pages",
       "originFile": "Scale%3A The Universal Laws of Life, Growth, and Death in Organisms, Cities, and Companies %7C Geoffrey West.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -11950,7 +11948,7 @@
       "originType": "pages",
       "originFile": "Zero to One%3A Notes on Startups, or How to Build the Future %7C Peter Thiel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12098,7 +12096,7 @@
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12152,7 +12150,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12189,7 +12187,7 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12208,7 +12206,7 @@
       "originType": "pages",
       "originFile": "Digital Minimalism%3A Choosing a Focused Life in a Noisy World %7C Cal Newport.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12264,7 +12262,7 @@
       "originType": "pages",
       "originFile": "Atomic Habits%3A An Easy & Proven Way to Build Good Habits & Break Bad Ones %7C James Clear.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12282,7 +12280,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12321,7 +12319,7 @@
       "originType": "pages",
       "originFile": "Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12359,7 +12357,7 @@
       "originType": "pages",
       "originFile": "Succeed%3A How We Can Reach Our Goals %7C Heidi Grant Halvorson Ph.D. and Carol S. Dweck.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -12379,7 +12377,7 @@
       "originType": "pages",
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12434,7 +12432,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12457,7 +12455,7 @@
       "originType": "pages",
       "originFile": "Thinking Fast and Slow %7C Daniel Kahneman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12475,7 +12473,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12494,7 +12492,7 @@
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12569,7 +12567,7 @@
       "originType": "pages",
       "originFile": "Escape from Freedom %7C Erich Fromm.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12623,7 +12621,7 @@
       "originType": "pages",
       "originFile": "Succeed%3A How We Can Reach Our Goals %7C Heidi Grant Halvorson Ph.D. and Carol S. Dweck.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12641,7 +12639,7 @@
       "originType": "pages",
       "originFile": "Digital Minimalism%3A Choosing a Focused Life in a Noisy World %7C Cal Newport.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12695,7 +12693,7 @@
       "originType": "pages",
       "originFile": "Learning Like a Girl%3A Educating Our Daughters in Schools of Their Own %7C Diana Meehan.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12713,7 +12711,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12750,7 +12748,7 @@
       "originType": "pages",
       "originFile": "On Bullshit %7C Harry G. Frankfurt.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12786,7 +12784,7 @@
       "originType": "pages",
       "originFile": "Deep Work%3A Rules for Focused Success in a Distracted World %7C Cal Newport.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12823,7 +12821,7 @@
       "originType": "pages",
       "originFile": "Atomic Habits%3A An Easy & Proven Way to Build Good Habits & Break Bad Ones %7C James Clear.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12841,7 +12839,7 @@
       "originType": "pages",
       "originFile": "Deep Work%3A Rules for Focused Success in a Distracted World %7C Cal Newport.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12896,7 +12894,7 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12914,7 +12912,7 @@
       "originType": "pages",
       "originFile": "Succeed%3A How We Can Reach Our Goals %7C Heidi Grant Halvorson Ph.D. and Carol S. Dweck.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12954,7 +12952,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13029,7 +13027,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13047,7 +13045,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13087,7 +13085,7 @@
       "originType": "pages",
       "originFile": "Thinking Fast and Slow %7C Daniel Kahneman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13105,7 +13103,7 @@
       "originType": "pages",
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13123,7 +13121,7 @@
       "originType": "pages",
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13160,7 +13158,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13216,7 +13214,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13234,7 +13232,7 @@
       "originType": "pages",
       "originFile": "Team of Rivals%3A The Political Genius of Abraham Lincoln %7C Doris Kearns Goodwin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -13254,7 +13252,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -13274,7 +13272,7 @@
       "originType": "pages",
       "originFile": "The Revolt of the Public and the Crisis of Authority in the New Millennium %7C Martin Gurri.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13292,7 +13290,7 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13330,7 +13328,7 @@
       "originType": "pages",
       "originFile": "Influence%3A The Psychology of Persuasion %7C Robert Cialdini.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13391,7 +13389,7 @@
       "originType": "pages",
       "originFile": "Escape from Freedom %7C Erich Fromm.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -13411,7 +13409,7 @@
       "originType": "pages",
       "originFile": "The Inevitable%3A Understanding the 12 Technological Forces That Will Shape Our Future %7C Kevin Kelly.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -13485,7 +13483,7 @@
       "originType": "pages",
       "originFile": "On Bullshit %7C Harry G. Frankfurt.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13559,7 +13557,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -13579,7 +13577,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13617,7 +13615,7 @@
       "originType": "pages",
       "originFile": "Enough%3A True Measures of Money, Business, and Life %7C John C. Bogle.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13637,7 +13635,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13656,7 +13654,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13692,7 +13690,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13728,7 +13726,7 @@
       "originType": "pages",
       "originFile": "On Writing %7C Stephen King.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13766,7 +13764,7 @@
       "originType": "pages",
       "originFile": "Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13784,7 +13782,7 @@
       "originType": "pages",
       "originFile": "The Revolt of the Public and the Crisis of Authority in the New Millennium %7C Martin Gurri.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13803,7 +13801,7 @@
       "originType": "pages",
       "originFile": "Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13857,7 +13855,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13875,7 +13873,7 @@
       "originType": "pages",
       "originFile": "The Revolt of the Public and the Crisis of Authority in the New Millennium %7C Martin Gurri.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13893,7 +13891,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13911,7 +13909,7 @@
       "originType": "pages",
       "originFile": "Growth Hacker Marketing%3A A Primer on the Future of PR, Marketing, and Advertising %7C Ryan Holiday.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13929,7 +13927,7 @@
       "originType": "pages",
       "originFile": "On Bullshit %7C Harry G. Frankfurt.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -13968,7 +13966,7 @@
       "originType": "pages",
       "originFile": "Brave New World %7C Aldous Huxley.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -13988,7 +13986,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14008,7 +14006,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14044,7 +14042,7 @@
       "originType": "pages",
       "originFile": "Thinking Fast and Slow %7C Daniel Kahneman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14099,7 +14097,7 @@
       "originType": "pages",
       "originFile": "Thinking Fast and Slow %7C Daniel Kahneman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14228,7 +14226,7 @@
       "originType": "pages",
       "originFile": "The Revolt of the Public and the Crisis of Authority in the New Millennium %7C Martin Gurri.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14246,7 +14244,7 @@
       "originType": "pages",
       "originFile": "Atomic Habits%3A An Easy & Proven Way to Build Good Habits & Break Bad Ones %7C James Clear.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14284,7 +14282,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14303,7 +14301,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14321,7 +14319,7 @@
       "originType": "pages",
       "originFile": "Keep Going%3A 10 Ways to Stay Creative in Good Times and Bad %7C Austin Kleon.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14360,7 +14358,7 @@
       "originType": "pages",
       "originFile": "Yes! %7C Robert Cialdini.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14397,7 +14395,7 @@
       "originType": "pages",
       "originFile": "Yes! %7C Robert Cialdini.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14415,7 +14413,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14451,7 +14449,7 @@
       "originType": "pages",
       "originFile": "Churchill %7C Paul Johnson.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14470,7 +14468,7 @@
       "originType": "pages",
       "originFile": "Thinking Fast and Slow %7C Daniel Kahneman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -14527,7 +14525,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14563,7 +14561,7 @@
       "originType": "pages",
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14599,7 +14597,7 @@
       "originType": "pages",
       "originFile": "Churchill %7C Paul Johnson.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14691,7 +14689,7 @@
       "originType": "pages",
       "originFile": "On Writing %7C Stephen King.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14729,7 +14727,7 @@
       "originType": "pages",
       "originFile": "Brave New World %7C Aldous Huxley.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -14767,7 +14765,7 @@
       "originType": "pages",
       "originFile": "On the Shortness of Life %7C Seneca.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14821,7 +14819,7 @@
       "originType": "pages",
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14839,7 +14837,7 @@
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14934,7 +14932,7 @@
       "originType": "pages",
       "originFile": "The Daily Stoic %7C Ryan Holiday & Stephen Hanselman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -15011,7 +15009,7 @@
       "originType": "pages",
       "originFile": "Richer, Wiser, Happier%3A How the World's Greatest Investors Win in Markets and Life.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -15140,7 +15138,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -15158,7 +15156,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -15176,7 +15174,7 @@
       "originType": "pages",
       "originFile": "Churchill %7C Paul Johnson.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -15231,7 +15229,7 @@
       "originType": "pages",
       "originFile": "Yes! %7C Robert Cialdini.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -15249,7 +15247,7 @@
       "originType": "pages",
       "originFile": "Digital Minimalism%3A Choosing a Focused Life in a Noisy World %7C Cal Newport.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -15268,7 +15266,7 @@
       "originType": "pages",
       "originFile": "How to Raise an Adult%3A Break Free of the Overparenting Trap and Prepare Your Kid for Success %7C Julie Lythcott-Haims.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -15306,7 +15304,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -15325,7 +15323,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -15379,7 +15377,7 @@
       "originType": "pages",
       "originFile": "Succeed%3A How We Can Reach Our Goals %7C Heidi Grant Halvorson Ph.D. and Carol S. Dweck.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -15398,7 +15396,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -15434,7 +15432,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -15453,7 +15451,7 @@
       "originType": "pages",
       "originFile": "Scale%3A The Universal Laws of Life, Growth, and Death in Organisms, Cities, and Companies %7C Geoffrey West.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -15491,7 +15489,7 @@
       "originType": "pages",
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -15527,7 +15525,7 @@
       "originType": "pages",
       "originFile": "On the Shortness of Life %7C Seneca.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -15546,7 +15544,7 @@
       "originType": "pages",
       "originFile": "Yes! %7C Robert Cialdini.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -15696,7 +15694,7 @@
       "originType": "pages",
       "originFile": "The Power of Now%3A A Guide to Spiritual Enlightenment %7C Eckhart Tolle.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -15811,7 +15809,7 @@
       "originType": "pages",
       "originFile": "Thinking Fast and Slow %7C Daniel Kahneman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -15848,7 +15846,7 @@
       "originType": "pages",
       "originFile": "On Bullshit %7C Harry G. Frankfurt.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -15869,7 +15867,7 @@
       "originType": "pages",
       "originFile": "Show Your Work!%3A 10 Ways to Share Your Creativity and Get Discovered %7C Austin Kleon.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -15961,7 +15959,7 @@
       "originType": "pages",
       "originFile": "The Power of Now%3A A Guide to Spiritual Enlightenment %7C Eckhart Tolle.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16091,7 +16089,7 @@
       "originType": "pages",
       "originFile": "Keep Going%3A 10 Ways to Stay Creative in Good Times and Bad %7C Austin Kleon.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16109,7 +16107,7 @@
       "originType": "pages",
       "originFile": "Breaking Smart%3A Season One%3A How Software is Eating the World %7C Venkatesh Rao.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16166,7 +16164,7 @@
       "originType": "pages",
       "originFile": "On the Shortness of Life %7C Seneca.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -16187,7 +16185,7 @@
       "originType": "pages",
       "originFile": "Enough%3A True Measures of Money, Business, and Life %7C John C. Bogle.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16261,7 +16259,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -16281,7 +16279,7 @@
       "originType": "pages",
       "originFile": "Zero to One%3A Notes on Startups, or How to Build the Future %7C Peter Thiel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16301,7 +16299,7 @@
       "originType": "pages",
       "originFile": "Zero to One%3A Notes on Startups, or How to Build the Future %7C Peter Thiel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16355,7 +16353,7 @@
       "originType": "pages",
       "originFile": "On the Shortness of Life %7C Seneca.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16427,7 +16425,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16445,7 +16443,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16463,7 +16461,7 @@
       "originType": "pages",
       "originFile": "Atomic Habits%3A An Easy & Proven Way to Build Good Habits & Break Bad Ones %7C James Clear.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16481,7 +16479,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16517,7 +16515,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16571,7 +16569,7 @@
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16590,7 +16588,7 @@
       "originType": "pages",
       "originFile": "Top Dog%3A The Science of Winning and Losing %7C Po Bronson and Ashley Merryman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16609,7 +16607,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16700,7 +16698,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16718,7 +16716,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16737,7 +16735,7 @@
       "originType": "pages",
       "originFile": "Team of Rivals%3A The Political Genius of Abraham Lincoln %7C Doris Kearns Goodwin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16755,7 +16753,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16791,7 +16789,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16827,7 +16825,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16846,7 +16844,7 @@
       "originType": "pages",
       "originFile": "Man's Search for Meaning %7C Viktor E. Frankl, Harold S. Kushner, and William J. Winslade.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16865,7 +16863,7 @@
       "originType": "pages",
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16958,7 +16956,7 @@
       "originType": "pages",
       "originFile": "On Bullshit %7C Harry G. Frankfurt.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -16999,7 +16997,7 @@
       "originType": "pages",
       "originFile": "Thinking Fast and Slow %7C Daniel Kahneman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17035,7 +17033,7 @@
       "originType": "pages",
       "originFile": "Enough%3A True Measures of Money, Business, and Life %7C John C. Bogle.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17054,7 +17052,7 @@
       "originType": "pages",
       "originFile": "Influence%3A The Psychology of Persuasion %7C Robert Cialdini.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17090,7 +17088,7 @@
       "originType": "pages",
       "originFile": "Richer, Wiser, Happier%3A How the World's Greatest Investors Win in Markets and Life.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17127,7 +17125,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17146,7 +17144,7 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17182,7 +17180,7 @@
       "originType": "pages",
       "originFile": "The Talent Code%3A Unlocking the Secret of Skill in Sports, Art, Music, Math, and Just About Everything Else %7C Daniel Coyle.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -17203,7 +17201,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17241,7 +17239,7 @@
       "originType": "pages",
       "originFile": "Anything You Want%3A 40 Lessons for a New Kind of Entrepreneur %7C Derek Sivers.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17277,7 +17275,7 @@
       "originType": "pages",
       "originFile": "On Writing %7C Stephen King.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17331,7 +17329,7 @@
       "originType": "pages",
       "originFile": "The Revolt of the Public and the Crisis of Authority in the New Millennium %7C Martin Gurri.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17349,7 +17347,7 @@
       "originType": "pages",
       "originFile": "Atomic Habits%3A An Easy & Proven Way to Build Good Habits & Break Bad Ones %7C James Clear.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17403,7 +17401,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17427,8 +17425,8 @@
     },
     {
       "id": "pages:How to Raise an Adult%3A Break Free of the Overparenting Trap and Prepare Your Kid for Success %7C Julie Lythcott-Haims.md:93",
-      "text": "When we’re “in flow,” the challenge we’re facing slightly exceeds our skill level, and, striving to keep at it, we lose track of time, don’t notice our hunger or tiredness, and feel like what we’re doing could go on and on and on. We’re intrinsically motivated—whatever we’re doing becomes it’s own reward. The analog for flow in sports is being in the “zone.” In music it’s called being in the “groove.” #mywords Might be less about being in the zone than simply being present. There's not a state you're trying to achieve, but rather a recognition that what you're doing right now matters.",
-      "note": null,
+      "text": "When we’re “in flow,” the challenge we’re facing slightly exceeds our skill level, and, striving to keep at it, we lose track of time, don’t notice our hunger or tiredness, and feel like what we’re doing could go on and on and on. We’re intrinsically motivated—whatever we’re doing becomes it’s own reward. The analog for flow in sports is being in the “zone.” In music it’s called being in the “groove.”",
+      "note": "Might be less about being in the zone than simply being present. There's not a state you're trying to achieve, but rather a recognition that what you're doing right now matters.",
       "bookTitle": "How to Raise an Adult",
       "bookAuthor": "Julie Lythcott-Haims",
       "sourcePageTitle": "How to Raise an Adult: Break Free of the Overparenting Trap and Prepare Your Kid for Success | Julie Lythcott-Haims",
@@ -17440,9 +17438,7 @@
       "originFile": "How to Raise an Adult%3A Break Free of the Overparenting Trap and Prepare Your Kid for Success %7C Julie Lythcott-Haims.md",
       "review": {
         "isNew": false,
-        "flags": [
-          "long-note"
-        ]
+        "flags": []
       }
     },
     {
@@ -17498,7 +17494,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17517,7 +17513,7 @@
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17536,7 +17532,7 @@
       "originType": "pages",
       "originFile": "The Power of Now%3A A Guide to Spiritual Enlightenment %7C Eckhart Tolle.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17555,7 +17551,7 @@
       "originType": "pages",
       "originFile": "Enough%3A True Measures of Money, Business, and Life %7C John C. Bogle.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -17632,7 +17628,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17727,7 +17723,7 @@
       "originType": "pages",
       "originFile": "Flow%3A The Psychology of Optimal Experience %7C Mihaly Csikszentmihalyi.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -17747,7 +17743,7 @@
       "originType": "pages",
       "originFile": "Banking on Digital Growth%3A The Strategic Marketing Manifesto to Transform Financial Brands %7C James Robert Lay.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17783,7 +17779,7 @@
       "originType": "pages",
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "short-note"
         ]
@@ -17821,7 +17817,7 @@
       "originType": "pages",
       "originFile": "On Writing %7C Stephen King.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17895,7 +17891,7 @@
       "originType": "pages",
       "originFile": "Influence%3A The Psychology of Persuasion %7C Robert Cialdini.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -18022,7 +18018,7 @@
       "originType": "pages",
       "originFile": "On the Shortness of Life %7C Seneca.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -18148,7 +18144,7 @@
       "originType": "pages",
       "originFile": "Meditations %7C Marcus Aurelius.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -18298,7 +18294,7 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -18316,7 +18312,7 @@
       "originType": "pages",
       "originFile": "On Writing %7C Stephen King.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -18371,7 +18367,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },

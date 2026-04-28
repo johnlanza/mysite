@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-28T13:43:55.380Z",
+  "generatedAt": "2026-04-28T13:59:25.069Z",
   "sourceDirectories": [
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/journals",
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages"
@@ -183,7 +183,7 @@
     {
       "id": "pages:Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md:4",
       "text": "A new scientific truth does not triumph by convincing its opponents and making them see the light, but rather because its opponents eventually die, and a new generation grows up that is familiar with it",
-      "author": "Max Planck This might be what must happen to get to",
+      "author": "Max Planck",
       "source": null,
       "sourcePageTitle": "Gut Feelings: The Intelligence of the Unconscious | Gerd Gigerenzer",
       "sourceDisplay": "Gut Feelings: The Intelligence of the Unconscious | Gerd Gigerenzer",
@@ -197,7 +197,7 @@
       "originType": "pages",
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -242,7 +242,7 @@
       "source": "The Tao Te Ching",
       "sourcePageTitle": "2023_08_17",
       "sourceDisplay": "The Tao Te Ching",
-      "note": "That's what makes greatness great for us.",
+      "note": null,
       "tags": [
         "mw",
         "profound"
@@ -261,7 +261,7 @@
       "source": "James Clear",
       "sourcePageTitle": "2023_01_21",
       "sourceDisplay": "James Clear",
-      "note": "I like how the bolded section contrasts with the idea that we're all special.",
+      "note": null,
       "tags": [
         "mw"
       ],
@@ -646,7 +646,7 @@
       "source": "Founders Podcast",
       "sourcePageTitle": "2023_02_25",
       "sourceDisplay": "Founders Podcast",
-      "note": "You can pair this with the fish who don't know what water is. We live awash in cash. Until we don't.",
+      "note": null,
       "tags": [
         "mw"
       ],
@@ -1627,7 +1627,7 @@
       "source": "James Clear",
       "sourcePageTitle": "2022_07_28",
       "sourceDisplay": "James Clear",
-      "note": "notes She's talking about Au & Co in the Au + Co + Re + $P equation. I think she's talking about fulfillment.",
+      "note": null,
       "tags": [
         "life",
         "mw",
@@ -1681,7 +1681,7 @@
       "source": null,
       "sourcePageTitle": "2021_11_15",
       "sourceDisplay": "2021_11_15",
-      "note": "Nice contrast to relying on System 1 or Gut Feelings",
+      "note": null,
       "tags": [
         "decision making",
         "mw",
@@ -1907,7 +1907,7 @@
       "source": "Kara Lynn Joyce, three-time Olympic swimmer",
       "sourcePageTitle": "2023_01_22",
       "sourceDisplay": "Kara Lynn Joyce, three-time Olympic swimmer",
-      "note": "At the same time, we should always be striving to win if we're competing.",
+      "note": null,
       "tags": [
         "interesting",
         "mw"
@@ -2013,7 +2013,7 @@
       "source": "Founders Podcast",
       "sourcePageTitle": "2023_02_25",
       "sourceDisplay": "Founders Podcast",
-      "note": "You can pair this with another idea - Be wary of envy of someone in one domain. You may wish you were making as much money as, had a car as nice as or owned a house as big as...until you discover the trade offs. Never attended kids' games. Poor spouse relationship. Terrible health. Look deeper. Better yet. Don't envy people.",
+      "note": null,
       "tags": [
         "mw"
       ],
@@ -2182,7 +2182,7 @@
     },
     {
       "id": "journals:2023_10_09.md:7",
-      "text": "If, however, the observers see the poiesis ( Finite and Infinte Games",
+      "text": "If, however, the observers see the poiesis Finite and Infinte Games",
       "author": null,
       "source": null,
       "sourcePageTitle": "2023_10_09",
@@ -2209,7 +2209,7 @@
       "source": "The Art of Learning",
       "sourcePageTitle": "2023_01_11",
       "sourceDisplay": "The Art of Learning",
-      "note": "System 1 from Daniel Kahneman and much of Gerd Gigerenzer.",
+      "note": null,
       "tags": [
         "mw"
       ],
@@ -2538,7 +2538,7 @@
       "source": "The Art of Possibility",
       "sourcePageTitle": "2023_01_11",
       "sourceDisplay": "The Art of Possibility",
-      "note": "I find myself wallowing in self-pity about lack of business success, but I've let my light shine in so many areas that I need to focus on that part. Stop focusing on the dark.",
+      "note": null,
       "tags": [
         "mw"
       ],
@@ -3315,7 +3315,7 @@
       "source": "Maria Popova",
       "sourcePageTitle": "2022_10_28",
       "sourceDisplay": "Maria Popova",
-      "note": "I love this line.",
+      "note": null,
       "tags": [
         "enough",
         "life",
@@ -3858,7 +3858,7 @@
       "source": null,
       "sourcePageTitle": "2023_04_07",
       "sourceDisplay": "2023_04_07",
-      "note": "I think this ties to the idea that the way you do anything is the way you do everything.",
+      "note": null,
       "tags": [
         "mw",
         "profound"
@@ -4115,14 +4115,14 @@
       "source": null,
       "sourcePageTitle": "2023_10_09",
       "sourceDisplay": "2023_10_09",
-      "note": "Bezos, the modern CEO. Not the case with Jobs.",
+      "note": null,
       "tags": [
         "mywords"
       ],
       "originType": "journals",
       "originFile": "2023_10_09.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "journal-date-fallback"
         ]
@@ -4828,7 +4828,7 @@
       "source": null,
       "sourcePageTitle": "2022_10_16",
       "sourceDisplay": "2022_10_16",
-      "note": "This is interesting because I'm reading CS Lewis' Mere Christianity and I just posed a similar question to his questions that we will inevitably ask such as \"How did the universe begin?\" My thought on that was initially similar to UKL, although I could also go the way of David Deustch and say our lack of an answer to any question simply requires more knowledge. Making up an answer like God isn't really an answer. It's just being uncomfortable with the question.",
+      "note": null,
       "tags": [
         "mw"
       ],
@@ -5450,7 +5450,7 @@
       "source": null,
       "sourcePageTitle": "Keep Going: 10 Ways to Stay Creative in Good Times and Bad | Austin Kleon",
       "sourceDisplay": "Keep Going: 10 Ways to Stay Creative in Good Times and Bad | Austin Kleon",
-      "note": "\"You are far too certain to be taken seriously.\"",
+      "note": null,
       "tags": [
         "mw"
       ],

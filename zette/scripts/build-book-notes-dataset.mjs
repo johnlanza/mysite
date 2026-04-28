@@ -6,7 +6,8 @@ const PAGES_DIRECTORY =
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const OUTPUT_FILE = path.join(ROOT, "src/data/book-notes.json");
 const MY_QUOTES_PATTERN = /#?\[\[My Quotes\]\]/i;
-const MY_WORDS_PATTERN = /(^|\s)#(?:\[\[(?:mw|mywords)\]\]|mw|mywords)\b/i;
+const MY_WORDS_PATTERN =
+  /(?<![\p{L}\p{N}_])(?:#(?:\[\[(?:mw|mywords)\]\]|mw|mywords)\b|\[\[(?:mw|mywords)\]\])/iu;
 const TAG_PATTERN = /(?:^|\s)#(?:\[\[([^\]]+)\]\]|([a-zA-Z0-9/_-]+))/g;
 const SOURCE_REF_ALLOWLIST = new Set([
   "tim ferriss",
@@ -107,8 +108,7 @@ function collectTags(text) {
 
 function stripTagsAndMarkers(value) {
   const split = splitMyWordsNote(value);
-  let stripped = value
-    .slice(0, split.markerStart ?? value.length)
+  let stripped = split.quoteLine
     .replace(MY_QUOTES_PATTERN, " ")
     .replace(TAG_PATTERN, " ")
     .replace(/\[\[[A-Z][a-z]{2}\s+\d{1,2}(?:st|nd|rd|th),\s+\d{4}\]\]/g, " ")
@@ -132,11 +132,14 @@ function splitMyWordsNote(line) {
     };
   }
 
-  const markerStart = match.index + match[1].length;
-  const before = line.slice(0, markerStart);
+  const markerStart = match.index;
+  const before = line.slice(0, markerStart).replace(/[\s([{]+$/, " ");
   const after = line
     .slice(markerStart)
-    .replace(/^#(?:\[\[(?:mw|mywords)\]\]|mw|mywords)\b/i, "");
+    .replace(
+      /^(?:#(?:\[\[(?:mw|mywords)\]\]|mw|mywords)\b|\[\[(?:mw|mywords)\]\])/i,
+      "",
+    );
   const cleanedNote = stripTagsAndMarkers(after)
     .replace(/^[:\-–—]\s*/, "")
     .trim();
