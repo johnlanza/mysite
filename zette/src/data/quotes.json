@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-28T04:37:25.541Z",
+  "generatedAt": "2026-04-28T13:43:55.380Z",
   "sourceDirectories": [
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/journals",
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages"
@@ -49,7 +49,7 @@
     "totalQuotes": 314,
     "taggedQuotes": 138,
     "suspiciousQuotes": 115,
-    "newQuotes": 18
+    "newQuotes": 1
   },
   "quotes": [
     {
@@ -653,7 +653,7 @@
       "originType": "journals",
       "originFile": "2023_02_25.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1149,7 +1149,7 @@
       "originType": "pages",
       "originFile": "Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1281,7 +1281,7 @@
       "originType": "journals",
       "originFile": "2024_03_03.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "missing-author",
           "inline-attribution-left-in-quote"
@@ -1592,7 +1592,7 @@
       "originType": "journals",
       "originFile": "2023_10_09.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "journal-date-fallback"
         ]
@@ -1636,7 +1636,7 @@
       "originType": "journals",
       "originFile": "2022_07_28.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1690,7 +1690,7 @@
       "originType": "journals",
       "originFile": "2021_11_15.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "journal-date-fallback"
         ]
@@ -1915,7 +1915,7 @@
       "originType": "journals",
       "originFile": "2023_01_22.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "missing-author"
         ]
@@ -2020,7 +2020,7 @@
       "originType": "journals",
       "originFile": "2023_02_25.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2195,7 +2195,7 @@
       "originType": "journals",
       "originFile": "2023_10_09.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "missing-author",
           "journal-date-fallback"
@@ -2615,7 +2615,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2653,7 +2653,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3699,7 +3699,7 @@
       "originType": "pages",
       "originFile": "The Daily Stoic %7C Ryan Holiday & Stephen Hanselman.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3866,7 +3866,7 @@
       "originType": "journals",
       "originFile": "2023_04_07.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "journal-date-fallback"
         ]
@@ -4110,19 +4110,19 @@
     },
     {
       "id": "journals:2023_10_09.md:3",
-      "text": "The more powerful we consider persons to be, the less we expect them to do, for their power can come only from that which they have done.\" : Bezos, the modern CEO. Not the case with Jobs",
+      "text": "The more powerful we consider persons to be, the less we expect them to do, for their power can come only from that which they have done.",
       "author": "Finite and Infinte Games",
       "source": null,
       "sourcePageTitle": "2023_10_09",
       "sourceDisplay": "2023_10_09",
-      "note": null,
+      "note": "Bezos, the modern CEO. Not the case with Jobs.",
       "tags": [
         "mywords"
       ],
       "originType": "journals",
       "originFile": "2023_10_09.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
           "journal-date-fallback"
         ]
@@ -4317,7 +4317,7 @@
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4835,7 +4835,7 @@
       "originType": "journals",
       "originFile": "2022_10_16.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "journal-date-fallback"
         ]
@@ -4896,7 +4896,7 @@
       "originType": "journals",
       "originFile": "2023_10_09.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "journal-date-fallback"
         ]
@@ -5404,7 +5404,7 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5457,7 +5457,7 @@
       "originType": "pages",
       "originFile": "Keep Going%3A 10 Ways to Stay Creative in Good Times and Bad %7C Austin Kleon.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },

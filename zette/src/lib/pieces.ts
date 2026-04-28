@@ -41,7 +41,7 @@ function noteToPiece(n: BookNoteRecord): Piece {
     text: n.text,
     attribution: n.bookAuthor || null,
     context: n.bookTitle || null,
-    note: null,
+    note: n.note,
     sourceDisplay: n.sourceDisplay,
     tags: n.tags,
     originType: n.originType,

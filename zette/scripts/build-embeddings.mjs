@@ -49,7 +49,7 @@ function unifyNote(n) {
   return {
     id: `n:${n.id}`,
     text: n.text,
-    note: null,
+    note: n.note,
     attribution: n.bookAuthor || null,
     context: n.bookTitle || null,
     tags: n.tags ?? [],

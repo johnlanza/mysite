@@ -8,6 +8,7 @@ export const BOOK_NOTES_DATA_FILE = path.join(ROOT, "src/data/book-notes.json");
 export type BookNoteRecord = {
   id: string;
   text: string;
+  note: string | null;
   bookTitle: string;
   bookAuthor: string;
   sourcePageTitle: string;

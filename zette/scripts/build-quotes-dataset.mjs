@@ -15,6 +15,7 @@ const SOURCE_DIRECTORIES = [
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const OUTPUT_FILE = path.join(ROOT, "src/data/quotes.json");
 const MY_QUOTES_PATTERN = /#?\[\[My Quotes\]\]/i;
+const MY_WORDS_PATTERN = /(^|\s)#(?:\[\[(?:mw|mywords)\]\]|mw|mywords)\b/i;
 const TAG_PATTERN = /(?:^|\s)#(?:\[\[([^\]]+)\]\]|([a-zA-Z0-9/_-]+))/g;
 const QUOTE_BLOCK_PATTERN = /#\+BEGIN_QUOTE[\s\S]*?#\+END_QUOTE/g;
 const SOURCE_REF_ALLOWLIST = new Set([
@@ -197,7 +198,7 @@ function stripTagsAndMarkers(value) {
 }
 
 function splitMyWordsNote(line) {
-  const match = line.match(/(^|\s)#(?:\[\[mw\]\]|mw)\b/i);
+  const match = line.match(MY_WORDS_PATTERN);
 
   if (!match || match.index === undefined) {
     return {
@@ -208,7 +209,9 @@ function splitMyWordsNote(line) {
 
   const markerStart = match.index + match[1].length;
   const before = line.slice(0, markerStart);
-  const after = line.slice(markerStart).replace(/^#(?:\[\[mw\]\]|mw)\b/i, "");
+  const after = line
+    .slice(markerStart)
+    .replace(/^#(?:\[\[(?:mw|mywords)\]\]|mw|mywords)\b/i, "");
   const cleanedNote = stripTagsAndMarkers(after)
     .replace(/^[:\-–—]\s*/, "")
     .trim();

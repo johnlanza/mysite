@@ -6,6 +6,7 @@ const PAGES_DIRECTORY =
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const OUTPUT_FILE = path.join(ROOT, "src/data/book-notes.json");
 const MY_QUOTES_PATTERN = /#?\[\[My Quotes\]\]/i;
+const MY_WORDS_PATTERN = /(^|\s)#(?:\[\[(?:mw|mywords)\]\]|mw|mywords)\b/i;
 const TAG_PATTERN = /(?:^|\s)#(?:\[\[([^\]]+)\]\]|([a-zA-Z0-9/_-]+))/g;
 const SOURCE_REF_ALLOWLIST = new Set([
   "tim ferriss",
@@ -105,7 +106,9 @@ function collectTags(text) {
 }
 
 function stripTagsAndMarkers(value) {
+  const split = splitMyWordsNote(value);
   let stripped = value
+    .slice(0, split.markerStart ?? value.length)
     .replace(MY_QUOTES_PATTERN, " ")
     .replace(TAG_PATTERN, " ")
     .replace(/\[\[[A-Z][a-z]{2}\s+\d{1,2}(?:st|nd|rd|th),\s+\d{4}\]\]/g, " ")
@@ -116,6 +119,51 @@ function stripTagsAndMarkers(value) {
   }
 
   return cleanupInlineMarkup(stripped).trim();
+}
+
+function splitMyWordsNote(line) {
+  const match = line.match(MY_WORDS_PATTERN);
+
+  if (!match || match.index === undefined) {
+    return {
+      quoteLine: line,
+      note: null,
+      markerStart: null,
+    };
+  }
+
+  const markerStart = match.index + match[1].length;
+  const before = line.slice(0, markerStart);
+  const after = line
+    .slice(markerStart)
+    .replace(/^#(?:\[\[(?:mw|mywords)\]\]|mw|mywords)\b/i, "");
+  const cleanedNote = stripTagsAndMarkers(after)
+    .replace(/^[:\-–—]\s*/, "")
+    .trim();
+
+  return {
+    quoteLine: before,
+    note: cleanedNote || null,
+    markerStart,
+  };
+}
+
+function combineNotes(notes) {
+  const unique = [];
+  const seen = new Set();
+
+  for (const note of notes) {
+    const cleaned = cleanupInlineMarkup(note ?? "").trim();
+
+    if (!cleaned || seen.has(cleaned.toLowerCase())) {
+      continue;
+    }
+
+    seen.add(cleaned.toLowerCase());
+    unique.push(cleaned);
+  }
+
+  return unique.length > 0 ? unique.join(" ") : null;
 }
 
 function isBookPage(content) {
@@ -185,14 +233,19 @@ function wordCount(text) {
   return text.split(/\s+/).filter(Boolean).length;
 }
 
-function findAnchorText(lines, tagIndex) {
+function findAnchorEntry(lines, tagIndex) {
+  const currentSplit = splitMyWordsNote(lines[tagIndex]);
   const current = normalizeBookNoteText(stripTagsAndMarkers(lines[tagIndex]));
 
   if (current && !isMetaLine(current) && wordCount(current) >= 6) {
-    return current;
+    return {
+      text: current,
+      note: currentSplit.note,
+    };
   }
 
   for (let index = tagIndex - 1; index >= Math.max(0, tagIndex - 4); index -= 1) {
+    const candidateSplit = splitMyWordsNote(lines[index]);
     const candidate = normalizeBookNoteText(stripTagsAndMarkers(lines[index]));
 
     if (!candidate || isMetaLine(candidate) || isTagOnlyLine(lines[index])) {
@@ -202,25 +255,38 @@ function findAnchorText(lines, tagIndex) {
     if (wordCount(candidate) >= 4) {
       const currentSuffix =
         current && !isMetaLine(current) && current !== candidate ? ` ${current}` : "";
-      return `${candidate}${currentSuffix}`.trim();
+      return {
+        text: `${candidate}${currentSuffix}`.trim(),
+        note: combineNotes([candidateSplit.note, currentSplit.note]),
+      };
     }
   }
 
   if (current && !isMetaLine(current)) {
-    return current;
+    return {
+      text: current,
+      note: currentSplit.note,
+    };
   }
 
   for (let index = tagIndex + 1; index <= Math.min(lines.length - 1, tagIndex + 2); index += 1) {
+    const candidateSplit = splitMyWordsNote(lines[index]);
     const candidate = normalizeBookNoteText(stripTagsAndMarkers(lines[index]));
 
     if (!candidate || isMetaLine(candidate) || isTagOnlyLine(lines[index])) {
       continue;
     }
 
-    return candidate;
+    return {
+      text: candidate,
+      note: combineNotes([currentSplit.note, candidateSplit.note]),
+    };
   }
 
-  return null;
+  return {
+    text: null,
+    note: currentSplit.note,
+  };
 }
 
 function isValidBookNoteText(text) {
@@ -345,7 +411,8 @@ async function main() {
         continue;
       }
 
-      const text = findAnchorText(lines, index);
+      const anchor = findAnchorEntry(lines, index);
+      const text = anchor.text;
 
       if (!isValidBookNoteText(text)) {
         continue;
@@ -354,6 +421,7 @@ async function main() {
       allNotes.push({
         id: buildId(originFile, index),
         text: normalizeBookNoteText(text),
+        note: anchor.note,
         bookTitle,
         bookAuthor,
         sourcePageTitle,
