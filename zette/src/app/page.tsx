@@ -32,6 +32,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     <HeroView
       piece={current}
       echoes={echoes}
+      pieces={pieces}
       isSeed={isSeed}
       echoesOpen={echoesOpen}
     />

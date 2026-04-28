@@ -1,10 +1,12 @@
 import Link from "next/link";
 
+import { PieceSearch } from "@/components/piece-search";
 import type { Piece } from "@/lib/pieces";
 
 type HeroViewProps = {
   piece: Piece;
   echoes: Piece[];
+  pieces: Piece[];
   isSeed: boolean;
   echoesOpen: boolean;
 };
@@ -33,7 +35,13 @@ function buildNowHref(piece: Piece, isSeed: boolean, echoesOpen: boolean): strin
   return qs ? `/?${qs}` : "/";
 }
 
-export function HeroView({ piece, echoes, isSeed, echoesOpen }: HeroViewProps) {
+export function HeroView({
+  piece,
+  echoes,
+  pieces,
+  isSeed,
+  echoesOpen,
+}: HeroViewProps) {
   const attribution = piece.attribution?.trim();
   const context = piece.context?.trim();
   const showContext =
@@ -60,6 +68,8 @@ export function HeroView({ piece, echoes, isSeed, echoesOpen }: HeroViewProps) {
         )}
         <span aria-hidden="true" className="w-[5rem]" />
       </header>
+
+      <PieceSearch pieces={pieces} />
 
       <main className="flex flex-1 flex-col items-center px-7 py-10 sm:px-10">
         <article

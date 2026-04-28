@@ -32,6 +32,7 @@ export default async function NowPage({ searchParams }: NowPageProps) {
     <HeroView
       piece={current}
       echoes={echoes}
+      pieces={pieces}
       isSeed={isSeed}
       echoesOpen={echoesOpen}
     />
