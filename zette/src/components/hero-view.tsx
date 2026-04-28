@@ -16,6 +16,10 @@ function textSizeClass(length: number): string {
   return "text-[1.25rem] leading-[1.35] sm:text-[1.5rem]";
 }
 
+function combinedLength(piece: Piece): number {
+  return piece.text.length + (piece.note?.length ?? 0);
+}
+
 function echoTextClass(length: number): string {
   if (length < 140) return "text-[1.0625rem] leading-snug";
   return "text-[0.9375rem] leading-snug";
@@ -64,10 +68,19 @@ export function HeroView({ piece, echoes, isSeed, echoesOpen }: HeroViewProps) {
           }`}
         >
           <p
-            className={`font-serif font-normal tracking-tight text-foreground ${textSizeClass(piece.text.length)}`}
+            className={`font-serif font-normal tracking-tight text-foreground ${textSizeClass(combinedLength(piece))}`}
           >
             {piece.text}
           </p>
+
+          {piece.note ? (
+            <div className="mt-7 border-l-2 border-accent-soft pl-5 font-sans text-[0.95rem] leading-7 text-muted">
+              <p className="mb-2 text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-accent">
+                My note
+              </p>
+              <p>{piece.note}</p>
+            </div>
+          ) : null}
 
           {attribution ? (
             <p className="mt-8 font-sans text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-foreground/70">
@@ -130,6 +143,19 @@ export function HeroView({ piece, echoes, isSeed, echoesOpen }: HeroViewProps) {
                     >
                       {echo.text}
                     </p>
+                    {echo.note ? (
+                      <p
+                        className="mt-3 border-l-2 border-accent-soft pl-3 text-[0.8rem] leading-snug text-muted"
+                        style={{
+                          display: "-webkit-box",
+                          WebkitBoxOrient: "vertical",
+                          WebkitLineClamp: 2,
+                          overflow: "hidden",
+                        }}
+                      >
+                        {echo.note}
+                      </p>
+                    ) : null}
                     {echo.attribution ? (
                       <p className="mt-3 font-sans text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-muted">
                         — {echo.attribution}

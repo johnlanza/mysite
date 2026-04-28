@@ -196,6 +196,47 @@ function stripTagsAndMarkers(value) {
   ).trim();
 }
 
+function splitMyWordsNote(line) {
+  const match = line.match(/(^|\s)#(?:\[\[mw\]\]|mw)\b/i);
+
+  if (!match || match.index === undefined) {
+    return {
+      quoteLine: line,
+      note: null,
+    };
+  }
+
+  const markerStart = match.index + match[1].length;
+  const before = line.slice(0, markerStart);
+  const after = line.slice(markerStart).replace(/^#(?:\[\[mw\]\]|mw)\b/i, "");
+  const cleanedNote = stripTagsAndMarkers(after)
+    .replace(/^[:\-–—]\s*/, "")
+    .trim();
+
+  return {
+    quoteLine: before,
+    note: cleanedNote || null,
+  };
+}
+
+function combineNotes(notes) {
+  const unique = [];
+  const seen = new Set();
+
+  for (const note of notes) {
+    const cleaned = cleanupInlineMarkup(note ?? "").trim();
+
+    if (!cleaned || seen.has(cleaned.toLowerCase())) {
+      continue;
+    }
+
+    seen.add(cleaned.toLowerCase());
+    unique.push(cleaned);
+  }
+
+  return unique.length > 0 ? unique.join(" ") : null;
+}
+
 function isMetaNoise(line) {
   return /^(yellow highlight|note:|source::|cover::|title::|author::|type::|summary::|collapsed::|##)/i.test(
     stripTagsAndMarkers(line),
@@ -586,7 +627,7 @@ function buildId(originType, originFile, index) {
   return `${originType}:${originFile}:${index}`;
 }
 
-function createQuoteEntry({ quoteText, author, source, tags, meta, index }) {
+function createQuoteEntry({ quoteText, author, source, tags, note, meta, index }) {
   if (!quoteText) {
     return null;
   }
@@ -625,6 +666,7 @@ function createQuoteEntry({ quoteText, author, source, tags, meta, index }) {
       sourcePageTitle: meta.sourcePageTitle,
       originType: meta.originType,
     }),
+    note: cleanupInlineMarkup(note ?? "").trim() || null,
     tags,
     originType: meta.originType,
     originFile: meta.originFile,
@@ -641,6 +683,7 @@ function extractQuoteBlockEntry(block, meta, index) {
     .map((line) => line.trim())
     .filter((line) => line && !/#\+BEGIN_QUOTE|#\+END_QUOTE/.test(line));
   const tags = collectTags(block);
+  const notes = [];
 
   let author = null;
   let source = findPreferredLinkedSource(block) ?? findAllowedSourceRef(block);
@@ -653,7 +696,12 @@ function extractQuoteBlockEntry(block, meta, index) {
       continue;
     }
 
-    const contentLine = stripTagsAndMarkers(line);
+    const noteSplit = splitMyWordsNote(line);
+    if (noteSplit.note) {
+      notes.push(noteSplit.note);
+    }
+
+    const contentLine = stripTagsAndMarkers(noteSplit.quoteLine);
 
     if (!contentLine) {
       continue;
@@ -719,6 +767,7 @@ function extractQuoteBlockEntry(block, meta, index) {
     author,
     source,
     tags,
+    note: combineNotes(notes),
     meta,
     index,
   });
@@ -771,8 +820,22 @@ function extractLineEntry(lines, currentIndex, meta, index) {
 
   const rawText = context.join("\n");
   const tags = collectTags(rawText);
-  const currentText = stripTagsAndMarkers(current);
-  const previousText = previous ? stripTagsAndMarkers(previous) : "";
+  const currentNoteSplit = splitMyWordsNote(current);
+  const previousNoteSplit = previous
+    ? splitMyWordsNote(previous)
+    : { quoteLine: "", note: null };
+  const nextNoteSplit = next ? splitMyWordsNote(next) : { quoteLine: "", note: null };
+  const nextTwoNoteSplit = nextTwo
+    ? splitMyWordsNote(nextTwo)
+    : { quoteLine: "", note: null };
+  const note = combineNotes([
+    previousNoteSplit.note,
+    currentNoteSplit.note,
+    nextNoteSplit.note,
+    nextTwoNoteSplit.note,
+  ]);
+  const currentText = stripTagsAndMarkers(currentNoteSplit.quoteLine);
+  const previousText = previous ? stripTagsAndMarkers(previousNoteSplit.quoteLine) : "";
   const trailingAuthorFromCurrent = extractTrailingAuthorFromLine(current);
   const leadingAuthorFromCurrent = extractLeadingAuthorFromQuotedLine(current);
   const inlineLinkedAuthorFromCurrent = extractInlineLinkedAuthor(current);
@@ -802,6 +865,7 @@ function extractLineEntry(lines, currentIndex, meta, index) {
         pulledFromSource ??
         sourceRefFromRawText,
       tags,
+      note,
       meta,
       index,
     });
@@ -852,6 +916,7 @@ function extractLineEntry(lines, currentIndex, meta, index) {
     author,
     source,
     tags,
+    note,
     meta,
     index,
   });

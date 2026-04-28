@@ -9,6 +9,7 @@ type QuoteRecord = {
   author: string | null;
   source: string | null;
   sourceDisplay: string;
+  note: string | null;
   tags: string[];
   originType: string;
   originFile: string;
@@ -32,7 +33,7 @@ export function QuotesExplorer({ quotes, tags }: QuotesExplorerProps) {
       }
 
       return quotes.filter((quote) => {
-        const haystack = [quote.text, quote.author ?? "", quote.sourceDisplay]
+        const haystack = [quote.text, quote.note ?? "", quote.author ?? "", quote.sourceDisplay]
           .join(" ")
           .toLowerCase();
 
@@ -51,7 +52,7 @@ export function QuotesExplorer({ quotes, tags }: QuotesExplorerProps) {
         return true;
       }
 
-      const haystack = [quote.text, quote.author ?? "", quote.sourceDisplay]
+      const haystack = [quote.text, quote.note ?? "", quote.author ?? "", quote.sourceDisplay]
         .join(" ")
         .toLowerCase();
 
@@ -154,6 +155,15 @@ export function QuotesExplorer({ quotes, tags }: QuotesExplorerProps) {
               <blockquote className="font-serif text-2xl leading-tight text-foreground">
                 &ldquo;{quote.text}&rdquo;
               </blockquote>
+
+              {quote.note ? (
+                <div className="mt-4 border-l-2 border-accent-soft pl-4 text-sm leading-6 text-muted">
+                  <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-accent">
+                    My note
+                  </p>
+                  <p>{quote.note}</p>
+                </div>
+              ) : null}
 
               <div className="mt-5 flex flex-col gap-1 text-sm text-muted">
                 <p className="font-semibold uppercase tracking-[0.16em] text-accent">

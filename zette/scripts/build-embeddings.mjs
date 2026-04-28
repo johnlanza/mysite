@@ -23,6 +23,7 @@ function hashText(text) {
 
 function buildEmbeddingInput(piece) {
   const parts = [piece.text];
+  if (piece.note) parts.push(`my note: ${piece.note}`);
   if (piece.attribution) parts.push(`— ${piece.attribution}`);
   if (piece.context && piece.context !== piece.attribution) {
     parts.push(`from ${piece.context}`);
@@ -37,6 +38,7 @@ function unifyQuote(q) {
   return {
     id: `q:${q.id}`,
     text: q.text,
+    note: q.note,
     attribution: q.author,
     context: q.source,
     tags: q.tags ?? [],
@@ -47,6 +49,7 @@ function unifyNote(n) {
   return {
     id: `n:${n.id}`,
     text: n.text,
+    note: null,
     attribution: n.bookAuthor || null,
     context: n.bookTitle || null,
     tags: n.tags ?? [],

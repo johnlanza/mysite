@@ -12,6 +12,7 @@ export type QuoteRecord = {
   source: string | null;
   sourcePageTitle: string;
   sourceDisplay: string;
+  note: string | null;
   tags: string[];
   originType: string;
   originFile: string;

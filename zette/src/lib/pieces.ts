@@ -12,6 +12,7 @@ export type Piece = {
   text: string;
   attribution: string | null;
   context: string | null;
+  note: string | null;
   sourceDisplay: string;
   tags: string[];
   originType: string;
@@ -25,6 +26,7 @@ function quoteToPiece(q: QuoteRecord): Piece {
     text: q.text,
     attribution: q.author,
     context: q.source,
+    note: q.note,
     sourceDisplay: q.sourceDisplay,
     tags: q.tags,
     originType: q.originType,
@@ -39,6 +41,7 @@ function noteToPiece(n: BookNoteRecord): Piece {
     text: n.text,
     attribution: n.bookAuthor || null,
     context: n.bookTitle || null,
+    note: null,
     sourceDisplay: n.sourceDisplay,
     tags: n.tags,
     originType: n.originType,
