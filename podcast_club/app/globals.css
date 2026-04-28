@@ -1534,6 +1534,12 @@ button:disabled {
   gap: 0.65rem;
 }
 
+.meeting-selected-podcast-list {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.75rem;
+}
+
 .meeting-form-podcast {
   display: flex;
   align-items: flex-start;

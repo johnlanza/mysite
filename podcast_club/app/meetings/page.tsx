@@ -2,8 +2,9 @@
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import MeetingSelectedPodcastCard from '@/components/MeetingSelectedPodcastCard';
 import { withBasePath } from '@/lib/base-path';
-import { MAX_MEETING_PODCASTS } from '@/lib/meeting-podcasts';
+import { getMeetingPodcasts, MAX_MEETING_PODCASTS } from '@/lib/meeting-podcasts';
 import type { Meeting, Member, Podcast, SessionMember } from '@/lib/types';
 
 type MeetingTab = 'next' | 'schedule' | 'history';
@@ -35,11 +36,6 @@ function isCompletedMeeting(meeting: Meeting) {
   if (meeting.status === 'scheduled') return false;
   if (meeting.completedAt) return true;
   return false;
-}
-
-function getMeetingPodcasts(meeting: Meeting) {
-  if (meeting.podcasts && meeting.podcasts.length > 0) return meeting.podcasts;
-  return meeting.podcast ? [meeting.podcast] : [];
 }
 
 function toDateInputValue(value: string) {
@@ -137,6 +133,7 @@ export default function MeetingsPage() {
       .filter((meeting) => !isCompletedMeeting(meeting))
       .sort((a, b) => +new Date(a.date) - +new Date(b.date))[0];
   }, [meetings]);
+  const podcastsById = useMemo(() => new Map(podcasts.map((podcast) => [podcast._id, podcast])), [podcasts]);
 
   const availablePodcasts = useMemo(() => podcasts.filter((podcast) => podcast.status === 'pending'), [podcasts]);
   const selectedPodcasts = useMemo(() => {
@@ -349,43 +346,22 @@ export default function MeetingsPage() {
   const annotateSelfInList = (person: { _id: string; name: string }) =>
     person._id === currentMember._id ? `${person.name} (you)` : person.name;
   const renderMeetingPodcastRows = (meeting: Meeting) => {
-    const selectedMeetingPodcasts = getMeetingPodcasts(meeting);
+    const selectedMeetingPodcasts = getMeetingPodcasts(meeting, podcastsById);
 
     if (selectedMeetingPodcasts.length === 0) {
       return <p className="muted-line">Awaiting host podcast picks.</p>;
     }
 
     return (
-      <div className="compact-list">
-        {selectedMeetingPodcasts.map((podcast) => {
-          const content = (
-            <>
-              <span>
-                <strong>{podcast.title}</strong>
-                <small>
-                  {podcast.totalTimeMinutes ? `${podcast.totalTimeMinutes} min` : podcast.host || 'Podcast'}
-                  {podcast.submittedBy ? ` | ${displayMemberName(podcast.submittedBy)}` : ''}
-                </small>
-              </span>
-              <span aria-hidden="true">&gt;</span>
-            </>
-          );
-
-          return podcast.link ? (
-            <a key={podcast._id} className="compact-row" href={podcast.link} target="_blank" rel="noreferrer">
-              {content}
-            </a>
-          ) : (
-            <div key={podcast._id} className="compact-row">
-              {content}
-            </div>
-          );
-        })}
+      <div className="meeting-selected-podcast-list">
+        {selectedMeetingPodcasts.map((podcast) => (
+          <MeetingSelectedPodcastCard key={podcast._id} podcast={podcast} currentMember={currentMember} />
+        ))}
       </div>
     );
   };
   const renderMeetingMeta = (meeting: Meeting) => {
-    const meetingPodcasts = getMeetingPodcasts(meeting);
+    const meetingPodcasts = getMeetingPodcasts(meeting, podcastsById);
     const completed = isCompletedMeeting(meeting);
 
     return (
@@ -494,7 +470,7 @@ export default function MeetingsPage() {
               <div className="meeting-detail-section">
                 <div className="podcast-detail-heading">
                   <strong>Podcasts</strong>
-                  <span className="badge">{getMeetingPodcasts(nextMeeting).length || 'TBD'}</span>
+                  <span className="badge">{getMeetingPodcasts(nextMeeting, podcastsById).length || 'TBD'}</span>
                 </div>
                 {renderMeetingPodcastRows(nextMeeting)}
               </div>
@@ -732,7 +708,7 @@ export default function MeetingsPage() {
                       <div className="meeting-detail-section">
                         <div className="podcast-detail-heading">
                           <strong>Podcasts</strong>
-                          <span className="badge">{getMeetingPodcasts(meeting).length || 'TBD'}</span>
+                          <span className="badge">{getMeetingPodcasts(meeting, podcastsById).length || 'TBD'}</span>
                         </div>
                         {renderMeetingPodcastRows(meeting)}
                       </div>

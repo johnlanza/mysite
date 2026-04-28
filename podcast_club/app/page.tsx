@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import MeetingSelectedPodcastCard from '@/components/MeetingSelectedPodcastCard';
 import { withBasePath } from '@/lib/base-path';
+import { getMeetingPodcasts } from '@/lib/meeting-podcasts';
 import { dedupePodcastsByContent } from '@/lib/podcast-dedupe';
 import type { CarveOut, Meeting, Podcast, SessionMember } from '@/lib/types';
 
@@ -36,11 +38,6 @@ function isCompletedMeeting(meeting: Meeting) {
   if (meeting.status === 'scheduled') return false;
   if (meeting.completedAt) return true;
   return false;
-}
-
-function getMeetingPodcasts(meeting: Meeting) {
-  if (meeting.podcasts && meeting.podcasts.length > 0) return meeting.podcasts;
-  return meeting.podcast ? [meeting.podcast] : [];
 }
 
 export default function HomePage() {
@@ -118,6 +115,7 @@ export default function HomePage() {
       .filter((meeting) => !isCompletedMeeting(meeting))
       .sort((a, b) => +new Date(a.date) - +new Date(b.date))[0];
   }, [meetings]);
+  const podcastsById = useMemo(() => new Map(podcasts.map((podcast) => [podcast._id, podcast])), [podcasts]);
 
   const pending = useMemo(() => podcasts.filter((podcast) => podcast.status === 'pending'), [podcasts]);
   const podcastsToDiscuss = useMemo(() => {
@@ -195,7 +193,10 @@ export default function HomePage() {
         detail: `${formatDate(nextMeeting.date)} with ${displayMemberName(nextMeeting.host)}.`,
         href: MEETINGS_HREF,
         label: 'View Meeting',
-        count: getMeetingPodcasts(nextMeeting).length > 0 ? `${getMeetingPodcasts(nextMeeting).length} podcasts` : 'TBD'
+        count:
+          getMeetingPodcasts(nextMeeting, podcastsById).length > 0
+            ? `${getMeetingPodcasts(nextMeeting, podcastsById).length} podcasts`
+            : 'TBD'
       };
     }
 
@@ -542,7 +543,7 @@ export default function HomePage() {
     );
   }
 
-  const nextMeetingPodcasts = nextMeeting ? getMeetingPodcasts(nextMeeting) : [];
+  const nextMeetingPodcasts = nextMeeting ? getMeetingPodcasts(nextMeeting, podcastsById) : [];
 
   return (
     <section className="home-dashboard page-stack">
@@ -621,21 +622,10 @@ export default function HomePage() {
             </div>
             <p className="location-line">{nextMeeting.location}</p>
             {nextMeetingPodcasts.length > 0 ? (
-              <div className="compact-list">
-                {nextMeetingPodcasts.slice(0, 2).map((podcast) => (
-                  <a key={podcast._id} className="compact-row" href={podcast.link} target="_blank" rel="noreferrer">
-                    <span>
-                      <strong>{podcast.title}</strong>
-                      <small>
-                        {podcast.totalTimeMinutes ? `${podcast.totalTimeMinutes} min` : podcast.host || 'Podcast'}
-                      </small>
-                    </span>
-                    <span aria-hidden="true">&gt;</span>
-                  </a>
+              <div className="meeting-selected-podcast-list">
+                {nextMeetingPodcasts.map((podcast) => (
+                  <MeetingSelectedPodcastCard key={podcast._id} podcast={podcast} currentMember={member} />
                 ))}
-                {nextMeetingPodcasts.length > 2 ? (
-                  <p className="muted-line">+{nextMeetingPodcasts.length - 2} more selected</p>
-                ) : null}
               </div>
             ) : (
               <p className="muted-line">Awaiting host podcast picks.</p>
