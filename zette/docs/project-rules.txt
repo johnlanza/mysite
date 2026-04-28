@@ -1,0 +1,111 @@
+Zette project rules and working context
+
+Product
+- Product name: Zette
+- Working location: /Users/johnlanza/Dev/zette
+- Audience for now: John only
+- Primary purpose: create a trusted, simple, local quote-focused Zettelkasten from Logseq
+- Quotes are now a protected content type with their own parser; new note types should be added through separate pipelines instead of loosening quote parsing
+
+Current source-of-truth rules
+- Read source markdown only from these Logseq folders unless John expands scope:
+  /Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/journals
+  /Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages
+- Focus only on entries associated with [[My Quotes]]
+- Pull existing tags/categories found on those entries
+- Treat category-like plain Logseq links such as `[[life]]`, `[[profound]]`, `[[post]]`, `[[Enough]]`, `[[teen class]]`, `[[My Work]]`, and similar bracketed category refs the same way as hashtag tags
+- Do not limit this behavior to one specific tag like `life`; apply it to any bracketed category ref that is acting as a tag
+- Do not treat clearly source-like refs such as `from [[tim ferriss]]` or `Source: [[Founders Podcast]]` as tags
+- If a bracketed Logseq ref is treated as a category tag, it must also be removed from the stored quote text, author text, and source text so records do not end up with artifacts like `... propeller. life`
+- Do not invent or add new categories unless John explicitly asks
+- Build Zette from an extracted normalized dataset, not by importing the full markdown corpus into the app runtime
+- John may later ask for selective re-reads of newer or original markdown files for updates or expanded parsing
+- For book notes, use `[[My Book List]]` as a logical corpus definition via its `{{query [[book]]}}` page rather than manually maintaining a separate list inside Zette
+
+Initial product requirements
+- Show one daily quote when the app opens
+- Daily quote changes by day, not by each open or refresh
+- Support category capsules
+- Clicking a capsule filters quotes to that category
+- Support multi-category filtering so John can intersect categories like #life and #profound
+- Keep uncategorized quotes visible in the library
+- Normalize quote formatting into a consistent display pattern:
+  "Quote goes here."
+  —Author
+  from Source
+  category capsules
+
+Implementation notes
+- First pass should tolerate inconsistent Logseq formatting
+- Preserve source traceability so quotes can be revisited in original markdown later
+- Keep the overall structure simple
+- Parsing should aim for one real [[My Quotes]] quote entry per Logseq listing, while ignoring non-quote/template references
+- Inline author attributions on the quote line, especially trailing forms like —AUTHOR, should override page-title author fallback
+- Leading attribution patterns like Author, context, "Quote" should also be parsed from the quote line when present
+- Current known valid attribution patterns include both:
+  - trailing attribution: "Quote." —AUTHOR
+  - leading attribution: Author, context, "Quote."
+- Another valid attribution pattern is:
+  - inline linked author after the quote: `"Quote." [[person name]] #tag [[My Quotes]]`
+  - in that case, if there is no explicit `from` or `source:` cue, treat the linked person ref as the author attribution rather than the source
+- Multiline quote entries must also be supported when:
+  - line 1 contains introductory prose plus the actual quoted text
+  - line 2 contains attribution, source/context, and [[My Quotes]]
+  - in this case, prefatory text like "Love this:" should be discarded, the quoted text should be preserved, and attribution/source should be parsed from the following line
+- Prefer the actual quoted text over surrounding commentary, even when [[My Quotes]] appears on the attribution line rather than the quote line
+- Source parsing should prefer explicit source references from the line or linked refs when they clearly indicate the publication or newsletter
+- When a multiline journal quote is followed by an attribution line like `— [Author] from [[publisher]] [Newsletter Title](...) [[My Quotes]]`, treat:
+  - the previous quoted line as the quote text
+  - the bracketed name as the author
+  - the linked publication title such as `Five Bullet Friday` as the preferred source display over the broader publisher ref like `tim ferriss`
+- Attribution detection must tolerate invisible Logseq characters before dashes, such as zero-width spaces before `—`
+- Author cleanup should remove trailing fragments like "said" or "from" when those are not part of the actual name
+- Author cleanup should also strip leftover markdown bracket wrappers around names such as `[Alain de Botton]`
+- Batch cleanup priorities for the parser:
+  - remove non-quote noise and template/randomizer references before preserving count
+  - prefer a complete sentence quote over an inner quoted fragment when the line clearly contains a larger attributed quote
+  - split author/source metadata when attribution contains source-like tails such as newsletters, books, apps, podcasts, or article titles
+  - clean author strings by trimming leftover commas and role descriptors when they are clearly not part of the speaker's name
+- Source display rule:
+  - for journal-origin quotes, prefer a useful inferred source such as a book, article, newsletter, or linked reference instead of showing only the journal date
+  - if no useful source context can be inferred, fall back to the journal date
+  - for page-origin quotes, the page title remains an acceptable fallback source display
+- Quote-block source attribution rule:
+  - when a #+BEGIN_QUOTE block contains a `Source:` line in the form `Work, Author (...)`, treat the work title as the source and the named original author as the attribution
+  - multiline quote body lines inside the block should remain part of the quote text and must not be mistaken for the speaker
+  - when a #+BEGIN_QUOTE block starts a multiline quoted passage on one line and closes it on a later line, keep every line inside that quoted passage as quote text until the closing quote mark appears
+  - do not treat intermediate quote-body lines such as `What's probable` as author lines just because they look name-like
+  - for works like `The Tao Te Ching, Lao Tzu (...)`, attribute the quote to `Lao Tzu`, not to any mid-quote line or translator/editor text
+  - when a #+BEGIN_QUOTE block includes a dedicated attribution line like `-Paul Graham` or `—Paul Graham`, treat that line as the author attribution, not as part of the quote text
+- Quote text normalization rule:
+  - remove redundant outer quote marks from stored quote text so the UI can render one consistent quote style
+  - avoid double-wrapping quotes or mixing multiple outer quote-mark styles for the same record
+- Neighboring lines must not leak into quote author or tags unless they are clearly part of the same quote block
+- Journal commentary or adjacent notes such as follow-up bullets should not be absorbed into quote records
+- Logseq source/page attributions in the UI should be clickable and open the original markdown source inside Zette
+- Source links should open an in-app source view that reads the original markdown file from the approved Logseq folders
+- The quote library UI should include search across quote text, author, and source so extraction quality can be reviewed quickly
+- Book notes should be a separate dataset and UI from quotes
+- Book notes should preserve attribution as:
+  - note text
+  - book title
+  - book author
+  - source page link back to the original Logseq book page
+- Book notes should only include tagged notes from Logseq book pages
+- Book notes should exclude entries already handled by the quotes parser, especially `[[My Quotes]]` lines
+- Book notes should prefer the tagged note line itself, but if that line is too fragmentary on its own, they may borrow a small amount of nearby context from the same book page to make the note intelligible
+- Structural book-page metadata such as `Type:: [[book]]`, cover/image blocks, summary scaffolding, and the `book` tag itself should not become book-note records
+
+Maintenance rule
+- Update this file when project rules, scope, source locations, or parsing assumptions change
+
+Operational workflow
+- Zette should support a manual in-app refresh action that rebuilds both the quotes dataset and the book-notes dataset from the approved Logseq folders
+- Zette should support a watcher workflow for local use:
+  - command: `npm run quotes:watch`
+  - purpose: auto-rebuild the quote and book-note datasets when markdown files change in the approved Logseq folders
+- Zette should support a review workflow:
+  - review page shows newly added quotes and suspicious parses
+  - suspicious flags should help target parser cleanup batches
+- Before future work sessions, John may tell Codex to refer to this rules file first:
+  /Users/johnlanza/Dev/zette/docs/project-rules.txt

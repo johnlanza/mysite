@@ -1,11 +1,11 @@
 {
   "engines": {
-    "node": "18.x"
+    "node": "20.x"
   },
   "scripts": {
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npm --prefix podcast_club ci --legacy-peer-deps && npm --prefix podcast_club run build"
+    "build": "npm --prefix podcast_club ci --legacy-peer-deps && npm --prefix podcast_club run build && npm --prefix zette ci --legacy-peer-deps && NEXT_PUBLIC_ZETTE_BASE_PATH=/zette npm --prefix zette run build"
   },
   "dependencies": {
     "connect-flash": "^0.1.1",

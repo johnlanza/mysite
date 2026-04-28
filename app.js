@@ -46,6 +46,18 @@ const nextApp = next({
 });
 const nextHandler = nextApp.getRequestHandler();
 
+const zetteDir = path.join(__dirname, "zette");
+process.env.ZETTE_ROOT = zetteDir;
+process.env.NEXT_PUBLIC_ZETTE_BASE_PATH =
+  process.env.NEXT_PUBLIC_ZETTE_BASE_PATH || "/zette";
+const zetteRequire = createRequire(path.join(zetteDir, "package.json"));
+const zetteNext = zetteRequire("next");
+const zetteApp = zetteNext({
+  dev: process.env.NODE_ENV !== "production",
+  dir: zetteDir,
+});
+const zetteHandler = zetteApp.getRequestHandler();
+
 // -----------------------
 // DB Connection
 // -----------------------
@@ -628,6 +640,13 @@ app.all("/podcastclub*", (req, res) => {
 });
 
 // -----------------------
+// Zette (Next.js)
+// -----------------------
+app.all("/zette*", (req, res) => {
+  return zetteHandler(req, res);
+});
+
+// -----------------------
 // Error Handler
 // -----------------------
 app.use((err, req, res, next) => {
@@ -641,7 +660,7 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 
 async function startServer() {
-  await nextApp.prepare();
+  await Promise.all([nextApp.prepare(), zetteApp.prepare()]);
   app.listen(PORT, () => console.log(`Server running on ${PORT}`));
 }
 
