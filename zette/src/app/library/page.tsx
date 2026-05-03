@@ -1,5 +1,6 @@
 import { QuotesExplorer } from "@/components/quotes-explorer";
 import { RefreshQuotesButton } from "@/components/refresh-quotes-button";
+import { getLogseqUrl } from "@/lib/logseq";
 import { readBookNotesDataset } from "@/lib/book-notes-data";
 import { readQuotesDataset } from "@/lib/quotes-data";
 import Link from "next/link";
@@ -53,7 +54,7 @@ export default async function Home() {
               className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-muted transition hover:border-accent hover:text-accent"
               href="/review"
             >
-              Review Quotes
+              Needs Review
             </Link>
             <Link
               className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-muted transition hover:border-accent hover:text-accent"
@@ -75,12 +76,12 @@ export default async function Home() {
             {dailyQuote.author ?? "Unknown"}
           </p>
           <p className="mt-1 text-sm text-[#dfd5c8]">
-            <Link
+            <a
               className="underline decoration-transparent underline-offset-4 transition hover:decoration-current"
-              href={`/source?type=${encodeURIComponent(dailyQuote.originType)}&file=${encodeURIComponent(dailyQuote.originFile)}`}
+              href={getLogseqUrl(dailyQuote.originType, dailyQuote.originFile)}
             >
               {dailyQuote.sourceDisplay}
-            </Link>
+            </a>
           </p>
         </div>
       </section>
@@ -112,7 +113,7 @@ export default async function Home() {
         </div>
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted">
-            Suspicious
+            Needs Review
           </p>
           <p className="mt-2 text-3xl font-semibold">{stats.suspiciousQuotes}</p>
         </div>

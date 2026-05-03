@@ -8,7 +8,7 @@ import { findPieceById, pickDailySeed, readAllPieces } from "@/lib/pieces";
 export const dynamic = "force-dynamic";
 
 type HomePageProps = {
-  searchParams: Promise<{ p?: string; e?: string }>;
+  searchParams: Promise<{ p?: string; e?: string; tag?: string }>;
 };
 
 export default async function HomePage({ searchParams }: HomePageProps) {
@@ -22,17 +22,25 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     notFound();
   }
 
+  const tags = [...new Set(pieces.flatMap((piece) => piece.tags))].sort();
+  const selectedTag = params.tag && tags.includes(params.tag) ? params.tag : null;
+  const filteredPieces = selectedTag
+    ? pieces.filter((piece) => piece.tags.includes(selectedTag))
+    : pieces;
+  const discoveryPieces = filteredPieces.length > 0 ? filteredPieces : pieces;
   const requested = params.p ? findPieceById(pieces, params.p) : null;
-  const current = requested ?? pickDailySeed(pieces);
+  const current = requested ?? pickDailySeed(discoveryPieces);
   const isSeed = !params.p;
   const echoesOpen = params.e === "1";
-  const echoes = findEchoes(current, pieces, embeddings, 3);
+  const echoes = findEchoes(current, discoveryPieces, embeddings, 3);
 
   return (
     <HeroView
       piece={current}
       echoes={echoes}
-      pieces={pieces}
+      pieces={discoveryPieces}
+      tags={tags}
+      selectedTag={selectedTag}
       isSeed={isSeed}
       echoesOpen={echoesOpen}
     />

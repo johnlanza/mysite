@@ -1,12 +1,15 @@
 import Link from "next/link";
 
 import { PieceSearch } from "@/components/piece-search";
+import { getLogseqUrl } from "@/lib/logseq";
 import type { Piece } from "@/lib/pieces";
 
 type HeroViewProps = {
   piece: Piece;
   echoes: Piece[];
   pieces: Piece[];
+  tags: string[];
+  selectedTag: string | null;
   isSeed: boolean;
   echoesOpen: boolean;
 };
@@ -27,8 +30,14 @@ function echoTextClass(length: number): string {
   return "text-[0.9375rem] leading-snug";
 }
 
-function buildNowHref(piece: Piece, isSeed: boolean, echoesOpen: boolean): string {
+function buildNowHref(
+  piece: Piece,
+  isSeed: boolean,
+  echoesOpen: boolean,
+  selectedTag: string | null,
+): string {
   const params = new URLSearchParams();
+  if (selectedTag) params.set("tag", selectedTag);
   if (!isSeed) params.set("p", piece.id);
   if (echoesOpen) params.set("e", "1");
   const qs = params.toString();
@@ -39,6 +48,8 @@ export function HeroView({
   piece,
   echoes,
   pieces,
+  tags,
+  selectedTag,
   isSeed,
   echoesOpen,
 }: HeroViewProps) {
@@ -49,7 +60,9 @@ export function HeroView({
     context.length > 0 &&
     context.toLowerCase() !== (attribution ?? "").toLowerCase();
 
-  const toggleHref = buildNowHref(piece, isSeed, !echoesOpen) + "#echoes";
+  const toggleHref =
+    buildNowHref(piece, isSeed, !echoesOpen, selectedTag) + "#echoes";
+  const logseqUrl = getLogseqUrl(piece.originType, piece.originFile);
 
   return (
     <div className="flex min-h-[100dvh] w-full flex-col">
@@ -61,7 +74,7 @@ export function HeroView({
           <span className="h-1 w-6 rounded-full bg-foreground/20" />
         ) : (
           <Link
-            href="/"
+            href={selectedTag ? `/?tag=${encodeURIComponent(selectedTag)}` : "/"}
             aria-label="Return to today's seed"
             className="h-1 w-6 rounded-full bg-foreground/40 transition hover:bg-accent"
           />
@@ -69,7 +82,7 @@ export function HeroView({
         <span aria-hidden="true" className="w-[5rem]" />
       </header>
 
-      <PieceSearch pieces={pieces} />
+      <PieceSearch pieces={pieces} tags={tags} selectedTag={selectedTag} />
 
       <main className="flex flex-1 flex-col items-center px-7 py-10 sm:px-10">
         <article
@@ -104,13 +117,13 @@ export function HeroView({
             </p>
           ) : null}
 
-          <Link
-            href={`/source?type=${encodeURIComponent(piece.originType)}&file=${encodeURIComponent(piece.originFile)}`}
+          <a
+            href={logseqUrl}
             className="mt-4 inline-flex items-center gap-1.5 font-sans text-[0.68rem] font-medium uppercase tracking-[0.24em] text-muted/70 transition hover:text-accent"
           >
             <span aria-hidden="true">↗</span>
-            <span>Source</span>
-          </Link>
+            <span>Open in Logseq</span>
+          </a>
 
           {piece.tags.length > 0 ? (
             <ul className="mt-7 flex flex-wrap gap-1.5">
@@ -139,7 +152,10 @@ export function HeroView({
               {echoes.map((echo) => (
                 <li key={echo.id}>
                   <Link
-                    href={`/?p=${encodeURIComponent(echo.id)}`}
+                    href={`/?${new URLSearchParams({
+                      ...(selectedTag ? { tag: selectedTag } : {}),
+                      p: echo.id,
+                    }).toString()}`}
                     className="block w-full rounded-[1.25rem] border border-line bg-card/70 px-5 py-4 transition active:scale-[0.99] hover:border-accent/60"
                   >
                     <p
@@ -206,7 +222,10 @@ export function HeroView({
           )}
 
           <Link
-            href={`/random?from=${encodeURIComponent(piece.id)}`}
+            href={`/random?${new URLSearchParams({
+              ...(selectedTag ? { tag: selectedTag } : {}),
+              from: piece.id,
+            }).toString()}`}
             prefetch={false}
             aria-label="Draw another piece"
             className="flex items-center gap-2 rounded-full border border-line bg-card/90 px-5 py-2.5 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-muted shadow-[0_8px_24px_rgba(89,64,34,0.08)] transition active:scale-[0.98]"

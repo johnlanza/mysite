@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
+
+import { getLogseqUrl } from "@/lib/logseq";
 
 type QuoteRecord = {
   id: string;
@@ -170,12 +171,12 @@ export function QuotesExplorer({ quotes, tags }: QuotesExplorerProps) {
                   {quote.author ?? "Unknown"}
                 </p>
                 <p>
-                  <Link
+                  <a
                     className="underline decoration-transparent underline-offset-4 transition hover:decoration-current hover:text-accent"
-                    href={`/source?type=${encodeURIComponent(quote.originType)}&file=${encodeURIComponent(quote.originFile)}`}
+                    href={getLogseqUrl(quote.originType, quote.originFile)}
                   >
                     {quote.sourceDisplay}
-                  </Link>
+                  </a>
                 </p>
               </div>
 

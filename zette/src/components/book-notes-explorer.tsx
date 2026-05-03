@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import type { BookNoteRecord } from "@/lib/book-notes-data";
+import { getLogseqUrl } from "@/lib/logseq";
 
 type BookNotesExplorerProps = {
   notes: BookNoteRecord[];
@@ -138,12 +138,12 @@ export function BookNotesExplorer({ notes, tags }: BookNotesExplorerProps) {
                   {note.bookAuthor}
                 </p>
                 <p>
-                  <Link
+                  <a
                     className="underline decoration-transparent underline-offset-4 transition hover:decoration-current hover:text-accent"
-                    href={`/source?type=${encodeURIComponent(note.originType)}&file=${encodeURIComponent(note.originFile)}`}
+                    href={getLogseqUrl(note.originType, note.originFile)}
                   >
                     {note.bookTitle}
-                  </Link>
+                  </a>
                 </p>
               </div>
 

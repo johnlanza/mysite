@@ -5,7 +5,13 @@ import { useState, useTransition } from "react";
 
 import { withBasePath } from "@/lib/base-path";
 
-export function RefreshQuotesButton() {
+type RefreshQuotesButtonProps = {
+  compact?: boolean;
+};
+
+export function RefreshQuotesButton({
+  compact = false,
+}: RefreshQuotesButtonProps) {
   const router = useRouter();
   const [status, setStatus] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -14,7 +20,7 @@ export function RefreshQuotesButton() {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    setStatus("Refreshing library and echoes...");
+    setStatus("Syncing Zette...");
 
     try {
       const response = await fetch(withBasePath("/api/refresh-quotes"), {
@@ -45,17 +51,21 @@ export function RefreshQuotesButton() {
   };
 
   return (
-    <div className="flex flex-col items-start gap-2">
+    <div className={`flex flex-col ${compact ? "items-end" : "items-start"} gap-2`}>
       <button
-        className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-muted transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-60"
+        className={`rounded-full border border-line font-semibold text-muted transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-60 ${
+          compact
+            ? "px-3 py-1.5 text-[0.68rem] uppercase tracking-[0.2em]"
+            : "px-4 py-2 text-sm"
+        }`}
         disabled={disabled}
         onClick={handleRefresh}
         suppressHydrationWarning
         type="button"
       >
-        {disabled ? "Refreshing..." : "Refresh Library"}
+        {disabled ? "Syncing..." : compact ? "Sync" : "Sync Zette"}
       </button>
-      {status ? <p className="text-xs text-muted">{status}</p> : null}
+      {status && !compact ? <p className="text-xs text-muted">{status}</p> : null}
     </div>
   );
 }

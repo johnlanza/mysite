@@ -19,7 +19,7 @@ export default async function ReviewPage() {
               Review
             </p>
             <h1 className="mt-2 font-serif text-4xl tracking-tight">
-              New and suspicious quotes
+              New quotes and records that need review
             </h1>
             <p className="mt-2 text-sm text-muted">
               Last dataset refresh: {new Date(dataset.generatedAt).toLocaleString()}
@@ -62,11 +62,11 @@ export default async function ReviewPage() {
         </section>
 
         <section className="mt-8">
-          <h2 className="font-serif text-3xl">Suspicious quotes</h2>
+          <h2 className="font-serif text-3xl">Needs review</h2>
           <p className="mt-2 text-sm text-muted">{flaggedQuotes.length} records</p>
           <div className="mt-4 space-y-4">
             {flaggedQuotes.length === 0 ? (
-              <p className="text-sm text-muted">No suspicious records were flagged.</p>
+              <p className="text-sm text-muted">No records need extraction review.</p>
             ) : (
               flaggedQuotes.map((quote) => (
                 <article
