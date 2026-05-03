@@ -10,6 +10,7 @@ type PieceSearchProps = {
   pieces: Piece[];
   tags: string[];
   selectedTags: string[];
+  mode?: "compact" | "browse";
 };
 
 function parseQuery(query: string): string[] {
@@ -80,10 +81,17 @@ function tagsHref(selectedTags: string[], tag: string | null): string {
   return `/?tags=${encodeURIComponent(nextTags.join(","))}`;
 }
 
-export function PieceSearch({ pieces, tags, selectedTags }: PieceSearchProps) {
+export function PieceSearch({
+  pieces,
+  tags,
+  selectedTags,
+  mode = "compact",
+}: PieceSearchProps) {
   const [query, setQuery] = useState("");
-  const [showTags, setShowTags] = useState(selectedTags.length > 0);
+  const isBrowse = mode === "browse";
+  const [showTags, setShowTags] = useState(isBrowse);
   const normalizedQuery = query.trim();
+  const resultLimit = isBrowse ? 160 : selectedTags.length > 0 ? 80 : 12;
 
   const results = useMemo(() => {
     const tokens = parseQuery(normalizedQuery);
@@ -102,13 +110,38 @@ export function PieceSearch({ pieces, tags, selectedTags }: PieceSearchProps) {
         const haystack = pieceHaystack(piece);
         return tokens.every((token) => haystack.includes(token));
       })
-      .slice(0, selectedTags.length > 0 ? 80 : 12);
-  }, [normalizedQuery, pieces, selectedTags]);
+      .slice(0, resultLimit);
+  }, [normalizedQuery, pieces, resultLimit, selectedTags]);
 
-  const showResults = normalizedQuery || selectedTags.length > 0;
+  const showResults =
+    normalizedQuery.length > 0 || (isBrowse && selectedTags.length > 0);
+  const selectedLabel = selectedTags.map((tag) => `#${tag}`).join(" + ");
 
   return (
-    <section className="mx-auto w-full max-w-[34rem] px-7 pt-5 sm:px-10">
+    <section
+      className={`mx-auto w-full px-7 sm:px-10 ${
+        isBrowse ? "max-w-[58rem] py-8" : "max-w-[34rem] pt-5"
+      }`}
+    >
+      {isBrowse ? (
+        <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="font-sans text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-accent">
+              Tags
+            </p>
+            <h1 className="mt-2 font-serif text-[2.4rem] leading-[1.05] text-foreground sm:text-[3.2rem]">
+              {selectedLabel || "Browse Zette"}
+            </h1>
+          </div>
+          <Link
+            href="/"
+            className="inline-flex w-fit items-center rounded-full border border-line bg-card/85 px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted shadow-[0_8px_24px_rgba(89,64,34,0.07)] transition hover:border-accent hover:text-accent"
+          >
+            Featured Card
+          </Link>
+        </div>
+      ) : null}
+
       <label className="sr-only" htmlFor="piece-search">
         Search Zette
       </label>
@@ -136,7 +169,13 @@ export function PieceSearch({ pieces, tags, selectedTags }: PieceSearchProps) {
       </div>
 
       {showTags ? (
-        <div className="capsule-scrollbar mt-3 flex gap-2 overflow-x-auto pb-1">
+        <div
+          className={`mt-3 flex gap-2 ${
+            isBrowse
+              ? "flex-wrap"
+              : "capsule-scrollbar overflow-x-auto pb-1"
+          }`}
+        >
           <Link
             className={`shrink-0 rounded-full border px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition ${
               selectedTags.length > 0
@@ -165,26 +204,45 @@ export function PieceSearch({ pieces, tags, selectedTags }: PieceSearchProps) {
 
       <div className="mt-3 flex items-center justify-between gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted/70">
         <span>
-          {selectedTags.length > 0
-            ? `${results.length} cards match ${selectedTags.map((tag) => `#${tag}`).join(" + ")}`
+          {isBrowse && selectedTags.length > 0
+            ? `${results.length} cards match ${selectedLabel}`
+            : selectedTags.length > 0
+              ? `Browsing ${selectedLabel}`
             : "Search or browse tags"}
         </span>
         <RefreshQuotesButton compact />
       </div>
 
       {showResults ? (
-        <div className="mt-3 overflow-hidden rounded-[1.25rem] border border-line bg-card/95 shadow-[0_16px_40px_rgba(89,64,34,0.08)]">
+        <div
+          className={`mt-4 overflow-hidden border border-line bg-card/95 shadow-[0_16px_40px_rgba(89,64,34,0.08)] ${
+            isBrowse ? "rounded-[1.5rem]" : "rounded-[1.25rem]"
+          }`}
+        >
           {results.length > 0 ? (
-            <ul className="max-h-[22rem] overflow-y-auto">
+            <ul
+              className={
+                isBrowse
+                  ? "grid divide-y divide-line sm:grid-cols-2 sm:divide-x sm:divide-y-0"
+                  : "max-h-[22rem] overflow-y-auto"
+              }
+            >
               {results.map((piece) => (
-                <li key={piece.id} className="border-b border-line last:border-b-0">
+                <li
+                  key={piece.id}
+                  className={isBrowse ? "border-b border-line" : "border-b border-line last:border-b-0"}
+                >
                   <Link
-                    className="block px-5 py-4 transition hover:bg-accent-soft/40"
+                    className={`block transition hover:bg-accent-soft/40 ${
+                      isBrowse ? "h-full px-6 py-5 sm:px-7 sm:py-6" : "px-5 py-4"
+                    }`}
                     href={pieceHref(piece, selectedTags)}
                     onClick={() => setQuery("")}
                   >
                     <p
-                      className="font-serif text-[1.05rem] leading-snug text-foreground"
+                      className={`font-serif leading-snug text-foreground ${
+                        isBrowse ? "text-[1.18rem]" : "text-[1.05rem]"
+                      }`}
                       style={{
                         display: "-webkit-box",
                         WebkitBoxOrient: "vertical",
