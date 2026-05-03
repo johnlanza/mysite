@@ -9,7 +9,7 @@ type HeroViewProps = {
   echoes: Piece[];
   pieces: Piece[];
   tags: string[];
-  selectedTag: string | null;
+  selectedTags: string[];
   isSeed: boolean;
   echoesOpen: boolean;
 };
@@ -34,10 +34,10 @@ function buildNowHref(
   piece: Piece,
   isSeed: boolean,
   echoesOpen: boolean,
-  selectedTag: string | null,
+  selectedTags: string[],
 ): string {
   const params = new URLSearchParams();
-  if (selectedTag) params.set("tag", selectedTag);
+  if (selectedTags.length > 0) params.set("tags", selectedTags.join(","));
   if (!isSeed) params.set("p", piece.id);
   if (echoesOpen) params.set("e", "1");
   const qs = params.toString();
@@ -49,7 +49,7 @@ export function HeroView({
   echoes,
   pieces,
   tags,
-  selectedTag,
+  selectedTags,
   isSeed,
   echoesOpen,
 }: HeroViewProps) {
@@ -61,7 +61,7 @@ export function HeroView({
     context.toLowerCase() !== (attribution ?? "").toLowerCase();
 
   const toggleHref =
-    buildNowHref(piece, isSeed, !echoesOpen, selectedTag) + "#echoes";
+    buildNowHref(piece, isSeed, !echoesOpen, selectedTags) + "#echoes";
   const logseqUrl = getLogseqUrl(piece.originType, piece.originFile);
 
   return (
@@ -74,7 +74,7 @@ export function HeroView({
           <span aria-hidden="true" className="h-1 w-6 rounded-full bg-foreground/20" />
         ) : (
           <Link
-            href={selectedTag ? `/?tag=${encodeURIComponent(selectedTag)}` : "/"}
+            href={selectedTags.length > 0 ? `/?tags=${encodeURIComponent(selectedTags.join(","))}` : "/"}
             aria-label="Return to today's seed"
             className="h-1 w-6 rounded-full bg-foreground/40 transition hover:bg-accent"
           />
@@ -82,7 +82,7 @@ export function HeroView({
         <span aria-hidden="true" className="w-[5rem]" />
       </header>
 
-      <PieceSearch pieces={pieces} tags={tags} selectedTag={selectedTag} />
+      <PieceSearch pieces={pieces} tags={tags} selectedTags={selectedTags} />
 
       <main className="flex flex-1 flex-col items-center px-7 py-10 sm:px-10">
         <article
@@ -130,7 +130,7 @@ export function HeroView({
               {piece.tags.slice(0, 6).map((tag) => (
                 <li key={tag}>
                   <Link
-                    href={`/?tag=${encodeURIComponent(tag)}`}
+                    href={`/?tags=${encodeURIComponent(tag)}`}
                     className="block rounded-full border border-line px-2.5 py-0.5 text-[0.68rem] font-medium uppercase tracking-[0.18em] text-muted transition hover:border-accent hover:text-accent"
                   >
                     {tag}
@@ -155,7 +155,7 @@ export function HeroView({
                 <li key={echo.id}>
                   <Link
                     href={`/?${new URLSearchParams({
-                      ...(selectedTag ? { tag: selectedTag } : {}),
+                      ...(selectedTags.length > 0 ? { tags: selectedTags.join(",") } : {}),
                       p: echo.id,
                     }).toString()}`}
                     className="block w-full rounded-[1.25rem] border border-line bg-card/70 px-5 py-4 transition active:scale-[0.99] hover:border-accent/60"
@@ -225,7 +225,7 @@ export function HeroView({
 
           <Link
             href={`/random?${new URLSearchParams({
-              ...(selectedTag ? { tag: selectedTag } : {}),
+              ...(selectedTags.length > 0 ? { tags: selectedTags.join(",") } : {}),
               from: piece.id,
             }).toString()}`}
             prefetch={false}

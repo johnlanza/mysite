@@ -7,21 +7,18 @@ export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   const from = request.nextUrl.searchParams.get("from");
-  const tag = request.nextUrl.searchParams.get("tag");
+  const tags = request.nextUrl.searchParams.get("tags");
   const pieces = await readAllPieces();
 
   const eligible = pieces.filter(
-    (p) =>
-      p.text.length >= 60 &&
-      p.id !== from &&
-      (!tag || p.tags.includes(tag)),
+    (p) => p.text.length >= 60 && p.id !== from,
   );
   const pool = eligible.length > 0 ? eligible : pieces;
   const pick = pool[Math.floor(Math.random() * pool.length)];
   const params = new URLSearchParams();
 
-  if (tag) {
-    params.set("tag", tag);
+  if (tags) {
+    params.set("tags", tags);
   }
 
   params.set("p", pick.id);

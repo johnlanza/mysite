@@ -9,7 +9,7 @@ import type { Piece } from "@/lib/pieces";
 type PieceSearchProps = {
   pieces: Piece[];
   tags: string[];
-  selectedTag: string | null;
+  selectedTags: string[];
 };
 
 function parseQuery(query: string): string[] {
@@ -52,11 +52,11 @@ function resultLabel(piece: Piece): string {
   return piece.context ?? piece.sourceDisplay;
 }
 
-function pieceHref(piece: Piece, selectedTag: string | null): string {
+function pieceHref(piece: Piece, selectedTags: string[]): string {
   const params = new URLSearchParams();
 
-  if (selectedTag) {
-    params.set("tag", selectedTag);
+  if (selectedTags.length > 0) {
+    params.set("tags", selectedTags.join(","));
   }
 
   params.set("p", piece.id);
@@ -64,33 +64,48 @@ function pieceHref(piece: Piece, selectedTag: string | null): string {
   return `/?${params.toString()}`;
 }
 
-function tagHref(tag: string | null): string {
+function tagsHref(selectedTags: string[], tag: string | null): string {
   if (!tag) {
     return "/";
   }
 
-  return `/?tag=${encodeURIComponent(tag)}`;
+  const nextTags = selectedTags.includes(tag)
+    ? selectedTags.filter((value) => value !== tag)
+    : [...selectedTags, tag];
+
+  if (nextTags.length === 0) {
+    return "/";
+  }
+
+  return `/?tags=${encodeURIComponent(nextTags.join(","))}`;
 }
 
-export function PieceSearch({ pieces, tags, selectedTag }: PieceSearchProps) {
+export function PieceSearch({ pieces, tags, selectedTags }: PieceSearchProps) {
   const [query, setQuery] = useState("");
-  const [showTags, setShowTags] = useState(false);
+  const [showTags, setShowTags] = useState(selectedTags.length > 0);
   const normalizedQuery = query.trim();
 
   const results = useMemo(() => {
     const tokens = parseQuery(normalizedQuery);
 
-    if (tokens.length === 0) {
+    if (tokens.length === 0 && selectedTags.length === 0) {
       return [];
     }
 
     return pieces
       .filter((piece) => {
+        const matchesTags = selectedTags.every((tag) => piece.tags.includes(tag));
+        if (!matchesTags) return false;
+
+        if (tokens.length === 0) return true;
+
         const haystack = pieceHaystack(piece);
         return tokens.every((token) => haystack.includes(token));
       })
-      .slice(0, 12);
-  }, [normalizedQuery, pieces]);
+      .slice(0, selectedTags.length > 0 ? 80 : 12);
+  }, [normalizedQuery, pieces, selectedTags]);
+
+  const showResults = normalizedQuery || selectedTags.length > 0;
 
   return (
     <section className="mx-auto w-full max-w-[34rem] px-7 pt-5 sm:px-10">
@@ -109,32 +124,26 @@ export function PieceSearch({ pieces, tags, selectedTag }: PieceSearchProps) {
         <button
           aria-expanded={showTags}
           className={`shrink-0 rounded-full border px-4 py-3 text-[0.68rem] font-semibold uppercase tracking-[0.2em] shadow-[0_8px_24px_rgba(89,64,34,0.07)] transition ${
-            selectedTag
+            selectedTags.length > 0
               ? "border-accent bg-accent text-[#f8f2e9]"
               : "border-line bg-card/90 text-muted hover:border-accent hover:text-accent"
           }`}
           onClick={() => setShowTags((value) => !value)}
           type="button"
         >
-          {selectedTag ? `#${selectedTag}` : "Library"}
+          {selectedTags.length > 0 ? `${selectedTags.length} Tags` : "Tags"}
         </button>
       </div>
 
       {showTags ? (
         <div className="capsule-scrollbar mt-3 flex gap-2 overflow-x-auto pb-1">
           <Link
-            className="shrink-0 rounded-full border border-line bg-card/80 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted transition hover:border-accent hover:text-accent"
-            href="/library"
-          >
-            Browse
-          </Link>
-          <Link
             className={`shrink-0 rounded-full border px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition ${
-              selectedTag
+              selectedTags.length > 0
                 ? "border-line bg-card/80 text-muted hover:border-accent hover:text-accent"
                 : "border-accent bg-accent text-[#f8f2e9]"
             }`}
-            href={tagHref(null)}
+            href={tagsHref(selectedTags, null)}
           >
             All
           </Link>
@@ -142,11 +151,11 @@ export function PieceSearch({ pieces, tags, selectedTag }: PieceSearchProps) {
             <Link
               key={tag}
               className={`shrink-0 rounded-full border px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition ${
-                selectedTag === tag
+                selectedTags.includes(tag)
                   ? "border-accent bg-accent text-[#f8f2e9]"
                   : "border-line bg-card/80 text-muted hover:border-accent hover:text-accent"
               }`}
-              href={tagHref(tag)}
+              href={tagsHref(selectedTags, tag)}
             >
               #{tag}
             </Link>
@@ -156,12 +165,14 @@ export function PieceSearch({ pieces, tags, selectedTag }: PieceSearchProps) {
 
       <div className="mt-3 flex items-center justify-between gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted/70">
         <span>
-          {selectedTag ? `Drawing from #${selectedTag}` : "Drawing from all notes"}
+          {selectedTags.length > 0
+            ? `${results.length} cards match ${selectedTags.map((tag) => `#${tag}`).join(" + ")}`
+            : "Search or browse tags"}
         </span>
         <RefreshQuotesButton compact />
       </div>
 
-      {normalizedQuery ? (
+      {showResults ? (
         <div className="mt-3 overflow-hidden rounded-[1.25rem] border border-line bg-card/95 shadow-[0_16px_40px_rgba(89,64,34,0.08)]">
           {results.length > 0 ? (
             <ul className="max-h-[22rem] overflow-y-auto">
@@ -169,7 +180,7 @@ export function PieceSearch({ pieces, tags, selectedTag }: PieceSearchProps) {
                 <li key={piece.id} className="border-b border-line last:border-b-0">
                   <Link
                     className="block px-5 py-4 transition hover:bg-accent-soft/40"
-                    href={pieceHref(piece, selectedTag)}
+                    href={pieceHref(piece, selectedTags)}
                     onClick={() => setQuery("")}
                   >
                     <p
