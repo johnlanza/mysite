@@ -49,7 +49,7 @@ export default async function ReviewPage() {
                   className="rounded-[1.5rem] border border-line bg-[#fffaf2] px-5 py-5"
                 >
                   <blockquote className="font-serif text-2xl leading-tight">
-                    &ldquo;{quote.text}&rdquo;
+                    {quote.text}
                   </blockquote>
                   <p className="mt-4 text-sm font-semibold uppercase tracking-[0.16em] text-accent">
                     {quote.author ?? "Unknown"}
@@ -74,7 +74,7 @@ export default async function ReviewPage() {
                   className="rounded-[1.5rem] border border-line bg-[#fffaf2] px-5 py-5"
                 >
                   <blockquote className="font-serif text-2xl leading-tight">
-                    &ldquo;{quote.text}&rdquo;
+                    {quote.text}
                   </blockquote>
                   <p className="mt-4 text-sm font-semibold uppercase tracking-[0.16em] text-accent">
                     {quote.author ?? "Unknown"}

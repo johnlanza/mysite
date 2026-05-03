@@ -68,10 +68,10 @@ export function HeroView({
     <div className="flex min-h-[100dvh] w-full flex-col">
       <header className="flex items-center justify-between px-6 pt-6">
         <span className="font-sans text-[0.6rem] font-medium uppercase tracking-[0.2em] text-muted/50">
-          url-toggle
+          Zette
         </span>
         {isSeed ? (
-          <span className="h-1 w-6 rounded-full bg-foreground/20" />
+          <span aria-hidden="true" className="h-1 w-6 rounded-full bg-foreground/20" />
         ) : (
           <Link
             href={selectedTag ? `/?tag=${encodeURIComponent(selectedTag)}` : "/"}
@@ -128,11 +128,13 @@ export function HeroView({
           {piece.tags.length > 0 ? (
             <ul className="mt-7 flex flex-wrap gap-1.5">
               {piece.tags.slice(0, 6).map((tag) => (
-                <li
-                  key={tag}
-                  className="rounded-full border border-line px-2.5 py-0.5 text-[0.68rem] font-medium uppercase tracking-[0.18em] text-muted"
-                >
-                  {tag}
+                <li key={tag}>
+                  <Link
+                    href={`/?tag=${encodeURIComponent(tag)}`}
+                    className="block rounded-full border border-line px-2.5 py-0.5 text-[0.68rem] font-medium uppercase tracking-[0.18em] text-muted transition hover:border-accent hover:text-accent"
+                  >
+                    {tag}
+                  </Link>
                 </li>
               ))}
             </ul>

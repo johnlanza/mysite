@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { getLogseqUrl } from "@/lib/logseq";
@@ -68,6 +69,9 @@ export function QuotesExplorer({ quotes, tags }: QuotesExplorerProps) {
         : [...current, tag],
     );
   };
+
+  const cardHref = (quote: QuoteRecord) =>
+    `/?p=${encodeURIComponent(`q:${quote.id}`)}`;
 
   return (
     <section className="grid w-full gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
@@ -154,7 +158,7 @@ export function QuotesExplorer({ quotes, tags }: QuotesExplorerProps) {
               className="rounded-[1.5rem] border border-line bg-[#fffaf2] px-5 py-5 shadow-[0_8px_30px_rgba(73,56,35,0.05)]"
             >
               <blockquote className="font-serif text-2xl leading-tight text-foreground">
-                &ldquo;{quote.text}&rdquo;
+                {quote.text}
               </blockquote>
 
               {quote.note ? (
@@ -178,6 +182,21 @@ export function QuotesExplorer({ quotes, tags }: QuotesExplorerProps) {
                     {quote.sourceDisplay}
                   </a>
                 </p>
+              </div>
+
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                <Link
+                  className="rounded-full border border-line px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted transition hover:border-accent hover:text-accent"
+                  href={cardHref(quote)}
+                >
+                  Open with Echoes
+                </Link>
+                <a
+                  className="rounded-full border border-line px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted transition hover:border-accent hover:text-accent"
+                  href={getLogseqUrl(quote.originType, quote.originFile)}
+                >
+                  Logseq
+                </a>
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">

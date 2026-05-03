@@ -70,7 +70,7 @@ export default async function Home() {
             Today&apos;s quote
           </p>
           <blockquote className="mt-4 font-serif text-2xl leading-tight sm:text-[2rem]">
-            &ldquo;{dailyQuote.text}&rdquo;
+            {dailyQuote.text}
           </blockquote>
           <p className="mt-5 text-sm font-semibold tracking-[0.16em] uppercase text-[#d7c29a]">
             {dailyQuote.author ?? "Unknown"}

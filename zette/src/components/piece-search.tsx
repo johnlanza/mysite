@@ -116,12 +116,18 @@ export function PieceSearch({ pieces, tags, selectedTag }: PieceSearchProps) {
           onClick={() => setShowTags((value) => !value)}
           type="button"
         >
-          {selectedTag ? `#${selectedTag}` : "Tags"}
+          {selectedTag ? `#${selectedTag}` : "Library"}
         </button>
       </div>
 
       {showTags ? (
         <div className="capsule-scrollbar mt-3 flex gap-2 overflow-x-auto pb-1">
+          <Link
+            className="shrink-0 rounded-full border border-line bg-card/80 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted transition hover:border-accent hover:text-accent"
+            href="/library"
+          >
+            Browse
+          </Link>
           <Link
             className={`shrink-0 rounded-full border px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition ${
               selectedTag
