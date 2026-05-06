@@ -16,9 +16,16 @@ export function getLogseqPageName(originType: string, originFile: string) {
   return pageName;
 }
 
-export function getLogseqUrl(originType: string, originFile: string) {
+export function getLogseqUrl(
+  originType: string,
+  originFile: string,
+  blockId?: string | null,
+) {
   const graph = encodeURIComponent(getGraphName());
-  const page = encodeURIComponent(getLogseqPageName(originType, originFile));
+  if (blockId?.trim()) {
+    return `logseq://graph/${graph}?block-id=${encodeURIComponent(blockId.trim())}`;
+  }
 
+  const page = encodeURIComponent(getLogseqPageName(originType, originFile));
   return `logseq://graph/${graph}?page=${page}`;
 }

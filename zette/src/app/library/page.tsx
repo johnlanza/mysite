@@ -78,7 +78,11 @@ export default async function Home() {
           <p className="mt-1 text-sm text-[#dfd5c8]">
             <a
               className="underline decoration-transparent underline-offset-4 transition hover:decoration-current"
-              href={getLogseqUrl(dailyQuote.originType, dailyQuote.originFile)}
+              href={getLogseqUrl(
+                dailyQuote.originType,
+                dailyQuote.originFile,
+                dailyQuote.blockId,
+              )}
             >
               {dailyQuote.sourceDisplay}
             </a>

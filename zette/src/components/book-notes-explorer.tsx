@@ -30,7 +30,7 @@ export function BookNotesExplorer({ notes, tags }: BookNotesExplorerProps) {
         return true;
       }
 
-      const haystack = [note.text, note.bookTitle, note.bookAuthor, note.sourceDisplay]
+      const haystack = [note.text, note.note ?? "", note.bookTitle, note.bookAuthor, note.sourceDisplay]
         .join(" ")
         .toLowerCase();
 
@@ -144,11 +144,12 @@ export function BookNotesExplorer({ notes, tags }: BookNotesExplorerProps) {
                 <p>
                   <a
                     className="underline decoration-transparent underline-offset-4 transition hover:decoration-current hover:text-accent"
-                    href={getLogseqUrl(note.originType, note.originFile)}
+                    href={getLogseqUrl(note.originType, note.originFile, note.blockId)}
                   >
                     {note.bookTitle}
                   </a>
                 </p>
+                {note.sourceLocator ? <p>{note.sourceLocator}</p> : null}
               </div>
 
               <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -160,7 +161,7 @@ export function BookNotesExplorer({ notes, tags }: BookNotesExplorerProps) {
                 </Link>
                 <a
                   className="rounded-full border border-line px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted transition hover:border-accent hover:text-accent"
-                  href={getLogseqUrl(note.originType, note.originFile)}
+                  href={getLogseqUrl(note.originType, note.originFile, note.blockId)}
                 >
                   Logseq
                 </a>

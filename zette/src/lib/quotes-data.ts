@@ -13,6 +13,8 @@ export type QuoteRecord = {
   sourcePageTitle: string;
   sourceDisplay: string;
   note: string | null;
+  sourceLocator?: string | null;
+  blockId?: string | null;
   tags: string[];
   originType: string;
   originFile: string;

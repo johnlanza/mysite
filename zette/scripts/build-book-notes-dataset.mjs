@@ -121,6 +121,20 @@ function stripTagsAndMarkers(value) {
   return cleanupInlineMarkup(stripped).trim();
 }
 
+function isExplicitNoteLine(line) {
+  return /^\s*Note:/i.test(line);
+}
+
+function extractExplicitNoteText(line) {
+  return cleanupInlineMarkup(
+    line
+      .replace(/^\s*Note:\s*/i, "")
+      .replace(MY_QUOTES_PATTERN, " ")
+      .replace(/#(?:\[\[([^\]]+)\]\]|([a-zA-Z0-9/_-]+))/g, "$1$2")
+      .replace(/\s+/g, " "),
+  ).trim() || null;
+}
+
 function splitMyWordsNote(line) {
   const match = line.match(MY_WORDS_PATTERN);
 
@@ -232,18 +246,37 @@ function normalizeBookNoteText(text) {
     .trim();
 }
 
+function extractSourceLocator(line) {
+  const match = line.match(/\bLocation:\s*([0-9,.-]+)/i);
+  return match ? `Location ${match[1]}` : null;
+}
+
 function wordCount(text) {
   return text.split(/\s+/).filter(Boolean).length;
 }
 
 function findAnchorEntry(lines, tagIndex) {
   const currentSplit = splitMyWordsNote(lines[tagIndex]);
-  const current = normalizeBookNoteText(stripTagsAndMarkers(lines[tagIndex]));
+  const explicitCurrentNote = isExplicitNoteLine(lines[tagIndex])
+    ? extractExplicitNoteText(lines[tagIndex])
+    : null;
+  const current =
+    explicitCurrentNote ?? normalizeBookNoteText(stripTagsAndMarkers(lines[tagIndex]));
+  let sourceLocator = null;
 
-  if (current && !isMetaLine(current) && wordCount(current) >= 6) {
+  for (let index = tagIndex - 1; index >= Math.max(0, tagIndex - 3); index -= 1) {
+    sourceLocator = extractSourceLocator(lines[index]);
+
+    if (sourceLocator) {
+      break;
+    }
+  }
+
+  if (!explicitCurrentNote && current && !isMetaLine(current) && wordCount(current) >= 6) {
     return {
       text: current,
       note: currentSplit.note,
+      sourceLocator,
     };
   }
 
@@ -257,18 +290,29 @@ function findAnchorEntry(lines, tagIndex) {
 
     if (wordCount(candidate) >= 4) {
       const currentSuffix =
-        current && !isMetaLine(current) && current !== candidate ? ` ${current}` : "";
+        !explicitCurrentNote &&
+        current &&
+        !isMetaLine(current) &&
+        current !== candidate
+          ? ` ${current}`
+          : "";
       return {
         text: `${candidate}${currentSuffix}`.trim(),
-        note: combineNotes([candidateSplit.note, currentSplit.note]),
+        note: combineNotes([
+          candidateSplit.note,
+          explicitCurrentNote,
+          currentSplit.note,
+        ]),
+        sourceLocator,
       };
     }
   }
 
-  if (current && !isMetaLine(current)) {
+  if (!explicitCurrentNote && current && !isMetaLine(current)) {
     return {
       text: current,
       note: currentSplit.note,
+      sourceLocator,
     };
   }
 
@@ -282,13 +326,19 @@ function findAnchorEntry(lines, tagIndex) {
 
     return {
       text: candidate,
-      note: combineNotes([currentSplit.note, candidateSplit.note]),
+      note: combineNotes([
+        explicitCurrentNote,
+        currentSplit.note,
+        candidateSplit.note,
+      ]),
+      sourceLocator,
     };
   }
 
   return {
     text: null,
-    note: currentSplit.note,
+    note: combineNotes([explicitCurrentNote, currentSplit.note]),
+    sourceLocator,
   };
 }
 
@@ -429,6 +479,8 @@ async function main() {
         bookAuthor,
         sourcePageTitle,
         sourceDisplay: bookTitle,
+        sourceLocator: anchor.sourceLocator,
+        blockId: null,
         tags,
         originType: "pages",
         originFile,

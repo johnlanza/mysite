@@ -12,6 +12,8 @@ type QuoteRecord = {
   source: string | null;
   sourceDisplay: string;
   note: string | null;
+  sourceLocator?: string | null;
+  blockId?: string | null;
   tags: string[];
   originType: string;
   originFile: string;
@@ -177,11 +179,12 @@ export function QuotesExplorer({ quotes, tags }: QuotesExplorerProps) {
                 <p>
                   <a
                     className="underline decoration-transparent underline-offset-4 transition hover:decoration-current hover:text-accent"
-                    href={getLogseqUrl(quote.originType, quote.originFile)}
+                    href={getLogseqUrl(quote.originType, quote.originFile, quote.blockId)}
                   >
                     {quote.sourceDisplay}
                   </a>
                 </p>
+                {quote.sourceLocator ? <p>{quote.sourceLocator}</p> : null}
               </div>
 
               <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -193,7 +196,7 @@ export function QuotesExplorer({ quotes, tags }: QuotesExplorerProps) {
                 </Link>
                 <a
                   className="rounded-full border border-line px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted transition hover:border-accent hover:text-accent"
-                  href={getLogseqUrl(quote.originType, quote.originFile)}
+                  href={getLogseqUrl(quote.originType, quote.originFile, quote.blockId)}
                 >
                   Logseq
                 </a>

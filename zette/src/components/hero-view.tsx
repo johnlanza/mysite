@@ -62,7 +62,7 @@ export function HeroView({
 
   const toggleHref =
     buildNowHref(piece, isSeed, !echoesOpen, selectedTags) + "#echoes";
-  const logseqUrl = getLogseqUrl(piece.originType, piece.originFile);
+  const logseqUrl = getLogseqUrl(piece.originType, piece.originFile, piece.blockId);
   const isBrowse = selectedTags.length > 0 && isSeed;
 
   return (
@@ -151,6 +151,12 @@ export function HeroView({
                 <span aria-hidden="true">↗</span>
                 <span>Open in Logseq</span>
               </a>
+
+              {piece.sourceLocator ? (
+                <p className="mt-2 font-sans text-[0.68rem] font-medium uppercase tracking-[0.22em] text-muted/55">
+                  {piece.sourceLocator}
+                </p>
+              ) : null}
 
               {piece.tags.length > 0 ? (
                 <ul className="mt-7 flex flex-wrap gap-1.5">

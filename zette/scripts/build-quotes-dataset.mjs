@@ -181,6 +181,10 @@ function findPreferredLinkedSource(text) {
   return null;
 }
 
+function isStandalonePageRefLine(line) {
+  return /^\s*\[\[[^\]]+\]\]\s*$/.test(line);
+}
+
 function stripTagsAndMarkers(value) {
   const split = splitMyWordsNote(value);
   let stripped = split.quoteLine
@@ -675,6 +679,8 @@ function createQuoteEntry({ quoteText, author, source, tags, note, meta, index }
       originType: meta.originType,
     }),
     note: cleanupInlineMarkup(note ?? "").trim() || null,
+    sourceLocator: null,
+    blockId: null,
     tags,
     originType: meta.originType,
     originFile: meta.originFile,
@@ -737,6 +743,12 @@ function extractQuoteBlockEntry(block, meta, index) {
       const sourceDetails = extractBookStyleSourceDetails(sourceText);
       source = sourceDetails.source ?? sourceText;
       author ??= sourceDetails.author;
+      encounteredSource = true;
+      continue;
+    }
+
+    if (!encounteredSource && isStandalonePageRefLine(line)) {
+      source ??= cleanupSource(contentLine);
       encounteredSource = true;
       continue;
     }

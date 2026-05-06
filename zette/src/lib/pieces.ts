@@ -14,6 +14,8 @@ export type Piece = {
   context: string | null;
   note: string | null;
   sourceDisplay: string;
+  sourceLocator: string | null;
+  blockId: string | null;
   tags: string[];
   originType: string;
   originFile: string;
@@ -28,6 +30,8 @@ function quoteToPiece(q: QuoteRecord): Piece {
     context: q.source,
     note: q.note,
     sourceDisplay: q.sourceDisplay,
+    sourceLocator: q.sourceLocator ?? null,
+    blockId: q.blockId ?? null,
     tags: q.tags,
     originType: q.originType,
     originFile: q.originFile,
@@ -43,6 +47,8 @@ function noteToPiece(n: BookNoteRecord): Piece {
     context: n.bookTitle || null,
     note: n.note,
     sourceDisplay: n.sourceDisplay,
+    sourceLocator: n.sourceLocator ?? null,
+    blockId: n.blockId ?? null,
     tags: n.tags,
     originType: n.originType,
     originFile: n.originFile,

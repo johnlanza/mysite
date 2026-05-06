@@ -13,6 +13,8 @@ export type BookNoteRecord = {
   bookAuthor: string;
   sourcePageTitle: string;
   sourceDisplay: string;
+  sourceLocator?: string | null;
+  blockId?: string | null;
   tags: string[];
   originType: string;
   originFile: string;

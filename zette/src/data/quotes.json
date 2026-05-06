@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-28T13:59:25.069Z",
+  "generatedAt": "2026-05-06T14:35:02.932Z",
   "sourceDirectories": [
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/journals",
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages"
@@ -48,8 +48,8 @@
   "stats": {
     "totalQuotes": 314,
     "taggedQuotes": 138,
-    "suspiciousQuotes": 115,
-    "newQuotes": 1
+    "suspiciousQuotes": 114,
+    "newQuotes": 7
   },
   "quotes": [
     {
@@ -60,6 +60,8 @@
       "sourcePageTitle": "2026_02_28",
       "sourceDisplay": "2026_02_28",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2026_02_28.md",
@@ -78,6 +80,8 @@
       "sourcePageTitle": "2022_10_08",
       "sourceDisplay": "Luis (from Venezuela), Ciari, Karen, Josh on phone.",
       "note": "Contrast with hard determinism and lack of free will.",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "idea",
         "mw",
@@ -100,6 +104,8 @@
       "sourcePageTitle": "2022_12_30",
       "sourceDisplay": "james clear",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "life"
       ],
@@ -118,6 +124,8 @@
       "sourcePageTitle": "2024_11_11",
       "sourceDisplay": "2024_11_11",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw"
       ],
@@ -138,6 +146,8 @@
       "sourcePageTitle": "The Almanack of Naval Ravikant: A Guide to Wealth and Happiness | Naval Ravikant",
       "sourceDisplay": "The Almanack of Naval Ravikant: A Guide to Wealth and Happiness | Naval Ravikant",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "life"
       ],
@@ -156,6 +166,8 @@
       "sourcePageTitle": "2023_01_14",
       "sourceDisplay": "King Lear",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_01_14.md",
@@ -172,6 +184,8 @@
       "sourcePageTitle": "kids are worth it! Revised Edition: Giving Your Child the Gift of Inner Discipline | Barbara Coloroso",
       "sourceDisplay": "kids are worth it! Revised Edition: Giving Your Child the Gift of Inner Discipline | Barbara Coloroso",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "kids are worth it! Revised Edition%3A Giving Your Child the Gift of Inner Discipline %7C Barbara Coloroso.md",
@@ -188,6 +202,8 @@
       "sourcePageTitle": "Gut Feelings: The Intelligence of the Unconscious | Gerd Gigerenzer",
       "sourceDisplay": "Gut Feelings: The Intelligence of the Unconscious | Gerd Gigerenzer",
       "note": "This might be what must happen to get to",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "business",
         "enough",
@@ -197,7 +213,7 @@
       "originType": "pages",
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -209,6 +225,8 @@
       "sourcePageTitle": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "sourceDisplay": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
@@ -225,6 +243,8 @@
       "sourcePageTitle": "Tao Te Ching | Lao Tzu | Ursula K. LeGuin",
       "sourceDisplay": "Tao Te Ching | Lao Tzu | Ursula K. LeGuin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "to memorize"
       ],
@@ -243,6 +263,8 @@
       "sourcePageTitle": "2023_08_17",
       "sourceDisplay": "The Tao Te Ching",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw",
         "profound"
@@ -262,6 +284,8 @@
       "sourcePageTitle": "2023_01_21",
       "sourceDisplay": "James Clear",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw"
       ],
@@ -280,6 +304,8 @@
       "sourcePageTitle": "2023_08_28",
       "sourceDisplay": "2023_08_28",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_08_28.md",
@@ -298,6 +324,8 @@
       "sourcePageTitle": "2024_10_07",
       "sourceDisplay": "farnam street",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2024_10_07.md",
@@ -314,6 +342,8 @@
       "sourcePageTitle": "2025_01_10",
       "sourceDisplay": "*Machines Like Me*",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2025_01_10.md",
@@ -330,6 +360,8 @@
       "sourcePageTitle": "2025_07_31",
       "sourceDisplay": "2025_07_31",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2025_07_31.md",
@@ -348,6 +380,8 @@
       "sourcePageTitle": "Essentialism: The Disciplined Pursuit of Less | Greg McKeown",
       "sourceDisplay": "Essentialism: The Disciplined Pursuit of Less | Greg McKeown",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Essentialism%3A The Disciplined Pursuit of Less %7C Greg McKeown.md",
@@ -364,6 +398,8 @@
       "sourcePageTitle": "The Almanack of Naval Ravikant: A Guide to Wealth and Happiness | Naval Ravikant",
       "sourceDisplay": "The Almanack of Naval Ravikant: A Guide to Wealth and Happiness | Naval Ravikant",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
@@ -380,6 +416,8 @@
       "sourcePageTitle": "The Lessons of History | Will and Ariel Durant",
       "sourceDisplay": "The Lessons of History | Will and Ariel Durant",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
@@ -396,6 +434,8 @@
       "sourcePageTitle": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
       "sourceDisplay": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Daily Stoic %7C Ryan Holiday & Stephen Hanselman.md",
@@ -412,6 +452,8 @@
       "sourcePageTitle": "Gut Feelings: The Intelligence of the Unconscious | Gerd Gigerenzer",
       "sourceDisplay": "Gut Feelings: The Intelligence of the Unconscious | Gerd Gigerenzer",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
@@ -428,6 +470,8 @@
       "sourcePageTitle": "Tao Te Ching | Lao Tzu | Ursula K. LeGuin",
       "sourceDisplay": "Tao Te Ching | Lao Tzu | Ursula K. LeGuin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Tao Te Ching %7C Lao Tzu %7C Ursula K. LeGuin.md",
@@ -444,6 +488,8 @@
       "sourcePageTitle": "The Art of Spending Money: Simple Choices for a Richer Life | Morgan Housel",
       "sourceDisplay": "The Art of Spending Money: Simple Choices for a Richer Life | Morgan Housel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
@@ -460,6 +506,8 @@
       "sourcePageTitle": "2024_01_10",
       "sourceDisplay": "2024_01_10",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2024_01_10.md",
@@ -478,6 +526,8 @@
       "sourcePageTitle": "2025_11_06",
       "sourceDisplay": "2025_11_06",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2025_11_06.md",
@@ -496,6 +546,8 @@
       "sourcePageTitle": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "sourceDisplay": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "A Calendar of Wisdom%3A Daily Thoughts to Nourish the Soul %7C Leo Tolstoy and Peter Sekirin.md",
@@ -512,6 +564,8 @@
       "sourcePageTitle": "2024_07_14",
       "sourceDisplay": "The HP Way",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2024_07_14.md",
@@ -528,6 +582,8 @@
       "sourcePageTitle": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones | James Clear",
       "sourceDisplay": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones | James Clear",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "enough",
         "post"
@@ -547,6 +603,8 @@
       "sourcePageTitle": "2024_09_24",
       "sourceDisplay": "ryan holiday",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "goals",
         "habits",
@@ -570,6 +628,8 @@
       "sourcePageTitle": "2023_03_06",
       "sourceDisplay": "2023_03_06",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "business"
       ],
@@ -590,6 +650,8 @@
       "sourcePageTitle": "Humankind: A Hopeful History | Rutger Bregman, Erica Moore, and Elizabeth Manton",
       "sourceDisplay": "Humankind",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Humankind%3A A Hopeful History %7C Rutger Bregman, Erica Moore, and Elizabeth Manton.md",
@@ -606,6 +668,8 @@
       "sourcePageTitle": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
       "sourceDisplay": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "new"
       ],
@@ -624,6 +688,8 @@
       "sourcePageTitle": "2024_04_09",
       "sourceDisplay": "2024_04_09",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "adocards",
         "life",
@@ -647,6 +713,8 @@
       "sourcePageTitle": "2023_02_25",
       "sourceDisplay": "Founders Podcast",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw"
       ],
@@ -665,6 +733,8 @@
       "sourcePageTitle": "2024_06_30",
       "sourceDisplay": "2024_06_30",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "post"
       ],
@@ -685,6 +755,8 @@
       "sourcePageTitle": "Same as Ever: A Guide to What Never Changes | Morgan Housel",
       "sourceDisplay": "Same as Ever: A Guide to What Never Changes | Morgan Housel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -703,6 +775,8 @@
       "sourcePageTitle": "Gut Feelings: The Intelligence of the Unconscious | Gerd Gigerenzer",
       "sourceDisplay": "Gut Feelings: The Intelligence of the Unconscious | Gerd Gigerenzer",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -721,6 +795,8 @@
       "sourcePageTitle": "2022_06_08",
       "sourceDisplay": "2022_06_08",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2022_06_08.md",
@@ -739,6 +815,8 @@
       "sourcePageTitle": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
       "sourceDisplay": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "life"
       ],
@@ -757,6 +835,8 @@
       "sourcePageTitle": "2022_12_31",
       "sourceDisplay": "Quote storage system using queries and smartblocks",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "decision making",
         "notable quotes"
@@ -776,6 +856,8 @@
       "sourcePageTitle": "2025_03_28",
       "sourceDisplay": "2025_03_28",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2025_03_28.md",
@@ -795,6 +877,8 @@
       "sourcePageTitle": "Deep Work: Rules for Focused Success in a Distracted World | Cal Newport",
       "sourceDisplay": "Deep Work: Rules for Focused Success in a Distracted World | Cal Newport",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Deep Work%3A Rules for Focused Success in a Distracted World %7C Cal Newport.md",
@@ -811,6 +895,8 @@
       "sourcePageTitle": "The Psychology of Money: Timeless lessons on wealth, greed, and happiness | Morgan Housel",
       "sourceDisplay": "The Psychology of Money: Timeless lessons on wealth, greed, and happiness | Morgan Housel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "life"
       ],
@@ -829,6 +915,8 @@
       "sourcePageTitle": "The Lessons of History | Will and Ariel Durant",
       "sourceDisplay": "The Lessons of History | Will and Ariel Durant",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
@@ -839,12 +927,14 @@
     },
     {
       "id": "journals:2023_06_19.md:0",
-      "text": "Design is the fundamental soul of a manmade creation that ends up expressing itself in successive outer layers of the product or service.\" Founders Podcast",
+      "text": "Design is the fundamental soul of a manmade creation that ends up expressing itself in successive outer layers of the product or service.",
       "author": "Steve Jobs",
       "source": "founders podcast",
       "sourcePageTitle": "2023_06_19",
       "sourceDisplay": "founders podcast",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "business",
         "profound"
@@ -852,7 +942,7 @@
       "originType": "journals",
       "originFile": "2023_06_19.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -864,6 +954,8 @@
       "sourcePageTitle": "The Almanack of Naval Ravikant: A Guide to Wealth and Happiness | Naval Ravikant",
       "sourceDisplay": "The Almanack of Naval Ravikant: A Guide to Wealth and Happiness | Naval Ravikant",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -882,6 +974,8 @@
       "sourcePageTitle": "2023_11_25",
       "sourceDisplay": "2023_11_25",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -903,6 +997,8 @@
       "sourcePageTitle": "Clear Thinking: Turning Ordinary Moments into Extraordinary Results | Shane Parrish",
       "sourceDisplay": "Clear Thinking: Turning Ordinary Moments into Extraordinary Results | Shane Parrish",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md",
@@ -919,6 +1015,8 @@
       "sourcePageTitle": "2025_07_26",
       "sourceDisplay": "Benjamin Franklin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2025_07_26.md",
@@ -935,6 +1033,8 @@
       "sourcePageTitle": "2023_04_28",
       "sourceDisplay": "2023_04_28",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "kevin kelly"
       ],
@@ -956,6 +1056,8 @@
       "sourcePageTitle": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "sourceDisplay": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
@@ -972,6 +1074,8 @@
       "sourcePageTitle": "2026_01_09",
       "sourceDisplay": "2026_01_09",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw",
         "profound"
@@ -993,6 +1097,8 @@
       "sourcePageTitle": "2024_02_14",
       "sourceDisplay": "2024_02_14",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2024_02_14.md",
@@ -1013,6 +1119,8 @@
       "sourcePageTitle": "The Psychology of Money: Timeless lessons on wealth, greed, and happiness | Morgan Housel",
       "sourceDisplay": "The Psychology of Money: Timeless lessons on wealth, greed, and happiness | Morgan Housel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Psychology of Money%3A Timeless lessons on wealth, greed, and happiness %7C Morgan Housel.md",
@@ -1029,6 +1137,8 @@
       "sourcePageTitle": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "sourceDisplay": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
@@ -1039,22 +1149,22 @@
     },
     {
       "id": "journals:2023_04_27.md:0",
-      "text": "Everyone has an incomplete view of the world. But we form a complete narrative to fill in the gaps.” Morgan Housel",
+      "text": "Everyone has an incomplete view of the world. But we form a complete narrative to fill in the gaps.",
       "author": "Morgan Housel",
-      "source": null,
+      "source": "Morgan Housel",
       "sourcePageTitle": "2023_04_27",
-      "sourceDisplay": "2023_04_27",
+      "sourceDisplay": "Morgan Housel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
       "originType": "journals",
       "originFile": "2023_04_27.md",
       "review": {
-        "isNew": false,
-        "flags": [
-          "journal-date-fallback"
-        ]
+        "isNew": true,
+        "flags": []
       }
     },
     {
@@ -1065,6 +1175,8 @@
       "sourcePageTitle": "2023_01_06",
       "sourceDisplay": "2023_01_06",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "money"
       ],
@@ -1085,6 +1197,8 @@
       "sourcePageTitle": "The Art of Spending Money: Simple Choices for a Richer Life | Morgan Housel",
       "sourceDisplay": "The Art of Spending Money: Simple Choices for a Richer Life | Morgan Housel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -1103,6 +1217,8 @@
       "sourcePageTitle": "2023_10_18",
       "sourceDisplay": "Looking for Alaska",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "post"
       ],
@@ -1121,6 +1237,8 @@
       "sourcePageTitle": "2025_04_19",
       "sourceDisplay": "2025_04_19",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "idea",
         "my questions"
@@ -1143,6 +1261,8 @@
       "sourcePageTitle": "Clear Thinking: Turning Ordinary Moments into Extraordinary Results | Shane Parrish",
       "sourceDisplay": "Clear Thinking: Turning Ordinary Moments into Extraordinary Results | Shane Parrish",
       "note": "Of course, he was an alcoholic. Perhaps he never could deal. Perhaps he felt he didn't have a first-rate intelligence.",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw"
       ],
@@ -1161,6 +1281,8 @@
       "sourcePageTitle": "2023_07_10",
       "sourceDisplay": "2023_07_10",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_07_10.md",
@@ -1179,6 +1301,8 @@
       "sourcePageTitle": "2022_09_21",
       "sourceDisplay": "2022_09_21",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "post"
       ],
@@ -1199,6 +1323,8 @@
       "sourcePageTitle": "Finite and Infinte Games | James Carse",
       "sourceDisplay": "Finite and Infinte Games | James Carse",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -1217,6 +1343,8 @@
       "sourcePageTitle": "2023_10_09",
       "sourceDisplay": "2023_10_09",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -1237,6 +1365,8 @@
       "sourcePageTitle": "The Psychology of Money: Timeless lessons on wealth, greed, and happiness | Morgan Housel",
       "sourceDisplay": "The Psychology of Money: Timeless lessons on wealth, greed, and happiness | Morgan Housel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Psychology of Money%3A Timeless lessons on wealth, greed, and happiness %7C Morgan Housel.md",
@@ -1253,6 +1383,8 @@
       "sourcePageTitle": "2024_03_03",
       "sourceDisplay": "2024_03_03",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "business",
         "life",
@@ -1275,6 +1407,8 @@
       "sourcePageTitle": "2024_03_03",
       "sourceDisplay": "ryan holiday",
       "note": "I want creative output and personal relationships. Not social life.",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw"
       ],
@@ -1296,6 +1430,8 @@
       "sourcePageTitle": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones | James Clear",
       "sourceDisplay": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones | James Clear",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Atomic Habits%3A An Easy & Proven Way to Build Good Habits & Break Bad Ones %7C James Clear.md",
@@ -1312,6 +1448,8 @@
       "sourcePageTitle": "2024_05_12",
       "sourceDisplay": "2024_05_12",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "my questions",
         "podcast club"
@@ -1334,6 +1472,8 @@
       "sourcePageTitle": "2021_11_15",
       "sourceDisplay": "farnam street",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "decision making"
       ],
@@ -1354,6 +1494,8 @@
       "sourcePageTitle": "2024_05_07",
       "sourceDisplay": "AI key tenets of financial literacy from Perplexity",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2024_05_07.md",
@@ -1370,6 +1512,8 @@
       "sourcePageTitle": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones | James Clear",
       "sourceDisplay": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones | James Clear",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "post"
       ],
@@ -1388,6 +1532,8 @@
       "sourcePageTitle": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones | James Clear",
       "sourceDisplay": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones | James Clear",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "post"
       ],
@@ -1406,6 +1552,8 @@
       "sourcePageTitle": "2022_12_18",
       "sourceDisplay": "2022_12_18",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2022_12_18.md",
@@ -1424,6 +1572,8 @@
       "sourcePageTitle": "Man's Search for Meaning | Viktor E. Frankl, Harold S. Kushner, and William J. Winslade",
       "sourceDisplay": "Man's Search for Meaning | Viktor E. Frankl, Harold S. Kushner, and William J. Winslade",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Man's Search for Meaning %7C Viktor E. Frankl, Harold S. Kushner, and William J. Winslade.md",
@@ -1440,6 +1590,8 @@
       "sourcePageTitle": "2025_01_10",
       "sourceDisplay": "2025_01_10",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "quick capture",
         "to watch"
@@ -1462,6 +1614,8 @@
       "sourcePageTitle": "2025_12_03",
       "sourceDisplay": "2025_12_03",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2025_12_03.md",
@@ -1480,6 +1634,8 @@
       "sourcePageTitle": "Tao Te Ching | Lao Tzu | Ursula K. LeGuin",
       "sourceDisplay": "Tao Te Ching | Lao Tzu | Ursula K. LeGuin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "post",
         "to memorize"
@@ -1499,6 +1655,8 @@
       "sourcePageTitle": "The Practice: Shipping Creative Work | Seth Godin",
       "sourceDisplay": "The Practice: Shipping Creative Work | Seth Godin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
@@ -1515,6 +1673,8 @@
       "sourcePageTitle": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
       "sourceDisplay": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "new"
       ],
@@ -1533,6 +1693,8 @@
       "sourcePageTitle": "2025_08_27",
       "sourceDisplay": "2025_08_27",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2025_08_27.md",
@@ -1551,6 +1713,8 @@
       "sourcePageTitle": "Keep Going: 10 Ways to Stay Creative in Good Times and Bad | Austin Kleon",
       "sourceDisplay": "Keep Going: 10 Ways to Stay Creative in Good Times and Bad | Austin Kleon",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "funny"
       ],
@@ -1569,6 +1733,8 @@
       "sourcePageTitle": "Same as Ever: A Guide to What Never Changes | Morgan Housel",
       "sourceDisplay": "Same as Ever: A Guide to What Never Changes | Morgan Housel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
@@ -1585,6 +1751,8 @@
       "sourcePageTitle": "2023_10_09",
       "sourceDisplay": "2023_10_09",
       "note": "Can replace poet w artist.",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "life",
         "mw"
@@ -1606,6 +1774,8 @@
       "sourcePageTitle": "2024_06_21",
       "sourceDisplay": "2024_06_21",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "decision making",
         "marketing",
@@ -1628,6 +1798,8 @@
       "sourcePageTitle": "2022_07_28",
       "sourceDisplay": "James Clear",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "life",
         "mw",
@@ -1648,6 +1820,8 @@
       "sourcePageTitle": "2023_12_20",
       "sourceDisplay": "2023_12_20",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_12_20.md",
@@ -1666,6 +1840,8 @@
       "sourcePageTitle": "Keep Going: 10 Ways to Stay Creative in Good Times and Bad | Austin Kleon",
       "sourceDisplay": "Keep Going: 10 Ways to Stay Creative in Good Times and Bad | Austin Kleon",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Keep Going%3A 10 Ways to Stay Creative in Good Times and Bad %7C Austin Kleon.md",
@@ -1682,6 +1858,8 @@
       "sourcePageTitle": "2021_11_15",
       "sourceDisplay": "2021_11_15",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "decision making",
         "mw",
@@ -1704,6 +1882,8 @@
       "sourcePageTitle": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "sourceDisplay": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
@@ -1720,6 +1900,8 @@
       "sourcePageTitle": "2025_12_09",
       "sourceDisplay": "2025_12_09",
       "note": "I love this sentiment. It's how I'd like to live too. And I can. There's no reason not to.",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "article"
       ],
@@ -1740,6 +1922,8 @@
       "sourcePageTitle": "2022_12_30",
       "sourceDisplay": "James Clear",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "life",
         "profound"
@@ -1759,6 +1943,8 @@
       "sourcePageTitle": "2024_01_16",
       "sourceDisplay": "2024_01_16",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -1780,6 +1966,8 @@
       "sourcePageTitle": "The Psychology of Money: Timeless lessons on wealth, greed, and happiness | Morgan Housel",
       "sourceDisplay": "The Psychology of Money: Timeless lessons on wealth, greed, and happiness | Morgan Housel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Psychology of Money%3A Timeless lessons on wealth, greed, and happiness %7C Morgan Housel.md",
@@ -1796,6 +1984,8 @@
       "sourcePageTitle": "2026_04_13",
       "sourceDisplay": "2026_04_13",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2026_04_13.md",
@@ -1814,6 +2004,8 @@
       "sourcePageTitle": "The Almanack of Naval Ravikant: A Guide to Wealth and Happiness | Naval Ravikant",
       "sourceDisplay": "The Almanack of Naval Ravikant: A Guide to Wealth and Happiness | Naval Ravikant",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
@@ -1830,6 +2022,8 @@
       "sourcePageTitle": "2024_03_01",
       "sourceDisplay": "2024_03_01",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "my affirmations"
       ],
@@ -1850,6 +2044,8 @@
       "sourcePageTitle": "2026_02_15",
       "sourceDisplay": "Tara Mohr",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2026_02_15.md",
@@ -1868,6 +2064,8 @@
       "sourcePageTitle": "2022_10_26",
       "sourceDisplay": "2022_10_26",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "enough",
         "life"
@@ -1889,6 +2087,8 @@
       "sourcePageTitle": "2024_07_14",
       "sourceDisplay": "The HP Way",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2024_07_14.md",
@@ -1908,6 +2108,8 @@
       "sourcePageTitle": "2023_01_22",
       "sourceDisplay": "Kara Lynn Joyce, three-time Olympic swimmer",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "interesting",
         "mw"
@@ -1929,6 +2131,8 @@
       "sourcePageTitle": "kids are worth it! Revised Edition: Giving Your Child the Gift of Inner Discipline | Barbara Coloroso",
       "sourceDisplay": "kids are worth it! Revised Edition: Giving Your Child the Gift of Inner Discipline | Barbara Coloroso",
       "note": "Echoes . Not surprising. He was a mentor.",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw",
         "steve jobs"
@@ -1948,6 +2152,8 @@
       "sourcePageTitle": "2023_01_27",
       "sourceDisplay": "tim ferriss",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_01_27.md",
@@ -1964,6 +2170,8 @@
       "sourcePageTitle": "2022_06_11",
       "sourceDisplay": "tim ferriss",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2022_06_11.md",
@@ -1980,6 +2188,8 @@
       "sourcePageTitle": "The War of Art | Steven Pressfield and Shawn Coyne",
       "sourceDisplay": "The War of Art | Steven Pressfield and Shawn Coyne",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The War of Art %7C Steven Pressfield and Shawn Coyne.md",
@@ -1996,6 +2206,8 @@
       "sourcePageTitle": "2025_08_25",
       "sourceDisplay": "2025_08_25",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2025_08_25.md",
@@ -2014,6 +2226,8 @@
       "sourcePageTitle": "2023_02_25",
       "sourceDisplay": "Founders Podcast",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw"
       ],
@@ -2027,20 +2241,22 @@
     {
       "id": "journals:2023_05_12.md:0",
       "text": "Identity fuels action, and action creates habits, and habits are part of a practice, and a practice is the single best way to get where you seek to go.",
-      "author": "Seth Godin",
-      "source": null,
+      "author": null,
+      "source": "Seth Godin",
       "sourcePageTitle": "2023_05_12",
-      "sourceDisplay": "2023_05_12",
+      "sourceDisplay": "Seth Godin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "post"
       ],
       "originType": "journals",
       "originFile": "2023_05_12.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
-          "journal-date-fallback"
+          "missing-author"
         ]
       }
     },
@@ -2052,6 +2268,8 @@
       "sourcePageTitle": "The Practice: Shipping Creative Work | Seth Godin",
       "sourceDisplay": "The Practice: Shipping Creative Work | Seth Godin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -2070,6 +2288,8 @@
       "sourcePageTitle": "2023_05_18",
       "sourceDisplay": "Seth Godin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -2088,6 +2308,8 @@
       "sourcePageTitle": "The Almanack of Naval Ravikant: A Guide to Wealth and Happiness | Naval Ravikant",
       "sourceDisplay": "The Almanack of Naval Ravikant: A Guide to Wealth and Happiness | Naval Ravikant",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
@@ -2104,6 +2326,8 @@
       "sourcePageTitle": "The Almanack of Naval Ravikant: A Guide to Wealth and Happiness | Naval Ravikant",
       "sourceDisplay": "The Almanack of Naval Ravikant: A Guide to Wealth and Happiness | Naval Ravikant",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
@@ -2120,6 +2344,8 @@
       "sourcePageTitle": "2023_02_25",
       "sourceDisplay": "Founders Podcast",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "post"
       ],
@@ -2138,6 +2364,8 @@
       "sourcePageTitle": "2023_11_17",
       "sourceDisplay": "2023_11_17",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_11_17.md",
@@ -2156,6 +2384,8 @@
       "sourcePageTitle": "Bird by Bird: Some Instructions on Writing and Life | Anne Lamott",
       "sourceDisplay": "Anne Lamott",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Bird by Bird%3A Some Instructions on Writing and Life %7C Anne Lamott.md",
@@ -2172,6 +2402,8 @@
       "sourcePageTitle": "2022_09_23",
       "sourceDisplay": "james clear",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2022_09_23.md",
@@ -2188,6 +2420,8 @@
       "sourcePageTitle": "2023_10_09",
       "sourceDisplay": "2023_10_09",
       "note": "emergent properties of art) in the work they cease at once being observers. They find themselves in its time, aware that it remains unfinished, aware that their reading of the poetry is itself poetry. Infected then by the genius of the artist they recover their own genius, becoming beginners with nothing but possibility ahead of them.\"",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw",
         "profound"
@@ -2210,6 +2444,8 @@
       "sourcePageTitle": "2023_01_11",
       "sourceDisplay": "The Art of Learning",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw"
       ],
@@ -2228,6 +2464,8 @@
       "sourcePageTitle": "2023_04_07",
       "sourceDisplay": "2023_04_07",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_04_07.md",
@@ -2246,6 +2484,8 @@
       "sourcePageTitle": "Escape from Freedom | Erich Fromm",
       "sourceDisplay": "Escape from Freedom | Erich Fromm",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "enough"
       ],
@@ -2264,6 +2504,8 @@
       "sourcePageTitle": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "sourceDisplay": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "A Calendar of Wisdom%3A Daily Thoughts to Nourish the Soul %7C Leo Tolstoy and Peter Sekirin.md",
@@ -2280,6 +2522,8 @@
       "sourcePageTitle": "2023_10_09",
       "sourceDisplay": "2023_10_09",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "post"
       ],
@@ -2300,6 +2544,8 @@
       "sourcePageTitle": "2023_10_23",
       "sourceDisplay": "2023_10_23",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "podcast club"
       ],
@@ -2320,6 +2566,8 @@
       "sourcePageTitle": "2022_09_08",
       "sourceDisplay": "James Clear",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2022_09_08.md",
@@ -2336,6 +2584,8 @@
       "sourcePageTitle": "Gut Feelings: The Intelligence of the Unconscious | Gerd Gigerenzer",
       "sourceDisplay": "Gut Feelings",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "post",
         "profound"
@@ -2355,6 +2605,8 @@
       "sourcePageTitle": "2024_11_27",
       "sourceDisplay": "2024_11_27",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "enough",
         "surprise"
@@ -2377,6 +2629,8 @@
       "sourcePageTitle": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "sourceDisplay": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "A Calendar of Wisdom%3A Daily Thoughts to Nourish the Soul %7C Leo Tolstoy and Peter Sekirin.md",
@@ -2393,6 +2647,8 @@
       "sourcePageTitle": "Deep Work: Rules for Focused Success in a Distracted World | Cal Newport",
       "sourceDisplay": "Deep Work: Rules for Focused Success in a Distracted World | Cal Newport",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -2411,6 +2667,8 @@
       "sourcePageTitle": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "sourceDisplay": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "ponder"
       ],
@@ -2429,6 +2687,8 @@
       "sourcePageTitle": "2022_06_01",
       "sourceDisplay": "ryan holiday",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "experience",
         "life",
@@ -2451,6 +2711,8 @@
       "sourcePageTitle": "On the Shortness of Life | Seneca",
       "sourceDisplay": "On the Shortness of Life | Seneca",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -2469,6 +2731,8 @@
       "sourcePageTitle": "2025_08_29",
       "sourceDisplay": "2025_08_29",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -2489,6 +2753,8 @@
       "sourcePageTitle": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "sourceDisplay": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "A Calendar of Wisdom%3A Daily Thoughts to Nourish the Soul %7C Leo Tolstoy and Peter Sekirin.md",
@@ -2505,6 +2771,8 @@
       "sourcePageTitle": "2021_11_30",
       "sourceDisplay": "2021_11_30",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2021_11_30.md",
@@ -2523,6 +2791,8 @@
       "sourcePageTitle": "2022_07_30",
       "sourceDisplay": "David Perell on the importance of imitating to become yourself.",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2022_07_30.md",
@@ -2539,6 +2809,8 @@
       "sourcePageTitle": "2023_01_11",
       "sourceDisplay": "The Art of Possibility",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw"
       ],
@@ -2557,6 +2829,8 @@
       "sourcePageTitle": "Essentialism: The Disciplined Pursuit of Less | Greg McKeown",
       "sourceDisplay": "Essentialism: The Disciplined Pursuit of Less | Greg McKeown",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Essentialism%3A The Disciplined Pursuit of Less %7C Greg McKeown.md",
@@ -2573,6 +2847,8 @@
       "sourcePageTitle": "2025_04_12",
       "sourceDisplay": "2025_04_12",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "quick capture"
       ],
@@ -2593,6 +2869,8 @@
       "sourcePageTitle": "Essentialism: The Disciplined Pursuit of Less | Greg McKeown",
       "sourceDisplay": "Essentialism: The Disciplined Pursuit of Less | Greg McKeown",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Essentialism%3A The Disciplined Pursuit of Less %7C Greg McKeown.md",
@@ -2609,6 +2887,8 @@
       "sourcePageTitle": "The Practice: Shipping Creative Work | Seth Godin",
       "sourceDisplay": "The Practice: Shipping Creative Work | Seth Godin",
       "note": "Management is dying. Leadership is living. —JWL",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw"
       ],
@@ -2627,6 +2907,8 @@
       "sourcePageTitle": "2024_07_15",
       "sourceDisplay": "2024_07_15",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2024_07_15.md",
@@ -2645,6 +2927,8 @@
       "sourcePageTitle": "The Art of Spending Money: Simple Choices for a Richer Life | Morgan Housel",
       "sourceDisplay": "The Art of Spending Money: Simple Choices for a Richer Life | Morgan Housel",
       "note": "Like when we went to Disney and the Chase Center w Claire. Wonderful.",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "life",
         "mw",
@@ -2665,6 +2949,8 @@
       "sourcePageTitle": "2026_03_12",
       "sourceDisplay": "2026_03_12",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "podcast club",
         "post"
@@ -2686,6 +2972,8 @@
       "sourcePageTitle": "2025_08_21",
       "sourceDisplay": "2025_08_21",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2025_08_21.md",
@@ -2704,6 +2992,8 @@
       "sourcePageTitle": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
       "sourceDisplay": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "new"
       ],
@@ -2722,6 +3012,8 @@
       "sourcePageTitle": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "sourceDisplay": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "note": "Very Tao",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
@@ -2738,6 +3030,8 @@
       "sourcePageTitle": "2023_01_22",
       "sourceDisplay": "Tips to improve your memory from",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_01_22.md",
@@ -2754,6 +3048,8 @@
       "sourcePageTitle": "The Art of Spending Money: Simple Choices for a Richer Life | Morgan Housel",
       "sourceDisplay": "The Art of Spending Money: Simple Choices for a Richer Life | Morgan Housel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
@@ -2770,6 +3066,8 @@
       "sourcePageTitle": "2022_06_01",
       "sourceDisplay": "Icarus Deception",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2022_06_01.md",
@@ -2786,6 +3084,8 @@
       "sourcePageTitle": "Tao Te Ching | Lao Tzu | Ursula K. LeGuin",
       "sourceDisplay": "Tao Te Ching | Lao Tzu | Ursula K. LeGuin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "life",
         "profound"
@@ -2805,6 +3105,8 @@
       "sourcePageTitle": "2023_02_25",
       "sourceDisplay": "founders podcast",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "post",
         "profound"
@@ -2824,6 +3126,8 @@
       "sourcePageTitle": "The Daily Laws: 366 Meditations | Robert Greene",
       "sourceDisplay": "The Daily Laws: 366 Meditations | Robert Greene",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Daily Laws%3A 366 Meditations %7C Robert Greene.md",
@@ -2840,6 +3144,8 @@
       "sourcePageTitle": "2023_01_01",
       "sourceDisplay": "2023_01_01",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_01_01.md",
@@ -2858,6 +3164,8 @@
       "sourcePageTitle": "2021_11_29",
       "sourceDisplay": "https://fs.blog/how-to-be-happy/",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2021_11_29.md",
@@ -2874,6 +3182,8 @@
       "sourcePageTitle": "The Almanack of Naval Ravikant: A Guide to Wealth and Happiness | Naval Ravikant",
       "sourceDisplay": "The Almanack of Naval Ravikant: A Guide to Wealth and Happiness | Naval Ravikant",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
@@ -2890,6 +3200,8 @@
       "sourcePageTitle": "kids are worth it! Revised Edition: Giving Your Child the Gift of Inner Discipline | Barbara Coloroso",
       "sourceDisplay": "kids are worth it! Revised Edition: Giving Your Child the Gift of Inner Discipline | Barbara Coloroso",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "kids are worth it! Revised Edition%3A Giving Your Child the Gift of Inner Discipline %7C Barbara Coloroso.md",
@@ -2906,6 +3218,8 @@
       "sourcePageTitle": "2023_10_09",
       "sourceDisplay": "2023_10_09",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "post"
       ],
@@ -2926,6 +3240,8 @@
       "sourcePageTitle": "Succeed: How We Can Reach Our Goals | Heidi Grant Halvorson Ph.D. and Carol S. Dweck",
       "sourceDisplay": "Succeed: How We Can Reach Our Goals | Heidi Grant Halvorson Ph.D. and Carol S. Dweck",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Succeed%3A How We Can Reach Our Goals %7C Heidi Grant Halvorson Ph.D. and Carol S. Dweck.md",
@@ -2942,6 +3258,8 @@
       "sourcePageTitle": "2024_09_17",
       "sourceDisplay": "founders podcast",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2024_09_17.md",
@@ -2953,17 +3271,21 @@
     {
       "id": "journals:2023_04_06.md:0",
       "text": "Money plays an important role in life, but it can't be the only filter for how you decide to spend your time. Nobody will ever pay you to go on a date with your spouse or take your kids to the park or grab coffee with your parents.",
-      "author": "James Clear",
+      "author": null,
       "source": "james clear",
       "sourcePageTitle": "2023_04_06",
       "sourceDisplay": "james clear",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_04_06.md",
       "review": {
-        "isNew": false,
-        "flags": []
+        "isNew": true,
+        "flags": [
+          "missing-author"
+        ]
       }
     },
     {
@@ -2974,6 +3296,8 @@
       "sourcePageTitle": "The Psychology of Money: Timeless lessons on wealth, greed, and happiness | Morgan Housel",
       "sourceDisplay": "The Psychology of Money: Timeless lessons on wealth, greed, and happiness | Morgan Housel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Psychology of Money%3A Timeless lessons on wealth, greed, and happiness %7C Morgan Housel.md",
@@ -2990,6 +3314,8 @@
       "sourcePageTitle": "2025_10_18",
       "sourceDisplay": "AI is killing the web",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2025_10_18.md",
@@ -3008,6 +3334,8 @@
       "sourcePageTitle": "2021_11_18",
       "sourceDisplay": "james clear",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2021_11_18.md",
@@ -3024,6 +3352,8 @@
       "sourcePageTitle": "2025_09_29",
       "sourceDisplay": "2025_09_29",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2025_09_29.md",
@@ -3042,6 +3372,8 @@
       "sourcePageTitle": "Gut Feelings: The Intelligence of the Unconscious | Gerd Gigerenzer",
       "sourceDisplay": "Gut Feelings: The Intelligence of the Unconscious | Gerd Gigerenzer",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -3060,6 +3392,8 @@
       "sourcePageTitle": "2026_01_12",
       "sourceDisplay": "2026_01_12",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "article",
         "profound"
@@ -3081,6 +3415,8 @@
       "sourcePageTitle": "2024_03_04",
       "sourceDisplay": "2024_03_04",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2024_03_04.md",
@@ -3099,6 +3435,8 @@
       "sourcePageTitle": "Tao Te Ching | Lao Tzu | Ursula K. LeGuin",
       "sourceDisplay": "Tao Te Ching | Lao Tzu | Ursula K. LeGuin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Tao Te Ching %7C Lao Tzu %7C Ursula K. LeGuin.md",
@@ -3115,6 +3453,8 @@
       "sourcePageTitle": "2024_11_15",
       "sourceDisplay": "2024_11_15",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2024_11_15.md",
@@ -3133,6 +3473,8 @@
       "sourcePageTitle": "kids are worth it! Revised Edition: Giving Your Child the Gift of Inner Discipline | Barbara Coloroso",
       "sourceDisplay": "kids are worth it! Revised Edition: Giving Your Child the Gift of Inner Discipline | Barbara Coloroso",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -3151,6 +3493,8 @@
       "sourcePageTitle": "Keep Going: 10 Ways to Stay Creative in Good Times and Bad | Austin Kleon",
       "sourceDisplay": "Keep Going: 10 Ways to Stay Creative in Good Times and Bad | Austin Kleon",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "selectnotes"
       ],
@@ -3169,6 +3513,8 @@
       "sourcePageTitle": "Clear Thinking: Turning Ordinary Moments into Extraordinary Results | Shane Parrish",
       "sourceDisplay": "Clear Thinking: Turning Ordinary Moments into Extraordinary Results | Shane Parrish",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "business"
       ],
@@ -3187,6 +3533,8 @@
       "sourcePageTitle": "Thinking Fast and Slow | Daniel Kahneman",
       "sourceDisplay": "Thinking Fast and Slow | Daniel Kahneman",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "post",
         "profound"
@@ -3206,6 +3554,8 @@
       "sourcePageTitle": "The Daily Laws: 366 Meditations | Robert Greene",
       "sourceDisplay": "The Daily Laws: 366 Meditations | Robert Greene",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Daily Laws%3A 366 Meditations %7C Robert Greene.md",
@@ -3222,6 +3572,8 @@
       "sourcePageTitle": "2023_10_04",
       "sourceDisplay": "2023_10_04",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_10_04.md",
@@ -3241,6 +3593,8 @@
       "sourcePageTitle": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "sourceDisplay": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
@@ -3259,6 +3613,8 @@
       "sourcePageTitle": "2022_12_18",
       "sourceDisplay": "2022_12_18",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "david perell",
         "life"
@@ -3280,6 +3636,8 @@
       "sourcePageTitle": "Zero to One: Notes on Startups, or How to Build the Future | Peter Thiel",
       "sourceDisplay": "Zero to One: Notes on Startups, or How to Build the Future | Peter Thiel",
       "note": "No grand plans. No money as tool. Visualization matters. This is why I have chosen to separate myself from the day-to-day. I need to about how to keep abreast of general trends without getting caught up in the day-to-day.",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw",
         "post",
@@ -3300,6 +3658,8 @@
       "sourcePageTitle": "Richer, Wiser, Happier: How the World's Greatest Investors Win in Markets and Life",
       "sourceDisplay": "Richer, Wiser, Happier: How the World's Greatest Investors Win in Markets and Life",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Richer, Wiser, Happier%3A How the World's Greatest Investors Win in Markets and Life.md",
@@ -3316,6 +3676,8 @@
       "sourcePageTitle": "2022_10_28",
       "sourceDisplay": "Maria Popova",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "enough",
         "life",
@@ -3338,6 +3700,8 @@
       "sourcePageTitle": "The Psychology of Money: Timeless lessons on wealth, greed, and happiness | Morgan Housel",
       "sourceDisplay": "The Psychology of Money: Timeless lessons on wealth, greed, and happiness | Morgan Housel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Psychology of Money%3A Timeless lessons on wealth, greed, and happiness %7C Morgan Housel.md",
@@ -3354,6 +3718,8 @@
       "sourcePageTitle": "2023_10_09",
       "sourceDisplay": "2023_10_09",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_10_09.md",
@@ -3372,6 +3738,8 @@
       "sourcePageTitle": "The Art of Spending Money: Simple Choices for a Richer Life | Morgan Housel",
       "sourceDisplay": "The Art of Spending Money: Simple Choices for a Richer Life | Morgan Housel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -3390,6 +3758,8 @@
       "sourcePageTitle": "2025_03_26",
       "sourceDisplay": "2025_03_26",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2025_03_26.md",
@@ -3409,6 +3779,8 @@
       "sourcePageTitle": "2023_02_21",
       "sourceDisplay": "Founders Podcast on Steve Jobs by Walter Isaacson",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_02_21.md",
@@ -3425,6 +3797,8 @@
       "sourcePageTitle": "Same as Ever: A Guide to What Never Changes | Morgan Housel",
       "sourceDisplay": "Same as Ever: A Guide to What Never Changes | Morgan Housel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
@@ -3441,6 +3815,8 @@
       "sourcePageTitle": "2023_10_18",
       "sourceDisplay": "2023_10_18",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_10_18.md",
@@ -3459,6 +3835,8 @@
       "sourcePageTitle": "The 4-Hour Workweek, Expanded and Updated | Timothy Ferriss",
       "sourceDisplay": "The 4-Hour Workweek, Expanded and Updated | Timothy Ferriss",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The 4-Hour Workweek, Expanded and Updated %7C Timothy Ferriss.md",
@@ -3475,6 +3853,8 @@
       "sourcePageTitle": "2022_08_03",
       "sourceDisplay": "the profile",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2022_08_03.md",
@@ -3491,6 +3871,8 @@
       "sourcePageTitle": "2022_10_16",
       "sourceDisplay": "David Perell",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2022_10_16.md",
@@ -3507,6 +3889,8 @@
       "sourcePageTitle": "2024_04_09",
       "sourceDisplay": "2024_04_09",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2024_04_09.md",
@@ -3525,6 +3909,8 @@
       "sourcePageTitle": "2022_01_05",
       "sourceDisplay": "Psyche",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2022_01_05.md",
@@ -3543,6 +3929,8 @@
       "sourcePageTitle": "2025_12_09",
       "sourceDisplay": "2025_12_09",
       "note": "I love this sentiment. It's how I'd like to live too. And I can. There's no reason not to.",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw",
         "profound"
@@ -3564,6 +3952,8 @@
       "sourcePageTitle": "2023_10_09",
       "sourceDisplay": "2023_10_09",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "post"
       ],
@@ -3584,6 +3974,8 @@
       "sourcePageTitle": "2025_12_15",
       "sourceDisplay": "2025_12_15",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "article"
       ],
@@ -3604,6 +3996,8 @@
       "sourcePageTitle": "Clear Thinking: Turning Ordinary Moments into Extraordinary Results | Shane Parrish",
       "sourceDisplay": "Clear Thinking: Turning Ordinary Moments into Extraordinary Results | Shane Parrish",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md",
@@ -3620,6 +4014,8 @@
       "sourcePageTitle": "2023_02_23",
       "sourceDisplay": "2023_02_23",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_02_23.md",
@@ -3638,6 +4034,8 @@
       "sourcePageTitle": "2023_11_13",
       "sourceDisplay": "2023_11_13",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_11_13.md",
@@ -3656,6 +4054,8 @@
       "sourcePageTitle": "2023_01_11",
       "sourceDisplay": "The Art of Possibility",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -3674,6 +4074,8 @@
       "sourcePageTitle": "2026_02_15",
       "sourceDisplay": "Tara Mohr",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2026_02_15.md",
@@ -3692,6 +4094,8 @@
       "sourcePageTitle": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
       "sourceDisplay": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
       "note": "Great line.",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw",
         "new"
@@ -3711,6 +4115,8 @@
       "sourcePageTitle": "2023_02_15",
       "sourceDisplay": "Founders Podcast",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_02_15.md",
@@ -3727,6 +4133,8 @@
       "sourcePageTitle": "2021_12_02",
       "sourceDisplay": "James Clear",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "life",
         "post",
@@ -3747,6 +4155,8 @@
       "sourcePageTitle": "2022_10_26",
       "sourceDisplay": "2022_10_26",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "enough",
         "mw"
@@ -3768,6 +4178,8 @@
       "sourcePageTitle": "The Almanack of Naval Ravikant: A Guide to Wealth and Happiness | Naval Ravikant",
       "sourceDisplay": "The Almanack of Naval Ravikant: A Guide to Wealth and Happiness | Naval Ravikant",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Almanack of Naval Ravikant%3A A Guide to Wealth and Happiness %7C Naval Ravikant.md",
@@ -3784,6 +4196,8 @@
       "sourcePageTitle": "The Psychology of Money: Timeless lessons on wealth, greed, and happiness | Morgan Housel",
       "sourceDisplay": "The Psychology of Money: Timeless lessons on wealth, greed, and happiness | Morgan Housel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "enough",
         "life",
@@ -3805,6 +4219,8 @@
       "sourcePageTitle": "2026_03_07",
       "sourceDisplay": "2026_03_07",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2026_03_07.md",
@@ -3823,6 +4239,8 @@
       "sourcePageTitle": "2026_02_09",
       "sourceDisplay": "2026_02_09",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -3843,6 +4261,8 @@
       "sourcePageTitle": "2024_09_23",
       "sourceDisplay": "Bertrand Russell",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2024_09_23.md",
@@ -3853,12 +4273,14 @@
     },
     {
       "id": "journals:2023_04_07.md:1",
-      "text": "The cliche goes like this: live each day as if it were your last. The best way to take this advice is to do exactly the opposite: live each day as if you would live forever.” David Perell",
+      "text": "The cliche goes like this: live each day as if it were your last. The best way to take this advice is to do exactly the opposite: live each day as if you would live forever.",
       "author": "Peter Thiel",
-      "source": null,
+      "source": "David Perell",
       "sourcePageTitle": "2023_04_07",
-      "sourceDisplay": "2023_04_07",
+      "sourceDisplay": "David Perell",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw",
         "profound"
@@ -3866,10 +4288,8 @@
       "originType": "journals",
       "originFile": "2023_04_07.md",
       "review": {
-        "isNew": false,
-        "flags": [
-          "journal-date-fallback"
-        ]
+        "isNew": true,
+        "flags": []
       }
     },
     {
@@ -3880,6 +4300,8 @@
       "sourcePageTitle": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "sourceDisplay": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
@@ -3896,6 +4318,8 @@
       "sourcePageTitle": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "sourceDisplay": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "note": "True. Perhaps",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "A Calendar of Wisdom%3A Daily Thoughts to Nourish the Soul %7C Leo Tolstoy and Peter Sekirin.md",
@@ -3912,6 +4336,8 @@
       "sourcePageTitle": "Same as Ever: A Guide to What Never Changes | Morgan Housel",
       "sourceDisplay": "Same as Ever: A Guide to What Never Changes | Morgan Housel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
@@ -3928,6 +4354,8 @@
       "sourcePageTitle": "2022_12_08",
       "sourceDisplay": "James Clear",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2022_12_08.md",
@@ -3944,6 +4372,8 @@
       "sourcePageTitle": "Same as Ever: A Guide to What Never Changes | Morgan Housel",
       "sourceDisplay": "Same as Ever: A Guide to What Never Changes | Morgan Housel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
@@ -3960,6 +4390,8 @@
       "sourcePageTitle": "Richer, Wiser, Happier: How the World's Greatest Investors Win in Markets and Life",
       "sourceDisplay": "Richer, Wiser, Happier: How the World's Greatest Investors Win in Markets and Life",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Richer, Wiser, Happier%3A How the World's Greatest Investors Win in Markets and Life.md",
@@ -3978,6 +4410,8 @@
       "sourcePageTitle": "Keep Going: 10 Ways to Stay Creative in Good Times and Bad | Austin Kleon",
       "sourceDisplay": "Keep Going: 10 Ways to Stay Creative in Good Times and Bad | Austin Kleon",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "selectnotes"
       ],
@@ -3996,6 +4430,8 @@
       "sourcePageTitle": "2024_05_15",
       "sourceDisplay": "2024_05_15",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "post"
       ],
@@ -4016,6 +4452,8 @@
       "sourcePageTitle": "2023_02_13",
       "sourceDisplay": "Praxis and David Perell",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_02_13.md",
@@ -4032,6 +4470,8 @@
       "sourcePageTitle": "2023_01_04",
       "sourceDisplay": "2023_01_04",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_01_04.md",
@@ -4050,6 +4490,8 @@
       "sourcePageTitle": "2026_03_29",
       "sourceDisplay": "Five Bullet Friday",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2026_03_29.md",
@@ -4066,6 +4508,8 @@
       "sourcePageTitle": "The Psychology of Money: Timeless lessons on wealth, greed, and happiness | Morgan Housel",
       "sourceDisplay": "The Psychology of Money: Timeless lessons on wealth, greed, and happiness | Morgan Housel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "post"
       ],
@@ -4084,6 +4528,8 @@
       "sourcePageTitle": "Show Your Work!: 10 Ways to Share Your Creativity and Get Discovered | Austin Kleon",
       "sourceDisplay": "Show Your Work!: 10 Ways to Share Your Creativity and Get Discovered | Austin Kleon",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Show Your Work!%3A 10 Ways to Share Your Creativity and Get Discovered %7C Austin Kleon.md",
@@ -4100,6 +4546,8 @@
       "sourcePageTitle": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "sourceDisplay": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "A Calendar of Wisdom%3A Daily Thoughts to Nourish the Soul %7C Leo Tolstoy and Peter Sekirin.md",
@@ -4116,6 +4564,8 @@
       "sourcePageTitle": "2023_10_09",
       "sourceDisplay": "2023_10_09",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mywords"
       ],
@@ -4130,19 +4580,21 @@
     },
     {
       "id": "journals:2022_09_23.md:2",
-      "text": "The only man I know who behaves sensibly is my tailor; he takes my measurements anew each time he sees me. The rest go on with their old measurements and expect me to fit them.” tim ferriss",
+      "text": "The only man I know who behaves sensibly is my tailor; he takes my measurements anew each time he sees me. The rest go on with their old measurements and expect me to fit them.",
       "author": "George Bernard Shaw",
       "source": "tim ferriss",
       "sourcePageTitle": "2022_09_23",
       "sourceDisplay": "tim ferriss",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
       "originType": "journals",
       "originFile": "2022_09_23.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -4154,6 +4606,8 @@
       "sourcePageTitle": "The Lessons of History | Will and Ariel Durant",
       "sourceDisplay": "The Lessons of History | Will and Ariel Durant",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -4172,6 +4626,8 @@
       "sourcePageTitle": "The Daily Laws: 366 Meditations | Robert Greene",
       "sourceDisplay": "The Daily Laws: 366 Meditations | Robert Greene",
       "note": "Happens to me in Catan against my friends. So begin by generating the illusion that you’re all working together on a team effort; then slowly nibble away.",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Daily Laws%3A 366 Meditations %7C Robert Greene.md",
@@ -4188,6 +4644,8 @@
       "sourcePageTitle": "2024_09_30",
       "sourceDisplay": "tim ferriss",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2024_09_30.md",
@@ -4204,6 +4662,8 @@
       "sourcePageTitle": "Clear Thinking: Turning Ordinary Moments into Extraordinary Results | Shane Parrish",
       "sourceDisplay": "Clear Thinking: Turning Ordinary Moments into Extraordinary Results | Shane Parrish",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md",
@@ -4220,6 +4680,8 @@
       "sourcePageTitle": "2024_05_12",
       "sourceDisplay": "2024_05_12",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2024_05_12.md",
@@ -4240,6 +4702,8 @@
       "sourcePageTitle": "2025_07_01",
       "sourceDisplay": "2025_07_01",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2025_07_01.md",
@@ -4259,6 +4723,8 @@
       "sourcePageTitle": "The 4-Hour Workweek, Expanded and Updated | Timothy Ferriss",
       "sourceDisplay": "The 4-Hour Workweek, Expanded and Updated | Timothy Ferriss",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The 4-Hour Workweek, Expanded and Updated %7C Timothy Ferriss.md",
@@ -4275,6 +4741,8 @@
       "sourcePageTitle": "kids are worth it! Revised Edition: Giving Your Child the Gift of Inner Discipline | Barbara Coloroso",
       "sourceDisplay": "kids are worth it! Revised Edition: Giving Your Child the Gift of Inner Discipline | Barbara Coloroso",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "kids are worth it! Revised Edition%3A Giving Your Child the Gift of Inner Discipline %7C Barbara Coloroso.md",
@@ -4291,6 +4759,8 @@
       "sourcePageTitle": "2023_03_06",
       "sourceDisplay": "2023_03_06",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "business"
       ],
@@ -4311,6 +4781,8 @@
       "sourcePageTitle": "The Practice: Shipping Creative Work | Seth Godin",
       "sourceDisplay": "The Practice: Shipping Creative Work | Seth Godin",
       "note": "\"Managers want guarantees. Leaders want possibility.\" —JWL",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw"
       ],
@@ -4329,6 +4801,8 @@
       "sourcePageTitle": "2023_01_11",
       "sourceDisplay": "The Art of Learning",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_01_11.md",
@@ -4345,6 +4819,8 @@
       "sourcePageTitle": "2023_10_18",
       "sourceDisplay": "2023_10_18",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_10_18.md",
@@ -4363,6 +4839,8 @@
       "sourcePageTitle": "The 4-Hour Workweek, Expanded and Updated | Timothy Ferriss",
       "sourceDisplay": "The 4-Hour Workweek, Expanded and Updated | Timothy Ferriss",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The 4-Hour Workweek, Expanded and Updated %7C Timothy Ferriss.md",
@@ -4379,6 +4857,8 @@
       "sourcePageTitle": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "sourceDisplay": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "A Calendar of Wisdom%3A Daily Thoughts to Nourish the Soul %7C Leo Tolstoy and Peter Sekirin.md",
@@ -4395,6 +4875,8 @@
       "sourcePageTitle": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
       "sourceDisplay": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "life"
       ],
@@ -4413,6 +4895,8 @@
       "sourcePageTitle": "Keep Going: 10 Ways to Stay Creative in Good Times and Bad | Austin Kleon",
       "sourceDisplay": "Keep Going: 10 Ways to Stay Creative in Good Times and Bad | Austin Kleon",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Keep Going%3A 10 Ways to Stay Creative in Good Times and Bad %7C Austin Kleon.md",
@@ -4429,6 +4913,8 @@
       "sourcePageTitle": "Keep Going: 10 Ways to Stay Creative in Good Times and Bad | Austin Kleon",
       "sourceDisplay": "Keep Going: 10 Ways to Stay Creative in Good Times and Bad | Austin Kleon",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Keep Going%3A 10 Ways to Stay Creative in Good Times and Bad %7C Austin Kleon.md",
@@ -4445,6 +4931,8 @@
       "sourcePageTitle": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "sourceDisplay": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "A Calendar of Wisdom%3A Daily Thoughts to Nourish the Soul %7C Leo Tolstoy and Peter Sekirin.md",
@@ -4461,6 +4949,8 @@
       "sourcePageTitle": "2023_02_15",
       "sourceDisplay": "Founders Podcast",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_02_15.md",
@@ -4477,6 +4967,8 @@
       "sourcePageTitle": "2023_08_10",
       "sourceDisplay": "2023_08_10",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -4497,6 +4989,8 @@
       "sourcePageTitle": "Thinking Fast and Slow | Daniel Kahneman",
       "sourceDisplay": "Thinking Fast and Slow | Daniel Kahneman",
       "note": "Also a problem in that our thoughts can lead us down dark roads.",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "bias",
         "life",
@@ -4519,6 +5013,8 @@
       "sourcePageTitle": "2023_02_02",
       "sourceDisplay": "james clear",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "life",
         "post"
@@ -4538,6 +5034,8 @@
       "sourcePageTitle": "Bird by Bird: Some Instructions on Writing and Life | Anne Lamott",
       "sourceDisplay": "Anne Lamott",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Bird by Bird%3A Some Instructions on Writing and Life %7C Anne Lamott.md",
@@ -4554,6 +5052,8 @@
       "sourcePageTitle": "2024_07_28",
       "sourceDisplay": "2024_07_28",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2024_07_28.md",
@@ -4572,6 +5072,8 @@
       "sourcePageTitle": "2023_10_18",
       "sourceDisplay": "2023_10_18",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_10_18.md",
@@ -4590,6 +5092,8 @@
       "sourcePageTitle": "The Art of Spending Money: Simple Choices for a Richer Life | Morgan Housel",
       "sourceDisplay": "The Art of Spending Money: Simple Choices for a Richer Life | Morgan Housel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
@@ -4606,6 +5110,8 @@
       "sourcePageTitle": "2022_06_17",
       "sourceDisplay": "2022_06_17",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2022_06_17.md",
@@ -4624,6 +5130,8 @@
       "sourcePageTitle": "The 4-Hour Workweek, Expanded and Updated | Timothy Ferriss",
       "sourceDisplay": "The 4-Hour Workweek, Expanded and Updated | Timothy Ferriss",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The 4-Hour Workweek, Expanded and Updated %7C Timothy Ferriss.md",
@@ -4640,6 +5148,8 @@
       "sourcePageTitle": "Bird by Bird: Some Instructions on Writing and Life | Anne Lamott",
       "sourceDisplay": "Anne Lamott",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Bird by Bird%3A Some Instructions on Writing and Life %7C Anne Lamott.md",
@@ -4656,6 +5166,8 @@
       "sourcePageTitle": "Learning Like a Girl: Educating Our Daughters in Schools of Their Own | Diana Meehan",
       "sourceDisplay": "Diana Meehan",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Learning Like a Girl%3A Educating Our Daughters in Schools of Their Own %7C Diana Meehan.md",
@@ -4672,6 +5184,8 @@
       "sourcePageTitle": "The 80___20 Principle: The Secret to Achieving More with Less | Richard Koch",
       "sourceDisplay": "The 80___20 Principle: The Secret to Achieving More with Less | Richard Koch",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The 80___20 Principle%3A The Secret to Achieving More with Less %7C Richard Koch.md",
@@ -4688,6 +5202,8 @@
       "sourcePageTitle": "Zero to One: Notes on Startups, or How to Build the Future | Peter Thiel",
       "sourceDisplay": "Zero to One: Notes on Startups, or How to Build the Future | Peter Thiel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Zero to One%3A Notes on Startups, or How to Build the Future %7C Peter Thiel.md",
@@ -4704,6 +5220,8 @@
       "sourcePageTitle": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "sourceDisplay": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
@@ -4722,6 +5240,8 @@
       "sourcePageTitle": "2022_06_13",
       "sourceDisplay": "Malcolm Gladwell TED talk about consumer preferences",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2022_06_13.md",
@@ -4738,6 +5258,8 @@
       "sourcePageTitle": "2025_07_30",
       "sourceDisplay": "2025_07_30",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2025_07_30.md",
@@ -4756,6 +5278,8 @@
       "sourcePageTitle": "2023_10_09",
       "sourceDisplay": "2023_10_09",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_10_09.md",
@@ -4774,6 +5298,8 @@
       "sourcePageTitle": "Finite and Infinte Games | James Carse",
       "sourceDisplay": "Finite and Infinte Games | James Carse",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -4792,6 +5318,8 @@
       "sourcePageTitle": "Escape from Freedom | Erich Fromm",
       "sourceDisplay": "Escape from Freedom | Erich Fromm",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "post",
         "profound"
@@ -4811,6 +5339,8 @@
       "sourcePageTitle": "2025_05_17",
       "sourceDisplay": "2025_05_17",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2025_05_17.md",
@@ -4829,6 +5359,8 @@
       "sourcePageTitle": "2022_10_16",
       "sourceDisplay": "2022_10_16",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw"
       ],
@@ -4849,6 +5381,8 @@
       "sourcePageTitle": "2025_12_03",
       "sourceDisplay": "2025_12_03",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "decision making"
       ],
@@ -4869,6 +5403,8 @@
       "sourcePageTitle": "2025_08_07",
       "sourceDisplay": "2025_08_07",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -4889,6 +5425,8 @@
       "sourcePageTitle": "2023_10_09",
       "sourceDisplay": "2023_10_09",
       "note": "Can replace poet w artist.",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw",
         "profound"
@@ -4910,6 +5448,8 @@
       "sourcePageTitle": "2026_01_14",
       "sourceDisplay": "2026_01_14",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "new"
       ],
@@ -4930,6 +5470,8 @@
       "sourcePageTitle": "Same as Ever: A Guide to What Never Changes | Morgan Housel",
       "sourceDisplay": "Same as Ever: A Guide to What Never Changes | Morgan Housel",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
@@ -4946,6 +5488,8 @@
       "sourcePageTitle": "2022_10_28",
       "sourceDisplay": "James Clear",
       "note": "All I need do is have some comfort and realize that it is fleeting.",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "life",
         "mw",
@@ -4967,6 +5511,8 @@
       "sourcePageTitle": "Happy Money: The Science of Smarter Spending | Elizabeth Dunn &  Michael Norton",
       "sourceDisplay": "Happy Money: The Science of Smarter Spending | Elizabeth Dunn &  Michael Norton",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -4985,6 +5531,8 @@
       "sourcePageTitle": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
       "sourceDisplay": "Some might see this line from Marcus as pessimistic, whereas others see it as optimistic. It’s really just truth.",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "new"
       ],
@@ -5005,6 +5553,8 @@
       "sourcePageTitle": "2022_06_07",
       "sourceDisplay": "2022_06_07",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "post"
       ],
@@ -5026,6 +5576,8 @@
       "sourcePageTitle": "The Lessons of History | Will and Ariel Durant",
       "sourceDisplay": "The Lessons of History | Will and Ariel Durant",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
@@ -5042,6 +5594,8 @@
       "sourcePageTitle": "2022_07_15",
       "sourceDisplay": "Friday Finds",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2022_07_15.md",
@@ -5058,6 +5612,8 @@
       "sourcePageTitle": "The Daily Laws: 366 Meditations | Robert Greene",
       "sourceDisplay": "The Daily Laws: 366 Meditations | Robert Greene",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "wisdom"
       ],
@@ -5076,6 +5632,8 @@
       "sourcePageTitle": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "sourceDisplay": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -5094,6 +5652,8 @@
       "sourcePageTitle": "Churchill | Paul Johnson",
       "sourceDisplay": "Churchill | Paul Johnson",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Churchill %7C Paul Johnson.md",
@@ -5110,6 +5670,8 @@
       "sourcePageTitle": "2023_11_20",
       "sourceDisplay": "2023_11_20",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_11_20.md",
@@ -5128,6 +5690,8 @@
       "sourcePageTitle": "2025_04_17",
       "sourceDisplay": "2025_04_17",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw"
       ],
@@ -5148,6 +5712,8 @@
       "sourcePageTitle": "2021_12_02",
       "sourceDisplay": "farnam street",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2021_12_02.md",
@@ -5164,6 +5730,8 @@
       "sourcePageTitle": "Keep Going: 10 Ways to Stay Creative in Good Times and Bad | Austin Kleon",
       "sourceDisplay": "Keep Going: 10 Ways to Stay Creative in Good Times and Bad | Austin Kleon",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Keep Going%3A 10 Ways to Stay Creative in Good Times and Bad %7C Austin Kleon.md",
@@ -5180,6 +5748,8 @@
       "sourcePageTitle": "2023_01_01",
       "sourceDisplay": "2023_01_01",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_01_01.md",
@@ -5198,6 +5768,8 @@
       "sourcePageTitle": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "sourceDisplay": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "A Calendar of Wisdom%3A Daily Thoughts to Nourish the Soul %7C Leo Tolstoy and Peter Sekirin.md",
@@ -5214,6 +5786,8 @@
       "sourcePageTitle": "2022_09_23",
       "sourceDisplay": "james clear",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2022_09_23.md",
@@ -5230,6 +5804,8 @@
       "sourcePageTitle": "2026_01_02",
       "sourceDisplay": "2026_01_02",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "life"
       ],
@@ -5252,6 +5828,8 @@
       "sourcePageTitle": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
       "sourceDisplay": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "new"
       ],
@@ -5270,6 +5848,8 @@
       "sourcePageTitle": "2025_11_10",
       "sourceDisplay": "tim ferriss",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2025_11_10.md",
@@ -5286,6 +5866,8 @@
       "sourcePageTitle": "2023_06_05",
       "sourceDisplay": "farnam street Esther Wojicki",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_06_05.md",
@@ -5304,6 +5886,8 @@
       "sourcePageTitle": "The Art of Learning: An Inner Journey to Optimal Performance | Josh Waitzkin",
       "sourceDisplay": "The Art of Learning: An Inner Journey to Optimal Performance | Josh Waitzkin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "life",
         "post",
@@ -5324,6 +5908,8 @@
       "sourcePageTitle": "2023_11_25",
       "sourceDisplay": "2023_11_25",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -5345,6 +5931,8 @@
       "sourcePageTitle": "The 4-Hour Workweek, Expanded and Updated | Timothy Ferriss",
       "sourceDisplay": "The 4-Hour Workweek, Expanded and Updated | Timothy Ferriss",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The 4-Hour Workweek, Expanded and Updated %7C Timothy Ferriss.md",
@@ -5361,6 +5949,8 @@
       "sourcePageTitle": "kids are worth it! Revised Edition: Giving Your Child the Gift of Inner Discipline | Barbara Coloroso",
       "sourceDisplay": "kids are worth it! Revised Edition: Giving Your Child the Gift of Inner Discipline | Barbara Coloroso",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "post",
         "profound"
@@ -5380,6 +5970,8 @@
       "sourcePageTitle": "2026_01_14",
       "sourceDisplay": "2026_01_14",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2026_01_14.md",
@@ -5398,6 +5990,8 @@
       "sourcePageTitle": "The Art of Spending Money: Simple Choices for a Richer Life | Morgan Housel",
       "sourceDisplay": "The Art of Spending Money: Simple Choices for a Richer Life | Morgan Housel",
       "note": "It's all about perspective.",
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw"
       ],
@@ -5416,6 +6010,8 @@
       "sourcePageTitle": "Bird by Bird: Some Instructions on Writing and Life | Anne Lamott",
       "sourceDisplay": "Bird by Bird: Some Instructions on Writing and Life | Anne Lamott",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "habits",
         "writing"
@@ -5435,6 +6031,8 @@
       "sourcePageTitle": "2023_01_25",
       "sourceDisplay": "foster",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_01_25.md",
@@ -5451,6 +6049,8 @@
       "sourcePageTitle": "Keep Going: 10 Ways to Stay Creative in Good Times and Bad | Austin Kleon",
       "sourceDisplay": "Keep Going: 10 Ways to Stay Creative in Good Times and Bad | Austin Kleon",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "mw"
       ],
@@ -5469,6 +6069,8 @@
       "sourcePageTitle": "2022_08_20",
       "sourceDisplay": "James Clear",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2022_08_20.md",
@@ -5485,6 +6087,8 @@
       "sourcePageTitle": "2024_10_07",
       "sourceDisplay": "farnam street",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2024_10_07.md",
@@ -5501,6 +6105,8 @@
       "sourcePageTitle": "The Practice: Shipping Creative Work | Seth Godin",
       "sourceDisplay": "The Practice: Shipping Creative Work | Seth Godin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
@@ -5517,6 +6123,8 @@
       "sourcePageTitle": "2025_04_05",
       "sourceDisplay": "tim ferriss",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2025_04_05.md",
@@ -5533,6 +6141,8 @@
       "sourcePageTitle": "2023_02_25",
       "sourceDisplay": "Founders Podcast",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_02_25.md",
@@ -5549,6 +6159,8 @@
       "sourcePageTitle": "2023_02_15",
       "sourceDisplay": "founders podcast",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2023_02_15.md",
@@ -5565,6 +6177,8 @@
       "sourcePageTitle": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "sourceDisplay": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -5583,6 +6197,8 @@
       "sourcePageTitle": "2021_11_18",
       "sourceDisplay": "james clear",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2021_11_18.md",
@@ -5599,6 +6215,8 @@
       "sourcePageTitle": "2025_09_23",
       "sourceDisplay": "2025_09_23",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "journals",
       "originFile": "2025_09_23.md",
@@ -5617,6 +6235,8 @@
       "sourcePageTitle": "2022_12_16",
       "sourceDisplay": "James Clear",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "business"
       ],
@@ -5635,6 +6255,8 @@
       "sourcePageTitle": "2025_12_15",
       "sourceDisplay": "2025_12_15",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [
         "profound"
       ],
@@ -5655,6 +6277,8 @@
       "sourcePageTitle": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "sourceDisplay": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "A Calendar of Wisdom%3A Daily Thoughts to Nourish the Soul %7C Leo Tolstoy and Peter Sekirin.md",
@@ -5665,17 +6289,19 @@
     },
     {
       "id": "pages:Bird by Bird%3A Some Instructions on Writing and Life %7C Anne Lamott.md:2",
-      "text": "Your child and your work hold you hostage, suck you dry, ruin your sleep, mess with your head, treat you like dirt, and then you discover they’ve given you that gold nugget you were looking for all along. Anne Lamott",
+      "text": "Your child and your work hold you hostage, suck you dry, ruin your sleep, mess with your head, treat you like dirt, and then you discover they’ve given you that gold nugget you were looking for all along",
       "author": "Anne Lamott",
-      "source": null,
+      "source": "Anne Lamott",
       "sourcePageTitle": "Bird by Bird: Some Instructions on Writing and Life | Anne Lamott",
-      "sourceDisplay": "Bird by Bird: Some Instructions on Writing and Life | Anne Lamott",
+      "sourceDisplay": "Anne Lamott",
       "note": null,
+      "sourceLocator": null,
+      "blockId": null,
       "tags": [],
       "originType": "pages",
       "originFile": "Bird by Bird%3A Some Instructions on Writing and Life %7C Anne Lamott.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     }
