@@ -48,12 +48,6 @@ export function isPreferredQuestion(question: QuestionRecord): boolean {
 export function getPreferredQuestionPool(
   questions: QuestionRecord[],
 ): QuestionRecord[] {
-  const preferred = questions.filter(isPreferredQuestion);
-
-  if (preferred.length > 0) {
-    return preferred;
-  }
-
   const powerful = questions.filter(
     (question) =>
       question.sourceDisplay === "My Questions" &&
@@ -62,6 +56,12 @@ export function getPreferredQuestionPool(
 
   if (powerful.length > 0) {
     return powerful;
+  }
+
+  const preferred = questions.filter(isPreferredQuestion);
+
+  if (preferred.length > 0) {
+    return preferred;
   }
 
   const myQuestionsPage = questions.filter(
