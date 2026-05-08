@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
 
 import { QuestionView } from "@/components/question-view";
-import { readQuestionsDataset } from "@/lib/questions-data";
+import {
+  getPreferredQuestionPool,
+  readQuestionsDataset,
+} from "@/lib/questions-data";
 
 export const dynamic = "force-dynamic";
 
@@ -22,10 +25,12 @@ export default async function QuestionsPage({ searchParams }: QuestionsPageProps
     notFound();
   }
 
+  const preferredPool = getPreferredQuestionPool(questions);
   const requested = params.q
     ? questions.find((question) => question.id === params.q) ?? null
     : null;
-  const current = requested ?? questions[pickRandomQuestionIndex(questions.length)];
+  const current =
+    requested ?? preferredPool[pickRandomQuestionIndex(preferredPool.length)];
 
   return <QuestionView question={current} total={questions.length} />;
 }

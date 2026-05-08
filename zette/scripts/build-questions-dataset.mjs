@@ -16,6 +16,7 @@ const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..")
 const OUTPUT_FILE = path.join(ROOT, "src/data/questions.json");
 const MY_QUESTIONS_PATTERN = /#?\[\[My Questions\]\]/i;
 const TAG_PATTERN = /(?:^|\s)#(?:\[\[([^\]]+)\]\]|([a-zA-Z0-9/_-]+))/g;
+const MY_QUESTIONS_PAGE_NAME = "My Questions";
 
 function decodeFileName(fileName) {
   return decodeURIComponent(fileName.replace(/\.md$/i, ""));
@@ -66,6 +67,10 @@ function sourceDisplayFor(originType, originFile) {
   }
 
   return pageTitle.split(" | ")[0]?.trim() ?? pageTitle;
+}
+
+function isMyQuestionsPage(originType, originFile) {
+  return originType === "pages" && decodeFileName(originFile) === MY_QUESTIONS_PAGE_NAME;
 }
 
 function stripQuestionMarkers(line) {
@@ -146,6 +151,24 @@ function cleanupQuestionText(line) {
   );
 }
 
+function shouldExtractQuestionLine(line, originType, originFile) {
+  if (MY_QUESTIONS_PATTERN.test(line)) {
+    return true;
+  }
+
+  if (!isMyQuestionsPage(originType, originFile)) {
+    return false;
+  }
+
+  const cleaned = stripQuestionMarkers(line);
+
+  if (!cleaned || /^\s*-?\s*[A-Z][^?]{0,80}$/.test(cleaned)) {
+    return false;
+  }
+
+  return isQuestionLike(cleaned);
+}
+
 function isMetaQuestion(text) {
   return /^(recommit to|pulling from|how do we add|i am creating a list of|my questions for tomorrow|questions for today)/i.test(
     text,
@@ -209,7 +232,7 @@ async function main() {
       for (let index = 0; index < lines.length; index += 1) {
         const line = lines[index];
 
-        if (!MY_QUESTIONS_PATTERN.test(line)) {
+        if (!shouldExtractQuestionLine(line, source.type, originFile)) {
           continue;
         }
 
