@@ -1,0 +1,417 @@
+{
+  "generatedAt": "2026-05-08T18:16:47.091Z",
+  "sourceDirectories": [
+    "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/journals",
+    "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages"
+  ],
+  "tags": [
+    "business",
+    "life",
+    "profound"
+  ],
+  "stats": {
+    "totalQuestions": 26,
+    "taggedQuestions": 4,
+    "newQuestions": 11
+  },
+  "questions": [
+    {
+      "id": "journals:2021_12_26.md:10",
+      "text": "Could this be what's happening in China with Xi's crackdown on Jack Ma and other tech billionaires?",
+      "sourceDisplay": "2021_12_26",
+      "sourcePageTitle": "2021_12_26",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2021_12_26.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2021_12_26.md:13",
+      "text": "Do we need property? And if so, what property has real value?",
+      "sourceDisplay": "2021_12_26",
+      "sourcePageTitle": "2021_12_26",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2021_12_26.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Zero to One%3A Notes on Startups, or How to Build the Future %7C Peter Thiel.md:221",
+      "text": "Every entrepreneur should plan to be the last mover in her particular market. That starts with asking yourself: what will the world look like 10 and 20 years from now, and how will my business fit in?",
+      "sourceDisplay": "Zero to One: Notes on Startups, or How to Build the Future",
+      "sourcePageTitle": "Zero to One: Notes on Startups, or How to Build the Future | Peter Thiel",
+      "sourceLocator": "Location 1,969",
+      "blockId": null,
+      "tags": [
+        "business"
+      ],
+      "originType": "pages",
+      "originFile": "Zero to One%3A Notes on Startups, or How to Build the Future %7C Peter Thiel.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2025_04_16.md:0",
+      "text": "How do I leverage the strengths and knowledge that I've built up.",
+      "sourceDisplay": "2025_04_16",
+      "sourcePageTitle": "2025_04_16",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2025_04_16.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2025_06_11.md:2",
+      "text": "How much does context in art matter to you?",
+      "sourceDisplay": "2025_06_11",
+      "sourcePageTitle": "2025_06_11",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2025_06_11.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md:60",
+      "text": "I wonder if the natural language movement is flawed.",
+      "sourceDisplay": "Gut Feelings: The Intelligence of the Unconscious",
+      "sourcePageTitle": "Gut Feelings: The Intelligence of the Unconscious | Gerd Gigerenzer",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "pages",
+      "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2024_02_22.md:1",
+      "text": "In what direction does society want to go that I can help?",
+      "sourceDisplay": "2024_02_22",
+      "sourcePageTitle": "2024_02_22",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "profound"
+      ],
+      "originType": "journals",
+      "originFile": "2024_02_22.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2021_12_26.md:30",
+      "text": "Is cyberspace a great equalizer?",
+      "sourceDisplay": "2021_12_26",
+      "sourcePageTitle": "2021_12_26",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2021_12_26.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2025_05_04.md:3",
+      "text": "Is my job meaningful to society?",
+      "sourceDisplay": "2025_05_04",
+      "sourcePageTitle": "2025_05_04",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2025_05_04.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2024_01_16.md:0",
+      "text": "Is this really the best way to do what I’m doing or am about to do?",
+      "sourceDisplay": "2024_01_16",
+      "sourcePageTitle": "2024_01_16",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2024_01_16.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2024_12_24.md:0",
+      "text": "So that the steaks matter more?",
+      "sourceDisplay": "2024_12_24",
+      "sourcePageTitle": "2024_12_24",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2024_12_24.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md:327",
+      "text": "So what do you do if your mother is sick and you want to know what your doctor really thinks?",
+      "sourceDisplay": "Gut Feelings: The Intelligence of the Unconscious",
+      "sourcePageTitle": "Gut Feelings: The Intelligence of the Unconscious | Gerd Gigerenzer",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "life"
+      ],
+      "originType": "pages",
+      "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2025_12_20.md:2",
+      "text": "What are the forces moving the world in a positive direction?",
+      "sourceDisplay": "2025_12_20",
+      "sourcePageTitle": "2025_12_20",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2025_12_20.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2023_09_11.md:4",
+      "text": "What do I want to do now. Or next?",
+      "sourceDisplay": "2023_09_11",
+      "sourcePageTitle": "2023_09_11",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2023_09_11.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2025_09_13.md:0",
+      "text": "What do you think of Walter Lippman’s comment that there can be no liberty for a community which lacks the means by which to detect lies?",
+      "sourceDisplay": "2025_09_13",
+      "sourcePageTitle": "2025_09_13",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2025_09_13.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:The 4-Hour Workweek, Expanded and Updated %7C Timothy Ferriss.md:302",
+      "text": "What makes you most angry about the state of the world? What are you most afraid of for the next generation, whether you have children or not? What makes you happiest in your life? How can you help others have the same?",
+      "sourceDisplay": "The 4-Hour Workweek, Expanded and Updated",
+      "sourcePageTitle": "The 4-Hour Workweek, Expanded and Updated | Timothy Ferriss",
+      "sourceLocator": "Location 4,996",
+      "blockId": null,
+      "tags": [],
+      "originType": "pages",
+      "originFile": "The 4-Hour Workweek, Expanded and Updated %7C Timothy Ferriss.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2026_01_02.md:13",
+      "text": "What pain do you want in your life? What are you willing to struggle for?",
+      "sourceDisplay": "2026_01_02",
+      "sourcePageTitle": "2026_01_02",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2026_01_02.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2024_01_16.md:1",
+      "text": "What would this look like if it were easy?",
+      "sourceDisplay": "2024_01_16",
+      "sourcePageTitle": "2024_01_16",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2024_01_16.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2025_09_12.md:4",
+      "text": "What's a time you changed your mind?",
+      "sourceDisplay": "2025_09_12",
+      "sourcePageTitle": "2025_09_12",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2025_09_12.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2025_06_11.md:3",
+      "text": "What’s your favorite joke?",
+      "sourceDisplay": "2025_06_11",
+      "sourcePageTitle": "2025_06_11",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2025_06_11.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2023_09_12.md:9",
+      "text": "When intelligent people read, they ask themselves a simple question: *What do I plan to do with this information?",
+      "sourceDisplay": "2023_09_12",
+      "sourcePageTitle": "2023_09_12",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2023_09_12.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md:316",
+      "text": "Whom should I hire for this project? I’m hiring a software developer, and I’d like to learn from your experiences. What skills matter and which ones can be learned on the job? Why? Where do I find the best people? How do I test these skills?",
+      "sourceDisplay": "Clear Thinking: Turning Ordinary Moments into Extraordinary Results",
+      "sourcePageTitle": "Clear Thinking: Turning Ordinary Moments into Extraordinary Results | Shane Parrish",
+      "sourceLocator": "Location 2,355",
+      "blockId": null,
+      "tags": [],
+      "originType": "pages",
+      "originFile": "Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md:38",
+      "text": "Will this action make the future easier or harder?",
+      "sourceDisplay": "Clear Thinking: Turning Ordinary Moments into Extraordinary Results",
+      "sourcePageTitle": "Clear Thinking: Turning Ordinary Moments into Extraordinary Results | Shane Parrish",
+      "sourceLocator": "Location 785",
+      "blockId": null,
+      "tags": [],
+      "originType": "pages",
+      "originFile": "Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2023_08_12.md:46",
+      "text": "Work to work on something just because it would be really interesting, what would you do? The answer is probably more important than it seems.",
+      "sourceDisplay": "2023_08_12",
+      "sourcePageTitle": "2023_08_12",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2023_08_12.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2023_07_13.md:0",
+      "text": "Would I advise someone to do what I’m going to do?",
+      "sourceDisplay": "2023_07_13",
+      "sourcePageTitle": "2023_07_13",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "life"
+      ],
+      "originType": "journals",
+      "originFile": "2023_07_13.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:How to Raise an Adult%3A Break Free of the Overparenting Trap and Prepare Your Kid for Success %7C Julie Lythcott-Haims.md:144",
+      "text": "You seem to love what you do. When and how did you figure out that’s what you wanted to do?",
+      "sourceDisplay": "How to Raise an Adult: Break Free of the Overparenting Trap and Prepare Your Kid for Success",
+      "sourcePageTitle": "How to Raise an Adult: Break Free of the Overparenting Trap and Prepare Your Kid for Success | Julie Lythcott-Haims",
+      "sourceLocator": "Location 4,231",
+      "blockId": null,
+      "tags": [],
+      "originType": "pages",
+      "originFile": "How to Raise an Adult%3A Break Free of the Overparenting Trap and Prepare Your Kid for Success %7C Julie Lythcott-Haims.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    }
+  ]
+}

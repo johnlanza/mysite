@@ -33,6 +33,7 @@ export async function POST() {
   for (const scriptName of [
     "build-quotes-dataset.mjs",
     "build-book-notes-dataset.mjs",
+    "build-questions-dataset.mjs",
     "build-embeddings.mjs",
   ]) {
     const errorResponse = await runScript(scriptName);

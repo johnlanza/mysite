@@ -133,19 +133,27 @@ export function PieceSearch({
               {selectedLabel || "Browse Zette"}
             </h1>
           </div>
-          <Link
-            href="/"
-            className="inline-flex w-fit items-center rounded-full border border-line bg-card/85 px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted shadow-[0_8px_24px_rgba(89,64,34,0.07)] transition hover:border-accent hover:text-accent"
-          >
-            Featured Card
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/questions"
+              className="inline-flex w-fit items-center rounded-full border border-line bg-card/85 px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted shadow-[0_8px_24px_rgba(89,64,34,0.07)] transition hover:border-accent hover:text-accent"
+            >
+              Questions
+            </Link>
+            <Link
+              href="/"
+              className="inline-flex w-fit items-center rounded-full border border-line bg-card/85 px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted shadow-[0_8px_24px_rgba(89,64,34,0.07)] transition hover:border-accent hover:text-accent"
+            >
+              Featured Card
+            </Link>
+          </div>
         </div>
       ) : null}
 
       <label className="sr-only" htmlFor="piece-search">
         Search Zette
       </label>
-      <div className="flex items-center gap-2">
+      <div className="flex items-start gap-2">
         <input
           id="piece-search"
           className="min-w-0 flex-1 rounded-full border border-line bg-card/90 px-5 py-3 text-sm text-foreground shadow-[0_8px_24px_rgba(89,64,34,0.07)] outline-none transition placeholder:text-muted/70 focus:border-accent"
@@ -154,18 +162,26 @@ export function PieceSearch({
           type="search"
           value={query}
         />
-        <button
-          aria-expanded={showTags}
-          className={`shrink-0 rounded-full border px-4 py-3 text-[0.68rem] font-semibold uppercase tracking-[0.2em] shadow-[0_8px_24px_rgba(89,64,34,0.07)] transition ${
-            selectedTags.length > 0
-              ? "border-accent bg-accent text-[#f8f2e9]"
-              : "border-line bg-card/90 text-muted hover:border-accent hover:text-accent"
-          }`}
-          onClick={() => setShowTags((value) => !value)}
-          type="button"
-        >
-          {selectedTags.length > 0 ? `${selectedTags.length} Tags` : "Tags"}
-        </button>
+        <div className="flex shrink-0 flex-col gap-2">
+          <button
+            aria-expanded={showTags}
+            className={`rounded-full border px-4 py-3 text-[0.68rem] font-semibold uppercase tracking-[0.2em] shadow-[0_8px_24px_rgba(89,64,34,0.07)] transition ${
+              selectedTags.length > 0
+                ? "border-accent bg-accent text-[#f8f2e9]"
+                : "border-line bg-card/90 text-muted hover:border-accent hover:text-accent"
+            }`}
+            onClick={() => setShowTags((value) => !value)}
+            type="button"
+          >
+            {selectedTags.length > 0 ? `${selectedTags.length} Tags` : "Tags"}
+          </button>
+          <Link
+            href="/questions"
+            className="rounded-full border border-line bg-card/90 px-4 py-3 text-center text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted shadow-[0_8px_24px_rgba(89,64,34,0.07)] transition hover:border-accent hover:text-accent"
+          >
+            Questions
+          </Link>
+        </div>
       </div>
 
       {showTags ? (
