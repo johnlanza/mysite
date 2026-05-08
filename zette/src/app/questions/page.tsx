@@ -32,5 +32,5 @@ export default async function QuestionsPage({ searchParams }: QuestionsPageProps
   const current =
     requested ?? preferredPool[pickRandomQuestionIndex(preferredPool.length)];
 
-  return <QuestionView question={current} total={questions.length} />;
+  return <QuestionView question={current} total={preferredPool.length} />;
 }
