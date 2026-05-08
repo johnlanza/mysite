@@ -63,12 +63,23 @@ const zetteHandler = zetteApp.getRequestHandler();
 // -----------------------
 async function connectDB() {
   try {
-    await mongoose.connect(process.env.DB_URL, {
+    const isLocalMongo =
+      /^mongodb:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::|\/)/.test(
+        process.env.DB_URL || ""
+      );
+    const dbOptions = {
       serverSelectionTimeoutMS: 30000,
-      retryWrites: true,
-      w: "majority",
-      tls: true,
-    });
+    };
+
+    if (!isLocalMongo) {
+      Object.assign(dbOptions, {
+        retryWrites: true,
+        w: "majority",
+        tls: true,
+      });
+    }
+
+    await mongoose.connect(process.env.DB_URL, dbOptions);
   } catch (err) {
     console.error("MongoDB connection error:", err.message);
     setTimeout(connectDB, 5000);
@@ -77,10 +88,20 @@ async function connectDB() {
 connectDB();
 
 // Graceful shutdown for Render
-process.on("SIGTERM", () => {
-  mongoose.connection.close(() => {
+async function shutdown() {
+  try {
+    await mongoose.connection.close();
+  } finally {
     process.exit(0);
-  });
+  }
+}
+
+process.on("SIGTERM", () => {
+  shutdown();
+});
+
+process.on("SIGINT", () => {
+  shutdown();
 });
 
 // -----------------------

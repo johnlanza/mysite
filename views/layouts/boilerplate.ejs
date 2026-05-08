@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-design="classic">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -21,80 +21,225 @@
       href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap"
       rel="stylesheet" />
 
+    <link
+      rel="stylesheet"
+      href="https://use.typekit.net/ceb0zrq.css" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&display=swap"
+      rel="stylesheet" />
+
+    <script>
+      (function () {
+        try {
+          const savedIndex = parseInt(
+            localStorage.getItem("siteDesignIndex"),
+            10
+          );
+          const design = savedIndex === 1 ? "metro" : "classic";
+          document.documentElement.setAttribute("data-design", design);
+        } catch (e) {
+          document.documentElement.setAttribute("data-design", "classic");
+        }
+      })();
+    </script>
+
     <link rel="stylesheet" href="/css/app.css" />
     <link
       href="https://cdn.quilljs.com/1.3.7/quill.snow.css"
       rel="stylesheet" />
 
     <title>John Lanza</title>
-
-    <style>
-      nav.simple-nav {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        margin-bottom: 1.5rem;
-      }
-
-      nav.simple-nav a {
-        margin-right: 20px;
-        font-size: 1.1rem;
-        text-decoration: none;
-        color: var(--text-color);
-        font-family: "Lexend", sans-serif;
-      }
-
-      nav.simple-nav a:visited {
-        color: var(--text-color);
-      }
-
-      nav.simple-nav a:hover {
-        text-decoration: underline;
-      }
-
-      /* ----- MOBILE STACKING ----- */
-      @media (max-width: 600px) {
-        nav.simple-nav {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-
-        nav.simple-nav a {
-          margin: 6px 0;
-        }
-      }
-    </style>
   </head>
 
   <body class="d-flex flex-column vh-100">
-    <div class="container site-shell mt-5 px-3">
-      <div class="row align-items-center">
+    <div class="metro-map-field" aria-hidden="true">
+      <img
+        src="/images/la-metro-rail-busway-map.png"
+        alt=""
+        class="actual-metro-map" />
+      <svg
+        class="metro-system-map"
+        viewBox="0 0 1600 1100"
+        preserveAspectRatio="xMidYMin slice"
+        focusable="false">
+        <g class="map-routes">
+          <path
+            class="map-route route-a"
+            d="M70 900 L310 660 L520 660 L730 450 L930 450 L1190 190 L1530 190" />
+          <path
+            class="map-route route-b"
+            d="M160 120 L330 290 L510 290 L690 470 L880 470 L1060 650 L1470 650" />
+          <path
+            class="map-route route-c"
+            d="M260 1040 L260 810 L390 680 L390 470 L500 360 L500 110" />
+          <path
+            class="map-route route-d"
+            d="M1060 1010 L1060 760 L930 630 L930 440 L1030 340 L1290 340" />
+          <path
+            class="map-route route-e"
+            d="M60 640 L300 640 L450 520 L690 520 L860 430 L1180 430 L1510 340" />
+          <path
+            class="map-route route-g"
+            d="M1090 80 L1090 240 L1220 370 L1220 590 L1370 740 L1540 740" />
+          <path
+            class="map-route route-j"
+            d="M1360 90 L1180 270 L1010 270 L850 430 L850 700 L720 830 L720 1020" />
+          <path
+            class="map-route route-k"
+            d="M60 310 L280 310 L420 450 L620 450 L790 620 L980 620 L1170 810" />
+        </g>
+
+        <g class="map-stations">
+          <circle class="map-station station-a" cx="310" cy="660" r="9" />
+          <circle class="map-station station-a" cx="520" cy="660" r="9" />
+          <circle class="map-station station-a" cx="730" cy="450" r="9" />
+          <circle class="map-station station-a" cx="930" cy="450" r="9" />
+          <circle class="map-station station-a" cx="1190" cy="190" r="9" />
+
+          <circle class="map-station station-b" cx="330" cy="290" r="9" />
+          <circle class="map-station station-b" cx="510" cy="290" r="9" />
+          <circle class="map-station station-b" cx="690" cy="470" r="9" />
+          <circle class="map-station station-b" cx="880" cy="470" r="9" />
+          <circle class="map-station station-b" cx="1060" cy="650" r="9" />
+
+          <circle class="map-station station-c" cx="260" cy="810" r="9" />
+          <circle class="map-station station-c" cx="390" cy="680" r="9" />
+          <circle class="map-station station-c" cx="390" cy="470" r="9" />
+          <circle class="map-station station-c" cx="500" cy="360" r="9" />
+
+          <circle class="map-station station-d" cx="1060" cy="760" r="9" />
+          <circle class="map-station station-d" cx="930" cy="630" r="9" />
+          <circle class="map-station station-d" cx="930" cy="440" r="9" />
+          <circle class="map-station station-d" cx="1030" cy="340" r="9" />
+
+          <circle class="map-station station-e" cx="300" cy="640" r="9" />
+          <circle class="map-station station-e" cx="450" cy="520" r="9" />
+          <circle class="map-station station-e" cx="690" cy="520" r="9" />
+          <circle class="map-station station-e" cx="860" cy="430" r="9" />
+          <circle class="map-station station-e" cx="1180" cy="430" r="9" />
+
+          <circle class="map-station station-g" cx="1090" cy="240" r="9" />
+          <circle class="map-station station-g" cx="1220" cy="370" r="9" />
+          <circle class="map-station station-g" cx="1220" cy="590" r="9" />
+          <circle class="map-station station-g" cx="1370" cy="740" r="9" />
+
+          <circle class="map-station station-j" cx="1180" cy="270" r="9" />
+          <circle class="map-station station-j" cx="1010" cy="270" r="9" />
+          <circle class="map-station station-j" cx="850" cy="430" r="9" />
+          <circle class="map-station station-j" cx="850" cy="700" r="9" />
+          <circle class="map-station station-j" cx="720" cy="830" r="9" />
+
+          <circle class="map-station station-k" cx="280" cy="310" r="9" />
+          <circle class="map-station station-k" cx="420" cy="450" r="9" />
+          <circle class="map-station station-k" cx="620" cy="450" r="9" />
+          <circle class="map-station station-k" cx="790" cy="620" r="9" />
+          <circle class="map-station station-k" cx="980" cy="620" r="9" />
+        </g>
+
+        <g class="map-transfers">
+          <circle class="map-transfer" cx="730" cy="450" r="16" />
+          <circle class="map-transfer" cx="850" cy="430" r="16" />
+          <circle class="map-transfer" cx="930" cy="450" r="16" />
+          <circle class="map-transfer" cx="1060" cy="650" r="16" />
+          <circle class="map-transfer" cx="1220" cy="370" r="16" />
+        </g>
+
+        <g class="map-route-labels">
+          <g class="map-route-label route-a-label">
+            <circle cx="1530" cy="190" r="24" />
+            <text x="1530" y="190">A</text>
+          </g>
+          <g class="map-route-label route-b-label">
+            <circle cx="160" cy="120" r="24" />
+            <text x="160" y="120">B</text>
+          </g>
+          <g class="map-route-label route-c-label">
+            <circle cx="260" cy="1040" r="24" />
+            <text x="260" y="1040">C</text>
+          </g>
+          <g class="map-route-label route-d-label">
+            <circle cx="1290" cy="340" r="24" />
+            <text x="1290" y="340">D</text>
+          </g>
+          <g class="map-route-label route-e-label">
+            <circle cx="1510" cy="340" r="24" />
+            <text x="1510" y="340">E</text>
+          </g>
+          <g class="map-route-label route-g-label">
+            <circle cx="1540" cy="740" r="24" />
+            <text x="1540" y="740">G</text>
+          </g>
+          <g class="map-route-label route-j-label">
+            <circle cx="720" cy="1020" r="24" />
+            <text x="720" y="1020">J</text>
+          </g>
+          <g class="map-route-label route-k-label">
+            <circle cx="60" cy="310" r="24" />
+            <text x="60" y="310">K</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <div class="container site-shell px-3">
+      <div class="row">
         <div class="col">
           <!-- SITE HEADER -->
-          <div class="brand-row">
-            <h1>
-              <a href="/" class="main-header">John Lanza</a>
-            </h1>
-            <img
-              src="/images/john-portrait.jpg"
-              alt="Portrait of John Lanza"
-              class="main-header-portrait"
-              loading="lazy" />
-          </div>
+          <header class="site-header">
+            <div class="station-sign">
+              <span class="station-code">LA-01</span>
+              <span class="station-name">Personal Route Map</span>
+              <a
+                href="https://www.metro.net/riding/guide/system-maps/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="metro-map-credit">
+                Map source: LA Metro
+              </a>
+            </div>
 
-          <!-- SIMPLE TOP NAV (now responsive) -->
-          <nav class="simple-nav">
-            <a href="/books">Book Summaries</a>
-            <a href="/events">Timeline</a>
-            <a href="/#books-written">Writing</a>
-            <a
-              href="https://category6consulting.com/speaker/john-lanza/"
-              target="_blank">
-              Speaking
-            </a>
-            <a href="/games">Games</a>
-            <a href="#" id="colors-link">Colors</a>
-          </nav>
+            <div class="brand-row">
+              <h1>
+                <a href="/" class="main-header">John Lanza</a>
+              </h1>
+              <img
+                src="/images/john-portrait.jpg"
+                alt="Portrait of John Lanza"
+                class="main-header-portrait"
+                loading="lazy" />
+            </div>
+
+            <!-- SIMPLE TOP NAV (now responsive) -->
+            <nav class="simple-nav" aria-label="Primary navigation">
+              <a href="/books">
+                <span class="line-badge line-badge-a">A</span>
+                <span class="nav-label">Book Summaries</span>
+              </a>
+              <a href="/events">
+                <span class="line-badge line-badge-b">B</span>
+                <span class="nav-label">Timeline</span>
+              </a>
+              <a href="/#books-written">
+                <span class="line-badge line-badge-e">E</span>
+                <span class="nav-label">Writing</span>
+              </a>
+              <a
+                href="https://category6consulting.com/speaker/john-lanza/"
+                target="_blank">
+                <span class="line-badge line-badge-k">K</span>
+                <span class="nav-label">Speaking</span>
+              </a>
+              <a href="/games">
+                <span class="line-badge line-badge-c">C</span>
+                <span class="nav-label">Games</span>
+              </a>
+              <a href="#" id="designs-link">
+                <span class="line-badge line-badge-d">D</span>
+                <span class="nav-label">Designs</span>
+              </a>
+            </nav>
+          </header>
 
           <!-- FLASH MESSAGES -->
           <% if (success && success.length > 0) { %>
@@ -115,7 +260,9 @@
               <span>&times;</span>
             </button>
           </div>
-          <% } %> <%- body %>
+          <% } %>
+
+          <main class="site-main" id="main-content"><%- body %></main>
         </div>
       </div>
     </div>
@@ -125,154 +272,285 @@
 
     <script>
       (function () {
-        const TOTAL_PALETTES = 4; // 0 = Warm (default), 1 = Seahawks, 2 = 70s, 3 = Dark
-        const STORAGE_KEY = "sitePaletteIndex";
-        const MODE_KEY = "sitePaletteMode"; // "auto" | "manual"
-        const CYCLE = [0, 1, 2, 3, "auto"]; // auto step lets users get back to automatic mode
-        const AUTO_CHECK_MS = 30 * 60 * 1000; // refresh auto choice every 30 minutes
+        const DESIGN_STORAGE_KEY = "siteDesignIndex";
+        const DESIGNS = [
+          { name: "classic", label: "Classic" },
+          { name: "metro", label: "Metro" },
+        ];
 
-        let currentPalette = 0;
-        let currentMode = "auto";
-        let cycleIndex = 0;
-        let colorsLink = null;
-        let autoTimerId = null;
+        let currentDesignIndex = 0;
+        let designsLink = null;
 
-        function applyPalette(index) {
-          currentPalette = index;
-          document.documentElement.setAttribute("data-palette", String(index));
-          updateColorsLinkLabel();
+        function getStoredDesignIndex() {
+          try {
+            const parsed = parseInt(
+              localStorage.getItem(DESIGN_STORAGE_KEY),
+              10
+            );
+            return parsed === 1 ? 1 : 0;
+          } catch (e) {
+            return 0;
+          }
         }
 
-        function saveMode(mode) {
+        function saveDesignIndex(index) {
           try {
-            localStorage.setItem(MODE_KEY, mode);
+            localStorage.setItem(DESIGN_STORAGE_KEY, String(index));
           } catch (e) {
             // ignore storage errors
           }
         }
 
-        function savePalette(index) {
-          try {
-            localStorage.setItem(STORAGE_KEY, String(index));
-          } catch (e) {
-            // ignore storage errors
-          }
-        }
+        function updateDesignsLinkLabel() {
+          if (!designsLink) return;
+          const labelTarget =
+            designsLink.querySelector(".nav-label") || designsLink;
+          const text = "Designs (" + DESIGNS[currentDesignIndex].label + ")";
 
-        function clearPalette() {
-          try {
-            localStorage.removeItem(STORAGE_KEY);
-          } catch (e) {
-            // ignore storage errors
-          }
-        }
-
-        function getStoredSettings() {
-          let mode = "auto";
-          let palette = null;
-
-          try {
-            const storedMode = localStorage.getItem(MODE_KEY);
-            if (storedMode === "manual") {
-              mode = "manual";
+          if (designsLink.dataset.metroNavInitialized === "true") {
+            const badge = designsLink.querySelector(".line-badge");
+            const match = text.match(/^(\S)([\s\S]*)$/);
+            if (badge && match) {
+              badge.textContent = match[1].toUpperCase();
+              labelTarget.textContent = match[2];
+              labelTarget.dataset.originalText = text;
+              designsLink.setAttribute("aria-label", text);
+              return;
             }
-
-            const rawPalette = localStorage.getItem(STORAGE_KEY);
-            const parsed = parseInt(rawPalette, 10);
-            if (
-              !Number.isNaN(parsed) &&
-              parsed >= 0 &&
-              parsed < TOTAL_PALETTES
-            ) {
-              palette = parsed;
-            }
-          } catch (e) {
-            // ignore localStorage issues
           }
 
-          return { mode, palette };
+          labelTarget.textContent = text;
         }
 
-        function updateColorsLinkLabel() {
-          if (!colorsLink) return;
-          const paletteLabels = ["Warm", "Seahawks", "70s", "Dark"];
-          if (currentMode === "auto") {
-            colorsLink.textContent = "Colors (Auto)";
-            return;
-          }
-
-          const label = paletteLabels[currentPalette] || "Manual";
-          colorsLink.textContent = "Colors (" + label + ")";
-        }
-
-        function getClockPalette() {
-          const hour = new Date().getHours();
-          return hour >= 19 || hour < 6 ? 3 : 0;
-        }
-
-        function applyAutoPalette() {
-          applyPalette(getClockPalette());
-        }
-
-        function startAutoTimer() {
-          if (autoTimerId) {
-            clearInterval(autoTimerId);
-          }
-          autoTimerId = window.setInterval(function () {
-            if (currentMode === "auto") {
-              applyAutoPalette();
-            }
-          }, AUTO_CHECK_MS);
-        }
-
-        function stopAutoTimer() {
-          if (!autoTimerId) return;
-          clearInterval(autoTimerId);
-          autoTimerId = null;
-        }
-
-        function setManualPalette(index) {
-          stopAutoTimer();
-          currentMode = "manual";
-          applyPalette(index);
-          savePalette(index);
-          saveMode("manual");
-          cycleIndex = Math.max(0, CYCLE.indexOf(index));
-        }
-
-        function setAutoMode() {
-          currentMode = "auto";
-          clearPalette();
-          saveMode("auto");
-          cycleIndex = CYCLE.indexOf("auto");
-          applyAutoPalette();
-          startAutoTimer();
+        function applyDesign(index) {
+          currentDesignIndex = index;
+          const design = DESIGNS[index].name;
+          document.documentElement.setAttribute("data-design", design);
+          updateDesignsLinkLabel();
+          document.dispatchEvent(
+            new CustomEvent("site-design-change", { detail: { design } })
+          );
         }
 
         document.addEventListener("DOMContentLoaded", function () {
-          colorsLink = document.getElementById("colors-link");
+          designsLink = document.getElementById("designs-link");
+          applyDesign(getStoredDesignIndex());
 
-          const stored = getStoredSettings();
-          if (stored.mode === "manual" && stored.palette !== null) {
-            setManualPalette(stored.palette);
-            cycleIndex = Math.max(0, CYCLE.indexOf(stored.palette));
-          } else {
-            setAutoMode();
-          }
+          if (!designsLink) return;
 
-          if (!colorsLink) return;
-
-          colorsLink.addEventListener("click", function (event) {
+          designsLink.addEventListener("click", function (event) {
             event.preventDefault();
-            cycleIndex = (cycleIndex + 1) % CYCLE.length;
-            const next = CYCLE[cycleIndex];
-            if (next === "auto") {
-              setAutoMode();
-            } else {
-              setManualPalette(next);
-            }
+            const nextIndex = (currentDesignIndex + 1) % DESIGNS.length;
+            applyDesign(nextIndex);
+            saveDesignIndex(nextIndex);
           });
         });
+      })();
+    </script>
+
+    <script>
+      (function () {
+        const headingLines = {
+          a: { color: "#0072bc", fg: "#ffffff" },
+          b: { color: "#eb131b", fg: "#ffffff" },
+          c: { color: "#58a738", fg: "#ffffff" },
+          d: { color: "#a05da5", fg: "#ffffff" },
+          e: { color: "#fdb913", fg: "#111111" },
+          k: { color: "#da3d84", fg: "#ffffff" },
+          g: { color: "#fc4c02", fg: "#ffffff" },
+          j: { color: "#adb8bf", fg: "#111111" },
+        };
+
+        const headingFallbackOrder = [
+          headingLines.a,
+          headingLines.b,
+          headingLines.c,
+          headingLines.d,
+          headingLines.e,
+          headingLines.k,
+          headingLines.g,
+          headingLines.j,
+        ];
+
+        const pageLineRules = [
+          { pattern: /^\/books(?:\/|$)/, line: "a" },
+          { pattern: /^\/events(?:\/|$)/, line: "b" },
+          { pattern: /^\/games(?:\/|$)/, line: "c" },
+          { pattern: /^\/ideas(?:\/|$)/, line: "d" },
+        ];
+
+        const headingTextLineRules = [
+          { pattern: /books i've written|more writing|writing|random writings/i, line: "e" },
+          { pattern: /book summaries|books i've read/i, line: "a" },
+          { pattern: /timeline|events|where i've worked/i, line: "b" },
+          { pattern: /board games|games/i, line: "c" },
+          { pattern: /speaking|affiliations/i, line: "k" },
+          { pattern: /ideas/i, line: "d" },
+        ];
+
+        function resolveHeadingLine(heading, index) {
+          if (heading.closest(".brand-row")) {
+            return headingLines.a;
+          }
+
+          const headingText = heading.textContent.trim();
+          const textRule = headingTextLineRules.find((rule) =>
+            rule.pattern.test(headingText)
+          );
+          if (textRule) {
+            return headingLines[textRule.line];
+          }
+
+          const pathname = window.location.pathname;
+          const pageRule = pageLineRules.find((rule) =>
+            rule.pattern.test(pathname)
+          );
+          if (pageRule) {
+            return headingLines[pageRule.line];
+          }
+
+          return headingFallbackOrder[index % headingFallbackOrder.length];
+        }
+
+        function firstReadableTextNode(root) {
+          const walker = document.createTreeWalker(
+            root,
+            NodeFilter.SHOW_TEXT,
+            {
+              acceptNode(node) {
+                return node.nodeValue.trim()
+                  ? NodeFilter.FILTER_ACCEPT
+                  : NodeFilter.FILTER_REJECT;
+              },
+            }
+          );
+
+          return walker.nextNode();
+        }
+
+        function wrapHeadingInitial(heading, index) {
+          if (heading.dataset.metroInitialized === "true") return;
+
+          const textNode = firstReadableTextNode(heading);
+          if (!textNode) return;
+
+          const match = textNode.nodeValue.match(/^(\s*)(\S)([\s\S]*)$/);
+          if (!match) return;
+
+          const originalHeadingText = heading.textContent.trim();
+          const owningLink = textNode.parentElement
+            ? textNode.parentElement.closest("a")
+            : null;
+          if (originalHeadingText) {
+            heading.setAttribute("aria-label", originalHeadingText);
+          }
+          if (owningLink && owningLink.textContent.trim()) {
+            owningLink.setAttribute("aria-label", owningLink.textContent.trim());
+          }
+
+          const line = resolveHeadingLine(heading, index);
+          heading.style.setProperty("--heading-line-color", line.color);
+          heading.style.setProperty("--heading-line-fg", line.fg);
+
+          const marker = document.createElement("span");
+          marker.className = "metro-heading-letter";
+          marker.setAttribute("aria-hidden", "true");
+          marker.dataset.originalLetter = match[2];
+
+          const glyph = document.createElement("span");
+          glyph.className = "metro-heading-letter-glyph";
+          glyph.textContent = match[2].toUpperCase();
+          marker.appendChild(glyph);
+
+          const fragment = document.createDocumentFragment();
+          if (match[1]) fragment.appendChild(document.createTextNode(match[1]));
+          fragment.appendChild(marker);
+          if (match[3]) fragment.appendChild(document.createTextNode(match[3]));
+
+          textNode.parentNode.replaceChild(fragment, textNode);
+          heading.dataset.metroInitialized = "true";
+        }
+
+        function unwrapHeadingInitials() {
+          document.querySelectorAll(".metro-heading-letter").forEach((marker) => {
+            marker.replaceWith(
+              document.createTextNode(
+                marker.dataset.originalLetter || marker.textContent
+              )
+            );
+          });
+
+          document
+            .querySelectorAll("[data-metro-initialized='true']")
+            .forEach((heading) => {
+              heading.dataset.metroInitialized = "false";
+              heading.style.removeProperty("--heading-line-color");
+              heading.style.removeProperty("--heading-line-fg");
+            });
+        }
+
+        function syncHeadingDesign() {
+          if (document.documentElement.dataset.design === "metro") {
+            document
+              .querySelectorAll(".site-main h1, .site-main h2, .brand-row h1")
+              .forEach(wrapHeadingInitial);
+            wrapNavInitials();
+          } else {
+            unwrapHeadingInitials();
+            unwrapNavInitials();
+          }
+        }
+
+        function wrapNavInitials() {
+          document.querySelectorAll(".simple-nav a").forEach((link) => {
+            if (link.dataset.metroNavInitialized === "true") return;
+
+            const label = link.querySelector(".nav-label");
+            const badge = link.querySelector(".line-badge");
+            if (!label || !badge) return;
+
+            const text = label.textContent.trim();
+            const match = text.match(/^(\S)([\s\S]*)$/);
+            if (!match) return;
+
+            link.setAttribute("aria-label", text);
+            badge.dataset.originalLetter = badge.textContent;
+            badge.textContent = match[1].toUpperCase();
+            label.textContent = match[2];
+            label.dataset.originalText = text;
+            label.classList.add("nav-label-trimmed");
+            link.dataset.metroNavInitialized = "true";
+          });
+        }
+
+        function unwrapNavInitials() {
+          document
+            .querySelectorAll(".simple-nav a[data-metro-nav-initialized='true']")
+            .forEach((link) => {
+              const label = link.querySelector(".nav-label");
+              const badge = link.querySelector(".line-badge");
+
+              if (label && label.dataset.originalText) {
+                label.textContent = label.dataset.originalText;
+                delete label.dataset.originalText;
+                label.classList.remove("nav-label-trimmed");
+              }
+
+              if (badge && badge.dataset.originalLetter) {
+                badge.textContent = badge.dataset.originalLetter;
+                delete badge.dataset.originalLetter;
+              }
+
+              link.removeAttribute("aria-label");
+              link.dataset.metroNavInitialized = "false";
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+          syncHeadingDesign();
+        });
+
+        document.addEventListener("site-design-change", syncHeadingDesign);
       })();
     </script>
   </body>
