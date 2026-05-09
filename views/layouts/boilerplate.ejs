@@ -494,11 +494,38 @@
             document
               .querySelectorAll(".site-main h1, .site-main h2, .brand-row h1")
               .forEach(wrapHeadingInitial);
+            syncSectionLineColors();
             wrapNavInitials();
           } else {
             unwrapHeadingInitials();
+            clearSectionLineColors();
             unwrapNavInitials();
           }
+        }
+
+        function syncSectionLineColors() {
+          document.querySelectorAll(".site-main h1, .site-main h2").forEach((heading) => {
+            const color = heading.style.getPropertyValue("--heading-line-color");
+            const fg = heading.style.getPropertyValue("--heading-line-fg");
+            let sibling = heading.nextElementSibling;
+
+            while (sibling && !/^H[12]$/.test(sibling.tagName)) {
+              if (color) {
+                sibling.style.setProperty("--heading-line-color", color);
+              }
+              if (fg) {
+                sibling.style.setProperty("--heading-line-fg", fg);
+              }
+              sibling = sibling.nextElementSibling;
+            }
+          });
+        }
+
+        function clearSectionLineColors() {
+          document.querySelectorAll(".site-main *").forEach((element) => {
+            element.style.removeProperty("--heading-line-color");
+            element.style.removeProperty("--heading-line-fg");
+          });
         }
 
         function wrapNavInitials() {
