@@ -5,7 +5,8 @@ import type { QuestionRecord } from "@/lib/questions-data";
 
 type QuestionViewProps = {
   question: QuestionRecord;
-  total: number;
+  remaining: number;
+  seen: string[];
 };
 
 function textSizeClass(length: number): string {
@@ -15,12 +16,18 @@ function textSizeClass(length: number): string {
   return "text-[1.25rem] leading-[1.34] sm:text-[1.45rem]";
 }
 
-export function QuestionView({ question, total }: QuestionViewProps) {
+export function QuestionView({ question, remaining, seen }: QuestionViewProps) {
   const logseqUrl = getLogseqUrl(
     question.originType,
     question.originFile,
     question.blockId,
   );
+  const nextParams = new URLSearchParams();
+  nextParams.set("from", question.id);
+
+  for (const id of seen) {
+    nextParams.append("seen", id);
+  }
 
   return (
     <div className="flex min-h-[100dvh] w-full flex-col">
@@ -95,13 +102,13 @@ export function QuestionView({ question, total }: QuestionViewProps) {
           </Link>
 
           <Link
-            href={`/questions/random?from=${encodeURIComponent(question.id)}`}
+            href={`/questions/random?${nextParams.toString()}`}
             prefetch={false}
             className="flex items-center gap-2 rounded-full border border-line bg-card/90 px-5 py-2.5 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-muted shadow-[0_8px_24px_rgba(89,64,34,0.08)] transition active:scale-[0.98]"
           >
             <span className="text-foreground/80">?</span>
             <span>Next</span>
-            <span className="tabular-nums text-foreground/60">{total}</span>
+            <span className="tabular-nums text-foreground/60">{remaining}</span>
           </Link>
         </div>
       </footer>

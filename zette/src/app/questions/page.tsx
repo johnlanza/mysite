@@ -9,11 +9,19 @@ import {
 export const dynamic = "force-dynamic";
 
 type QuestionsPageProps = {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; seen?: string | string[] }>;
 };
 
 function pickRandomQuestionIndex(length: number) {
   return Math.floor(Math.random() * length);
+}
+
+function normalizeSeen(value: string | string[] | undefined): string[] {
+  if (!value) {
+    return [];
+  }
+
+  return [...new Set(Array.isArray(value) ? value : [value])];
 }
 
 export default async function QuestionsPage({ searchParams }: QuestionsPageProps) {
@@ -31,6 +39,11 @@ export default async function QuestionsPage({ searchParams }: QuestionsPageProps
     : null;
   const current =
     requested ?? preferredPool[pickRandomQuestionIndex(preferredPool.length)];
+  const seen = [...new Set([...normalizeSeen(params.seen), current.id])];
+  const remaining = Math.max(
+    0,
+    preferredPool.filter((question) => !seen.includes(question.id)).length,
+  );
 
-  return <QuestionView question={current} total={preferredPool.length} />;
+  return <QuestionView question={current} remaining={remaining} seen={seen} />;
 }
