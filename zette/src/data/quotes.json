@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T14:35:02.932Z",
+  "generatedAt": "2026-05-11T00:51:05.293Z",
   "sourceDirectories": [
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/journals",
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages"
@@ -49,7 +49,7 @@
     "totalQuotes": 314,
     "taggedQuotes": 138,
     "suspiciousQuotes": 114,
-    "newQuotes": 7
+    "newQuotes": 0
   },
   "quotes": [
     {
@@ -942,7 +942,7 @@
       "originType": "journals",
       "originFile": "2023_06_19.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1163,7 +1163,7 @@
       "originType": "journals",
       "originFile": "2023_04_27.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1241,7 +1241,8 @@
       "blockId": null,
       "tags": [
         "idea",
-        "my questions"
+        "my questions",
+        "post"
       ],
       "originType": "journals",
       "originFile": "2025_04_19.md",
@@ -2254,7 +2255,7 @@
       "originType": "journals",
       "originFile": "2023_05_12.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "missing-author"
         ]
@@ -3282,7 +3283,7 @@
       "originType": "journals",
       "originFile": "2023_04_06.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "missing-author"
         ]
@@ -4288,7 +4289,7 @@
       "originType": "journals",
       "originFile": "2023_04_07.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4594,7 +4595,7 @@
       "originType": "journals",
       "originFile": "2022_09_23.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6301,7 +6302,7 @@
       "originType": "pages",
       "originFile": "Bird by Bird%3A Some Instructions on Writing and Life %7C Anne Lamott.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     }
