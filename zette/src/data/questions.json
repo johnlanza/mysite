@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-11T00:51:05.296Z",
+  "generatedAt": "2026-05-11T01:15:58.615Z",
   "sourceDirectories": [
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/journals",
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages"
@@ -13,7 +13,7 @@
   ],
   "stats": {
     "totalQuestions": 66,
-    "taggedQuestions": 26,
+    "taggedQuestions": 25,
     "newQuestions": 0
   },
   "questions": [
@@ -449,9 +449,7 @@
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
       "blockId": null,
-      "tags": [
-        "powerful"
-      ],
+      "tags": [],
       "originType": "pages",
       "originFile": "My Questions.md",
       "review": {
