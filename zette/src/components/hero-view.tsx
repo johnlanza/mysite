@@ -64,23 +64,17 @@ export function HeroView({
     buildNowHref(piece, isSeed, !echoesOpen, selectedTags) + "#echoes";
   const logseqUrl = getLogseqUrl(piece.originType, piece.originFile, piece.blockId);
   const isBrowse = selectedTags.length > 0 && isSeed;
+  const viewLabel = isSeed ? "Today" : selectedTags.length > 0 ? "Selected" : "Card";
 
   return (
     <div className="flex min-h-[100dvh] w-full flex-col">
-      <header className="flex items-center justify-between px-6 pt-6">
-        <span className="font-sans text-[0.6rem] font-medium uppercase tracking-[0.2em] text-muted/50">
+      <header className="mx-auto flex w-full max-w-[38rem] items-center justify-between px-7 pt-7 sm:px-10">
+        <span className="font-sans text-[0.64rem] font-semibold uppercase tracking-[0.26em] text-muted/55">
           Zette
         </span>
-        {isSeed ? (
-          <span aria-hidden="true" className="h-1 w-6 rounded-full bg-foreground/20" />
-        ) : (
-          <Link
-            href={selectedTags.length > 0 ? `/?tags=${encodeURIComponent(selectedTags.join(","))}` : "/"}
-            aria-label="Return to today's seed"
-            className="h-1 w-6 rounded-full bg-foreground/40 transition hover:bg-accent"
-          />
-        )}
-        <span aria-hidden="true" className="w-[5rem]" />
+        <span className="rounded-full border border-line bg-card/55 px-3 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-muted/75">
+          {viewLabel}
+        </span>
       </header>
 
       {isBrowse ? (
@@ -102,21 +96,24 @@ export function HeroView({
             selectedTags={selectedTags}
           />
 
-          <main className="flex flex-1 flex-col items-center px-7 py-10 sm:px-10">
+          <main className="flex flex-1 flex-col items-center px-7 pb-10 pt-12 sm:px-10">
             {selectedTags.length > 0 ? (
               <Link
                 href={`/?tags=${encodeURIComponent(selectedTags.join(","))}`}
-                className="mb-8 inline-flex rounded-full border border-line bg-card/75 px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted transition hover:border-accent hover:text-accent"
+                className="mb-8 inline-flex rounded-full border border-line bg-card/70 px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted transition hover:border-accent hover:text-accent"
               >
                 Back to Tags
               </Link>
             ) : null}
 
             <article
-              className={`mx-auto flex w-full max-w-[34rem] flex-col ${
+              className={`mx-auto flex w-full max-w-[38rem] flex-col ${
                 echoesOpen ? "" : "flex-1 justify-center"
               }`}
             >
+              <p className="mb-6 font-sans text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-accent/85">
+                {isSeed ? "Featured card" : "Card"}
+              </p>
               <p
                 className={`font-serif font-normal tracking-tight text-foreground ${textSizeClass(combinedLength(piece))}`}
               >
@@ -124,47 +121,51 @@ export function HeroView({
               </p>
 
               {piece.note ? (
-                <div className="mt-7 border-l-2 border-accent-soft pl-5 font-sans text-[0.95rem] leading-7 text-muted">
-                  <p className="mb-2 text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-accent">
+                <div className="mt-8 border-t border-line/80 pt-5 font-sans text-[0.95rem] leading-7 text-muted">
+                  <p className="mb-2 text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-accent/90">
                     My note
                   </p>
                   <p>{piece.note}</p>
                 </div>
               ) : null}
 
-              {attribution ? (
-                <p className="mt-8 font-sans text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-foreground/70">
-                  — {attribution}
-                </p>
-              ) : null}
+              <div className="mt-8 border-t border-line/80 pt-5">
+                {attribution ? (
+                  <p className="font-sans text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-foreground/72">
+                    — {attribution}
+                  </p>
+                ) : null}
 
-              {showContext ? (
-                <p className="mt-2 font-serif text-[0.95rem] italic text-muted">
-                  from {context}
-                </p>
-              ) : null}
+                {showContext ? (
+                  <p className="mt-2 font-serif text-[0.98rem] italic text-muted">
+                    from {context}
+                  </p>
+                ) : null}
 
-              <a
-                href={logseqUrl}
-                className="mt-4 inline-flex items-center gap-1.5 font-sans text-[0.68rem] font-medium uppercase tracking-[0.24em] text-muted/70 transition hover:text-accent"
-              >
-                <span aria-hidden="true">↗</span>
-                <span>Open in Logseq</span>
-              </a>
+                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+                  <a
+                    href={logseqUrl}
+                    className="inline-flex items-center gap-1.5 font-sans text-[0.68rem] font-medium uppercase tracking-[0.24em] text-muted/70 transition hover:text-accent"
+                  >
+                    <span aria-hidden="true">↗</span>
+                    <span>Open in Logseq</span>
+                  </a>
 
-              {piece.sourceLocator ? (
-                <p className="mt-2 font-sans text-[0.68rem] font-medium uppercase tracking-[0.22em] text-muted/55">
-                  {piece.sourceLocator}
-                </p>
-              ) : null}
+                  {piece.sourceLocator ? (
+                    <p className="font-sans text-[0.68rem] font-medium uppercase tracking-[0.22em] text-muted/55">
+                      {piece.sourceLocator}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
 
               {piece.tags.length > 0 ? (
-                <ul className="mt-7 flex flex-wrap gap-1.5">
+                <ul className="mt-7 flex flex-wrap gap-2">
                   {piece.tags.slice(0, 6).map((tag) => (
                     <li key={tag}>
                       <Link
                         href={`/?tags=${encodeURIComponent(tag)}`}
-                        className="block rounded-full border border-line px-2.5 py-0.5 text-[0.68rem] font-medium uppercase tracking-[0.18em] text-muted transition hover:border-accent hover:text-accent"
+                        className="block rounded-full border border-line bg-card/55 px-3 py-1 text-[0.68rem] font-medium uppercase tracking-[0.18em] text-muted transition hover:border-accent hover:text-accent"
                       >
                         {tag}
                       </Link>
@@ -178,7 +179,7 @@ export function HeroView({
               <section
                 id="echoes"
                 aria-label="Echoes"
-                className="mx-auto mt-10 w-full max-w-[34rem] scroll-mt-4 border-t border-line pt-8"
+                className="mx-auto mt-12 w-full max-w-[38rem] scroll-mt-4 border-t border-line/80 pt-8"
               >
                 <h2 className="mb-4 font-sans text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-muted">
                   Echoes
@@ -193,7 +194,7 @@ export function HeroView({
                             : {}),
                           p: echo.id,
                         }).toString()}`}
-                        className="block w-full rounded-[1.25rem] border border-line bg-card/70 px-5 py-4 transition active:scale-[0.99] hover:border-accent/60"
+                        className="block w-full rounded-[1.25rem] border border-line bg-card/70 px-5 py-4 shadow-[0_12px_30px_rgba(89,64,34,0.05)] transition active:scale-[0.99] hover:border-accent/60"
                       >
                         <p
                           className={`font-serif text-foreground ${echoTextClass(echo.text.length)}`}
@@ -233,14 +234,14 @@ export function HeroView({
           </main>
 
           <footer className="sticky bottom-0 w-full pb-6">
-            <div className="flex items-center justify-center gap-2">
+            <div className="mx-auto flex max-w-[38rem] items-center justify-center gap-2 px-7 sm:px-10">
               {echoes.length > 0 ? (
                 <Link
                   href={toggleHref}
                   aria-expanded={echoesOpen}
                   scroll={true}
                   prefetch={false}
-                  className="flex items-center gap-2 rounded-full border border-line bg-card/90 px-5 py-2.5 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-muted shadow-[0_8px_24px_rgba(89,64,34,0.08)] transition active:scale-[0.98]"
+                  className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full border border-line bg-card/88 px-5 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-muted shadow-[0_10px_28px_rgba(89,64,34,0.08)] transition active:scale-[0.98]"
                 >
                   <span className="text-foreground/80">
                     {echoesOpen ? "×" : "↓"}
@@ -253,7 +254,7 @@ export function HeroView({
                   ) : null}
                 </Link>
               ) : (
-                <span className="rounded-full border border-line/60 bg-card/60 px-5 py-2.5 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-muted/70">
+                <span className="flex-1 rounded-full border border-line/60 bg-card/60 px-5 py-3 text-center text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-muted/70">
                   No echoes yet
                 </span>
               )}
@@ -267,7 +268,7 @@ export function HeroView({
                 }).toString()}`}
                 prefetch={false}
                 aria-label="Draw another piece"
-                className="flex items-center gap-2 rounded-full border border-line bg-card/90 px-5 py-2.5 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-muted shadow-[0_8px_24px_rgba(89,64,34,0.08)] transition active:scale-[0.98]"
+                className="flex flex-1 items-center justify-center gap-2 rounded-full border border-line bg-card/88 px-5 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-muted shadow-[0_10px_28px_rgba(89,64,34,0.08)] transition active:scale-[0.98]"
               >
                 <span className="text-foreground/80">◈</span>
                 <span>Draw</span>
