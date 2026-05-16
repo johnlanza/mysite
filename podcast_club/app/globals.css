@@ -1808,7 +1808,7 @@ button:disabled {
   display: flex;
   flex-wrap: wrap;
   gap: 0.55rem;
-  padding: 0 0.2rem;
+  padding: 0 0.7rem;
 }
 
 .meeting-primary-actions button {
