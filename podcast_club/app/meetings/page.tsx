@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import MeetingSelectedPodcastCard from '@/components/MeetingSelectedPodcastCard';
 import { withBasePath } from '@/lib/base-path';
@@ -84,6 +84,7 @@ export default function MeetingsPage() {
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [activeTab, setActiveTab] = useState<MeetingTab>('next');
   const [podcastPickerOpen, setPodcastPickerOpen] = useState(false);
+  const dateInputRef = useRef<HTMLInputElement | null>(null);
 
   async function loadPageData() {
     const meRes = await fetch(withBasePath('/api/auth/me'), { cache: 'no-store' });
@@ -321,6 +322,19 @@ export default function MeetingsPage() {
     }
   }
 
+  function openDatePicker() {
+    const input = dateInputRef.current;
+    if (!input) return;
+
+    if (typeof input.showPicker === 'function') {
+      input.showPicker();
+      return;
+    }
+
+    input.focus();
+    input.click();
+  }
+
   if (!currentMember) {
     return (
       <section className="grid" style={{ marginTop: '1rem' }}>
@@ -499,7 +513,18 @@ export default function MeetingsPage() {
                 <h3>Meeting Details</h3>
                 <label>
                   Date
-                  <span className="date-picker-control">
+                  <span
+                    className="date-picker-control"
+                    role="button"
+                    tabIndex={0}
+                    onClick={openDatePicker}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        openDatePicker();
+                      }
+                    }}
+                  >
                     <span className="date-picker-icon" aria-hidden="true">
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                         <path d="M7 3v4" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" />
@@ -514,6 +539,7 @@ export default function MeetingsPage() {
                     </span>
                     <span className="date-picker-action">Select</span>
                     <input
+                      ref={dateInputRef}
                       className="date-picker-native"
                       aria-label="Meeting date"
                       type="date"

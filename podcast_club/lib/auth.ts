@@ -7,6 +7,7 @@ import MemberModel from '@/models/Member';
 
 const SESSION_COOKIE = process.env.MYSITE_SESSION_COOKIE || 'mysite_session';
 const SESSION_DAYS = 7;
+const PERSISTENT_SESSION_DAYS = 45;
 
 type SessionPayload = {
   memberId: string;
@@ -126,9 +127,14 @@ export async function requireAdmin() {
   return session;
 }
 
-export function setSessionCookie(response: NextResponse, memberId: string, options?: { impersonatorId?: string }) {
+export function setSessionCookie(
+  response: NextResponse,
+  memberId: string,
+  options?: { impersonatorId?: string; persistent?: boolean }
+) {
   const iat = Date.now();
-  const exp = Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000;
+  const sessionDays = options?.persistent ? PERSISTENT_SESSION_DAYS : SESSION_DAYS;
+  const exp = Date.now() + sessionDays * 24 * 60 * 60 * 1000;
   const token = createToken({
     memberId,
     iat,

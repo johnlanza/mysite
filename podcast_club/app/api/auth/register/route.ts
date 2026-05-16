@@ -93,7 +93,7 @@ export async function POST(req: Request) {
       isAdmin: member.isAdmin
     });
 
-    setSessionCookie(response, String(member._id));
+    setSessionCookie(response, String(member._id), { persistent: true });
     return response;
   } catch (error) {
     if (consumedCodeId) {

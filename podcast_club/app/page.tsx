@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import MeetingSelectedPodcastCard from '@/components/MeetingSelectedPodcastCard';
 import { withBasePath } from '@/lib/base-path';
+import { getCarveOutTypeLabel } from '@/lib/carveout-meta';
 import { getMeetingPodcasts } from '@/lib/meeting-podcasts';
 import { dedupePodcastsByContent } from '@/lib/podcast-dedupe';
 import type { CarveOut, Meeting, Podcast, SessionMember } from '@/lib/types';
@@ -256,15 +257,6 @@ export default function HomePage() {
       return value;
     }
   };
-  const getCarveOutTypeLabel = (value: string) => {
-    if (!value) return 'Resource';
-    return value
-      .split(/[\s_-]+/)
-      .filter(Boolean)
-      .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1).toLowerCase()}`)
-      .join(' ');
-  };
-
   async function giveFistBump(carveOutId: string) {
     setFistBumpingId(carveOutId);
 
@@ -408,7 +400,10 @@ export default function HomePage() {
             <h3>{carveOut.title}</h3>
             <p>Shared with the club</p>
           </div>
-          <span className="badge">{getCarveOutTypeLabel(carveOut.type)}</span>
+          <div className="podcast-meta-row">
+            <span className="badge">{getCarveOutTypeLabel(carveOut.type)}</span>
+            {carveOut.service ? <span className="badge secondary-badge">{carveOut.service}</span> : null}
+          </div>
         </div>
 
         <div className="podcast-detail-grid public-detail-grid">
@@ -416,6 +411,12 @@ export default function HomePage() {
             <span>Meeting</span>
             <strong>{formatDate(carveOut.meeting.date)}</strong>
           </div>
+          {carveOut.service ? (
+            <div>
+              <span>Service</span>
+              <strong>{carveOut.service}</strong>
+            </div>
+          ) : null}
           <div>
             <span>Appreciation</span>
             <strong>{formatPublicFistBumps(carveOut)}</strong>
@@ -679,11 +680,15 @@ export default function HomePage() {
             <div className="compact-card" key={carveOut._id}>
               <div className="compact-card-head">
                 <h3>{carveOut.title}</h3>
-                <span className="badge">{carveOut.type}</span>
+                <div className="podcast-meta-row">
+                  <span className="badge">{getCarveOutTypeLabel(carveOut.type)}</span>
+                  {carveOut.service ? <span className="badge secondary-badge">{carveOut.service}</span> : null}
+                </div>
               </div>
               <p>
                 Shared by {displayMemberName(carveOut.member)} for {formatDate(carveOut.meeting.date)}
               </p>
+              {carveOut.service ? <p>Found on {carveOut.service}.</p> : null}
               {carveOut.notes ? <p>{carveOut.notes}</p> : null}
               {renderFistBumpStrip(carveOut, true)}
             </div>

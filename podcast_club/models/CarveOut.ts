@@ -1,4 +1,5 @@
 import mongoose, { Schema, type InferSchemaType, type Model } from 'mongoose';
+import { CARVE_OUT_TYPES } from '@/lib/carveout-meta';
 
 const FistBumpSchema = new Schema(
   {
@@ -13,9 +14,10 @@ const CarveOutSchema = new Schema(
     title: { type: String, required: true, trim: true },
     type: {
       type: String,
-      enum: ['book', 'video', 'movie', 'podcast', 'article', 'other'],
+      enum: CARVE_OUT_TYPES,
       default: 'other'
     },
+    service: { type: String, trim: true },
     url: { type: String, trim: true },
     notes: { type: String, trim: true },
     member: { type: Schema.Types.ObjectId, ref: 'Member', required: true },
@@ -31,8 +33,9 @@ export type CarveOut = InferSchemaType<typeof CarveOutSchema>;
 
 const existingCarveOutModel = mongoose.models.CarveOut as Model<CarveOut> | undefined;
 const existingFistBumpsPath = existingCarveOutModel?.schema.path('fistBumps');
+const existingServicePath = existingCarveOutModel?.schema.path('service');
 
-if (existingCarveOutModel && !existingFistBumpsPath) {
+if (existingCarveOutModel && (!existingFistBumpsPath || !existingServicePath)) {
   mongoose.deleteModel('CarveOut');
 }
 

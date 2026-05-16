@@ -10,7 +10,8 @@ type Mode = 'login' | 'register';
 
 const loginInitial = {
   email: '',
-  password: ''
+  password: '',
+  remember: true
 };
 
 const registerInitial = {
@@ -112,7 +113,7 @@ export default function LoginPage() {
         <h2>{mode === 'login' ? 'Login' : hasUsers ? 'Register With Join Code' : 'Create First Admin Account'}</h2>
         <p>
           {mode === 'login'
-            ? 'Sign in with your Podcast Club email/password.'
+            ? 'Sign in with your Royal Podcast Society email and keep this device signed in if you want a faster return.'
             : hasUsers
               ? 'Enter your one-time join code to create your member account.'
               : 'Registration is only open for first-time setup.'}
@@ -126,6 +127,7 @@ export default function LoginPage() {
                 type="email"
                 value={loginForm.email}
                 onChange={(event) => setLoginForm((prev) => ({ ...prev, email: event.target.value }))}
+                autoComplete="username"
                 required
               />
             </label>
@@ -135,9 +137,21 @@ export default function LoginPage() {
                 type="password"
                 value={loginForm.password}
                 onChange={(event) => setLoginForm((prev) => ({ ...prev, password: event.target.value }))}
+                autoComplete="current-password"
                 required
               />
             </label>
+            <label className="checkbox-row remember-row">
+              <input
+                type="checkbox"
+                checked={loginForm.remember}
+                onChange={(event) => setLoginForm((prev) => ({ ...prev, remember: event.target.checked }))}
+              />
+              <span>Keep me signed in on this device</span>
+            </label>
+            <p className="muted-form-note">
+              On supported phones and browsers, saved passwords can also use biometric unlock like Face ID.
+            </p>
             <button disabled={saving}>{saving ? 'Signing in...' : 'Sign In'}</button>
             <p>
               <Link className="nav-link" href="/forgot-password">
@@ -166,6 +180,7 @@ export default function LoginPage() {
                 type="email"
                 value={registerForm.email}
                 onChange={(event) => setRegisterForm((prev) => ({ ...prev, email: event.target.value }))}
+                autoComplete="email"
                 required
               />
             </label>
@@ -175,6 +190,7 @@ export default function LoginPage() {
                 type="password"
                 value={registerForm.password}
                 onChange={(event) => setRegisterForm((prev) => ({ ...prev, password: event.target.value }))}
+                autoComplete="new-password"
                 required
               />
             </label>

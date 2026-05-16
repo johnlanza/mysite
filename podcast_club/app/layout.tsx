@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from 'next';
+import Image from 'next/image';
+import { BrandIntro } from '@/components/BrandIntro';
 import { Manrope, Spectral } from 'next/font/google';
 import { MobileNav, Nav } from '@/components/Nav';
 import { AuthStatus } from '@/components/AuthStatus';
@@ -56,12 +58,25 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${sans.variable} ${serif.variable}`}>
         <script dangerouslySetInnerHTML={{ __html: suppressInjectedWalletErrors }} />
+        <BrandIntro />
         <div className="page-bg" />
         <main className="shell">
           <header className="site-header">
-            <div className="site-header-title">
-              <h1>Royal Podcast Society</h1>
-              <p>Enjoying podcast discussions one meeting at a time.</p>
+            <div className="brand-lockup">
+              <div className="brand-mark-wrap" aria-hidden="true">
+                <Image
+                  className="brand-mark"
+                  src="/royal-podcast-society-logo.png"
+                  alt=""
+                  fill
+                  sizes="(max-width: 768px) 2.5rem, 3.7rem"
+                  priority
+                />
+              </div>
+              <div className="site-header-title">
+                <h1>Royal Podcast Society</h1>
+                <p>Enjoying podcast discussions one meeting at a time.</p>
+              </div>
             </div>
             <Nav />
             <div className="auth-status-wrap">

@@ -7,7 +7,7 @@ import MemberModel from '@/models/Member';
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+    const { email, password, remember } = await req.json();
 
     if (!email || !password) {
       return NextResponse.json({ message: 'Email and password are required.' }, { status: 400 });
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
       isAdmin: member.isAdmin
     });
 
-    setSessionCookie(response, String(member._id));
+    setSessionCookie(response, String(member._id), { persistent: Boolean(remember) });
     return response;
   } catch (error) {
     return NextResponse.json(

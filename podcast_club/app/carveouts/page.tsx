@@ -1,13 +1,22 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { Dispatch, FormEvent, SetStateAction, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { withBasePath } from '@/lib/base-path';
+import {
+  deriveServiceSelection,
+  getCarveOutServiceOptions,
+  getCarveOutTypeLabel,
+  resolveSelectedService,
+  OTHER_SERVICE_VALUE
+} from '@/lib/carveout-meta';
 import type { CarveOut, Meeting, SessionMember } from '@/lib/types';
 
 const initialForm = {
   title: '',
   type: 'other',
+  serviceChoice: '',
+  customService: '',
   url: '',
   notes: '',
   meeting: ''
@@ -25,19 +34,6 @@ function formatDate(value: string) {
     year: 'numeric',
     timeZone: 'UTC'
   });
-}
-
-function getCarveOutTypeLabel(value: string) {
-  const labels: Record<string, string> = {
-    article: 'Article',
-    book: 'Book',
-    movie: 'Movie',
-    podcast: 'Podcast',
-    video: 'Video',
-    other: 'Other'
-  };
-
-  return labels[value] || value;
 }
 
 export default function CarveOutsPage() {
@@ -135,6 +131,19 @@ export default function CarveOutsPage() {
       return 'Open link';
     }
   };
+  const formServiceOptions = getCarveOutServiceOptions(form.type);
+  const editServiceOptions = getCarveOutServiceOptions(editForm.type);
+
+  function updateType(nextType: string, setter: Dispatch<SetStateAction<CarveOutForm>>) {
+    setter((prev) => {
+      const currentService = resolveSelectedService(prev.serviceChoice, prev.customService);
+      return {
+        ...prev,
+        type: nextType,
+        ...deriveServiceSelection(nextType, currentService)
+      };
+    });
+  }
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -145,7 +154,10 @@ export default function CarveOutsPage() {
     const res = await fetch(withBasePath('/api/carveouts'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
+      body: JSON.stringify({
+        ...form,
+        service: resolveSelectedService(form.serviceChoice, form.customService)
+      })
     });
 
     if (!res.ok) {
@@ -169,6 +181,7 @@ export default function CarveOutsPage() {
     setEditForm({
       title: carveOut.title,
       type: carveOut.type,
+      ...deriveServiceSelection(carveOut.type, carveOut.service || ''),
       url: carveOut.url || '',
       notes: carveOut.notes || '',
       meeting: carveOut.meeting._id
@@ -191,7 +204,10 @@ export default function CarveOutsPage() {
       const res = await fetch(withBasePath(`/api/carveouts/${editModalCarveOut._id}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editForm)
+        body: JSON.stringify({
+          ...editForm,
+          service: resolveSelectedService(editForm.serviceChoice, editForm.customService)
+        })
       });
 
       const payload = (await res.json().catch(() => null)) as { message?: string } | null;
@@ -372,6 +388,7 @@ export default function CarveOutsPage() {
 
         <div className="podcast-meta-row">
           <span className="badge">{getCarveOutTypeLabel(carveOut.type)}</span>
+          {carveOut.service ? <span className="badge secondary-badge">{carveOut.service}</span> : null}
           {carveOut.member._id === member?._id ? <span className="badge my-carveout">Mine</span> : null}
         </div>
 
@@ -384,6 +401,12 @@ export default function CarveOutsPage() {
             <span>Meeting</span>
             <strong>{formatDate(carveOut.meeting.date)}</strong>
           </div>
+          {carveOut.service ? (
+            <div>
+              <span>Service</span>
+              <strong>{carveOut.service}</strong>
+            </div>
+          ) : null}
         </div>
 
         {carveOut.notes ? (
@@ -516,7 +539,7 @@ export default function CarveOutsPage() {
               </label>
               <label>
                 Type
-                <select value={form.type} onChange={(event) => setForm((prev) => ({ ...prev, type: event.target.value }))}>
+                <select value={form.type} onChange={(event) => updateType(event.target.value, setForm)}>
                   <option value="book">Book</option>
                   <option value="video">Video</option>
                   <option value="movie">Movie</option>
@@ -526,7 +549,32 @@ export default function CarveOutsPage() {
                 </select>
               </label>
               <label>
-                URL
+                Service or platform
+                <select
+                  value={form.serviceChoice}
+                  onChange={(event) => setForm((prev) => ({ ...prev, serviceChoice: event.target.value }))}
+                >
+                  <option value="">Select service</option>
+                  {formServiceOptions.map((service) => (
+                    <option key={service} value={service}>
+                      {service}
+                    </option>
+                  ))}
+                  <option value={OTHER_SERVICE_VALUE}>Other</option>
+                </select>
+              </label>
+              {form.serviceChoice === OTHER_SERVICE_VALUE ? (
+                <label>
+                  Custom service
+                  <input
+                    value={form.customService}
+                    onChange={(event) => setForm((prev) => ({ ...prev, customService: event.target.value }))}
+                    placeholder="Enter the service name"
+                  />
+                </label>
+              ) : null}
+              <label>
+                URL (optional)
                 <input
                   type="url"
                   value={form.url}
@@ -586,7 +634,7 @@ export default function CarveOutsPage() {
             </label>
             <label>
               Type
-              <select value={editForm.type} onChange={(event) => setEditForm((prev) => ({ ...prev, type: event.target.value }))}>
+              <select value={editForm.type} onChange={(event) => updateType(event.target.value, setEditForm)}>
                 <option value="book">Book</option>
                 <option value="video">Video</option>
                 <option value="movie">Movie</option>
@@ -596,7 +644,32 @@ export default function CarveOutsPage() {
               </select>
             </label>
             <label>
-              URL
+              Service or platform
+              <select
+                value={editForm.serviceChoice}
+                onChange={(event) => setEditForm((prev) => ({ ...prev, serviceChoice: event.target.value }))}
+              >
+                <option value="">Select service</option>
+                {editServiceOptions.map((service) => (
+                  <option key={service} value={service}>
+                    {service}
+                  </option>
+                ))}
+                <option value={OTHER_SERVICE_VALUE}>Other</option>
+              </select>
+            </label>
+            {editForm.serviceChoice === OTHER_SERVICE_VALUE ? (
+              <label>
+                Custom service
+                <input
+                  value={editForm.customService}
+                  onChange={(event) => setEditForm((prev) => ({ ...prev, customService: event.target.value }))}
+                  placeholder="Enter the service name"
+                />
+              </label>
+            ) : null}
+            <label>
+              URL (optional)
               <input
                 type="url"
                 value={editForm.url}

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { requireSession } from '@/lib/auth';
+import { normalizeCarveOutServiceInput } from '@/lib/carveout-meta';
 import CarveOutModel from '@/models/CarveOut';
 import '@/models/Meeting';
 
@@ -14,6 +15,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     const body = (await req.json()) as {
       title?: string;
       type?: 'book' | 'video' | 'movie' | 'podcast' | 'article' | 'other';
+      service?: string;
       url?: string;
       notes?: string;
       meeting?: string;
@@ -41,6 +43,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       {
         title: nextTitle,
         ...(body.type ? { type: body.type } : {}),
+        service: normalizeCarveOutServiceInput(body.service),
         url: String(body.url || '').trim(),
         notes: String(body.notes || '').trim(),
         meeting: nextMeeting

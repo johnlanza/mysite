@@ -8,17 +8,18 @@ import { useSession } from '@/lib/use-session';
 type NavLink = {
   href: Route;
   label: string;
+  tone: 'home' | 'podcasts' | 'meetings' | 'carveouts' | 'more' | 'members' | 'imports' | 'login';
 };
 
 const links: NavLink[] = [
-  { href: '/', label: 'Home' },
-  { href: '/podcasts', label: 'Podcasts' },
-  { href: '/meetings', label: 'Meetings' },
-  { href: '/carveouts', label: 'Carve Outs' },
-  { href: '/more', label: 'More' },
-  { href: '/members', label: 'Members' },
-  { href: '/imports', label: 'Imports' },
-  { href: '/login', label: 'Login' }
+  { href: '/', label: 'Home', tone: 'home' },
+  { href: '/podcasts', label: 'Podcasts', tone: 'podcasts' },
+  { href: '/meetings', label: 'Meetings', tone: 'meetings' },
+  { href: '/carveouts', label: 'Carve Outs', tone: 'carveouts' },
+  { href: '/more', label: 'More', tone: 'more' },
+  { href: '/members', label: 'Members', tone: 'members' },
+  { href: '/imports', label: 'Imports', tone: 'imports' },
+  { href: '/login', label: 'Login', tone: 'login' }
 ];
 
 function MobileNavIcon({ href }: { href: Route }) {
@@ -104,7 +105,12 @@ export function Nav() {
       {desktopLinks.map((link) => {
         const active = pathname === link.href || (link.href === '/podcasts' && pathname.startsWith('/podcasts'));
         return (
-          <Link key={link.href} className={active ? 'nav-link active' : 'nav-link'} href={link.href}>
+          <Link
+            key={link.href}
+            className={active ? 'nav-link active' : 'nav-link'}
+            href={link.href}
+            data-tone={link.tone}
+          >
             {link.label}
           </Link>
         );
@@ -131,7 +137,12 @@ export function MobileNav() {
       {visibleLinks.map((link) => {
         const active = pathname === link.href || (link.href === '/podcasts' && pathname.startsWith('/podcasts'));
         return (
-          <Link key={link.href} className={active ? 'mobile-nav-link active' : 'mobile-nav-link'} href={link.href}>
+          <Link
+            key={link.href}
+            className={active ? 'mobile-nav-link active' : 'mobile-nav-link'}
+            href={link.href}
+            data-tone={link.tone}
+          >
             <span className="mobile-nav-icon" aria-hidden="true">
               <MobileNavIcon href={link.href} />
             </span>

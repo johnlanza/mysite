@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { requireSession } from '@/lib/auth';
+import { normalizeCarveOutServiceInput } from '@/lib/carveout-meta';
 import CarveOutModel from '@/models/CarveOut';
 import '@/models/Meeting';
 
@@ -46,14 +47,22 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { title, type, url, notes, meeting } = await req.json();
+    const { title, type, service, url, notes, meeting } = await req.json();
 
     if (!title || !meeting) {
       return NextResponse.json({ message: 'title and meeting are required.' }, { status: 400 });
     }
 
     await connectToDatabase();
-    const carveOut = await CarveOutModel.create({ title, type, url, notes, member: session.member._id, meeting });
+    const carveOut = await CarveOutModel.create({
+      title,
+      type,
+      service: normalizeCarveOutServiceInput(service),
+      url,
+      notes,
+      member: session.member._id,
+      meeting
+    });
 
     const populated = await CarveOutModel.findById(carveOut._id)
       .populate('member', 'name')

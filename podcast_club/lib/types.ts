@@ -79,6 +79,7 @@ export type CarveOut = {
   _id: string;
   title: string;
   type: string;
+  service?: string;
   url?: string;
   notes?: string;
   member: { _id: string; name: string };
