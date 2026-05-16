@@ -48,11 +48,11 @@ export function BrandIntro() {
     }
 
     const enterTimer = window.setTimeout(() => setPhase('enter'), 40);
-    const settleTimer = window.setTimeout(() => setPhase('settle'), 1760);
+    const settleTimer = window.setTimeout(() => setPhase('settle'), 2760);
     const doneTimer = window.setTimeout(() => {
       window.sessionStorage.setItem(INTRO_STORAGE_KEY, 'done');
       setPhase('done');
-    }, 2660);
+    }, 3660);
 
     return () => {
       window.clearTimeout(enterTimer);
