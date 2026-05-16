@@ -109,9 +109,11 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.82), rgba(239, 244, 251, 0.28) 46%, transparent 72%);
-  opacity: 0;
-  transition: opacity 420ms ease;
+  background:
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.78), rgba(238, 245, 251, 0.28) 44%, transparent 72%),
+    linear-gradient(180deg, rgba(238, 245, 251, 0.99), rgba(220, 234, 241, 0.99));
+  opacity: 1;
+  transition: opacity 760ms ease;
 }
 
 .brand-intro-mark {
@@ -136,6 +138,7 @@ body {
   display: block;
 }
 
+.brand-intro-idle::before,
 .brand-intro-enter::before,
 .brand-intro-settle::before {
   opacity: 1;
