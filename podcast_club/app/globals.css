@@ -1993,6 +1993,10 @@ button:disabled {
   font-size: 1.05rem;
 }
 
+.meeting-history-card .library-podcast-head {
+  margin-bottom: 0.35rem;
+}
+
 .meeting-history-card p {
   margin: 0.35rem 0 0;
   color: var(--ink-soft);
@@ -2064,6 +2068,12 @@ button:disabled {
   background: rgba(244, 252, 250, 0.96);
 }
 
+.carveouts-page .carveout-library-card {
+  border-color: rgba(47, 143, 131, 0.22);
+  background: linear-gradient(180deg, rgba(246, 253, 251, 0.98), rgba(224, 243, 239, 0.98));
+  box-shadow: 0 10px 24px rgba(47, 143, 131, 0.08);
+}
+
 .carveout-card-head {
   display: block;
   min-width: 0;
@@ -2109,10 +2119,9 @@ button:disabled {
 .carveouts-page .carveout-detail-grid div,
 .carveouts-page .carveout-notes-card,
 .carveouts-page .carveout-link-row {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(223, 245, 240, 0.99));
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.92),
-    0 10px 24px rgba(47, 143, 131, 0.12);
+  border-color: rgba(47, 143, 131, 0.22);
+  background: rgba(251, 255, 253, 0.98);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.78);
 }
 
 .carveout-detail-grid span,
@@ -2296,11 +2305,51 @@ button:disabled {
   background: rgba(253, 244, 245, 0.96);
 }
 
+.meetings-history-panel .meeting-history-card {
+  border-color: rgba(120, 0, 0, 0.2);
+  background: linear-gradient(180deg, rgba(254, 246, 247, 0.98), rgba(240, 212, 214, 0.98));
+  box-shadow: 0 10px 24px rgba(120, 0, 0, 0.08);
+}
+
+.meetings-history-panel .meeting-detail-grid div,
+.meetings-history-panel .meeting-location-card,
+.meetings-history-panel .meeting-notes-card,
+.meetings-history-panel .meeting-action-panel,
+.meetings-history-panel .meeting-danger-section {
+  border-color: rgba(120, 0, 0, 0.16);
+  background: rgba(254, 249, 249, 0.98);
+}
+
 .meetings-page .meeting-picker-summary > span:last-child,
 .meetings-page .meeting-picker-option > span:last-child,
 .meetings-page .date-picker-action {
   background: rgba(120, 0, 0, 0.1);
   color: #5f0000;
+}
+
+.meetings-page .podcast-tabs {
+  border-color: rgba(120, 0, 0, 0.18);
+  background: rgba(251, 240, 241, 0.96);
+  box-shadow: 0 10px 24px rgba(120, 0, 0, 0.08);
+}
+
+.meetings-page .podcast-tab {
+  color: #6b1419;
+  background: rgba(120, 0, 0, 0.06);
+}
+
+.meetings-page .podcast-tab.active {
+  background: var(--nav-meetings);
+  color: #fff;
+}
+
+.meetings-page .podcast-tab small {
+  background: rgba(120, 0, 0, 0.12);
+  color: inherit;
+}
+
+.meetings-page .podcast-tab.active small {
+  background: rgba(255, 255, 255, 0.18);
 }
 
 .meetings-page .form input,

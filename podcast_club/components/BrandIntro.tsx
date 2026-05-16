@@ -22,9 +22,18 @@ function getIntroWidth() {
 export function BrandIntro() {
   const [phase, setPhase] = useState<Phase>('idle');
   const [settleTransform, setSettleTransform] = useState<string | null>(null);
-  const introMarkStyle = settleTransform
-    ? ({ ['--brand-intro-settle-transform' as string]: settleTransform } as CSSProperties)
-    : undefined;
+  const introMarkStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    width: 'min(68vw, 24rem)',
+    aspectRatio: '1 / 1',
+    transform: 'translate(-50%, -50%) scale(0.88)',
+    opacity: 0,
+    transformOrigin: 'center center',
+    filter: 'drop-shadow(0 22px 44px rgba(19, 39, 75, 0.16))',
+    ...(settleTransform ? ({ ['--brand-intro-settle-transform' as string]: settleTransform } as CSSProperties) : {})
+  } satisfies CSSProperties;
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -63,12 +72,17 @@ export function BrandIntro() {
   if (phase === 'done') return null;
 
   return (
-    <div className={`brand-intro-overlay brand-intro-${phase}`} aria-hidden="true">
+    <div
+      className={`brand-intro-overlay brand-intro-${phase}`}
+      aria-hidden="true"
+      style={{ position: 'fixed', inset: 0, zIndex: 60, pointerEvents: 'none' }}
+    >
       <div className="brand-intro-mark" style={introMarkStyle}>
         <img
           className="brand-intro-logo"
           src={withBasePath('/royal-podcast-society-logo-transparent.png')}
           alt=""
+          style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
         />
       </div>
     </div>
