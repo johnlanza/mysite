@@ -3,7 +3,7 @@
 import { CSSProperties, useEffect, useState } from 'react';
 import { withBasePath } from '@/lib/base-path';
 
-const INTRO_STORAGE_KEY = 'royal-podcast-society-brand-intro';
+const INTRO_STORAGE_KEY = 'royal-podcast-society-brand-intro-v2';
 const INTRO_MAX_WIDTH_REM = 34;
 const INTRO_MAX_WIDTH_REM_MOBILE = 24;
 
