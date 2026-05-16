@@ -25,19 +25,6 @@ export function BrandIntro() {
   const introMarkStyle = settleTransform
     ? ({ ['--brand-intro-settle-transform' as string]: settleTransform } as CSSProperties)
     : undefined;
-  const overlayStyle: CSSProperties = {
-    position: 'fixed',
-    inset: 0,
-    zIndex: 60,
-    pointerEvents: 'none',
-    background: 'rgba(232, 242, 250, 1)'
-  };
-  const backdropStyle: CSSProperties = {
-    position: 'absolute',
-    inset: 0,
-    background:
-      'radial-gradient(circle at center, rgba(255, 255, 255, 0.82), rgba(232, 242, 250, 0.98) 46%, rgba(232, 242, 250, 0.98) 100%)'
-  };
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -76,12 +63,11 @@ export function BrandIntro() {
   if (phase === 'done') return null;
 
   return (
-    <div className={`brand-intro-overlay brand-intro-${phase}`} aria-hidden="true" style={overlayStyle}>
-      <div aria-hidden="true" style={backdropStyle} />
+    <div className={`brand-intro-overlay brand-intro-${phase}`} aria-hidden="true">
       <div className="brand-intro-mark" style={introMarkStyle}>
         <img
           className="brand-intro-logo"
-          src={withBasePath('/royal-podcast-society-logo.png')}
+          src={withBasePath('/royal-podcast-society-logo-transparent.png')}
           alt=""
         />
       </div>

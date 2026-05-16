@@ -67,7 +67,7 @@ export default function RootLayout({
               <div className="brand-mark-wrap" aria-hidden="true">
                 <img
                   className="brand-mark"
-                  src={withBasePath('/royal-podcast-society-logo.png')}
+                  src={withBasePath('/royal-podcast-society-logo-transparent.png')}
                   alt=""
                 />
               </div>

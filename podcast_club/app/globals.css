@@ -103,17 +103,6 @@ body {
   inset: 0;
   z-index: 60;
   pointer-events: none;
-  background: rgba(232, 242, 250, 1);
-}
-
-.brand-intro-overlay::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at center, rgba(255, 255, 255, 0.82), rgba(232, 242, 250, 0.98) 46%, rgba(232, 242, 250, 0.98) 100%);
-  opacity: 1;
-  transition: opacity 760ms ease;
 }
 
 .brand-intro-mark {
@@ -136,12 +125,6 @@ body {
   height: 100%;
   object-fit: contain;
   display: block;
-}
-
-.brand-intro-idle::before,
-.brand-intro-enter::before,
-.brand-intro-settle::before {
-  opacity: 1;
 }
 
 .brand-intro-enter .brand-intro-mark {
