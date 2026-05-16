@@ -4,14 +4,19 @@ import { CSSProperties, useEffect, useState } from 'react';
 import { withBasePath } from '@/lib/base-path';
 
 const INTRO_STORAGE_KEY = 'royal-podcast-society-brand-intro';
-const INTRO_MAX_WIDTH_REM = 42;
+const INTRO_MAX_WIDTH_REM = 34;
+const INTRO_MAX_WIDTH_REM_MOBILE = 24;
 
 type Phase = 'idle' | 'enter' | 'settle' | 'done';
 
 function getIntroWidth() {
   if (typeof window === 'undefined') return 0;
   const rootFontSize = Number.parseFloat(window.getComputedStyle(document.documentElement).fontSize) || 16;
-  return Math.min(window.innerWidth * 0.9, rootFontSize * INTRO_MAX_WIDTH_REM);
+  const mobile = window.matchMedia('(max-width: 640px)').matches;
+  return Math.min(
+    window.innerWidth * (mobile ? 0.68 : 0.82),
+    rootFontSize * (mobile ? INTRO_MAX_WIDTH_REM_MOBILE : INTRO_MAX_WIDTH_REM)
+  );
 }
 
 export function BrandIntro() {

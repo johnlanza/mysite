@@ -118,7 +118,7 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: min(90vw, 42rem);
+  width: min(82vw, 34rem);
   aspect-ratio: 1 / 1;
   transform: translate(-50%, -50%) scale(0.88);
   opacity: 0;
@@ -153,6 +153,12 @@ body {
 .brand-intro-settle .brand-intro-mark {
   opacity: 0;
   transform: var(--brand-intro-settle-transform, translate(calc(-50% - 40vw), calc(-50% - 40vh)) scale(0.16));
+}
+
+@media (max-width: 640px) {
+  .brand-intro-mark {
+    width: min(68vw, 24rem);
+  }
 }
 
 .site-header-title {
@@ -1802,6 +1808,7 @@ button:disabled {
   display: flex;
   flex-wrap: wrap;
   gap: 0.55rem;
+  padding: 0 0.2rem;
 }
 
 .meeting-primary-actions button {
