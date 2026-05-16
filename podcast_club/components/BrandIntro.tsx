@@ -1,12 +1,25 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { CSSProperties, useEffect, useState } from 'react';
 import { withBasePath } from '@/lib/base-path';
 
 const INTRO_STORAGE_KEY = 'royal-podcast-society-brand-intro';
+const INTRO_MAX_WIDTH_REM = 42;
+
+type Phase = 'idle' | 'enter' | 'settle' | 'done';
+
+function getIntroWidth() {
+  if (typeof window === 'undefined') return 0;
+  const rootFontSize = Number.parseFloat(window.getComputedStyle(document.documentElement).fontSize) || 16;
+  return Math.min(window.innerWidth * 0.9, rootFontSize * INTRO_MAX_WIDTH_REM);
+}
 
 export function BrandIntro() {
-  const [phase, setPhase] = useState<'idle' | 'enter' | 'settle' | 'done'>('idle');
+  const [phase, setPhase] = useState<Phase>('idle');
+  const [settleTransform, setSettleTransform] = useState<string | null>(null);
+  const introStyle = settleTransform
+    ? ({ ['--brand-intro-settle-transform' as string]: settleTransform } as CSSProperties)
+    : undefined;
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -15,6 +28,18 @@ export function BrandIntro() {
     if (hasPlayed) {
       setPhase('done');
       return;
+    }
+
+    const target = document.querySelector<HTMLElement>('.brand-mark-wrap');
+    if (target) {
+      const rect = target.getBoundingClientRect();
+      const introWidth = getIntroWidth();
+      if (introWidth > 0 && rect.width > 0) {
+        const dx = rect.left + rect.width / 2 - window.innerWidth / 2;
+        const dy = rect.top + rect.height / 2 - window.innerHeight / 2;
+        const scale = rect.width / introWidth;
+        setSettleTransform(`translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(${scale})`);
+      }
     }
 
     const enterTimer = window.setTimeout(() => setPhase('enter'), 40);
@@ -30,12 +55,11 @@ export function BrandIntro() {
       window.clearTimeout(doneTimer);
     };
   }, []);
-
   if (phase === 'done') return null;
 
   return (
     <div className={`brand-intro-overlay brand-intro-${phase}`} aria-hidden="true">
-      <div className="brand-intro-mark">
+      <div className="brand-intro-mark" style={introStyle}>
         <img
           className="brand-intro-logo"
           src={withBasePath('/royal-podcast-society-logo.png')}

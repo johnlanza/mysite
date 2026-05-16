@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import Link from 'next/link';
 import { BrandIntro } from '@/components/BrandIntro';
 import { Manrope, Spectral } from 'next/font/google';
 import { MobileNav, Nav } from '@/components/Nav';
@@ -62,7 +63,7 @@ export default function RootLayout({
         <div className="page-bg" />
         <main className="shell">
           <header className="site-header">
-            <div className="brand-lockup">
+            <Link className="brand-lockup" href="/">
               <div className="brand-mark-wrap" aria-hidden="true">
                 <img
                   className="brand-mark"
@@ -74,7 +75,7 @@ export default function RootLayout({
                 <h1>Royal Podcast Society</h1>
                 <p>Enjoying podcast discussions one meeting at a time.</p>
               </div>
-            </div>
+            </Link>
             <Nav />
             <div className="auth-status-wrap">
               <AuthStatus />

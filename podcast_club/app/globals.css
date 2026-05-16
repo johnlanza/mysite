@@ -77,6 +77,8 @@ body {
   align-items: center;
   gap: 0.8rem;
   min-width: 0;
+  color: inherit;
+  text-decoration: none;
 }
 
 .brand-mark-wrap {
@@ -128,7 +130,10 @@ body {
 }
 
 .brand-intro-logo {
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+  display: block;
 }
 
 .brand-intro-enter::before,
@@ -147,7 +152,7 @@ body {
 
 .brand-intro-settle .brand-intro-mark {
   opacity: 0;
-  transform: translate(calc(-50vw + 4rem), calc(-50vh + 4rem)) scale(0.16);
+  transform: var(--brand-intro-settle-transform, translate(calc(-50% - 40vw), calc(-50% - 40vh)) scale(0.16));
 }
 
 .site-header-title {
@@ -2060,7 +2065,6 @@ button:disabled {
 .carveouts-page .item,
 .carveouts-page .card,
 .carveouts-page .public-copy-section,
-.carveouts-page .carveout-detail-grid div,
 .carveouts-page .carveout-notes-card,
 .carveouts-page .carveout-link-row,
 .carveouts-page .carveout-form-section {
@@ -2103,10 +2107,19 @@ button:disabled {
 .carveout-detail-grid div,
 .carveout-notes-card {
   min-width: 0;
-  padding: 0.65rem;
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  padding: 0.78rem 0.8rem;
+  border: 1px solid rgba(47, 143, 131, 0.28);
+  border-radius: 12px;
   background: var(--surface-subtle);
+}
+
+.carveouts-page .carveout-detail-grid div,
+.carveouts-page .carveout-notes-card,
+.carveouts-page .carveout-link-row {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(223, 245, 240, 0.99));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    0 10px 24px rgba(47, 143, 131, 0.12);
 }
 
 .carveout-detail-grid span,
