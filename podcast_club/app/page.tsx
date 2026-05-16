@@ -586,17 +586,17 @@ export default function HomePage() {
             </span>
             <span aria-hidden="true">&gt;</span>
           </Link>
-          <Link className="todo-row" href={CARVE_OUT_SHARE_HREF}>
-            <span>
-              <strong>Share a carve out</strong>
-              <small>Post something that made an impact.</small>
-            </span>
-            <span aria-hidden="true">&gt;</span>
-          </Link>
           <Link className="todo-row" href={PODCAST_SUBMIT_HREF}>
             <span>
               <strong>Submit a podcast</strong>
               <small>Add something for the club to consider.</small>
+            </span>
+            <span aria-hidden="true">&gt;</span>
+          </Link>
+          <Link className="todo-row" href={CARVE_OUT_SHARE_HREF}>
+            <span>
+              <strong>Share a carve out</strong>
+              <small>Post something that made an impact.</small>
             </span>
             <span aria-hidden="true">&gt;</span>
           </Link>
