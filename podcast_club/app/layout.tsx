@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next';
-import Image from 'next/image';
 import { BrandIntro } from '@/components/BrandIntro';
 import { Manrope, Spectral } from 'next/font/google';
 import { MobileNav, Nav } from '@/components/Nav';
@@ -65,13 +64,10 @@ export default function RootLayout({
           <header className="site-header">
             <div className="brand-lockup">
               <div className="brand-mark-wrap" aria-hidden="true">
-                <Image
+                <img
                   className="brand-mark"
                   src={withBasePath('/royal-podcast-society-logo.png')}
                   alt=""
-                  fill
-                  sizes="(max-width: 768px) 2.5rem, 3.7rem"
-                  priority
                 />
               </div>
               <div className="site-header-title">

@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { withBasePath } from '@/lib/base-path';
 
@@ -37,13 +36,10 @@ export function BrandIntro() {
   return (
     <div className={`brand-intro-overlay brand-intro-${phase}`} aria-hidden="true">
       <div className="brand-intro-mark">
-        <Image
+        <img
           className="brand-intro-logo"
           src={withBasePath('/royal-podcast-society-logo.png')}
           alt=""
-          fill
-          sizes="(max-width: 768px) 78vw, 44vw"
-          priority
         />
       </div>
     </div>
