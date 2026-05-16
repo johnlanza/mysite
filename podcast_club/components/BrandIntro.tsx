@@ -28,8 +28,6 @@ export function BrandIntro() {
     left: '50%',
     width: 'min(68vw, 24rem)',
     aspectRatio: '1 / 1',
-    transform: 'translate(-50%, -50%) scale(0.88)',
-    opacity: 0,
     transformOrigin: 'center center',
     filter: 'drop-shadow(0 22px 44px rgba(19, 39, 75, 0.16))',
     ...(settleTransform ? ({ ['--brand-intro-settle-transform' as string]: settleTransform } as CSSProperties) : {})
