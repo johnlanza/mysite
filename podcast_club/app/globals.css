@@ -103,6 +103,7 @@ body {
   inset: 0;
   z-index: 60;
   pointer-events: none;
+  background: rgba(232, 242, 250, 1);
 }
 
 .brand-intro-overlay::before {
@@ -110,8 +111,7 @@ body {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at center, rgba(255, 255, 255, 0.78), rgba(238, 245, 251, 0.28) 44%, transparent 72%),
-    linear-gradient(180deg, rgba(238, 245, 251, 0.99), rgba(220, 234, 241, 0.99));
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.82), rgba(232, 242, 250, 0.98) 46%, rgba(232, 242, 250, 0.98) 100%);
   opacity: 1;
   transition: opacity 760ms ease;
 }
