@@ -274,6 +274,16 @@ body {
   border-color: var(--nav-imports);
 }
 
+.nav-link.active[data-tone='home'],
+.nav-link.active[data-tone='podcasts'],
+.nav-link.active[data-tone='meetings'],
+.nav-link.active[data-tone='carveouts'],
+.nav-link.active[data-tone='more'],
+.nav-link.active[data-tone='members'],
+.nav-link.active[data-tone='imports'] {
+  color: #fff;
+}
+
 .mobile-bottom-nav {
   display: none;
 }
