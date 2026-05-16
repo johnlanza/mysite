@@ -4,6 +4,7 @@ import { BrandIntro } from '@/components/BrandIntro';
 import { Manrope, Spectral } from 'next/font/google';
 import { MobileNav, Nav } from '@/components/Nav';
 import { AuthStatus } from '@/components/AuthStatus';
+import { withBasePath } from '@/lib/base-path';
 import './globals.css';
 
 const sans = Manrope({ subsets: ['latin'], variable: '--font-sans' });
@@ -66,7 +67,7 @@ export default function RootLayout({
               <div className="brand-mark-wrap" aria-hidden="true">
                 <Image
                   className="brand-mark"
-                  src="/royal-podcast-society-logo.png"
+                  src={withBasePath('/royal-podcast-society-logo.png')}
                   alt=""
                   fill
                   sizes="(max-width: 768px) 2.5rem, 3.7rem"

@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { withBasePath } from '@/lib/base-path';
 
 const INTRO_STORAGE_KEY = 'royal-podcast-society-brand-intro';
 
@@ -38,7 +39,7 @@ export function BrandIntro() {
       <div className="brand-intro-mark">
         <Image
           className="brand-intro-logo"
-          src="/royal-podcast-society-logo.png"
+          src={withBasePath('/royal-podcast-society-logo.png')}
           alt=""
           fill
           sizes="(max-width: 768px) 78vw, 44vw"
