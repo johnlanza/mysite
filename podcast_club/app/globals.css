@@ -2520,7 +2520,7 @@ button:disabled {
   display: grid;
   place-items: center;
   padding: 1rem;
-  z-index: 20;
+  z-index: 45;
 }
 
 .modal-card {
@@ -2785,6 +2785,18 @@ button:disabled {
     min-height: calc(100dvh + 7rem);
     max-width: 100%;
     padding-bottom: 4rem;
+  }
+
+  .modal-backdrop {
+    padding: 0.85rem;
+    align-items: center;
+  }
+
+  .modal-card {
+    width: min(520px, 100%);
+    max-height: calc(100dvh - 1.7rem);
+    overflow: auto;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
   }
 
   .card,
