@@ -2788,15 +2788,36 @@ button:disabled {
   }
 
   .modal-backdrop {
-    padding: 0.85rem;
-    align-items: center;
+    padding: 0.85rem 0.85rem calc(6.75rem + env(safe-area-inset-bottom));
+    align-items: start;
+    overflow: auto;
   }
 
   .modal-card {
     width: min(520px, 100%);
-    max-height: calc(100dvh - 1.7rem);
+    max-height: none;
     overflow: auto;
+    margin: auto 0 0;
     padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+
+  body:has(.modal-backdrop) {
+    overflow: hidden;
+  }
+
+  body:has(.modal-backdrop) .mobile-bottom-nav {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(calc(100% + 2rem));
+  }
+
+  .modal-card > .inline:last-child {
+    position: sticky;
+    bottom: calc(-1rem - env(safe-area-inset-bottom));
+    margin: 0 -1rem calc(-1rem - env(safe-area-inset-bottom));
+    padding: 0.85rem 1rem calc(1rem + env(safe-area-inset-bottom));
+    border-top: 1px solid rgba(201, 217, 232, 0.92);
+    background: var(--panel);
   }
 
   .card,
