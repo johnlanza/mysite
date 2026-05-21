@@ -38,5 +38,6 @@ export interface Preferences {
 export interface StoredState {
   customTasks: MaintenanceTask[];
   completions: Completion[];
+  archivedTaskIds: string[];
   preferences: Preferences;
 }

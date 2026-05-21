@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties, FormEvent } from 'react';
 import {
+  Archive,
   Bell,
   CalendarDays,
   CalendarPlus,
@@ -22,6 +23,7 @@ import {
   Sparkles,
   Trash2,
   Trophy,
+  Undo2,
   Wrench,
   X,
 } from 'lucide-react';
@@ -104,6 +106,7 @@ function readStoredState(): StoredState {
     return {
       customTasks: [],
       completions: [],
+      archivedTaskIds: [],
       preferences: defaultPreferences,
     };
   }
@@ -114,6 +117,7 @@ function readStoredState(): StoredState {
       return {
         customTasks: [],
         completions: [],
+        archivedTaskIds: [],
         preferences: defaultPreferences,
       };
     }
@@ -122,6 +126,7 @@ function readStoredState(): StoredState {
     return {
       customTasks: Array.isArray(parsed.customTasks) ? parsed.customTasks : [],
       completions: Array.isArray(parsed.completions) ? parsed.completions : [],
+      archivedTaskIds: Array.isArray(parsed.archivedTaskIds) ? parsed.archivedTaskIds : [],
       preferences: {
         ...defaultPreferences,
         ...(parsed.preferences ?? {}),
@@ -131,6 +136,7 @@ function readStoredState(): StoredState {
     return {
       customTasks: [],
       completions: [],
+      archivedTaskIds: [],
       preferences: defaultPreferences,
     };
   }
@@ -255,6 +261,7 @@ function App() {
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
   const [customTasks, setCustomTasks] = useState<MaintenanceTask[]>(stored.customTasks);
   const [completions, setCompletions] = useState<Completion[]>(stored.completions);
+  const [archivedTaskIds, setArchivedTaskIds] = useState<string[]>(stored.archivedTaskIds);
   const [preferences, setPreferences] = useState<Preferences>(stored.preferences);
   const [query, setQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<Category | 'All'>('All');
@@ -270,7 +277,19 @@ function App() {
     effortMinutes: 20,
   });
 
-  const tasks = useMemo(() => [...defaultTasks, ...customTasks], [customTasks]);
+  const allTasks = useMemo(() => [...defaultTasks, ...customTasks], [customTasks]);
+  const archivedIdSet = useMemo(() => new Set(archivedTaskIds), [archivedTaskIds]);
+  const tasks = useMemo(
+    () => allTasks.filter((task) => !archivedIdSet.has(task.id)),
+    [allTasks, archivedIdSet],
+  );
+  const archivedTasks = useMemo(
+    () =>
+      allTasks
+        .filter((task) => archivedIdSet.has(task.id))
+        .sort((a, b) => a.title.localeCompare(b.title)),
+    [allTasks, archivedIdSet],
+  );
   const selectedMonthTasks = useMemo(
     () =>
       tasks
@@ -344,10 +363,11 @@ function App() {
       JSON.stringify({
         customTasks,
         completions,
+        archivedTaskIds,
         preferences,
       }),
     );
-  }, [completions, customTasks, preferences]);
+  }, [archivedTaskIds, completions, customTasks, preferences]);
 
   useEffect(() => {
     monthButtonRefs.current[selectedMonth]?.scrollIntoView({
@@ -447,6 +467,17 @@ function App() {
     );
   }
 
+  function archiveTask(task: MaintenanceTask) {
+    setArchivedTaskIds((current) =>
+      current.includes(task.id) ? current : [...current, task.id],
+    );
+    setCelebration('Archived');
+  }
+
+  function restoreTask(taskId: string) {
+    setArchivedTaskIds((current) => current.filter((id) => id !== taskId));
+  }
+
   async function enableNotifications() {
     if (!('Notification' in window)) {
       return;
@@ -494,6 +525,7 @@ function App() {
   function removeCustomTask(taskId: string) {
     setCustomTasks((current) => current.filter((task) => task.id !== taskId));
     setCompletions((current) => current.filter((completion) => completion.taskId !== taskId));
+    setArchivedTaskIds((current) => current.filter((id) => id !== taskId));
   }
 
   function resetMonth() {
@@ -668,6 +700,30 @@ function App() {
               })}
             </div>
           </div>
+
+          {archivedTasks.length > 0 && (
+            <div className="panel-section">
+              <div className="panel-title">
+                <Archive size={18} />
+                <h3>Archived</h3>
+              </div>
+              <div className="archived-list">
+                {archivedTasks.map((task) => (
+                  <div className="archived-item" key={task.id}>
+                    <span>{task.title}</span>
+                    <button
+                      className="small-icon-button restore-button"
+                      onClick={() => restoreTask(task.id)}
+                      aria-label={`Restore ${task.title}`}
+                      title="Restore task"
+                    >
+                      <Undo2 size={15} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </aside>
 
         <section className="task-board">
@@ -725,6 +781,14 @@ function App() {
                           <Trash2 size={16} />
                         </button>
                       )}
+                      <button
+                        className="small-icon-button archive-button"
+                        onClick={() => archiveTask(task)}
+                        aria-label={`Archive ${task.title}`}
+                        title="Archive task"
+                      >
+                        <Archive size={16} />
+                      </button>
                       <button
                         className={`check-button ${done ? 'is-checked' : ''}`}
                         onClick={() => toggleTask(task)}
