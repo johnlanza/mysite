@@ -28,6 +28,7 @@ const Idea = require("./models/ideas");
 const Book = require("./models/books");
 const User = require("./models/users");
 const Game = require("./models/games");
+const HomekeeperSync = require("./models/homekeeperSync");
 
 const { isLoggedIn } = require("./middleware");
 const userRoutes = require("./routes/users");
@@ -111,6 +112,7 @@ app.use(expressLayouts);
 app.use(express.static("public"));
 app.use("/music", express.static("music"));
 app.use(methodOverride("_method"));
+app.use(express.json({ limit: "256kb" }));
 app.use(express.urlencoded({ extended: true }));
 app.set("trust proxy", 1);
 
@@ -648,6 +650,77 @@ app.post("/ideas", isLoggedIn, async (req, res, next) => {
   try {
     await new Idea(req.body.idea).save();
     res.redirect("/ideas");
+  } catch (err) {
+    next(err);
+  }
+});
+
+// -----------------------
+// Homekeeper sync
+// -----------------------
+function isValidSyncKeyHash(value) {
+  return typeof value === "string" && /^[a-f0-9]{64}$/i.test(value);
+}
+
+function isDatabaseReady() {
+  return mongoose.connection.readyState === 1;
+}
+
+app.get("/api/homekeeper-sync", async (req, res, next) => {
+  try {
+    const syncKeyHash = req.query.key;
+    if (!isValidSyncKeyHash(syncKeyHash)) {
+      return res.status(400).json({ error: "Invalid sync key." });
+    }
+
+    if (!isDatabaseReady()) {
+      return res.status(503).json({ error: "Sync storage is unavailable." });
+    }
+
+    const backup = await HomekeeperSync.findOne({ syncKeyHash }).lean();
+    if (!backup) {
+      return res.json({ exists: false });
+    }
+
+    res.json({
+      exists: true,
+      state: backup.state,
+      updatedAt: backup.updatedAt,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.put("/api/homekeeper-sync", async (req, res, next) => {
+  try {
+    const { syncKeyHash, state } = req.body || {};
+    if (!isValidSyncKeyHash(syncKeyHash)) {
+      return res.status(400).json({ error: "Invalid sync key." });
+    }
+
+    if (!state || typeof state !== "object" || Array.isArray(state)) {
+      return res.status(400).json({ error: "Invalid backup state." });
+    }
+
+    if (JSON.stringify(state).length > 200000) {
+      return res.status(413).json({ error: "Backup state is too large." });
+    }
+
+    if (!isDatabaseReady()) {
+      return res.status(503).json({ error: "Sync storage is unavailable." });
+    }
+
+    const backup = await HomekeeperSync.findOneAndUpdate(
+      { syncKeyHash },
+      { $set: { state } },
+      { new: true, upsert: true, setDefaultsOnInsert: true }
+    ).lean();
+
+    res.json({
+      ok: true,
+      updatedAt: backup.updatedAt,
+    });
   } catch (err) {
     next(err);
   }

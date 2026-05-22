@@ -9,11 +9,14 @@ import {
   ChevronLeft,
   ChevronRight,
   ClipboardCheck,
+  Cloud,
+  CloudOff,
   Droplets,
   Fan,
   Filter,
   Hammer,
   Home,
+  KeyRound,
   Leaf,
   Paintbrush,
   Plus,
@@ -32,6 +35,7 @@ import { defaultTasks, monthNames } from './data/defaultTasks';
 import type { Category, Completion, MaintenanceTask, Preferences, StoredState } from './types';
 
 const STORAGE_KEY = 'homekeeper-state-v1';
+const SYNC_STORAGE_KEY = 'homekeeper-sync-v1';
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 type CSSVarStyle = CSSProperties & Record<`--${string}`, string | number>;
@@ -101,44 +105,77 @@ interface TaskFormState {
   effortMinutes: number;
 }
 
+interface SyncSettings {
+  enabled: boolean;
+  syncKeyHash?: string;
+}
+
+interface SyncStatus {
+  tone: 'idle' | 'syncing' | 'success' | 'error';
+  message: string;
+}
+
+const defaultSyncSettings: SyncSettings = {
+  enabled: false,
+};
+
+function normalizeStoredState(parsed?: Partial<StoredState> | null): StoredState {
+  const preferences = {
+    ...defaultPreferences,
+    ...(parsed?.preferences ?? {}),
+  };
+
+  if (
+    typeof window !== 'undefined' &&
+    (!('Notification' in window) || Notification.permission !== 'granted')
+  ) {
+    preferences.notificationsEnabled = false;
+  }
+
+  return {
+    customTasks: Array.isArray(parsed?.customTasks) ? parsed.customTasks : [],
+    completions: Array.isArray(parsed?.completions) ? parsed.completions : [],
+    archivedTaskIds: Array.isArray(parsed?.archivedTaskIds) ? parsed.archivedTaskIds : [],
+    preferences,
+  };
+}
+
 function readStoredState(): StoredState {
   if (typeof window === 'undefined') {
-    return {
-      customTasks: [],
-      completions: [],
-      archivedTaskIds: [],
-      preferences: defaultPreferences,
-    };
+    return normalizeStoredState();
   }
 
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      return {
-        customTasks: [],
-        completions: [],
-        archivedTaskIds: [],
-        preferences: defaultPreferences,
-      };
+      return normalizeStoredState();
     }
 
     const parsed = JSON.parse(raw) as Partial<StoredState>;
+    return normalizeStoredState(parsed);
+  } catch {
+    return normalizeStoredState();
+  }
+}
+
+function readSyncSettings(): SyncSettings {
+  if (typeof window === 'undefined') {
+    return defaultSyncSettings;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(SYNC_STORAGE_KEY);
+    if (!raw) {
+      return defaultSyncSettings;
+    }
+
+    const parsed = JSON.parse(raw) as Partial<SyncSettings>;
     return {
-      customTasks: Array.isArray(parsed.customTasks) ? parsed.customTasks : [],
-      completions: Array.isArray(parsed.completions) ? parsed.completions : [],
-      archivedTaskIds: Array.isArray(parsed.archivedTaskIds) ? parsed.archivedTaskIds : [],
-      preferences: {
-        ...defaultPreferences,
-        ...(parsed.preferences ?? {}),
-      },
+      enabled: parsed.enabled === true && typeof parsed.syncKeyHash === 'string',
+      syncKeyHash: typeof parsed.syncKeyHash === 'string' ? parsed.syncKeyHash : undefined,
     };
   } catch {
-    return {
-      customTasks: [],
-      completions: [],
-      archivedTaskIds: [],
-      preferences: defaultPreferences,
-    };
+    return defaultSyncSettings;
   }
 }
 
@@ -254,8 +291,59 @@ function downloadCalendar(tasks: MaintenanceTask[], year: number) {
   URL.revokeObjectURL(url);
 }
 
+async function hashSyncKey(value: string) {
+  if (!window.crypto?.subtle) {
+    throw new Error('Secure sync is unavailable in this browser.');
+  }
+
+  const encoded = new TextEncoder().encode(value);
+  const digest = await window.crypto.subtle.digest('SHA-256', encoded);
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+async function fetchRemoteState(syncKeyHash: string) {
+  const response = await fetch(`/api/homekeeper-sync?key=${encodeURIComponent(syncKeyHash)}`);
+  if (!response.ok) {
+    throw new Error('Backup unavailable.');
+  }
+
+  return (await response.json()) as {
+    exists: boolean;
+    state?: Partial<StoredState>;
+    updatedAt?: string;
+  };
+}
+
+async function saveRemoteState(syncKeyHash: string, state: StoredState, signal?: AbortSignal) {
+  const response = await fetch('/api/homekeeper-sync', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ syncKeyHash, state }),
+    signal,
+  });
+
+  if (!response.ok) {
+    throw new Error('Backup failed.');
+  }
+
+  return (await response.json()) as { ok: true; updatedAt?: string };
+}
+
+function formatSyncTime(value?: string) {
+  const date = value ? new Date(value) : new Date();
+  return new Intl.DateTimeFormat(undefined, {
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(date);
+}
+
 function App() {
   const stored = useMemo(readStoredState, []);
+  const storedSyncSettings = useMemo(readSyncSettings, []);
   const today = useMemo(() => new Date(), []);
   const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
@@ -263,6 +351,12 @@ function App() {
   const [completions, setCompletions] = useState<Completion[]>(stored.completions);
   const [archivedTaskIds, setArchivedTaskIds] = useState<string[]>(stored.archivedTaskIds);
   const [preferences, setPreferences] = useState<Preferences>(stored.preferences);
+  const [syncSettings, setSyncSettings] = useState<SyncSettings>(storedSyncSettings);
+  const [syncKeyInput, setSyncKeyInput] = useState('');
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>({
+    tone: 'idle',
+    message: storedSyncSettings.enabled ? 'Ready to sync' : 'Local only',
+  });
   const [query, setQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<Category | 'All'>('All');
   const [isAdding, setIsAdding] = useState(false);
@@ -289,6 +383,15 @@ function App() {
         .filter((task) => archivedIdSet.has(task.id))
         .sort((a, b) => a.title.localeCompare(b.title)),
     [allTasks, archivedIdSet],
+  );
+  const stateSnapshot = useMemo<StoredState>(
+    () => ({
+      customTasks,
+      completions,
+      archivedTaskIds,
+      preferences,
+    }),
+    [archivedTaskIds, completions, customTasks, preferences],
   );
   const selectedMonthTasks = useMemo(
     () =>
@@ -358,16 +461,41 @@ function App() {
   );
 
   useEffect(() => {
-    window.localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({
-        customTasks,
-        completions,
-        archivedTaskIds,
-        preferences,
-      }),
-    );
-  }, [archivedTaskIds, completions, customTasks, preferences]);
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(stateSnapshot));
+  }, [stateSnapshot]);
+
+  useEffect(() => {
+    window.localStorage.setItem(SYNC_STORAGE_KEY, JSON.stringify(syncSettings));
+  }, [syncSettings]);
+
+  useEffect(() => {
+    if (!syncSettings.enabled || !syncSettings.syncKeyHash) {
+      return;
+    }
+
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      setSyncStatus({ tone: 'syncing', message: 'Saving...' });
+      saveRemoteState(syncSettings.syncKeyHash!, stateSnapshot, controller.signal)
+        .then((result) => {
+          setSyncStatus({
+            tone: 'success',
+            message: `Synced ${formatSyncTime(result.updatedAt)}`,
+          });
+        })
+        .catch((error: unknown) => {
+          if (error instanceof DOMException && error.name === 'AbortError') {
+            return;
+          }
+          setSyncStatus({ tone: 'error', message: 'Sync failed' });
+        });
+    }, 900);
+
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [stateSnapshot, syncSettings]);
 
   useEffect(() => {
     monthButtonRefs.current[selectedMonth]?.scrollIntoView({
@@ -489,6 +617,50 @@ function App() {
       notificationsEnabled: permission === 'granted',
       lastReminderDate: undefined,
     }));
+  }
+
+  async function connectSync(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const syncKey = syncKeyInput.trim();
+    if (syncKey.length < 6) {
+      setSyncStatus({ tone: 'error', message: 'Use 6+ characters' });
+      return;
+    }
+
+    try {
+      setSyncStatus({ tone: 'syncing', message: 'Checking backup...' });
+      const syncKeyHash = await hashSyncKey(syncKey);
+      const remote = await fetchRemoteState(syncKeyHash);
+
+      if (remote.exists) {
+        const remoteState = normalizeStoredState(remote.state);
+        setCustomTasks(remoteState.customTasks);
+        setCompletions(remoteState.completions);
+        setArchivedTaskIds(remoteState.archivedTaskIds);
+        setPreferences(remoteState.preferences);
+        setSyncStatus({
+          tone: 'success',
+          message: `Restored ${formatSyncTime(remote.updatedAt)}`,
+        });
+      } else {
+        const result = await saveRemoteState(syncKeyHash, stateSnapshot);
+        setSyncStatus({
+          tone: 'success',
+          message: `Synced ${formatSyncTime(result.updatedAt)}`,
+        });
+      }
+
+      setSyncSettings({ enabled: true, syncKeyHash });
+      setSyncKeyInput('');
+    } catch {
+      setSyncStatus({ tone: 'error', message: 'Sync unavailable' });
+    }
+  }
+
+  function disconnectSync() {
+    setSyncSettings(defaultSyncSettings);
+    setSyncStatus({ tone: 'idle', message: 'Local only' });
+    setSyncKeyInput('');
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -667,6 +839,48 @@ function App() {
               <CalendarPlus size={17} />
               Calendar file
             </button>
+          </div>
+
+          <div className="panel-section sync-box">
+            <div className="panel-title">
+              {syncSettings.enabled ? <Cloud size={18} /> : <CloudOff size={18} />}
+              <h3>Backup</h3>
+            </div>
+            {syncSettings.enabled ? (
+              <div className="sync-connected">
+                <div className={`sync-status is-${syncStatus.tone}`}>
+                  <span>{syncStatus.message}</span>
+                </div>
+                <button className="secondary-button full-width" onClick={disconnectSync}>
+                  <CloudOff size={17} />
+                  Disconnect
+                </button>
+              </div>
+            ) : (
+              <form className="sync-form" onSubmit={connectSync}>
+                <label className="compact-label" htmlFor="sync-key">
+                  Sync key
+                </label>
+                <div className="sync-key-row">
+                  <KeyRound size={17} />
+                  <input
+                    id="sync-key"
+                    type="password"
+                    value={syncKeyInput}
+                    onChange={(event) => setSyncKeyInput(event.target.value)}
+                    placeholder="Private key"
+                    autoComplete="off"
+                  />
+                </div>
+                <button className="secondary-button full-width" type="submit">
+                  <Cloud size={17} />
+                  Start backup
+                </button>
+                <div className={`sync-status is-${syncStatus.tone}`}>
+                  <span>{syncStatus.message}</span>
+                </div>
+              </form>
+            )}
           </div>
 
           <div className="panel-section">
