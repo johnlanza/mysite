@@ -25,7 +25,7 @@ export default function EmergencyRecoveryPage() {
 
     setSaving(true);
 
-    const res = await fetch(withBasePath('/api/auth/emergency-recover'), {
+    const res = await fetch(withBasePath('/api/auth/emergency-recover-legacy'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password, recoveryCode })

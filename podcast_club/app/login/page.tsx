@@ -60,7 +60,7 @@ export default function LoginPage() {
     setError('');
     setSaving(true);
     try {
-      const res = await fetch(withBasePath('/api/auth/login'), {
+      const res = await fetch(withBasePath('/api/auth/login-legacy'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(loginForm)
@@ -86,7 +86,7 @@ export default function LoginPage() {
     setError('');
     setSaving(true);
     try {
-      const res = await fetch(withBasePath('/api/auth/register'), {
+      const res = await fetch(withBasePath('/api/auth/register-legacy'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(registerForm)

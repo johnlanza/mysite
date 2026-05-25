@@ -24,7 +24,7 @@ export default function ClaimAccountPage() {
     }
 
     setSaving(true);
-    const res = await fetch(withBasePath('/api/auth/claim-account'), {
+    const res = await fetch(withBasePath('/api/auth/claim-account-legacy'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, claimCode, password })

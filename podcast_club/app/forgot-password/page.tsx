@@ -16,7 +16,7 @@ export default function ForgotPasswordPage() {
     setMessage('');
     setSaving(true);
 
-    const res = await fetch(withBasePath('/api/auth/forgot-password'), {
+    const res = await fetch(withBasePath('/api/auth/forgot-password-legacy'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })

@@ -132,15 +132,7 @@ export function setSessionCookie(
   memberId: string,
   options?: { impersonatorId?: string; persistent?: boolean }
 ) {
-  const iat = Date.now();
-  const sessionDays = options?.persistent ? PERSISTENT_SESSION_DAYS : SESSION_DAYS;
-  const exp = Date.now() + sessionDays * 24 * 60 * 60 * 1000;
-  const token = createToken({
-    memberId,
-    iat,
-    exp,
-    ...(options?.impersonatorId ? { impersonatorId: options.impersonatorId } : {})
-  });
+  const { token, exp } = buildSessionToken(memberId, options);
 
   response.cookies.set({
     name: SESSION_COOKIE,
@@ -163,4 +155,46 @@ export function clearSessionCookie(response: NextResponse) {
     path: '/',
     expires: new Date(0)
   });
+}
+
+function buildSessionToken(memberId: string, options?: { impersonatorId?: string; persistent?: boolean }) {
+  const iat = Date.now();
+  const sessionDays = options?.persistent ? PERSISTENT_SESSION_DAYS : SESSION_DAYS;
+  const exp = Date.now() + sessionDays * 24 * 60 * 60 * 1000;
+  const token = createToken({
+    memberId,
+    iat,
+    exp,
+    ...(options?.impersonatorId ? { impersonatorId: options.impersonatorId } : {})
+  });
+
+  return { token, exp };
+}
+
+function serializeCookie(name: string, value: string, expires: Date) {
+  const parts = [
+    `${name}=${encodeURIComponent(value)}`,
+    'Path=/',
+    'HttpOnly',
+    'SameSite=Lax',
+    `Expires=${expires.toUTCString()}`
+  ];
+
+  if (process.env.NODE_ENV === 'production') {
+    parts.push('Secure');
+  }
+
+  return parts.join('; ');
+}
+
+export function buildSessionCookieHeader(
+  memberId: string,
+  options?: { impersonatorId?: string; persistent?: boolean }
+) {
+  const { token, exp } = buildSessionToken(memberId, options);
+  return serializeCookie(SESSION_COOKIE, token, new Date(exp));
+}
+
+export function buildClearedSessionCookieHeader() {
+  return serializeCookie(SESSION_COOKIE, '', new Date(0));
 }

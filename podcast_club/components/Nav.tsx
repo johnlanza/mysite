@@ -89,6 +89,7 @@ function MobileNavIcon({ href }: { href: Route }) {
 
 export function Nav() {
   const pathname = usePathname();
+  const currentPath = pathname ?? '';
   const { loading, member } = useSession();
 
   if (loading || !member) {
@@ -103,7 +104,7 @@ export function Nav() {
   return (
     <nav className="nav nav-desktop" aria-label="Primary">
       {desktopLinks.map((link) => {
-        const active = pathname === link.href || (link.href === '/podcasts' && pathname.startsWith('/podcasts'));
+        const active = currentPath === link.href || (link.href === '/podcasts' && currentPath.startsWith('/podcasts'));
         return (
           <Link
             key={link.href}
@@ -121,6 +122,7 @@ export function Nav() {
 
 export function MobileNav() {
   const pathname = usePathname();
+  const currentPath = pathname ?? '';
   const { loading, member } = useSession();
 
   if (loading || !member) {
@@ -135,7 +137,7 @@ export function MobileNav() {
   return (
     <nav className="mobile-bottom-nav" aria-label="Primary">
       {visibleLinks.map((link) => {
-        const active = pathname === link.href || (link.href === '/podcasts' && pathname.startsWith('/podcasts'));
+        const active = currentPath === link.href || (link.href === '/podcasts' && currentPath.startsWith('/podcasts'));
         return (
           <Link
             key={link.href}

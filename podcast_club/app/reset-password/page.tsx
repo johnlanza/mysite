@@ -7,7 +7,7 @@ import { withBasePath } from '@/lib/base-path';
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
-  const tokenFromQuery = useMemo(() => searchParams.get('token') || '', [searchParams]);
+  const tokenFromQuery = useMemo(() => searchParams?.get('token') || '', [searchParams]);
   const [token, setToken] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -36,7 +36,7 @@ function ResetPasswordForm() {
 
     setSaving(true);
 
-    const res = await fetch(withBasePath('/api/auth/reset-password'), {
+    const res = await fetch(withBasePath('/api/auth/reset-password-legacy'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token, password })
