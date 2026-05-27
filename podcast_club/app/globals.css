@@ -1078,10 +1078,15 @@ button:disabled {
 .member-roast-block {
   margin-top: 0.95rem;
   padding: 0.95rem 1rem 1rem;
-  border-radius: 1rem;
-  border: 1px dashed rgba(120, 0, 0, 0.28);
-  background: rgba(120, 0, 0, 0.05);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.74);
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 0.95rem;
+  border: 1px solid rgba(120, 0, 0, 0.16);
+  background: linear-gradient(180deg, rgba(247, 236, 237, 0.96), rgba(255, 251, 251, 0.98));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.84),
+    0 8px 18px rgba(120, 0, 0, 0.05);
 }
 
 .member-roast-kicker {
@@ -1106,20 +1111,30 @@ button:disabled {
   color: #5d0000;
 }
 
+.member-roast-headline,
 .member-roast-copy,
 .member-roast-most-likely,
 .member-roast-note,
 .member-roast-zinger {
   margin: 0.55rem 0 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .member-roast-charges {
   margin-top: 0.7rem;
+  min-width: 0;
 }
 
 .member-roast-charges ul {
   margin: 0.45rem 0 0;
   padding-left: 1.2rem;
+  min-width: 0;
+}
+
+.member-roast-charges li {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .member-roast-charges li + li {
