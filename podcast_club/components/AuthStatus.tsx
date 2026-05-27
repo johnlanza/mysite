@@ -14,7 +14,7 @@ export function AuthStatus() {
   }
 
   async function stopPreview() {
-    await fetch(withBasePath('/api/auth/preview'), { method: 'DELETE', cache: 'no-store' });
+    await fetch(withBasePath('/api/auth/preview-legacy'), { method: 'DELETE', cache: 'no-store' });
     await refresh();
     window.location.assign(withBasePath('/'));
   }

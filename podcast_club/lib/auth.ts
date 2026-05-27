@@ -66,9 +66,7 @@ function verifyToken(token: string): SessionPayload | null {
   }
 }
 
-export async function getSessionMember() {
-  const cookieStore = cookies();
-  const token = cookieStore.get(SESSION_COOKIE)?.value;
+async function resolveSessionMember(token?: string) {
   if (!token) return null;
 
   const payload = verifyToken(token);
@@ -112,6 +110,16 @@ export async function getSessionMember() {
     impersonatorId: payload.impersonatorId ? String(payload.impersonatorId) : undefined,
     impersonatorName: payload.impersonatorId ? impersonatorName : undefined
   };
+}
+
+export async function getSessionMember() {
+  const cookieStore = cookies();
+  const token = cookieStore.get(SESSION_COOKIE)?.value;
+  return resolveSessionMember(token);
+}
+
+export async function getSessionMemberFromCookieValue(token?: string) {
+  return resolveSessionMember(token);
 }
 
 export async function requireSession() {

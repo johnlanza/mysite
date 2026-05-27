@@ -257,20 +257,25 @@ export default function MembersPage() {
     setError('');
     setPreviewingMemberId(member._id);
 
-    const res = await fetch(withBasePath('/api/auth/preview'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ memberId: member._id })
-    });
+    try {
+      const res = await fetch(withBasePath('/api/auth/preview-legacy'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ memberId: member._id })
+      });
 
-    if (!res.ok) {
-      const payload = await res.json();
-      setError(payload.message || 'Unable to start preview.');
+      if (!res.ok) {
+        const payload = (await res.json().catch(() => null)) as { message?: string } | null;
+        setError(payload?.message || 'Unable to start preview.');
+        setPreviewingMemberId(null);
+        return;
+      }
+
+      window.location.assign(withBasePath('/'));
+    } catch {
+      setError('Unable to start preview.');
       setPreviewingMemberId(null);
-      return;
     }
-
-    window.location.assign(withBasePath('/'));
   }
 
   if (!currentMember) {
