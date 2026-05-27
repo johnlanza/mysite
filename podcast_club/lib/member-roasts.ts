@@ -46,9 +46,11 @@ type MemberSummary = {
   noSelection: number;
   submissionExamples: string[];
   carveOutExamples: string[];
+  nonUrlCarveOutExamples: string[];
   hostExamples: string[];
   dominantCarveOutType: string | null;
   totalListeningMinutesSubmitted: number;
+  duplicateSubmissionTitles: string[];
 };
 
 type Persona = 'architect' | 'enthusiast' | 'grazer' | 'moderate' | 'centrist';
@@ -76,6 +78,17 @@ function quoteTitle(value: string) {
 function cleanExample(value?: string | null) {
   if (!value) return '';
   return value.replace(/\s+/g, ' ').trim();
+}
+
+function looksLikeUrl(value: string) {
+  return /^https?:\/\//i.test(value) || /^www\./i.test(value);
+}
+
+function compactTitle(value: string) {
+  const cleaned = cleanExample(value);
+  if (!cleaned) return '';
+  if (looksLikeUrl(cleaned)) return '';
+  return cleaned.length > 90 ? `${cleaned.slice(0, 87).trimEnd()}...` : cleaned;
 }
 
 function getDominantType(carveOuts: CarveOutLite[]) {
@@ -123,6 +136,17 @@ function summarizeMember(member: MemberLite, podcasts: PodcastLite[], carveOuts:
     .slice(0, 3)
     .map(([host]) => host);
 
+  const titleCounts = new Map<string, number>();
+  for (const podcast of submitted) {
+    titleCounts.set(podcast.title, (titleCounts.get(podcast.title) || 0) + 1);
+  }
+  const duplicateSubmissionTitles = [...titleCounts.entries()]
+    .filter(([, count]) => count > 1)
+    .map(([title]) => title);
+
+  const carveOutExamples = memberCarveOuts.map((carveOut) => cleanExample(carveOut.title)).filter(Boolean);
+  const nonUrlCarveOutExamples = carveOutExamples.filter((title) => !looksLikeUrl(title));
+
   return {
     member,
     submittedCount: submitted.length,
@@ -134,11 +158,14 @@ function summarizeMember(member: MemberLite, podcasts: PodcastLite[], carveOuts:
     meh: ratings.filter((rating) => rating.value === 'Meh').length,
     myPodcast: ratings.filter((rating) => rating.value === 'My podcast').length,
     noSelection: ratings.filter((rating) => /No selection/i.test(rating.value)).length,
-    submissionExamples: submitted.map((podcast) => podcast.title).slice(0, 4),
-    carveOutExamples: memberCarveOuts.map((carveOut) => cleanExample(carveOut.title)).filter(Boolean).slice(0, 4),
+    submissionExamples: submitted.map((podcast) => compactTitle(podcast.title)).filter(Boolean).slice(0, 4),
+    carveOutExamples: carveOutExamples.slice(0, 4),
+    nonUrlCarveOutExamples: nonUrlCarveOutExamples.map(compactTitle).filter(Boolean).slice(0, 4),
     hostExamples,
     dominantCarveOutType: getDominantType(memberCarveOuts),
     totalListeningMinutesSubmitted: submitted.reduce((total, podcast) => total + Number(podcast.totalTimeMinutes || 0), 0)
+    ,
+    duplicateSubmissionTitles
   };
 }
 
@@ -172,6 +199,20 @@ function buildCharges(summary: MemberSummary, persona: Persona) {
     );
   }
 
+  if (summary.fistBumpsGiven > 0) {
+    charges.push(`${summary.fistBumpsGiven} fist bump${summary.fistBumpsGiven === 1 ? '' : 's'} issued in the carve-out economy.`);
+  }
+
+  if (summary.duplicateSubmissionTitles.length > 0) {
+    charges.push(
+      `Repeat-submitter behavior detected: ${summary.duplicateSubmissionTitles.map(quoteTitle).join(', ')} came back for another tour.`
+    );
+  }
+
+  if (summary.totalListeningMinutesSubmitted > 0) {
+    charges.push(`${summary.totalListeningMinutesSubmitted} total submitted minutes of audio. Leisure has become an assignment.`);
+  }
+
   if (persona === 'architect') {
     charges[1] = `${summary.likesALot} ecstatic vote${summary.likesALot === 1 ? '' : 's'} out of ${summary.ratedCount} ratings. Approval is being issued like wartime rations.`;
   } else if (persona === 'enthusiast') {
@@ -182,7 +223,7 @@ function buildCharges(summary: MemberSummary, persona: Persona) {
     charges[1] = `${summary.likes} plain “I like it” votes. You have turned mild approval into an organizing principle.`;
   }
 
-  return charges.slice(0, 3);
+  return charges.slice(0, 6);
 }
 
 function roastFromSummary(summary: MemberSummary): MemberRoast {
@@ -202,17 +243,82 @@ function roastFromSummary(summary: MemberSummary): MemberRoast {
 
   const persona = choosePersona(summary);
   const submissions = summary.submissionExamples.map(quoteTitle);
-  const carveOuts = summary.carveOutExamples.map(quoteTitle);
+  const carveOuts = summary.nonUrlCarveOutExamples.map(quoteTitle);
   const hosts = summary.hostExamples.map(quoteTitle);
   const dominant = CARVE_OUT_TYPE_LABELS[summary.dominantCarveOutType || 'other'] || 'miscellaneous object lesson';
+
+  if (summary.member.name === 'John Lanza') {
+    return {
+      headline: 'Chairman of the Leisure Bureau',
+      body: [
+        `${summary.member.name} says “podcast club” the way other people say “nation-state.” ${summary.submittedCount} submissions, ${summary.carveOutCount} carve-outs, and a lineup that runs through ${oxford(submissions.slice(0, 3))} say he did not join a hobby. He founded an institution.`,
+        `${summary.likesALot} ecstatic vote out of ${summary.ratedCount} ratings is the giveaway. He wants surprise, but only after it has passed governance review. Even the side menu, like ${oxford(carveOuts.slice(0, 3))}, feels less like leisure than a curriculum annex.`
+      ],
+      charges: buildCharges(summary, 'architect'),
+      mostLikelyTo: 'turn “let’s keep this casual” into a governance framework by dessert',
+      zinger: 'This is not curation. This is municipal planning with better microphones.'
+    };
+  }
+
+  if (summary.member.name === 'Charlie Gilman') {
+    return {
+      headline: 'Dean of Gentle Improvement',
+      body: [
+        `${summary.member.name} submits podcasts like she is trying to save the room without embarrassing anyone. ${oxford(submissions.slice(0, 3))} are not a feed. They are an intervention conducted with excellent posture.`,
+        `The ratings are even funnier: ${summary.likesALot} “I like it a lot,” ${summary.likes} “I like it,” and ${summary.meh} “Meh.” Charlie is not indecisive. She is committed to the belief that even criticism should arrive with a blanket and herbal tea.`
+      ],
+      charges: buildCharges(summary, 'enthusiast'),
+      mostLikelyTo: 'recommend something “challenging” that still somehow has perfect bedside manner',
+      zinger: 'Her taste says growth, but in a room with very flattering lighting.'
+    };
+  }
+
+  if (summary.member.name === 'Steve Atlee') {
+    return {
+      headline: 'Patron Saint of “I Like It.”',
+      body: [
+        `${summary.member.name} has built an entire worldview out of moderate approval. ${summary.likes} plain “I like it” votes is not a pattern. It is a constitutional amendment.`,
+        `Even his submissions, like ${oxford(submissions.slice(0, 3))}, carry the energy of a man who would like the group to be smarter, but not at the cost of anybody raising their voice. The carve-outs only deepen the case: taste, competence, and a complete refusal to make a scene.`
+      ],
+      charges: buildCharges(summary, 'moderate'),
+      mostLikelyTo: 'make the sensible recommendation and still somehow sound like he is apologizing for its excellence',
+      zinger: 'If enthusiasm had a thermostat, Steve keeps it set to “pleasantly convincing.”'
+    };
+  }
+
+  if (summary.member.name === 'Babak Dadvand') {
+    return {
+      headline: 'Critic-at-Large, Contributor-in-Spirit',
+      body: [
+        `${summary.member.name} has created a remarkable arrangement with podcast club: contribute just enough to establish taste, then spend the rest of the time grading everyone else from a tasteful distance. ${summary.submittedCount} submission against ${summary.carveOutCount} carve-outs is not a ratio. It is a tax shelter.`,
+        `${summary.meh} “Meh” votes and a side channel full of ${dominant} detours like ${oxford(carveOuts.slice(0, 3))} suggest a man who wants range without captivity. He does not want one lane. He wants plausible deniability across all lanes.`
+      ],
+      charges: buildCharges(summary, 'grazer'),
+      mostLikelyTo: 'dismiss your recommendation politely, then send three cooler alternatives before you sit down',
+      zinger: 'Babak does not overcommit. He curates exits.'
+    };
+  }
+
+  if (summary.member.name === 'Danny Corwin') {
+    return {
+      headline: 'Selective Enthusiasm, Mildly Armed',
+      body: [
+        `${summary.member.name} behaves like a man who wants to seem open-minded while quietly keeping receipts. ${oxford(submissions.slice(0, 3))} are a strong case for curiosity, but the rating sheet keeps revealing the internal standards committee.`,
+        `He is not harsh exactly, just strategically unconvinced. ${summary.likesALot} big endorsements, ${summary.likes} measured approvals, and ${summary.meh} pieces of calibrated skepticism. Danny will meet you halfway, but only after inspecting the road surface.`
+      ],
+      charges: buildCharges(summary, 'centrist'),
+      mostLikelyTo: 'say “that was interesting” in a tone that suggests a full appeals process is still available',
+      zinger: 'Danny’s taste is curious, but it wears a helmet.'
+    };
+  }
 
   switch (persona) {
     case 'architect':
       return {
         headline: 'Chairman of the Leisure Bureau',
         body: [
-          `${summary.member.name} does not attend podcast club so much as administer it from inside a paneled office. ${summary.submittedCount} submissions and ${summary.carveOutCount} carve-outs means the man said “let’s keep this casual” and then immediately built a municipal code around ${oxford(submissions.slice(0, 3))}.`,
-          `The funniest part is the rating posture: ${summary.likesALot} full-throated endorsement${summary.likesALot === 1 ? '' : 's'} out of ${summary.ratedCount} ratings, plus ${summary.myPodcast} uses of “My podcast.” That is not open-minded listening. That is a constitutional monarchy pretending to be a town hall. Even the side interests, like ${oxford(carveOuts.slice(0, 3))}, feel like agenda items for a salon with attendance tracking.`
+          `${summary.member.name} does not attend podcast club so much as chair it from inside a paneled office. ${summary.submittedCount} submissions around ${oxford(submissions.slice(0, 3))} is not casual participation. It is agenda control.`,
+          `${summary.likesALot} full-throated endorsement${summary.likesALot === 1 ? '' : 's'} out of ${summary.ratedCount} ratings, plus ${summary.myPodcast} uses of “My podcast,” says the open-mindedness is mostly decorative.`
         ],
         charges: buildCharges(summary, persona),
         mostLikelyTo: 'say he wants spontaneity, then publish a framework for it',
@@ -222,8 +328,8 @@ function roastFromSummary(summary: MemberSummary): MemberRoast {
       return {
         headline: 'The Department of Earnest Approval',
         body: [
-          `${summary.member.name} submits recommendations the way a beloved humanities teacher assigns summer reading: with absolute sincerity and the quiet belief that all of us can still be improved. The trail from ${oxford(submissions.slice(0, 3))} says culture, empathy, and uplift are not preferences here. They are a municipal service.`,
-          `Then come the ratings: ${summary.likesALot} “I like it a lot,” ${summary.likes} “I like it,” and exactly ${summary.meh} “Meh.” That is less a taste profile than a public-relations strategy. Even the carve-outs, from ${oxford(carveOuts.slice(0, 3))}, suggest someone who wants stimulation, but only if it arrives upholstered, house-trained, and carrying a nice tote.`
+          `${summary.member.name} submits recommendations with the quiet confidence of someone assigning enrichment. ${oxford(submissions.slice(0, 3))} says growth, taste, and a refusal to be tacky about either.`,
+          `${summary.likesALot} “I like it a lot,” ${summary.likes} “I like it,” and exactly ${summary.meh} “Meh” is less a taste profile than a hospitality strategy.`
         ],
         charges: buildCharges(summary, persona),
         mostLikelyTo: 'describe a recommendation as “challenging,” then make sure it also has excellent manners',
@@ -233,8 +339,8 @@ function roastFromSummary(summary: MemberSummary): MemberRoast {
       return {
         headline: 'Critic-at-Large, Contributor-in-Spirit',
         body: [
-          `${summary.member.name} has created a remarkable arrangement with podcast club: contribute just enough to establish taste, then spend the rest of the time grading everyone else from a tasteful distance. ${summary.submittedCount} submission${summary.submittedCount === 1 ? '' : 's'} against ${summary.carveOutCount} carve-outs is a portfolio strategy, not participation.`,
-          `The pattern is all there. ${summary.meh} “Meh” votes, only ${summary.submittedCount} owned recommendation${summary.submittedCount === 1 ? '' : 's'}, and a side-channel full of ${dominant} detours like ${oxford(carveOuts.slice(0, 3))}. It reads like someone who wants to be known as eclectic without ever being trapped by full commitment.`
+          `${summary.member.name} has created a remarkable arrangement with podcast club: establish taste, then outsource commitment. ${summary.submittedCount} submission${summary.submittedCount === 1 ? '' : 's'} against ${summary.carveOutCount} carve-outs is a portfolio strategy, not participation.`,
+          `${summary.meh} “Meh” votes and a side-channel full of ${dominant} detours like ${oxford(carveOuts.slice(0, 3))} read like someone preserving optionality at all costs.`
         ],
         charges: buildCharges(summary, persona),
         mostLikelyTo: 'reject your recommendation politely, then send three better links fifteen minutes later',
@@ -244,8 +350,8 @@ function roastFromSummary(summary: MemberSummary): MemberRoast {
       return {
         headline: 'Patron Saint of “I Like It.”',
         body: [
-          `${summary.member.name} has the calm, unnerving energy of someone who thinks moderation is not just a virtue but a full personality. ${summary.likes} plain “I like it” votes is an astonishing commitment to middle-register approval. The feed says yes, the face says maybe, and the actual opinion quietly goes home by 9:30.`,
-          `The supporting evidence is weirdly endearing: submissions like ${oxford(submissions.slice(0, 3))}, carve-outs like ${oxford(carveOuts.slice(0, 3))}, and a general refusal to behave as though taste should ever need a dramatic flourish. This is the audio equivalent of bringing exactly the right bottle of wine and then making no speech about it.`
+          `${summary.member.name} has the calm energy of someone who thinks moderation is a full personality. ${summary.likes} plain “I like it” votes is an astonishing commitment to middle-register approval.`,
+          `Submissions like ${oxford(submissions.slice(0, 3))} and carve-outs like ${oxford(carveOuts.slice(0, 3))} only strengthen the case: taste, competence, and no interest whatsoever in making a scene.`
         ],
         charges: buildCharges(summary, persona),
         mostLikelyTo: 'make the most sensible choice in the room and somehow still seem faintly disappointed by it',
@@ -256,8 +362,8 @@ function roastFromSummary(summary: MemberSummary): MemberRoast {
       return {
         headline: 'Reasonable Taste, Excessively Managed',
         body: [
-          `${summary.member.name} gives off the distinct impression of wanting to appear adventurous while remaining within a carefully supervised radius of coherence. Submissions like ${oxford(submissions.slice(0, 3))} are smart, competent, and just edgy enough to claim range without ever threatening the furniture.`,
-          `The larger profile is pure orderliness: ${summary.likesALot} big endorsements, ${summary.likes} measured approvals, ${summary.meh} controlled dismissals, and a carve-out list that wanders through ${oxford(carveOuts.slice(0, 3))}. Nothing here is chaotic. It is the work of someone who wants to be surprised, but only after the surprise has been peer reviewed.`
+          `${summary.member.name} wants to appear adventurous while remaining within a carefully supervised radius of coherence. ${oxford(submissions.slice(0, 3))} is range with excellent supervision.`,
+          `${summary.likesALot} big endorsements, ${summary.likes} measured approvals, ${summary.meh} dismissals, and carve-outs drifting through ${oxford(carveOuts.slice(0, 3))} suggest someone who wants surprise only after it has been peer reviewed.`
         ],
         charges: buildCharges(summary, persona),
         mostLikelyTo: 'call something “interesting” in a tone that means it survived a very careful screening process',
