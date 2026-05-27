@@ -4,6 +4,9 @@ import { connectToDatabase } from '@/lib/db';
 import { requireAdmin, requireSession } from '@/lib/auth';
 import { formatAddress, normalizeAddressInput, validateAddressInput } from '@/lib/address';
 import { createClaimCode } from '@/lib/account-claim';
+import { buildAdminRoasts } from '@/lib/member-roasts';
+import PodcastModel from '@/models/Podcast';
+import CarveOutModel from '@/models/CarveOut';
 import MemberModel from '@/models/Member';
 
 export async function GET() {
@@ -17,6 +20,48 @@ export async function GET() {
     .select('name email address addressLine1 addressLine2 city state postalCode isAdmin accountStatus')
     .sort({ name: 1 })
     .lean();
+
+  const roastsByMember =
+    session.member.isAdmin
+      ? buildAdminRoasts({
+          members: members.map((member) => ({
+            _id: String(member._id),
+            name: member.name,
+            email: member.email,
+            isAdmin: Boolean(member.isAdmin)
+          })),
+          podcasts: (
+            await PodcastModel.find()
+              .select('title host notes episodeNames totalTimeMinutes submittedBy ratings')
+              .lean()
+          ).map((podcast) => ({
+            title: podcast.title,
+            host: podcast.host || '',
+            notes: podcast.notes || '',
+            episodeNames: podcast.episodeNames || '',
+            totalTimeMinutes: podcast.totalTimeMinutes || 0,
+            submittedBy: String(podcast.submittedBy),
+            ratings: (podcast.ratings || []).map((rating) => ({
+              member: String(rating.member),
+              value: rating.value,
+              points: rating.points
+            }))
+          })),
+          carveOuts: (
+            await CarveOutModel.find()
+              .select('title type service notes member fistBumps')
+              .lean()
+          ).map((carveOut) => ({
+            title: carveOut.title,
+            type: carveOut.type || 'other',
+            service: carveOut.service || '',
+            notes: carveOut.notes || '',
+            member: String(carveOut.member),
+            fistBumps: (carveOut.fistBumps || []).map((entry) => ({ member: String(entry.member) }))
+          }))
+        })
+      : null;
+
   return NextResponse.json(
     members.map((member) => ({
       _id: String(member._id),
@@ -29,7 +74,8 @@ export async function GET() {
       postalCode: member.postalCode || '',
       address: formatAddress(member),
       isAdmin: member.isAdmin,
-      accountStatus: member.accountStatus || 'claimed'
+      accountStatus: member.accountStatus || 'claimed',
+      ...(roastsByMember ? { adminRoast: roastsByMember[String(member._id)] } : {})
     }))
   );
 }

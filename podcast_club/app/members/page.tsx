@@ -493,6 +493,35 @@ export default function MembersPage() {
                   {new Date(generatedClaimCodeByMember[member._id].expiresAt).toLocaleString()})
                 </p>
               ) : null}
+              {currentMember.isAdmin && member.adminRoast ? (
+                <section className="member-roast-block" aria-label={`Private admin roast for ${member.name}`}>
+                  <p className="member-roast-kicker">Private Admin Roast</p>
+                  <p className="member-roast-subtitle">
+                    An unfair but data-supported character assassination based entirely on podcast club behavior.
+                  </p>
+                  <h5 className="member-roast-headline">{member.adminRoast.headline}</h5>
+                  {member.adminRoast.body.map((paragraph, index) => (
+                    <p key={`${member._id}-roast-body-${index}`} className="member-roast-copy">
+                      {paragraph}
+                    </p>
+                  ))}
+                  <div className="member-roast-charges">
+                    <strong>Charges:</strong>
+                    <ul>
+                      {member.adminRoast.charges.map((charge, index) => (
+                        <li key={`${member._id}-roast-charge-${index}`}>{charge}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <p className="member-roast-most-likely">
+                    <strong>Most likely to:</strong> {member.adminRoast.mostLikelyTo}
+                  </p>
+                  {member.adminRoast.zinger ? <p className="member-roast-zinger">“{member.adminRoast.zinger}”</p> : null}
+                  {member.adminRoast.insufficientData ? (
+                    <p className="member-roast-note">{member.adminRoast.insufficientData}</p>
+                  ) : null}
+                </section>
+              ) : null}
             </div>
           ))}
         </div>

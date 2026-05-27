@@ -10,6 +10,14 @@ export type Member = {
   address: string;
   isAdmin: boolean;
   accountStatus?: 'pending' | 'claimed';
+  adminRoast?: {
+    headline: string;
+    body: string[];
+    charges: string[];
+    mostLikelyTo: string;
+    zinger?: string;
+    insufficientData?: string;
+  };
 };
 
 export type SessionMember = Member & {
