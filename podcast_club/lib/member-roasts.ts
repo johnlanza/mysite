@@ -251,12 +251,12 @@ function roastFromSummary(summary: MemberSummary): MemberRoast {
     return {
       headline: 'Chairman of the Leisure Bureau',
       body: [
-        `${summary.member.name} says “podcast club” the way other people say “nation-state.” ${summary.submittedCount} submissions, ${summary.carveOutCount} carve-outs, and a lineup that runs through ${oxford(submissions.slice(0, 3))} say he did not join a hobby. He founded an institution.`,
-        `${summary.likesALot} ecstatic vote out of ${summary.ratedCount} ratings is the giveaway. He wants surprise, but only after it has passed governance review. Even the side menu, like ${oxford(carveOuts.slice(0, 3))}, feels less like leisure than a curriculum annex.`
+        `${summary.member.name} treats podcast club the way other men treat zoning law. ${summary.submittedCount} submissions, ${summary.carveOutCount} carve-outs, and a lineup built around ${oxford(submissions.slice(0, 3))} say he did not join a hobby. He accidentally became the superintendent of one.`,
+        `${summary.likesALot} ecstatic vote out of ${summary.ratedCount} ratings is the giveaway. John says he wants surprise, but what he really wants is a very interesting thing that has already been properly filed, labeled, and introduced by a trusted host.`
       ],
       charges: buildCharges(summary, 'architect'),
       mostLikelyTo: 'turn “let’s keep this casual” into a governance framework by dessert',
-      zinger: 'This is not curation. This is municipal planning with better microphones.'
+      zinger: 'This is what happens when a man tries to relax and accidentally starts a committee.'
     };
   }
 
@@ -264,12 +264,12 @@ function roastFromSummary(summary: MemberSummary): MemberRoast {
     return {
       headline: 'Dean of Gentle Improvement',
       body: [
-        `${summary.member.name} submits podcasts like she is trying to save the room without embarrassing anyone. ${oxford(submissions.slice(0, 3))} are not a feed. They are an intervention conducted with excellent posture.`,
-        `The ratings are even funnier: ${summary.likesALot} “I like it a lot,” ${summary.likes} “I like it,” and ${summary.meh} “Meh.” Charlie is not indecisive. She is committed to the belief that even criticism should arrive with a blanket and herbal tea.`
+        `${summary.member.name} submits podcasts like he is trying to improve the group without making a big show of it. ${oxford(submissions.slice(0, 3))} are not picks. They are a well-mannered attempt to make everybody better.`,
+        `The ratings are even funnier: ${summary.likesALot} “I like it a lot,” ${summary.likes} “I like it,” and ${summary.meh} “Meh.” Charlie does not seem to believe content should be harsh, chaotic, or tacky if it can instead be thoughtful and nicely presented.`
       ],
       charges: buildCharges(summary, 'enthusiast'),
       mostLikelyTo: 'recommend something “challenging” that still somehow has perfect bedside manner',
-      zinger: 'Her taste says growth, but in a room with very flattering lighting.'
+      zinger: 'Charlie does not recommend podcasts. He assigns tasteful self-improvement.'
     };
   }
 
@@ -290,12 +290,12 @@ function roastFromSummary(summary: MemberSummary): MemberRoast {
     return {
       headline: 'Critic-at-Large, Contributor-in-Spirit',
       body: [
-        `${summary.member.name} has created a remarkable arrangement with podcast club: contribute just enough to establish taste, then spend the rest of the time grading everyone else from a tasteful distance. ${summary.submittedCount} submission against ${summary.carveOutCount} carve-outs is not a ratio. It is a tax shelter.`,
-        `${summary.meh} “Meh” votes and a side channel full of ${dominant} detours like ${oxford(carveOuts.slice(0, 3))} suggest a man who wants range without captivity. He does not want one lane. He wants plausible deniability across all lanes.`
+        `${summary.member.name} has created a remarkable arrangement with podcast club: contribute just enough to establish taste, then spend the rest of the time grading everyone else from a tasteful distance. ${summary.submittedCount} submission and ${summary.carveOutCount} carve-outs says one thing very clearly: this man prefers side dishes to entrees.`,
+        `${summary.meh} “Meh” votes and a side channel full of ${dominant} detours like ${oxford(carveOuts.slice(0, 3))} suggest a man who likes having options and does not enjoy being pinned down by one strong opinion for too long.`
       ],
       charges: buildCharges(summary, 'grazer'),
       mostLikelyTo: 'dismiss your recommendation politely, then send three cooler alternatives before you sit down',
-      zinger: 'Babak does not overcommit. He curates exits.'
+      zinger: 'Babak likes culture the way some people like tapas: many plates, no final answer.'
     };
   }
 
@@ -304,11 +304,11 @@ function roastFromSummary(summary: MemberSummary): MemberRoast {
       headline: 'Selective Enthusiasm, Mildly Armed',
       body: [
         `${summary.member.name} behaves like a man who wants to seem open-minded while quietly keeping receipts. ${oxford(submissions.slice(0, 3))} are a strong case for curiosity, but the rating sheet keeps revealing the internal standards committee.`,
-        `He is not harsh exactly, just strategically unconvinced. ${summary.likesALot} big endorsements, ${summary.likes} measured approvals, and ${summary.meh} pieces of calibrated skepticism. Danny will meet you halfway, but only after inspecting the road surface.`
+        `He is not harsh exactly, just strategically unconvinced. ${summary.likesALot} big endorsements, ${summary.likes} measured approvals, and ${summary.meh} pieces of calibrated skepticism. Danny listens like a juror: open to persuasion, visibly unconvinced, and ready with one more question.`
       ],
       charges: buildCharges(summary, 'centrist'),
       mostLikelyTo: 'say “that was interesting” in a tone that suggests a full appeals process is still available',
-      zinger: 'Danny’s taste is curious, but it wears a helmet.'
+      zinger: 'Danny can be won over. He just wants the podcast to show its work.'
     };
   }
 
