@@ -21,6 +21,8 @@ const MongoStore = require("connect-mongo");
 const multer = require("multer");
 const sharp = require("sharp");
 const { createRequire } = require("module");
+const http = require("http");
+const { spawn } = require("child_process");
 
 // MODELS
 const Event = require("./models/events");
@@ -42,13 +44,21 @@ const zetteDir = path.join(__dirname, "zette");
 process.env.ZETTE_ROOT = zetteDir;
 process.env.NEXT_PUBLIC_ZETTE_BASE_PATH =
   process.env.NEXT_PUBLIC_ZETTE_BASE_PATH || "/zette";
-const zetteRequire = createRequire(path.join(zetteDir, "package.json"));
-const zetteNext = zetteRequire("next");
-const zetteApp = zetteNext({
-  dev: process.env.NODE_ENV !== "production",
-  dir: zetteDir,
-});
-const zetteHandler = zetteApp.getRequestHandler();
+const runZetteOutOfProcess = process.env.NODE_ENV === "production";
+const zettePort = Number(process.env.ZETTE_PORT || 3101);
+let zetteProcess;
+let zetteApp;
+let zetteHandler;
+
+if (!runZetteOutOfProcess) {
+  const zetteRequire = createRequire(path.join(zetteDir, "package.json"));
+  const zetteNext = zetteRequire("next");
+  zetteApp = zetteNext({
+    dev: true,
+    dir: zetteDir,
+  });
+  zetteHandler = zetteApp.getRequestHandler();
+}
 
 const podcastClubDir = path.join(__dirname, "podcast_club");
 const podcastRequire = createRequire(path.join(podcastClubDir, "package.json"));
@@ -737,6 +747,9 @@ app.all("/podcastclub*", (req, res) => {
 // Zette (Next.js)
 // -----------------------
 app.all("/zette*", (req, res) => {
+  if (runZetteOutOfProcess) {
+    return proxyToZette(req, res);
+  }
   return zetteHandler(req, res);
 });
 
@@ -754,7 +767,11 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 
 async function startServer() {
-  await zetteApp.prepare();
+  if (runZetteOutOfProcess) {
+    await startZetteProcess();
+  } else {
+    await zetteApp.prepare();
+  }
   await nextApp.prepare();
   app.listen(PORT, () => console.log(`Server running on ${PORT}`));
 }
@@ -762,4 +779,108 @@ async function startServer() {
 startServer().catch((err) => {
   console.error("Failed to start server:", err);
   process.exit(1);
+});
+
+function startZetteProcess() {
+  if (zetteProcess) return Promise.resolve();
+
+  return new Promise((resolve, reject) => {
+    const env = {
+      ...process.env,
+      NODE_ENV: "production",
+      PORT: String(zettePort),
+      NEXT_PUBLIC_ZETTE_BASE_PATH:
+        process.env.NEXT_PUBLIC_ZETTE_BASE_PATH || "/zette",
+    };
+    zetteProcess = spawn(
+      "npm",
+      ["run", "start", "--", "--hostname", "127.0.0.1", "--port", String(zettePort)],
+      {
+        cwd: zetteDir,
+        env,
+        stdio: "inherit",
+      }
+    );
+
+    zetteProcess.once("error", reject);
+    zetteProcess.once("exit", (code, signal) => {
+      if (code !== 0 && code !== null) {
+        reject(new Error(`Zette exited during startup with code ${code}`));
+      } else if (signal) {
+        reject(new Error(`Zette exited during startup from signal ${signal}`));
+      }
+    });
+
+    waitForZette()
+      .then(resolve)
+      .catch(reject);
+  });
+}
+
+function waitForZette(attempt = 1) {
+  return new Promise((resolve, reject) => {
+    const req = http.request(
+      {
+        hostname: "127.0.0.1",
+        port: zettePort,
+        path: "/zette/manifest.webmanifest",
+        method: "GET",
+        timeout: 1000,
+      },
+      (res) => {
+        res.resume();
+        if (res.statusCode && res.statusCode < 500) return resolve();
+        retry();
+      }
+    );
+
+    req.on("error", retry);
+    req.on("timeout", () => {
+      req.destroy();
+      retry();
+    });
+    req.end();
+
+    function retry() {
+      if (attempt >= 40) {
+        reject(new Error("Timed out waiting for Zette to start"));
+        return;
+      }
+      setTimeout(() => waitForZette(attempt + 1).then(resolve, reject), 500);
+    }
+  });
+}
+
+function proxyToZette(req, res) {
+  const proxyReq = http.request(
+    {
+      hostname: "127.0.0.1",
+      port: zettePort,
+      method: req.method,
+      path: req.originalUrl,
+      headers: {
+        ...req.headers,
+        host: `127.0.0.1:${zettePort}`,
+      },
+    },
+    (proxyRes) => {
+      res.writeHead(proxyRes.statusCode || 502, proxyRes.headers);
+      proxyRes.pipe(res);
+    }
+  );
+
+  proxyReq.on("error", (err) => {
+    console.error("Zette proxy error:", err.message);
+    if (!res.headersSent) {
+      res.status(502).send("Zette is unavailable");
+    } else {
+      res.end();
+    }
+  });
+
+  req.pipe(proxyReq);
+}
+
+process.on("SIGTERM", () => {
+  if (zetteProcess && !zetteProcess.killed) zetteProcess.kill("SIGTERM");
 });
