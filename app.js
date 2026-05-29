@@ -38,15 +38,6 @@ const userRoutes = require("./routes/users");
 // -----------------------
 const app = express();
 
-const podcastClubDir = path.join(__dirname, "podcast_club");
-const podcastRequire = createRequire(path.join(podcastClubDir, "package.json"));
-const next = podcastRequire("next");
-const nextApp = next({
-  dev: process.env.NODE_ENV !== "production",
-  dir: podcastClubDir
-});
-const nextHandler = nextApp.getRequestHandler();
-
 const zetteDir = path.join(__dirname, "zette");
 process.env.ZETTE_ROOT = zetteDir;
 process.env.NEXT_PUBLIC_ZETTE_BASE_PATH =
@@ -58,6 +49,15 @@ const zetteApp = zetteNext({
   dir: zetteDir,
 });
 const zetteHandler = zetteApp.getRequestHandler();
+
+const podcastClubDir = path.join(__dirname, "podcast_club");
+const podcastRequire = createRequire(path.join(podcastClubDir, "package.json"));
+const next = podcastRequire("next");
+const nextApp = next({
+  dev: process.env.NODE_ENV !== "production",
+  dir: podcastClubDir
+});
+const nextHandler = nextApp.getRequestHandler();
 
 // -----------------------
 // DB Connection
