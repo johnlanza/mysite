@@ -9,7 +9,9 @@ import MemberModel from '@/models/Member';
 import PasswordResetTokenModel from '@/models/PasswordResetToken';
 import PodcastModel from '@/models/Podcast';
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+type RouteContext = { params: Promise<{ id: string }> };
+
+export async function PATCH(req: Request, { params }: RouteContext) {
   const admin = await requireAdmin();
   if (!admin.ok) {
     return NextResponse.json({ message: admin.message }, { status: admin.status });
@@ -27,8 +29,10 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
         rawAddress.postalCode
     );
 
+    const { id } = await params;
+
     await connectToDatabase();
-    const currentMember = await MemberModel.findById(params.id)
+    const currentMember = await MemberModel.findById(id)
       .select('addressLine1 addressLine2 city state postalCode')
       .lean();
     if (!currentMember) {
@@ -37,7 +41,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
     if (normalizedEmail) {
       const existing = await MemberModel.findOne({
-        _id: { $ne: params.id },
+        _id: { $ne: id },
         email: normalizedEmail
       }).lean();
       if (existing) {
@@ -62,7 +66,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     }
 
     const member = await MemberModel.findByIdAndUpdate(
-      params.id,
+      id,
       {
         ...(name ? { name } : {}),
         ...(normalizedEmail ? { email: normalizedEmail } : {}),
@@ -104,7 +108,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: RouteContext) {
   const admin = await requireAdmin();
   if (!admin.ok) {
     return NextResponse.json({ message: admin.message }, { status: admin.status });
@@ -116,28 +120,30 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
       return NextResponse.json({ message: 'Type DELETE to confirm member deletion.' }, { status: 400 });
     }
 
-    if (admin.member._id === params.id) {
+    const { id } = await params;
+
+    if (admin.member._id === id) {
       return NextResponse.json({ message: 'You cannot delete your own account.' }, { status: 400 });
     }
 
     await connectToDatabase();
 
-    const member = await MemberModel.findById(params.id).select('name email').lean();
+    const member = await MemberModel.findById(id).select('name email').lean();
     if (!member) {
       return NextResponse.json({ message: 'Member not found.' }, { status: 404 });
     }
 
     await Promise.all([
-      MeetingModel.updateMany({ host: params.id }, { $set: { host: admin.member._id } }),
-      PodcastModel.updateMany({ submittedBy: params.id }, { $set: { submittedBy: admin.member._id } }),
-      PodcastModel.updateMany({ 'ratings.member': params.id }, { $pull: { ratings: { member: params.id } } }),
-      CarveOutModel.deleteMany({ member: params.id }),
-      JoinCodeModel.updateMany({ createdBy: params.id }, { $set: { createdBy: admin.member._id } }),
-      JoinCodeModel.updateMany({ usedBy: params.id }, { $set: { usedBy: null } }),
-      PasswordResetTokenModel.deleteMany({ member: params.id })
+      MeetingModel.updateMany({ host: id }, { $set: { host: admin.member._id } }),
+      PodcastModel.updateMany({ submittedBy: id }, { $set: { submittedBy: admin.member._id } }),
+      PodcastModel.updateMany({ 'ratings.member': id }, { $pull: { ratings: { member: id } } }),
+      CarveOutModel.deleteMany({ member: id }),
+      JoinCodeModel.updateMany({ createdBy: id }, { $set: { createdBy: admin.member._id } }),
+      JoinCodeModel.updateMany({ usedBy: id }, { $set: { usedBy: null } }),
+      PasswordResetTokenModel.deleteMany({ member: id })
     ]);
 
-    await MemberModel.findByIdAndDelete(params.id);
+    await MemberModel.findByIdAndDelete(id);
 
     return NextResponse.json({
       message: 'Member deleted.',

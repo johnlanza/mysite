@@ -5,7 +5,9 @@ import { normalizeCarveOutServiceInput } from '@/lib/carveout-meta';
 import CarveOutModel from '@/models/CarveOut';
 import '@/models/Meeting';
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+type RouteContext = { params: Promise<{ id: string }> };
+
+export async function PATCH(req: Request, { params }: RouteContext) {
   const session = await requireSession();
   if (!session.ok) {
     return NextResponse.json({ message: session.message }, { status: session.status });
@@ -21,8 +23,10 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       meeting?: string;
     };
 
+    const { id } = await params;
+
     await connectToDatabase();
-    const existing = await CarveOutModel.findById(params.id).select('member').lean();
+    const existing = await CarveOutModel.findById(id).select('member').lean();
     if (!existing) {
       return NextResponse.json({ message: 'Carve out not found.' }, { status: 404 });
     }
@@ -39,7 +43,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     }
 
     const updated = await CarveOutModel.findByIdAndUpdate(
-      params.id,
+      id,
       {
         title: nextTitle,
         ...(body.type ? { type: body.type } : {}),
@@ -68,7 +72,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: RouteContext) {
   const session = await requireSession();
   if (!session.ok) {
     return NextResponse.json({ message: session.message }, { status: session.status });
@@ -80,8 +84,10 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
       return NextResponse.json({ message: 'Type DELETE to confirm carve out deletion.' }, { status: 400 });
     }
 
+    const { id } = await params;
+
     await connectToDatabase();
-    const carveOut = await CarveOutModel.findById(params.id).select('title member').lean();
+    const carveOut = await CarveOutModel.findById(id).select('title member').lean();
     if (!carveOut) {
       return NextResponse.json({ message: 'Carve out not found.' }, { status: 404 });
     }
@@ -94,7 +100,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
       );
     }
 
-    await CarveOutModel.findByIdAndDelete(params.id);
+    await CarveOutModel.findByIdAndDelete(id);
     return NextResponse.json({ message: 'Carve out deleted.', carveOut: { _id: String(carveOut._id), title: carveOut.title } });
   } catch (error) {
     return NextResponse.json(

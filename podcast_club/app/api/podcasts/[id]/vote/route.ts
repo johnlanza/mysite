@@ -6,7 +6,9 @@ import { formatPodcastForClient } from '@/lib/podcasts';
 import MemberModel from '@/models/Member';
 import PodcastModel from '@/models/Podcast';
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+type RouteContext = { params: Promise<{ id: string }> };
+
+export async function POST(req: Request, { params }: RouteContext) {
   const session = await requireSession();
   if (!session.ok) {
     return NextResponse.json({ message: session.message }, { status: session.status });
@@ -20,8 +22,10 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       return NextResponse.json({ message: 'A valid rating is required.' }, { status: 400 });
     }
 
+    const { id } = await params;
+
     await connectToDatabase();
-    const podcast = await PodcastModel.findById(params.id);
+    const podcast = await PodcastModel.findById(id);
 
     if (!podcast) {
       return NextResponse.json({ message: 'Podcast not found.' }, { status: 404 });
@@ -70,7 +74,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     await podcast.save();
 
     const [updated, members] = await Promise.all([
-      PodcastModel.findById(params.id).populate('submittedBy', 'name').populate('ratings.member', 'name').lean(),
+      PodcastModel.findById(id).populate('submittedBy', 'name').populate('ratings.member', 'name').lean(),
       MemberModel.find().select('name').lean()
     ]);
 

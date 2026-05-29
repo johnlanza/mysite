@@ -113,7 +113,7 @@ async function resolveSessionMember(token?: string) {
 }
 
 export async function getSessionMember() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE)?.value;
   return resolveSessionMember(token);
 }

@@ -5,6 +5,8 @@ import { normalizeMeetingPodcastIds } from '@/lib/meeting-podcasts';
 import MeetingModel from '@/models/Meeting';
 import PodcastModel from '@/models/Podcast';
 
+type RouteContext = { params: Promise<{ id: string }> };
+
 function formatMeetingPayload<T extends { podcasts?: unknown[] | null; podcast?: unknown | null }>(meeting: T) {
   const podcasts =
     Array.isArray(meeting.podcasts) && meeting.podcasts.length > 0
@@ -20,7 +22,7 @@ function formatMeetingPayload<T extends { podcasts?: unknown[] | null; podcast?:
   };
 }
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, { params }: RouteContext) {
   const admin = await requireAdmin();
   if (!admin.ok) {
     return NextResponse.json({ message: admin.message }, { status: admin.status });
@@ -33,9 +35,11 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       return NextResponse.json({ message: 'Completion notes are required.' }, { status: 400 });
     }
 
+    const { id } = await params;
+
     await connectToDatabase();
 
-    const meeting = await MeetingModel.findById(params.id);
+    const meeting = await MeetingModel.findById(id);
     if (!meeting) {
       return NextResponse.json({ message: 'Meeting not found.' }, { status: 404 });
     }

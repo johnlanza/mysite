@@ -4,16 +4,19 @@ import { requireSession } from '@/lib/auth';
 import CarveOutModel from '@/models/CarveOut';
 import '@/models/Meeting';
 
-export async function POST(_req: Request, { params }: { params: { id: string } }) {
+type RouteContext = { params: Promise<{ id: string }> };
+
+export async function POST(_req: Request, { params }: RouteContext) {
   const session = await requireSession();
   if (!session.ok) {
     return NextResponse.json({ message: session.message }, { status: session.status });
   }
 
   try {
+    const { id } = await params;
     await connectToDatabase();
 
-    const carveOut = await CarveOutModel.findById(params.id);
+    const carveOut = await CarveOutModel.findById(id);
     if (!carveOut) {
       return NextResponse.json({ message: 'Carve out not found.' }, { status: 404 });
     }
@@ -49,16 +52,17 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
   }
 }
 
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_req: Request, { params }: RouteContext) {
   const session = await requireSession();
   if (!session.ok) {
     return NextResponse.json({ message: session.message }, { status: session.status });
   }
 
   try {
+    const { id } = await params;
     await connectToDatabase();
 
-    const carveOut = await CarveOutModel.findById(params.id);
+    const carveOut = await CarveOutModel.findById(id);
     if (!carveOut) {
       return NextResponse.json({ message: 'Carve out not found.' }, { status: 404 });
     }

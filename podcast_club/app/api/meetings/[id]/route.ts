@@ -7,6 +7,8 @@ import MeetingModel from '@/models/Meeting';
 import MemberModel from '@/models/Member';
 import PodcastModel from '@/models/Podcast';
 
+type RouteContext = { params: Promise<{ id: string }> };
+
 function formatMeetingPayload<T extends { podcasts?: unknown[] | null; podcast?: unknown | null }>(meeting: T) {
   const podcasts =
     Array.isArray(meeting.podcasts) && meeting.podcasts.length > 0
@@ -36,7 +38,7 @@ async function getFinalLocation(host: string, location?: string) {
   return { ok: true as const, finalLocation };
 }
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: RouteContext) {
   const session = await requireSession();
   if (!session.ok) {
     return NextResponse.json({ message: session.message }, { status: session.status });
@@ -53,9 +55,11 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     };
     const { date, host, location, notes } = body;
 
+    const { id } = await params;
+
     await connectToDatabase();
 
-    const existingMeeting = await MeetingModel.findById(params.id).lean();
+    const existingMeeting = await MeetingModel.findById(id).lean();
     if (!existingMeeting) {
       return NextResponse.json({ message: 'Meeting not found.' }, { status: 404 });
     }
@@ -98,7 +102,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     }
 
     const updated = await MeetingModel.findByIdAndUpdate(
-      params.id,
+      id,
       {
         ...(date ? { date } : {}),
         ...(isAdmin && host ? { host } : {}),
@@ -154,7 +158,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: RouteContext) {
   const admin = await requireAdmin();
   if (!admin.ok) {
     return NextResponse.json({ message: admin.message }, { status: admin.status });
@@ -163,9 +167,11 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
   try {
     const body = (await req.json().catch(() => ({}))) as { confirmText?: string };
 
+    const { id } = await params;
+
     await connectToDatabase();
 
-    const meeting = await MeetingModel.findById(params.id).lean();
+    const meeting = await MeetingModel.findById(id).lean();
     if (!meeting) {
       return NextResponse.json({ message: 'Meeting not found.' }, { status: 404 });
     }
@@ -183,7 +189,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
       );
     }
 
-    await Promise.all([MeetingModel.findByIdAndDelete(params.id), CarveOutModel.deleteMany({ meeting: meeting._id })]);
+    await Promise.all([MeetingModel.findByIdAndDelete(id), CarveOutModel.deleteMany({ meeting: meeting._id })]);
 
     if (isCompleted && meetingPodcastIds.length > 0) {
       await PodcastModel.updateMany(

@@ -22,6 +22,8 @@ type CalendarMeeting = {
   completedAt?: Date | string | null;
 };
 
+type RouteContext = { params: Promise<{ id: string }> };
+
 function isCompletedMeeting(meeting: CalendarMeeting) {
   if (meeting.status === 'completed') return true;
   if (meeting.status === 'scheduled') return false;
@@ -36,10 +38,11 @@ function getPodcastSummary(meeting: CalendarMeeting) {
   return titles.length > 0 ? titles.join(', ') : 'TBD';
 }
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, { params }: RouteContext) {
+  const { id } = await params;
   await connectToDatabase();
 
-  const meeting = await MeetingModel.findById(params.id)
+  const meeting = await MeetingModel.findById(id)
     .populate('host', 'name')
     .populate('podcast', 'title')
     .populate('podcasts', 'title')

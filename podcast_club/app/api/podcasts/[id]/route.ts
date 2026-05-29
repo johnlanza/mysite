@@ -4,7 +4,9 @@ import { requireSession } from '@/lib/auth';
 import MeetingModel from '@/models/Meeting';
 import PodcastModel from '@/models/Podcast';
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+type RouteContext = { params: Promise<{ id: string }> };
+
+export async function DELETE(req: Request, { params }: RouteContext) {
   const session = await requireSession();
   if (!session.ok) {
     return NextResponse.json({ message: session.message }, { status: session.status });
@@ -16,9 +18,11 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
       return NextResponse.json({ message: 'Type DELETE to confirm podcast deletion.' }, { status: 400 });
     }
 
+    const { id } = await params;
+
     await connectToDatabase();
 
-    const podcast = await PodcastModel.findById(params.id).select('title submittedBy status').lean();
+    const podcast = await PodcastModel.findById(id).select('title submittedBy status').lean();
     if (!podcast) {
       return NextResponse.json({ message: 'Podcast not found.' }, { status: 404 });
     }
@@ -29,7 +33,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     }
 
     const meetingsUsingPodcast = await MeetingModel.find({
-      $or: [{ podcast: params.id }, { podcasts: params.id }]
+      $or: [{ podcast: id }, { podcasts: id }]
     })
       .select('_id podcast podcasts')
       .lean();
@@ -51,7 +55,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
       await Promise.all(
         meetingsUsingPodcast.map((meeting) => {
           const nextPodcasts = Array.isArray(meeting.podcasts)
-            ? meeting.podcasts.map((podcastId) => String(podcastId)).filter((podcastId) => podcastId !== params.id)
+            ? meeting.podcasts.map((podcastId) => String(podcastId)).filter((podcastId) => podcastId !== id)
             : [];
 
           return MeetingModel.findByIdAndUpdate(meeting._id, {
@@ -62,7 +66,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
       );
     }
 
-    await PodcastModel.findByIdAndDelete(params.id);
+    await PodcastModel.findByIdAndDelete(id);
 
     return NextResponse.json({
       message: 'Podcast deleted.',
