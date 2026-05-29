@@ -754,7 +754,8 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 
 async function startServer() {
-  await Promise.all([nextApp.prepare(), zetteApp.prepare()]);
+  await zetteApp.prepare();
+  await nextApp.prepare();
   app.listen(PORT, () => console.log(`Server running on ${PORT}`));
 }
 
