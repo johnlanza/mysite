@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import AddToCalendar from '@/components/AddToCalendar';
 import MeetingSelectedPodcastCard from '@/components/MeetingSelectedPodcastCard';
 import { withBasePath } from '@/lib/base-path';
 import { getCarveOutTypeLabel } from '@/lib/carveout-meta';
@@ -622,6 +623,7 @@ export default function HomePage() {
               </div>
             </div>
             <p className="location-line">{nextMeeting.location}</p>
+            <AddToCalendar meeting={nextMeeting} podcastsById={podcastsById} />
             {nextMeetingPodcasts.length > 0 ? (
               <div className="meeting-selected-podcast-list">
                 {nextMeetingPodcasts.map((podcast) => (

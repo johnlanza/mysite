@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import AddToCalendar from '@/components/AddToCalendar';
 import MeetingSelectedPodcastCard from '@/components/MeetingSelectedPodcastCard';
 import { withBasePath } from '@/lib/base-path';
 import { getMeetingPodcasts, MAX_MEETING_PODCASTS } from '@/lib/meeting-podcasts';
@@ -480,6 +481,7 @@ export default function MeetingsPage() {
               </div>
               {renderMeetingMeta(nextMeeting)}
               {renderMeetingLocation(nextMeeting)}
+              <AddToCalendar meeting={nextMeeting} podcastsById={podcastsById} />
               {renderMeetingNotes(nextMeeting)}
               <div className="meeting-detail-section">
                 <div className="podcast-detail-heading">

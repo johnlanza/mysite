@@ -1876,6 +1876,71 @@ button:disabled {
   min-width: 0;
 }
 
+.add-calendar-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+  padding: 0.72rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.add-calendar-copy {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.add-calendar-copy span {
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.add-calendar-copy strong {
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.add-calendar-actions {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  min-width: min(21rem, 100%);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.add-calendar-actions a,
+.add-calendar-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 2.55rem;
+  padding: 0.65rem 0.75rem;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+  text-decoration: none;
+}
+
+.add-calendar-actions a + a,
+.add-calendar-actions button + button {
+  border-left: 1px solid var(--line);
+}
+
 .meeting-detail-grid + .meeting-location-card {
   margin-top: 0.6rem;
 }
@@ -2431,6 +2496,17 @@ button:disabled {
   color: #5f0000;
 }
 
+.meetings-page .add-calendar-panel,
+.meetings-page .add-calendar-actions {
+  border-color: rgba(120, 0, 0, 0.16);
+  background: rgba(254, 249, 249, 0.98);
+}
+
+.meetings-page .add-calendar-actions a + a,
+.meetings-page .add-calendar-actions button + button {
+  border-color: rgba(120, 0, 0, 0.16);
+}
+
 .meetings-page .podcast-tabs {
   border-color: rgba(120, 0, 0, 0.18);
   background: rgba(251, 240, 241, 0.96);
@@ -2969,6 +3045,14 @@ button:disabled {
 
   .form-grid-two {
     grid-template-columns: 1fr;
+  }
+
+  .add-calendar-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .add-calendar-actions {
+    width: 100%;
   }
 
   .carveout-appreciation-strip {
