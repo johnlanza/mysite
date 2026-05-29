@@ -121,6 +121,16 @@ function buildIcsFile(event: CalendarEventInput, startUtc: Date, endUtc: Date) {
   return `${lines.join('\r\n')}\r\n`;
 }
 
+function buildGoogleCalendarUrl(params: URLSearchParams) {
+  const eventUrl = `https://calendar.google.com/calendar/r/eventedit?${params.toString()}`;
+  const signInParams = new URLSearchParams({
+    service: 'cl',
+    continue: eventUrl
+  });
+
+  return `https://accounts.google.com/ServiceLogin?${signInParams.toString()}`;
+}
+
 export function createCalendarEventLinks(event: CalendarEventInput): CalendarEventLinks | null {
   const startDateKey = toUtcDateKey(event.startDate);
   if (!startDateKey) return null;
@@ -141,7 +151,7 @@ export function createCalendarEventLinks(event: CalendarEventInput): CalendarEve
   const icsFile = buildIcsFile(event, startUtc, endUtc);
 
   return {
-    googleUrl: `https://calendar.google.com/calendar/r/eventedit?${googleParams.toString()}`,
+    googleUrl: buildGoogleCalendarUrl(googleParams),
     icsContent: icsFile,
     icsFilename: `royal-podcast-society-${isoDate || startDateKey}.ics`
   };
