@@ -53,7 +53,7 @@ export default function AddToCalendar({ meeting, podcastsById, className }: AddT
         <a href={links.googleUrl}>
           Google
         </a>
-        <a href={withBasePath(`/api/meetings/${meeting._id}/calendar`)} download={links.icsFilename}>
+        <a href={withBasePath(`/api/meetings/${meeting._id}/calendar`)} type="text/calendar">
           Apple/Outlook
         </a>
       </div>

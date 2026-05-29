@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { requireSession } from '@/lib/auth';
 import {
   createCalendarEventLinks,
   PODCAST_CLUB_MEETING_END_HOUR,
@@ -8,6 +7,7 @@ import {
 } from '@/lib/calendar';
 import { connectToDatabase } from '@/lib/db';
 import MeetingModel from '@/models/Meeting';
+import '@/models/Member';
 import '@/models/Podcast';
 
 type CalendarMeeting = {
@@ -37,11 +37,6 @@ function getPodcastSummary(meeting: CalendarMeeting) {
 }
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
-  const session = await requireSession();
-  if (!session.ok) {
-    return NextResponse.json({ message: session.message }, { status: session.status });
-  }
-
   await connectToDatabase();
 
   const meeting = await MeetingModel.findById(params.id)
@@ -84,8 +79,9 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   return new NextResponse(links.icsContent, {
     headers: {
       'Cache-Control': 'no-store',
-      'Content-Disposition': `attachment; filename="${links.icsFilename}"`,
-      'Content-Type': 'text/calendar; charset=utf-8'
+      'Content-Disposition': `inline; filename="${links.icsFilename}"`,
+      'Content-Type': 'text/calendar; charset=utf-8; method=PUBLISH',
+      'X-Content-Type-Options': 'nosniff'
     }
   });
 }

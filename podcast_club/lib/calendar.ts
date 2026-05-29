@@ -139,12 +139,14 @@ export function createCalendarEventLinks(event: CalendarEventInput): CalendarEve
     dates: `${toLocalDateTimeKey(startDateKey, event.startHour)}/${toLocalDateTimeKey(endDateKey, event.endHour)}`,
     details: event.description || '',
     location: event.location || '',
-    ctz: event.timeZone
+    ctz: event.timeZone,
+    sf: 'true',
+    output: 'xml'
   });
   const icsFile = buildIcsFile(event, startUtc, endUtc);
 
   return {
-    googleUrl: `https://calendar.google.com/calendar/render?${googleParams.toString()}`,
+    googleUrl: `https://calendar.google.com/calendar/u/0/r/eventedit?${googleParams.toString()}`,
     icsContent: icsFile,
     icsFilename: `royal-podcast-society-${isoDate || startDateKey}.ics`
   };
