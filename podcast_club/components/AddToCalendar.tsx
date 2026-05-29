@@ -50,7 +50,7 @@ export default function AddToCalendar({ meeting, podcastsById, className }: AddT
         <strong>7:00-10:00 PM PT</strong>
       </div>
       <div className="add-calendar-actions" aria-label="Calendar options">
-        <a href={links.googleUrl}>
+        <a href={links.googleUrl} target="_blank" rel="noopener noreferrer">
           Google
         </a>
         <a href={withBasePath(`/api/meetings/${meeting._id}/calendar`)} type="text/calendar">

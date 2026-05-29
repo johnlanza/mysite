@@ -46,10 +46,6 @@ function addDaysToDateKey(value: string, days: number) {
   return toUtcDateKey(nextDate.toISOString());
 }
 
-function toLocalDateTimeKey(dateKey: string, hour: number) {
-  return `${dateKey}T${String(hour).padStart(2, '0')}0000`;
-}
-
 function getTimeZoneOffsetMs(date: Date, timeZone: string) {
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone,
@@ -135,18 +131,17 @@ export function createCalendarEventLinks(event: CalendarEventInput): CalendarEve
   const endUtc = zonedDateTimeToUtc(endDateKey, event.endHour, event.timeZone);
   const googleParams = new URLSearchParams({
     action: 'TEMPLATE',
-    text: event.title,
-    dates: `${toLocalDateTimeKey(startDateKey, event.startHour)}/${toLocalDateTimeKey(endDateKey, event.endHour)}`,
+    dates: `${formatUtcDateTime(startUtc)}/${formatUtcDateTime(endUtc)}`,
+    stz: event.timeZone,
+    etz: event.timeZone,
     details: event.description || '',
     location: event.location || '',
-    ctz: event.timeZone,
-    sf: 'true',
-    output: 'xml'
+    text: event.title
   });
   const icsFile = buildIcsFile(event, startUtc, endUtc);
 
   return {
-    googleUrl: `https://calendar.google.com/calendar/u/0/r/eventedit?${googleParams.toString()}`,
+    googleUrl: `https://calendar.google.com/calendar/r/eventedit?${googleParams.toString()}`,
     icsContent: icsFile,
     icsFilename: `royal-podcast-society-${isoDate || startDateKey}.ics`
   };
