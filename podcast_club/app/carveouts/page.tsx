@@ -151,27 +151,31 @@ export default function CarveOutsPage() {
     setSuccess('');
     setSaving(true);
 
-    const res = await fetch(withBasePath('/api/carveouts'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...form,
-        service: resolveSelectedService(form.serviceChoice, form.customService)
-      })
-    });
+    try {
+      const res = await fetch(withBasePath('/api/carveouts-legacy'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...form,
+          service: resolveSelectedService(form.serviceChoice, form.customService)
+        })
+      });
 
-    if (!res.ok) {
-      const data = await res.json();
-      setError(data.message || 'Unable to save carve out.');
+      const data = (await res.json().catch(() => null)) as { message?: string } | null;
+      if (!res.ok) {
+        setError(data?.message || 'Unable to save carve out.');
+        return;
+      }
+
+      setForm((prev) => ({ ...initialForm, meeting: prev.meeting }));
+      await loadPageData();
+      setSuccess('Carve out submitted successfully.');
+      setActiveTab('library');
+    } catch {
+      setError('Unable to save carve out.');
+    } finally {
       setSaving(false);
-      return;
     }
-
-    setForm((prev) => ({ ...initialForm, meeting: prev.meeting }));
-    await loadPageData();
-    setSuccess('Carve out submitted successfully.');
-    setActiveTab('library');
-    setSaving(false);
   }
 
   function openEditModal(carveOut: CarveOut) {
@@ -201,7 +205,7 @@ export default function CarveOutsPage() {
     setSuccess('');
     setSavingEditId(editModalCarveOut._id);
     try {
-      const res = await fetch(withBasePath(`/api/carveouts/${editModalCarveOut._id}`), {
+      const res = await fetch(withBasePath(`/api/carveouts-legacy/${editModalCarveOut._id}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -247,7 +251,7 @@ export default function CarveOutsPage() {
     setSuccess('');
     setDeletingCarveOutId(deleteModalCarveOut._id);
     try {
-      const res = await fetch(withBasePath(`/api/carveouts/${deleteModalCarveOut._id}`), {
+      const res = await fetch(withBasePath(`/api/carveouts-legacy/${deleteModalCarveOut._id}`), {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ confirmText: deleteConfirmText })
