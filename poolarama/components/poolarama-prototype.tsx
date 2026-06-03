@@ -268,6 +268,7 @@ export function PoolaramaPrototype() {
   const [selectedParticipant, setSelectedParticipant] = useState<KnownParticipant>(defaultParticipant);
   const [identityConfirmed, setIdentityConfirmed] = useState(false);
   const [identityLockedByLink, setIdentityLockedByLink] = useState(false);
+  const [incompleteAlertVisible, setIncompleteAlertVisible] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isReviewing, setIsReviewing] = useState(false);
   const [saveFeedback, setSaveFeedback] = useState("Prototype save is ready.");
@@ -613,6 +614,7 @@ export function PoolaramaPrototype() {
     setGroupRunnersUp(buildEmptyGroupPicks());
     setSavedPicks(null);
     setIsReviewing(false);
+    setIncompleteAlertVisible(false);
     setSaveFeedback(`Ready for ${participant.nickname}.`);
     window.localStorage.setItem(selectedParticipantKey, participant.code);
     window.localStorage.removeItem(confirmedParticipantKey);
@@ -1093,6 +1095,7 @@ export function PoolaramaPrototype() {
               if (!allRequiredPicksComplete) {
                 setIsReviewing(false);
                 setSaveFeedback(completionHint);
+                setIncompleteAlertVisible(true);
                 window.alert("Please finish your picks before submitting.");
                 return;
               }
@@ -1128,6 +1131,14 @@ export function PoolaramaPrototype() {
           <p className="pick-status" aria-live="polite">
             {allRequiredPicksComplete ? saveFeedback : completionHint}
           </p>
+          {incompleteAlertVisible && (
+            <div className="inline-alert" role="alertdialog" aria-modal="false" aria-label="Incomplete picks">
+              <strong>Please finish your picks before submitting.</strong>
+              <button type="button" onClick={() => setIncompleteAlertVisible(false)}>
+                OK
+              </button>
+            </div>
+          )}
           {savedPicks && (
             <section className="save-confirmation" aria-live="polite" aria-label="Saved picks">
               <div>

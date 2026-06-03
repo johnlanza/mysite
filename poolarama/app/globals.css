@@ -851,6 +851,34 @@ h1 {
   text-align: center;
 }
 
+.inline-alert {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 16px;
+  color: #5e1200;
+  background: #fff1d7;
+  border: 3px solid var(--gold);
+  box-shadow: 0 12px 24px rgba(176, 126, 0, 0.16);
+}
+
+.inline-alert strong {
+  line-height: 1.18;
+}
+
+.inline-alert button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 13px;
+  color: #fff;
+  background: var(--red);
+  font-weight: 900;
+  cursor: pointer;
+}
+
 .save-confirmation {
   display: grid;
   gap: 13px;
