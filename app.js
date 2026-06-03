@@ -69,6 +69,17 @@ const nextApp = next({
 });
 const nextHandler = nextApp.getRequestHandler();
 
+const poolaramaDir = path.join(__dirname, "poolarama");
+process.env.NEXT_PUBLIC_POOLARAMA_BASE_PATH =
+  process.env.NEXT_PUBLIC_POOLARAMA_BASE_PATH || "/poolarama";
+const poolaramaRequire = createRequire(path.join(poolaramaDir, "package.json"));
+const poolaramaNext = poolaramaRequire("next");
+const poolaramaApp = poolaramaNext({
+  dev: process.env.NODE_ENV !== "production",
+  dir: poolaramaDir
+});
+const poolaramaHandler = poolaramaApp.getRequestHandler();
+
 // -----------------------
 // DB Connection
 // -----------------------
@@ -118,6 +129,10 @@ process.on("SIGINT", () => {
 // -----------------------
 // Middleware
 // -----------------------
+app.all("/poolarama*", (req, res) => {
+  return poolaramaHandler(req, res);
+});
+
 app.use(expressLayouts);
 app.use(express.static("public"));
 app.use("/music", express.static("music"));
@@ -773,6 +788,7 @@ async function startServer() {
     await zetteApp.prepare();
   }
   await nextApp.prepare();
+  await poolaramaApp.prepare();
   app.listen(PORT, () => console.log(`Server running on ${PORT}`));
 }
 
