@@ -82,6 +82,7 @@ type TestMatch = {
 };
 
 const selectedParticipantKey = "poolarama-selected-participant";
+const confirmedParticipantKey = "poolarama-confirmed-participant";
 const defaultPoolState: PoolState = {
   preTournament: {
     status: "open",
@@ -91,6 +92,10 @@ const defaultPoolState: PoolState = {
 
 function getSavedPicksKey(participantCode: string) {
   return `poolarama-test-picks:${participantCode}`;
+}
+
+function getTeamDisplayName(team: { name: string; code: string }) {
+  return team.name.length > 12 ? team.code : team.name;
 }
 
 function buildEmptyGroupPicks() {
@@ -261,6 +266,7 @@ export function PoolaramaPrototype() {
   const [groupRunnersUp, setGroupRunnersUp] = useState<Record<GroupId, string>>(() => buildEmptyGroupPicks());
   const [savedPicks, setSavedPicks] = useState<SavedPicks | null>(null);
   const [selectedParticipant, setSelectedParticipant] = useState<KnownParticipant>(defaultParticipant);
+  const [identityConfirmed, setIdentityConfirmed] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isReviewing, setIsReviewing] = useState(false);
   const [saveFeedback, setSaveFeedback] = useState("Prototype save is ready.");
@@ -286,6 +292,7 @@ export function PoolaramaPrototype() {
 
   const paidCount = adminOverview.filter((person) => person.venmoPaid).length;
   const potTotal = paidCount * 10;
+  const totalPlayers = adminOverview.length || knownParticipants.length;
   const championCandidates = useMemo(() => {
     const candidateNames = groups.flatMap((group) => [groupWinners[group], groupRunnersUp[group]]);
 
@@ -322,6 +329,7 @@ export function PoolaramaPrototype() {
             ? "Pre-tournament picks are locked."
             : "Ready to review.";
   const submittedCount = adminOverview.filter((participant) => participant.submitted).length;
+  const leaderLabel = submittedCount === 0 ? "Awaiting initial picks" : "Scoring not started";
   const unpaidCount = adminOverview.filter((participant) => !participant.venmoPaid).length;
   const activeTestMatches = testMatches.filter((match) => match.stage === testStage);
   const completedTestMatches = activeTestMatches.filter((match) => match.winner).length;
@@ -366,10 +374,12 @@ export function PoolaramaPrototype() {
     }
 
     const storedParticipantCode = window.localStorage.getItem(selectedParticipantKey);
+    const confirmedParticipantCode = window.localStorage.getItem(confirmedParticipantKey);
     const initialParticipant =
       knownParticipants.find((participant) => participant.code === storedParticipantCode) || defaultParticipant;
 
     setSelectedParticipant(initialParticipant);
+    setIdentityConfirmed(confirmedParticipantCode === initialParticipant.code);
 
     async function loadSavedPicks() {
       try {
@@ -582,6 +592,7 @@ export function PoolaramaPrototype() {
 
   async function handleSelectParticipant(participant: KnownParticipant) {
     setSelectedParticipant(participant);
+    setIdentityConfirmed(false);
     setSelectedChampion("");
     setSelectedGoldenBoot("");
     setGroupWinners(buildEmptyGroupPicks());
@@ -590,6 +601,7 @@ export function PoolaramaPrototype() {
     setIsReviewing(false);
     setSaveFeedback(`Ready for ${participant.nickname}.`);
     window.localStorage.setItem(selectedParticipantKey, participant.code);
+    window.localStorage.removeItem(confirmedParticipantKey);
 
     try {
       const response = await fetch(withBasePath(`/api/me?code=${participant.code}`), { cache: "no-store" });
@@ -623,6 +635,13 @@ export function PoolaramaPrototype() {
     } catch {
       setSaveFeedback(`Ready for ${participant.nickname}. API lookup unavailable.`);
     }
+  }
+
+  function handleConfirmIdentity() {
+    setIdentityConfirmed(true);
+    window.localStorage.setItem(selectedParticipantKey, selectedParticipant.code);
+    window.localStorage.setItem(confirmedParticipantKey, selectedParticipant.code);
+    setSaveFeedback(`Confirmed as ${selectedParticipant.nickname}.`);
   }
 
   async function handleSavePicks() {
@@ -698,8 +717,8 @@ export function PoolaramaPrototype() {
       loadPublicPicks();
       setSaveFeedback(
         data.submission.storageMode === "mongo"
-          ? `Picks submitted for ${selectedParticipant.nickname}.`
-          : `Picks submitted for ${selectedParticipant.nickname}. Prototype API memory updated.`
+          ? "Picks submitted."
+          : "Picks submitted. Prototype API memory updated."
       );
     } catch {
       setSavedPicks(nextSavedPicks);
@@ -709,23 +728,6 @@ export function PoolaramaPrototype() {
       setSaveFeedback(`API unavailable. Picks saved in this browser for ${selectedParticipant.nickname}.`);
     } finally {
       setIsSaving(false);
-    }
-  }
-
-  async function handleCopyReminder(participant: AdminParticipantOverview) {
-    const needsPayment = !participant.venmoPaid;
-    const needsSubmission = !participant.submitted;
-    const asks = [
-      needsSubmission ? "submit your Poolarama picks" : null,
-      needsPayment ? "send the $10 Venmo" : null
-    ].filter(Boolean);
-    const reminder = `Hi ${participant.nickname}, quick Poolarama reminder: please ${asks.join(" and ")} when you get a chance.`;
-
-    try {
-      await navigator.clipboard.writeText(reminder);
-      setAdminFeedback(`Copied reminder for ${participant.nickname}.`);
-    } catch {
-      setAdminFeedback(reminder);
     }
   }
 
@@ -800,7 +802,7 @@ export function PoolaramaPrototype() {
   return (
     <main className="app-shell">
       <div className="test-banner" role="status">
-        Internal test mode · real tournament data loaded · picks are not live yet
+        Live test mode · real tournament data loaded
       </div>
       <section className="hero" aria-labelledby="poolarama-title">
         <div className="logo-row logo-row-image">
@@ -814,7 +816,7 @@ export function PoolaramaPrototype() {
         <p className="eyebrow hero-eyebrow">Men&apos;s World Cup 2026 Edition</p>
         <div className="hero-metrics" aria-label="Pool summary">
           <div>
-            <strong>{knownParticipants.length}</strong>
+            <strong>{totalPlayers}</strong>
             <span>players</span>
           </div>
           <div>
@@ -822,7 +824,7 @@ export function PoolaramaPrototype() {
             <span>paid pot</span>
           </div>
           <div>
-            <strong>N/A</strong>
+            <strong>{leaderLabel}</strong>
             <span>leader</span>
           </div>
         </div>
@@ -840,14 +842,14 @@ export function PoolaramaPrototype() {
       {tab === "picks" && (
         <section className="screen stack" aria-labelledby="picks-title">
           <ScreenHeader
-            kicker="Step 1 of 4"
-            title="Make your group picks"
-            note={`Making picks as ${selectedParticipant.nickname}. Start with group winners and runners-up.`}
+            kicker={identityConfirmed ? "Picks open" : "Test claim"}
+            title={identityConfirmed ? "Make your group picks" : "Claim your test name"}
+            note={identityConfirmed ? `Making picks as ${selectedParticipant.nickname}. Start with group winners and runners-up.` : "For this live test, confirm your assigned name before making picks."}
           />
           <section className="identity-card" aria-labelledby="identity-title">
             <div>
-              <p className="eyebrow">Who are you?</p>
-              <h3 id="identity-title">Choose your name</h3>
+              <p className="eyebrow">Step 1 of 5</p>
+              <h3 id="identity-title">{identityConfirmed ? `Confirmed: ${selectedParticipant.nickname}` : "Claim your name"}</h3>
             </div>
             <div className="identity-grid">
               {knownParticipants.map((participant) => (
@@ -862,11 +864,16 @@ export function PoolaramaPrototype() {
                 </button>
               ))}
             </div>
+            <button className="primary-action inline-action" type="button" onClick={handleConfirmIdentity}>
+              {identityConfirmed ? `Using ${selectedParticipant.nickname}` : `Confirm ${selectedParticipant.nickname}`}
+            </button>
           </section>
+          {identityConfirmed && (
+            <>
           <section className="group-picks-card" aria-labelledby="group-picks-title">
             <div className="section-title-row">
               <div>
-                <p className="eyebrow">Group stage</p>
+                <p className="eyebrow">Step 2 of 5</p>
                 <h3 id="group-picks-title">Pick winners and runners-up</h3>
                 <p>{completedGroupPicks}/12 groups complete</p>
               </div>
@@ -908,7 +915,7 @@ export function PoolaramaPrototype() {
                             }}
                           >
                             <span aria-hidden="true">{team.flag}</span>
-                            {team.name}
+                            <span className="country-label" title={team.name}>{getTeamDisplayName(team)}</span>
                           </button>
                         ))}
                       </div>
@@ -934,7 +941,7 @@ export function PoolaramaPrototype() {
                             }}
                           >
                             <span aria-hidden="true">{team.flag}</span>
-                            {team.name}
+                            <span className="country-label" title={team.name}>{getTeamDisplayName(team)}</span>
                           </button>
                         ))}
                       </div>
@@ -947,7 +954,7 @@ export function PoolaramaPrototype() {
           <section className="champion-card" aria-labelledby="champion-title">
             <div className="section-title-row">
               <div>
-                <p className="eyebrow">Champion</p>
+                <p className="eyebrow">Step 3 of 5</p>
                 <h3 id="champion-title">Pick a champion</h3>
                 <p>Only teams you picked to advance from the group stage appear here.</p>
               </div>
@@ -970,7 +977,7 @@ export function PoolaramaPrototype() {
                     } as React.CSSProperties}
                   >
                     <span className="flag" aria-hidden="true">{team.flag}</span>
-                    <span className="team-name">{team.name}</span>
+                    <span className="team-name" title={team.name}>{getTeamDisplayName(team)}</span>
                     <span className="team-code">Group {team.group} · {team.code}</span>
                   </button>
                 ))
@@ -982,7 +989,7 @@ export function PoolaramaPrototype() {
           <div className="candidate-card">
             <div className="section-title-row">
               <div>
-                <p className="eyebrow">Tiebreaker</p>
+                <p className="eyebrow">Step 4 of 5</p>
                 <h3>Pick Golden Boot winner</h3>
               </div>
               <div className="points-pill tiebreaker-points">
@@ -1016,7 +1023,7 @@ export function PoolaramaPrototype() {
           <section className={`review-card ${isReviewing ? "active" : ""}`} aria-labelledby="review-title">
             <div className="section-title-row">
               <div>
-                <p className="eyebrow">Review</p>
+                <p className="eyebrow">Step 5 of 5</p>
                 <h3 id="review-title">{isReviewing ? "Ready to submit?" : "Check your picks"}</h3>
                 <p>{isReviewing ? "Look these over, then submit when they are right." : completionHint}</p>
               </div>
@@ -1089,16 +1096,16 @@ export function PoolaramaPrototype() {
                 : !allRequiredPicksComplete
                   ? `Finish Picks: ${selectedParticipant.nickname}`
                   : currentPicksAreSaved
-                  ? `Picks submitted: ${selectedParticipant.nickname}`
+                  ? "Picks submitted"
                   : `Review Picks: ${selectedParticipant.nickname}`}
           </button>
           <p className="pick-status" aria-live="polite">
             {allRequiredPicksComplete ? saveFeedback : completionHint}
           </p>
           {savedPicks && (
-            <section className="save-confirmation" aria-live="polite" aria-label="Saved test picks">
+            <section className="save-confirmation" aria-live="polite" aria-label="Saved picks">
               <div>
-                <p className="eyebrow">Saved test picks</p>
+                <p className="eyebrow">Saved picks</p>
                 <h3>{selectedParticipant.nickname}&apos;s picks are saved</h3>
                 <p>{saveFeedback}</p>
               </div>
@@ -1121,6 +1128,8 @@ export function PoolaramaPrototype() {
                 </div>
               </div>
             </section>
+          )}
+            </>
           )}
         </section>
       )}
@@ -1227,7 +1236,7 @@ export function PoolaramaPrototype() {
           />
           <div className="payment-summary">
             <div>
-              <strong>{paidCount}/{knownParticipants.length}</strong>
+              <strong>{paidCount}/{totalPlayers}</strong>
               <span>paid</span>
             </div>
             <div>
@@ -1240,7 +1249,6 @@ export function PoolaramaPrototype() {
               <article className="payment-row" key={person.code}>
                 <div>
                   <h3>{person.nickname}</h3>
-                  <p>{person.venmoPaid ? "Venmo received" : "Payment due to @moneymammal"}</p>
                 </div>
                 <button className={person.venmoPaid ? "paid-pill" : "unpaid-pill"} type="button">
                   {person.venmoPaid ? "Paid" : "Unpaid"}
@@ -1379,8 +1387,6 @@ export function PoolaramaPrototype() {
           </section>
           <div className="admin-list">
             {adminOverview.map((participant) => {
-              const needsReminder = !participant.venmoPaid || !participant.submitted;
-
               return (
                 <article className="admin-row" key={participant.code}>
                   <div className="admin-person">
@@ -1399,14 +1405,6 @@ export function PoolaramaPrototype() {
                     <span>{participant.submittedAt ? new Date(participant.submittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
                     <strong>{participant.champion ? `${participant.champion} / ${participant.goldenBoot}` : "No picks on file"}</strong>
                   </div>
-                  <button
-                    className={`admin-action compact ${needsReminder ? "" : "quiet"}`}
-                    type="button"
-                    onClick={() => handleCopyReminder(participant)}
-                    disabled={!needsReminder}
-                  >
-                    {needsReminder ? "Copy reminder" : "All set"}
-                  </button>
                   <button
                     className={`admin-action compact payment-toggle ${participant.venmoPaid ? "quiet" : ""}`}
                     type="button"
