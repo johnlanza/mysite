@@ -981,7 +981,7 @@ export function PoolaramaPrototype() {
               <div>
                 <p className="eyebrow">Step 3 of 5</p>
                 <h3 id="champion-title">Pick a champion</h3>
-                <p>Only teams you picked to advance from the group stage appear here.</p>
+                <p>Only teams you picked to advance from the group stage appear here, and they will populate here.</p>
               </div>
               <div className="points-pill champion-points">
                 <strong>6 pts</strong>
@@ -1007,7 +1007,7 @@ export function PoolaramaPrototype() {
                   </button>
                 ))
               ) : (
-                <p className="empty-selection-note">Pick group winners and runners-up first.</p>
+                <p className="empty-selection-note">Pick group winners and runners-up first, and they will populate here.</p>
               )}
             </div>
           </section>
@@ -1093,6 +1093,7 @@ export function PoolaramaPrototype() {
               if (!allRequiredPicksComplete) {
                 setIsReviewing(false);
                 setSaveFeedback(completionHint);
+                window.alert("Please finish your picks before submitting.");
                 return;
               }
 

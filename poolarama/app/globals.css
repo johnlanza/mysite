@@ -442,7 +442,9 @@ h1 {
 .country-label,
 .team-name {
   min-width: 0;
-  overflow-wrap: anywhere;
+  hyphens: auto;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 .team-code {
@@ -700,6 +702,9 @@ h1 {
   min-width: 0;
   font-size: 1rem;
   line-height: 1.15;
+  hyphens: auto;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 .candidate-option em {
