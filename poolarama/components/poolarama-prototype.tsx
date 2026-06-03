@@ -269,6 +269,7 @@ export function PoolaramaPrototype() {
   const [identityConfirmed, setIdentityConfirmed] = useState(false);
   const [identityLockedByLink, setIdentityLockedByLink] = useState(false);
   const [incompleteAlertVisible, setIncompleteAlertVisible] = useState(false);
+  const [adminEnabled, setAdminEnabled] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isReviewing, setIsReviewing] = useState(false);
   const [saveFeedback, setSaveFeedback] = useState("Prototype save is ready.");
@@ -376,7 +377,9 @@ export function PoolaramaPrototype() {
     }
 
     const urlParticipantCode = new URLSearchParams(window.location.search).get("player");
+    const adminParam = new URLSearchParams(window.location.search).get("admin");
     const urlParticipant = knownParticipants.find((participant) => participant.code === urlParticipantCode) || null;
+    setAdminEnabled(adminParam === "john");
     const storedParticipantCode = window.localStorage.getItem(selectedParticipantKey);
     const confirmedParticipantCode = window.localStorage.getItem(confirmedParticipantKey);
     const initialParticipant =
@@ -446,6 +449,12 @@ export function PoolaramaPrototype() {
   useEffect(() => {
     loadAdminOverview();
   }, []);
+
+  useEffect(() => {
+    if (!adminEnabled && tab === "admin") {
+      setTab("picks");
+    }
+  }, [adminEnabled, tab]);
 
   useEffect(() => {
     loadPublicPicks(selectedParticipant.code);
@@ -852,7 +861,7 @@ export function PoolaramaPrototype() {
         <TabButton label="Rules" tabName="rules" activeTab={tab} onSelect={setTab} />
         <TabButton label="Pay" tabName="payments" activeTab={tab} onSelect={setTab} />
         <TabButton label="Pantheon" tabName="pantheon" activeTab={tab} onSelect={setTab} />
-        <TabButton label="Admin" tabName="admin" activeTab={tab} onSelect={setTab} />
+        {adminEnabled && <TabButton label="Admin" tabName="admin" activeTab={tab} onSelect={setTab} />}
       </nav>
 
       {tab === "picks" && (
@@ -1316,7 +1325,7 @@ export function PoolaramaPrototype() {
         </section>
       )}
 
-      {tab === "admin" && (
+      {adminEnabled && tab === "admin" && (
         <section className="screen stack" aria-labelledby="admin-title">
           <ScreenHeader
             kicker="Admin dashboard"
