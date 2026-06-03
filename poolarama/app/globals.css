@@ -721,6 +721,40 @@ h1 {
   box-shadow: 0 0 0 4px rgba(255, 200, 61, 0.5);
 }
 
+.write-in-field {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 14px;
+  border: 2px solid rgba(17, 32, 51, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.write-in-field span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.write-in-field input {
+  width: 100%;
+  min-height: 54px;
+  border: 3px solid var(--navy);
+  border-radius: 12px;
+  padding: 0 14px;
+  color: var(--ink);
+  background: #fff;
+  font: 900 1.1rem/1.2 var(--font-body), system-ui, sans-serif;
+}
+
+.write-in-field input:focus {
+  outline: 4px solid rgba(255, 200, 61, 0.7);
+  outline-offset: 2px;
+}
+
 .review-card {
   display: grid;
   gap: 14px;

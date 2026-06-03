@@ -83,6 +83,7 @@ type TestMatch = {
 
 const selectedParticipantKey = "poolarama-selected-participant";
 const confirmedParticipantKey = "poolarama-confirmed-participant";
+const goldenBootWriteInLabel = "Other / write-in";
 const defaultPoolState: PoolState = {
   preTournament: {
     status: "open",
@@ -262,6 +263,7 @@ export function PoolaramaPrototype() {
   const [tab, setTab] = useState<Tab>("picks");
   const [selectedChampion, setSelectedChampion] = useState("");
   const [selectedGoldenBoot, setSelectedGoldenBoot] = useState("");
+  const [goldenBootWriteIn, setGoldenBootWriteIn] = useState("");
   const [groupWinners, setGroupWinners] = useState<Record<GroupId, string>>(() => buildEmptyGroupPicks());
   const [groupRunnersUp, setGroupRunnersUp] = useState<Record<GroupId, string>>(() => buildEmptyGroupPicks());
   const [savedPicks, setSavedPicks] = useState<SavedPicks | null>(null);
@@ -301,9 +303,11 @@ export function PoolaramaPrototype() {
 
     return teams.filter((team) => candidateNames.includes(team.name));
   }, [groupRunnersUp, groupWinners]);
+  const selectedGoldenBootIsWriteIn = selectedGoldenBoot === goldenBootWriteInLabel;
+  const finalGoldenBootPick = selectedGoldenBootIsWriteIn ? goldenBootWriteIn.trim() : selectedGoldenBoot;
   const currentPicksAreSaved = savedPicks !== null &&
     savedPicks.champion === selectedChampion &&
-    savedPicks.goldenBoot === selectedGoldenBoot &&
+    savedPicks.goldenBoot === finalGoldenBootPick &&
     groups.every((group) => savedPicks.groupWinners[group] === groupWinners[group]) &&
     groups.every((group) => savedPicks.groupRunnersUp[group] === groupRunnersUp[group]);
   const completedGroupPicks = groups.filter(
@@ -318,7 +322,7 @@ export function PoolaramaPrototype() {
   const allRequiredPicksComplete =
     completedGroupPicks === groups.length &&
     Boolean(selectedChampion) &&
-    Boolean(selectedGoldenBoot);
+    Boolean(finalGoldenBootPick);
   const preTournamentLocked = poolState.preTournament.status === "locked";
   const completionHint = duplicateGroupPicks.length > 0
     ? `Fix duplicate picks in Group ${duplicateGroupPicks[0]}.`
@@ -326,7 +330,7 @@ export function PoolaramaPrototype() {
       ? `Finish Group ${missingGroupPicks[0]}.`
       : !selectedChampion
         ? "Pick a champion."
-        : !selectedGoldenBoot
+        : !finalGoldenBootPick
           ? "Pick a Golden Boot winner."
           : preTournamentLocked
             ? "Pre-tournament picks are locked."
@@ -344,6 +348,25 @@ export function PoolaramaPrototype() {
     }
   }, [championCandidates, selectedChampion]);
 
+  function applyGoldenBootPick(nextGoldenBoot: string) {
+    if (!nextGoldenBoot) {
+      setSelectedGoldenBoot("");
+      setGoldenBootWriteIn("");
+      return;
+    }
+
+    const savedCandidate = goldenBootCandidates.find((candidate) => candidate.name === nextGoldenBoot);
+
+    if (savedCandidate) {
+      setSelectedGoldenBoot(savedCandidate.name);
+      setGoldenBootWriteIn("");
+      return;
+    }
+
+    setSelectedGoldenBoot(goldenBootWriteInLabel);
+    setGoldenBootWriteIn(nextGoldenBoot);
+  }
+
   useEffect(() => {
     function applySavedPicks(nextPicks: SavedPicks) {
       const hydratedPicks = {
@@ -356,9 +379,7 @@ export function PoolaramaPrototype() {
         setSelectedChampion(nextPicks.champion);
       }
 
-      if (nextPicks.goldenBoot) {
-        setSelectedGoldenBoot(nextPicks.goldenBoot);
-      }
+      applyGoldenBootPick(nextPicks.goldenBoot);
 
       setGroupWinners(hydratedPicks.groupWinners);
       setGroupRunnersUp(hydratedPicks.groupRunnersUp);
@@ -619,6 +640,7 @@ export function PoolaramaPrototype() {
     setIdentityConfirmed(false);
     setSelectedChampion("");
     setSelectedGoldenBoot("");
+    setGoldenBootWriteIn("");
     setGroupWinners(buildEmptyGroupPicks());
     setGroupRunnersUp(buildEmptyGroupPicks());
     setSavedPicks(null);
@@ -639,7 +661,7 @@ export function PoolaramaPrototype() {
 
       if (data.submission) {
         setSelectedChampion(data.submission.picks.champion);
-        setSelectedGoldenBoot(data.submission.picks.goldenBoot);
+        applyGoldenBootPick(data.submission.picks.goldenBoot);
         setGroupWinners(completeGroupPicks(data.submission.picks.groupWinners));
         setGroupRunnersUp(completeGroupPicks(data.submission.picks.groupRunnersUp));
         setSavedPicks({
@@ -684,7 +706,7 @@ export function PoolaramaPrototype() {
 
     const nextSavedPicks: SavedPicks = {
       champion: selectedChampion,
-      goldenBoot: selectedGoldenBoot,
+      goldenBoot: finalGoldenBootPick,
       groupFilter: "All",
       groupWinners,
       groupRunnersUp,
@@ -707,7 +729,7 @@ export function PoolaramaPrototype() {
           participantCode: selectedParticipant.code,
           picks: {
             champion: selectedChampion,
-            goldenBoot: selectedGoldenBoot,
+            goldenBoot: finalGoldenBootPick,
             groupFilter: "All",
             groupWinners,
             groupRunnersUp
@@ -1042,7 +1064,13 @@ export function PoolaramaPrototype() {
                     className={`candidate-option ${selectedGoldenBoot === candidate.name ? "selected" : ""}`}
                     key={candidate.name}
                     type="button"
-                    onClick={() => setSelectedGoldenBoot(candidate.name)}
+                    onClick={() => {
+                      setSelectedGoldenBoot(candidate.name);
+
+                      if (candidate.name !== goldenBootWriteInLabel) {
+                        setGoldenBootWriteIn("");
+                      }
+                    }}
                     style={{
                       "--team-a": candidateColors[0],
                       "--team-b": candidateColors[1]
@@ -1055,6 +1083,19 @@ export function PoolaramaPrototype() {
                 );
               })}
             </div>
+            {selectedGoldenBootIsWriteIn && (
+              <label className="write-in-field">
+                <span>Golden Boot write-in</span>
+                <input
+                  type="text"
+                  value={goldenBootWriteIn}
+                  onChange={(event) => setGoldenBootWriteIn(event.target.value)}
+                  placeholder="Enter player name"
+                  maxLength={80}
+                  autoFocus
+                />
+              </label>
+            )}
           </div>
           <section className={`review-card ${isReviewing ? "active" : ""}`} aria-labelledby="review-title">
             <div className="section-title-row">
@@ -1083,7 +1124,7 @@ export function PoolaramaPrototype() {
               </div>
               <div>
                 <span>Golden Boot</span>
-                <strong>{selectedGoldenBoot || "Not picked yet"}</strong>
+                <strong>{finalGoldenBootPick || "Not picked yet"}</strong>
               </div>
             </div>
             {isReviewing && (
