@@ -1056,7 +1056,7 @@ export function PoolaramaPrototype() {
               </div>
               <div className="points-pill submit-points">
                 <strong>42 pts</strong>
-                <span>plus tiebreaker</span>
+                <span>at stake plus tiebreaker</span>
               </div>
             </div>
             <div className="review-grid">
