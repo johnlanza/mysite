@@ -267,6 +267,7 @@ export function PoolaramaPrototype() {
   const [savedPicks, setSavedPicks] = useState<SavedPicks | null>(null);
   const [selectedParticipant, setSelectedParticipant] = useState<KnownParticipant>(defaultParticipant);
   const [identityConfirmed, setIdentityConfirmed] = useState(false);
+  const [identityLockedByLink, setIdentityLockedByLink] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isReviewing, setIsReviewing] = useState(false);
   const [saveFeedback, setSaveFeedback] = useState("Prototype save is ready.");
@@ -373,13 +374,24 @@ export function PoolaramaPrototype() {
       );
     }
 
+    const urlParticipantCode = new URLSearchParams(window.location.search).get("player");
+    const urlParticipant = knownParticipants.find((participant) => participant.code === urlParticipantCode) || null;
     const storedParticipantCode = window.localStorage.getItem(selectedParticipantKey);
     const confirmedParticipantCode = window.localStorage.getItem(confirmedParticipantKey);
     const initialParticipant =
-      knownParticipants.find((participant) => participant.code === storedParticipantCode) || defaultParticipant;
+      urlParticipant ||
+      knownParticipants.find((participant) => participant.code === storedParticipantCode) ||
+      defaultParticipant;
+    const linkLocked = Boolean(urlParticipant);
 
     setSelectedParticipant(initialParticipant);
-    setIdentityConfirmed(confirmedParticipantCode === initialParticipant.code);
+    setIdentityLockedByLink(linkLocked);
+    setIdentityConfirmed(linkLocked || confirmedParticipantCode === initialParticipant.code);
+
+    if (linkLocked) {
+      window.localStorage.setItem(selectedParticipantKey, initialParticipant.code);
+      window.localStorage.setItem(confirmedParticipantKey, initialParticipant.code);
+    }
 
     async function loadSavedPicks() {
       try {
@@ -591,6 +603,8 @@ export function PoolaramaPrototype() {
   }
 
   async function handleSelectParticipant(participant: KnownParticipant) {
+    if (identityLockedByLink) return;
+
     setSelectedParticipant(participant);
     setIdentityConfirmed(false);
     setSelectedChampion("");
@@ -844,26 +858,37 @@ export function PoolaramaPrototype() {
           <ScreenHeader
             kicker={identityConfirmed ? "Picks open" : "Test claim"}
             title={identityConfirmed ? "Make your group picks" : "Claim your test name"}
-            note={identityConfirmed ? `Making picks as ${selectedParticipant.nickname}. Start with group winners and runners-up.` : "For this live test, confirm your assigned name before making picks."}
+            note={identityLockedByLink
+              ? `This test link is assigned to ${selectedParticipant.nickname}.`
+              : identityConfirmed
+                ? `Making picks as ${selectedParticipant.nickname}. Start with group winners and runners-up.`
+                : "For this live test, confirm your assigned name before making picks."}
           />
           <section className="identity-card" aria-labelledby="identity-title">
             <div>
               <p className="eyebrow">Step 1 of 5</p>
               <h3 id="identity-title">{identityConfirmed ? `Confirmed: ${selectedParticipant.nickname}` : "Claim your name"}</h3>
             </div>
-            <div className="identity-grid">
-              {knownParticipants.map((participant) => (
-                <button
-                  className={`identity-option ${selectedParticipant.code === participant.code ? "selected" : ""}`}
-                  key={participant.code}
-                  type="button"
-                  onClick={() => handleSelectParticipant(participant)}
-                >
-                  <strong>{participant.nickname}</strong>
-                  <span>{participant.name}</span>
-                </button>
-              ))}
-            </div>
+            {identityLockedByLink ? (
+              <div className="identity-locked">
+                <strong>{selectedParticipant.nickname}</strong>
+                <span>{selectedParticipant.name}</span>
+              </div>
+            ) : (
+              <div className="identity-grid">
+                {knownParticipants.map((participant) => (
+                  <button
+                    className={`identity-option ${selectedParticipant.code === participant.code ? "selected" : ""}`}
+                    key={participant.code}
+                    type="button"
+                    onClick={() => handleSelectParticipant(participant)}
+                  >
+                    <strong>{participant.nickname}</strong>
+                    <span>{participant.name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
             <button className="primary-action inline-action" type="button" onClick={handleConfirmIdentity}>
               {identityConfirmed ? `Using ${selectedParticipant.nickname}` : `Confirm ${selectedParticipant.nickname}`}
             </button>
