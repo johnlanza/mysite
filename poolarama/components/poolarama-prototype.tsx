@@ -1174,9 +1174,6 @@ export function PoolaramaPrototype() {
 
   return (
     <main className="app-shell">
-      <div className="test-banner" role="status">
-        Live test mode · real tournament data loaded
-      </div>
       <section className="hero" aria-labelledby="poolarama-title">
         <div className="logo-row logo-row-image">
           <img
@@ -1735,9 +1732,18 @@ export function PoolaramaPrototype() {
                 <div>
                   <h3>{person.nickname}</h3>
                 </div>
-                <button className={person.venmoPaid ? "paid-pill" : "unpaid-pill"} type="button">
-                  {person.venmoPaid ? "Paid" : "Unpaid"}
-                </button>
+                {person.venmoPaid ? (
+                  <span className="paid-pill">Paid</span>
+                ) : (
+                  <a
+                    className="unpaid-pill"
+                    href="https://venmo.com/u/moneymammal"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Pay Now
+                  </a>
+                )}
               </article>
             ))}
           </div>

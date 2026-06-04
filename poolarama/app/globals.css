@@ -48,18 +48,6 @@ button {
   padding: 18px 14px 42px;
 }
 
-.test-banner {
-  margin: 0 0 12px;
-  padding: 11px 14px;
-  border-radius: 16px;
-  color: #4a3400;
-  background: linear-gradient(135deg, #ffef9f, #ffd266);
-  border: 1px solid rgba(145, 102, 0, 0.24);
-  font-weight: 700;
-  line-height: 1.25;
-  text-align: center;
-}
-
 .hero,
 .screen {
   border: 1px solid rgba(255, 255, 255, 0.72);
@@ -1275,10 +1263,15 @@ h1 {
 
 .paid-pill,
 .unpaid-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
   min-width: 112px;
   padding: 0 14px;
   border-radius: 999px;
   font-weight: 700;
+  text-decoration: none;
 }
 
 .paid-pill {
