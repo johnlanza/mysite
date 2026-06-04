@@ -929,9 +929,16 @@ export function PoolaramaPrototype() {
                 ))}
               </div>
             )}
-            <button className="primary-action inline-action" type="button" onClick={handleConfirmIdentity}>
-              {identityConfirmed ? `Using ${selectedParticipant.nickname}` : `Confirm ${selectedParticipant.nickname}`}
-            </button>
+            {!identityLockedByLink && (
+              <button
+                className="primary-action inline-action"
+                type="button"
+                onClick={handleConfirmIdentity}
+                disabled={identityConfirmed}
+              >
+                {identityConfirmed ? `Name confirmed: ${selectedParticipant.nickname}` : `Confirm ${selectedParticipant.nickname}`}
+              </button>
+            )}
           </section>
           {identityConfirmed && (
             <>
