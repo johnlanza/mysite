@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectToPoolaramaDatabase } from "@/lib/db";
-import { knownParticipants } from "@/lib/known-participants";
 import { defaultPoolSlug, getMockAdminOverview } from "@/lib/mock-api-data";
+import { mergeKnownAndMongoParticipants, participantFromMongo } from "@/lib/participant-utils";
 import type { AdminParticipantOverview } from "@/lib/poolarama-types";
 import ParticipantModel from "@/models/Participant";
 import SubmissionModel from "@/models/Submission";
@@ -21,7 +21,8 @@ export async function GET() {
       SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "preTournament" }).lean()
     ]);
 
-    const overview: AdminParticipantOverview[] = knownParticipants.map((knownParticipant) => {
+    const roster = mergeKnownAndMongoParticipants(participants.map(participantFromMongo));
+    const overview: AdminParticipantOverview[] = roster.map((knownParticipant) => {
       const participant =
         participants.find((item) => item.participantCode === knownParticipant.code) || null;
       const submission =
@@ -29,6 +30,7 @@ export async function GET() {
 
       return {
         code: knownParticipant.code,
+        inviteCode: participant?.inviteCode || knownParticipant.inviteCode || knownParticipant.code,
         name: participant?.name || knownParticipant.name,
         nickname: participant?.nickname || knownParticipant.nickname,
         venmoPaid: participant?.venmoPaid ?? knownParticipant.venmoPaid,

@@ -1,5 +1,6 @@
 export type KnownParticipant = {
   code: string;
+  inviteCode?: string;
   name: string;
   nickname: string;
   venmoPaid: boolean;

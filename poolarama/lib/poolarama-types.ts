@@ -44,6 +44,7 @@ export type StandingParticipant = {
 
 export type AdminParticipantOverview = {
   code: string;
+  inviteCode?: string;
   name: string;
   nickname: string;
   venmoPaid: boolean;

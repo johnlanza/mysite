@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectToPoolaramaDatabase } from "@/lib/db";
 import { knownParticipants } from "@/lib/known-participants";
 import { defaultPoolSlug, getMockAdminOverview } from "@/lib/mock-api-data";
+import { generateInviteCode } from "@/lib/participant-utils";
 import ParticipantModel from "@/models/Participant";
 
 export const dynamic = "force-dynamic";
@@ -19,27 +20,32 @@ export async function POST() {
       });
     }
 
-    await Promise.all(
-      knownParticipants.map((participant) =>
-        ParticipantModel.findOneAndUpdate(
-          { poolSlug: defaultPoolSlug, participantCode: participant.code },
-          {
-            $set: {
-              name: participant.name,
-              nickname: participant.nickname,
-              venmoPaid: participant.venmoPaid,
-              paidAt: participant.venmoPaid ? new Date() : null
-            },
-            $setOnInsert: {
-              poolSlug: defaultPoolSlug,
-              participantCode: participant.code,
-              isAdmin: false
-            }
+    for (const participant of knownParticipants) {
+      const existingParticipant = await ParticipantModel.findOne({
+        poolSlug: defaultPoolSlug,
+        participantCode: participant.code
+      }).lean();
+      const inviteCode = existingParticipant?.inviteCode || generateInviteCode(participant.code);
+
+      await ParticipantModel.findOneAndUpdate(
+        { poolSlug: defaultPoolSlug, participantCode: participant.code },
+        {
+          $set: {
+            name: participant.name,
+            nickname: participant.nickname,
+            venmoPaid: participant.venmoPaid,
+            paidAt: participant.venmoPaid ? new Date() : null,
+            inviteCode
           },
-          { new: true, upsert: true }
-        )
-      )
-    );
+          $setOnInsert: {
+            poolSlug: defaultPoolSlug,
+            participantCode: participant.code,
+            isAdmin: false
+          }
+        },
+        { new: true, upsert: true }
+      );
+    }
 
     const participants = await ParticipantModel.find({ poolSlug: defaultPoolSlug }).lean();
 

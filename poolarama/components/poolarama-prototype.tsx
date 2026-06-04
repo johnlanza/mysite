@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { withBasePath } from "@/lib/base-path";
 import { defaultParticipant, knownParticipants, type KnownParticipant } from "@/lib/known-participants";
 import type { AdminParticipantOverview } from "@/lib/poolarama-types";
@@ -32,6 +32,7 @@ type ApiSubmissionResponse = {
   } | null;
   participant?: {
     code: string;
+    inviteCode?: string;
     name: string;
     nickname: string;
     venmoPaid: boolean;
@@ -99,6 +100,22 @@ function getSavedPicksKey(participantCode: string) {
 
 function getTeamDisplayName(team: { name: string; code: string }) {
   return team.name.length > 12 ? team.code : team.name;
+}
+
+function getParticipantFromApi(participant: {
+  code: string;
+  inviteCode?: string;
+  name: string;
+  nickname: string;
+  venmoPaid: boolean;
+}): KnownParticipant {
+  return {
+    code: participant.code,
+    inviteCode: participant.inviteCode,
+    name: participant.name,
+    nickname: participant.nickname,
+    venmoPaid: participant.venmoPaid
+  };
 }
 
 function buildEmptyGroupPicks() {
@@ -280,6 +297,7 @@ export function PoolaramaPrototype() {
   const [adminOverview, setAdminOverview] = useState<AdminParticipantOverview[]>(
     knownParticipants.map((participant) => ({
       code: participant.code,
+      inviteCode: participant.inviteCode,
       name: participant.name,
       nickname: participant.nickname,
       venmoPaid: participant.venmoPaid,
@@ -290,6 +308,8 @@ export function PoolaramaPrototype() {
     }))
   );
   const [adminFeedback, setAdminFeedback] = useState("Admin overview is ready.");
+  const [newParticipantName, setNewParticipantName] = useState("");
+  const [newParticipantNickname, setNewParticipantNickname] = useState("");
   const [poolState, setPoolState] = useState<PoolState>(defaultPoolState);
   const [publicPicks, setPublicPicks] = useState<PublicPickParticipant[]>([]);
   const [testStage, setTestStage] = useState<TestStage>("Group");
@@ -412,7 +432,8 @@ export function PoolaramaPrototype() {
       adminParticipant ||
       knownParticipants.find((participant) => participant.code === storedParticipantCode) ||
       defaultParticipant;
-    const linkLocked = Boolean(urlParticipant || adminParticipant);
+    const linkLocked = Boolean(urlParticipantCode || adminParticipant);
+    const lookupCode = urlParticipantCode || initialParticipant.code;
 
     setSelectedParticipant(initialParticipant);
     setIdentityLockedByLink(linkLocked);
@@ -429,16 +450,22 @@ export function PoolaramaPrototype() {
 
     async function loadSavedPicks() {
       try {
-        const response = await fetch(withBasePath(`/api/me?code=${initialParticipant.code}`), { cache: "no-store" });
+        const response = await fetch(withBasePath(`/api/me?code=${lookupCode}`), { cache: "no-store" });
 
         if (response.ok) {
           const data = (await response.json()) as ApiSubmissionResponse;
 
           if (data.participant) {
             const matchedParticipant =
-              knownParticipants.find((participant) => participant.code === data.participant?.code) || initialParticipant;
+              knownParticipants.find((participant) => participant.code === data.participant?.code) ||
+              getParticipantFromApi(data.participant);
 
             setSelectedParticipant(matchedParticipant);
+            window.localStorage.setItem(selectedParticipantKey, matchedParticipant.code);
+
+            if (linkLocked) {
+              window.localStorage.setItem(confirmedParticipantKey, matchedParticipant.code);
+            }
           }
 
           if (data.submission) {
@@ -594,6 +621,71 @@ export function PoolaramaPrototype() {
     }
   }
 
+  function getInviteUrl(participant: Pick<AdminParticipantOverview, "code" | "inviteCode">) {
+    if (typeof window === "undefined") return "";
+
+    return `${window.location.origin}${withBasePath("")}?player=${participant.inviteCode || participant.code}`;
+  }
+
+  async function copyToClipboard(text: string, feedback: string) {
+    try {
+      await window.navigator.clipboard.writeText(text);
+      setAdminFeedback(feedback);
+    } catch {
+      setAdminFeedback(text);
+    }
+  }
+
+  async function handleCopyInvite(participant: AdminParticipantOverview) {
+    await copyToClipboard(getInviteUrl(participant), `Invite link copied for ${participant.nickname}.`);
+  }
+
+  async function handleCopyReminder(participant: AdminParticipantOverview) {
+    const inviteUrl = getInviteUrl(participant);
+    await copyToClipboard(
+      `Poolarama picks are open. Use your private link to submit: ${inviteUrl}`,
+      `Reminder copied for ${participant.nickname}.`
+    );
+  }
+
+  async function handleAddParticipant(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const name = newParticipantName.trim();
+    const nickname = newParticipantNickname.trim() || name;
+
+    if (!name || !nickname) {
+      setAdminFeedback("Name and nickname are required.");
+      return;
+    }
+
+    setAdminFeedback(`Adding ${nickname}...`);
+
+    try {
+      const response = await fetch(withBasePath("/api/admin/participants"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name, nickname })
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Could not add participant.");
+      }
+
+      const data = (await response.json()) as { participant: KnownParticipant };
+
+      setNewParticipantName("");
+      setNewParticipantNickname("");
+      await loadAdminOverview();
+      setAdminFeedback(`${data.participant.nickname} added. Copy their invite link below.`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not add participant.";
+      setAdminFeedback(message);
+    }
+  }
+
   async function handleClearSubmissions() {
     setAdminFeedback("Clearing test submissions...");
 
@@ -674,6 +766,10 @@ export function PoolaramaPrototype() {
       }
 
       const data = (await response.json()) as ApiSubmissionResponse;
+
+      if (data.participant) {
+        setSelectedParticipant(getParticipantFromApi(data.participant));
+      }
 
       if (data.submission) {
         setSelectedChampion(data.submission.picks.champion);
@@ -1438,6 +1534,38 @@ export function PoolaramaPrototype() {
               </button>
             </div>
           </div>
+          <section className="invite-card" aria-labelledby="invite-title">
+            <div>
+              <p className="eyebrow">Invites</p>
+              <h3 id="invite-title">Add a player</h3>
+              <p>New players get private invite links that are harder to guess than their names.</p>
+            </div>
+            <form className="invite-form" onSubmit={handleAddParticipant}>
+              <label>
+                <span>Name</span>
+                <input
+                  type="text"
+                  value={newParticipantName}
+                  onChange={(event) => setNewParticipantName(event.target.value)}
+                  placeholder="Full name"
+                  maxLength={80}
+                />
+              </label>
+              <label>
+                <span>Pool name</span>
+                <input
+                  type="text"
+                  value={newParticipantNickname}
+                  onChange={(event) => setNewParticipantNickname(event.target.value)}
+                  placeholder="Nickname"
+                  maxLength={80}
+                />
+              </label>
+              <button className="admin-action compact" type="submit">
+                Add player
+              </button>
+            </form>
+          </section>
           <section className="test-tournament-card" aria-labelledby="test-tournament-title">
             <div className="section-title-row">
               <div>
@@ -1514,14 +1642,23 @@ export function PoolaramaPrototype() {
                   <div className="admin-pick-summary">
                     <span>{participant.submittedAt ? new Date(participant.submittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
                     <strong>{participant.champion ? `${participant.champion} / ${participant.goldenBoot}` : "No picks on file"}</strong>
+                    <em>{participant.inviteCode ? "Private invite ready" : "Basic invite"}</em>
                   </div>
-                  <button
-                    className={`admin-action compact payment-toggle ${participant.venmoPaid ? "quiet" : ""}`}
-                    type="button"
-                    onClick={() => handleTogglePayment(participant)}
-                  >
-                    {participant.venmoPaid ? "Mark unpaid" : "Mark paid"}
-                  </button>
+                  <div className="admin-row-actions">
+                    <button
+                      className={`admin-action compact payment-toggle ${participant.venmoPaid ? "quiet" : ""}`}
+                      type="button"
+                      onClick={() => handleTogglePayment(participant)}
+                    >
+                      {participant.venmoPaid ? "Mark unpaid" : "Mark paid"}
+                    </button>
+                    <button className="admin-action compact" type="button" onClick={() => handleCopyInvite(participant)}>
+                      Copy link
+                    </button>
+                    <button className="admin-action compact quiet" type="button" onClick={() => handleCopyReminder(participant)}>
+                      Copy reminder
+                    </button>
+                  </div>
                 </article>
               );
             })}

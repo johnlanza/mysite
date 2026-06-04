@@ -4,6 +4,7 @@ const ParticipantSchema = new Schema(
   {
     poolSlug: { type: String, required: true, index: true, trim: true },
     participantCode: { type: String, required: true, trim: true },
+    inviteCode: { type: String, trim: true },
     name: { type: String, required: true, trim: true },
     nickname: { type: String, required: true, trim: true },
     venmoPaid: { type: Boolean, default: false },
@@ -14,6 +15,7 @@ const ParticipantSchema = new Schema(
 );
 
 ParticipantSchema.index({ poolSlug: 1, participantCode: 1 }, { unique: true });
+ParticipantSchema.index({ poolSlug: 1, inviteCode: 1 }, { unique: true, sparse: true });
 
 export type Participant = InferSchemaType<typeof ParticipantSchema>;
 

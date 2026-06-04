@@ -1261,6 +1261,66 @@ h1 {
   line-height: 1.35;
 }
 
+.invite-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(255, 200, 61, 0.24), rgba(15, 159, 110, 0.14)), #fff;
+  border: 1px solid var(--line);
+}
+
+.invite-card h3 {
+  margin: 0;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(1.5rem, 6vw, 2.1rem);
+  line-height: 1;
+}
+
+.invite-card p:last-child {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.invite-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.invite-form label {
+  display: grid;
+  gap: 6px;
+}
+
+.invite-form span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.invite-form input {
+  width: 100%;
+  min-height: 52px;
+  border: 3px solid rgba(17, 32, 51, 0.16);
+  border-radius: 14px;
+  padding: 0 12px;
+  color: var(--ink);
+  background: #fff;
+  font: 900 1rem/1.2 var(--font-body), system-ui, sans-serif;
+}
+
+.invite-form input:focus {
+  border-color: var(--navy);
+  outline: 4px solid rgba(255, 200, 61, 0.55);
+  outline-offset: 1px;
+}
+
 .admin-list {
   display: grid;
   gap: 10px;
@@ -1268,7 +1328,7 @@ h1 {
 
 .admin-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) auto minmax(0, 1.3fr) auto auto;
+  grid-template-columns: minmax(0, 1.1fr) auto minmax(0, 1.2fr) minmax(180px, auto);
   align-items: center;
   gap: 12px;
   padding: 14px;
@@ -1335,6 +1395,20 @@ h1 {
   margin-top: 4px;
   color: var(--navy);
   line-height: 1.2;
+}
+
+.admin-pick-summary em {
+  display: block;
+  margin-top: 4px;
+  color: var(--green);
+  font-style: normal;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.admin-row-actions {
+  display: grid;
+  gap: 8px;
 }
 
 .payment-toggle {
@@ -1547,6 +1621,10 @@ h1 {
 
   .admin-toolbar,
   .admin-row {
+    grid-template-columns: 1fr;
+  }
+
+  .invite-form {
     grid-template-columns: 1fr;
   }
 

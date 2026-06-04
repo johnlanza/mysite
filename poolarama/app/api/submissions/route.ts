@@ -4,7 +4,7 @@ import {
   defaultPoolSlug,
   setMockSubmission
 } from "@/lib/mock-api-data";
-import { findKnownParticipant } from "@/lib/known-participants";
+import { findKnownParticipant, knownParticipants } from "@/lib/known-participants";
 import { buildPoolState, getOrCreateDefaultPool } from "@/lib/pool-state";
 import type { PoolStage, PoolSubmissionPicks, SavedSubmission } from "@/lib/poolarama-types";
 import ParticipantModel from "@/models/Participant";
@@ -46,11 +46,35 @@ export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as Record<string, unknown>;
     const stage = validStages.has(body.stage as PoolStage) ? (body.stage as PoolStage) : "preTournament";
-    const selectedParticipant = findKnownParticipant(
-      typeof body.participantCode === "string" ? body.participantCode : null
-    );
+    const participantCode = typeof body.participantCode === "string" ? body.participantCode : "";
+    let selectedParticipant = findKnownParticipant(participantCode);
     const picks = parsePicks(body);
     const submittedAt = new Date();
+    const db = await connectToPoolaramaDatabase();
+
+    if (db) {
+      const participant = await ParticipantModel.findOne({
+        poolSlug: defaultPoolSlug,
+        participantCode
+      }).lean();
+
+      if (!participant && !knownParticipants.some((knownParticipant) => knownParticipant.code === participantCode)) {
+        return NextResponse.json(
+          { error: "Participant not found." },
+          { status: 404 }
+        );
+      }
+
+      if (participant) {
+        selectedParticipant = {
+          code: participant.participantCode,
+          name: participant.name,
+          nickname: participant.nickname,
+          venmoPaid: participant.venmoPaid
+        };
+      }
+    }
+
     const baseSubmission = {
       poolSlug: defaultPoolSlug,
       participantCode: selectedParticipant.code,
@@ -59,8 +83,6 @@ export async function POST(request: NextRequest) {
       picks,
       submittedAt: submittedAt.toISOString()
     };
-    const db = await connectToPoolaramaDatabase();
-
     if (!db) {
       const mockSubmission = setMockSubmission({
         ...baseSubmission,
@@ -88,6 +110,7 @@ export async function POST(request: NextRequest) {
         $setOnInsert: {
           poolSlug: defaultPoolSlug,
           participantCode: selectedParticipant.code,
+          inviteCode: selectedParticipant.code,
           name: selectedParticipant.name,
           nickname: selectedParticipant.nickname,
           venmoPaid: selectedParticipant.venmoPaid

@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { connectToPoolaramaDatabase } from "@/lib/db";
 import { findKnownParticipant, knownParticipants } from "@/lib/known-participants";
 import { defaultPoolSlug } from "@/lib/mock-api-data";
+import { mergeKnownAndMongoParticipants, participantFromMongo } from "@/lib/participant-utils";
 import { buildPoolState, getOrCreateDefaultPool } from "@/lib/pool-state";
 import type { PoolSubmissionPicks } from "@/lib/poolarama-types";
 import ParticipantModel from "@/models/Participant";
@@ -31,7 +32,8 @@ function normalizeGroupPicks(picks: unknown) {
 }
 
 export async function GET(request: NextRequest) {
-  const viewer = findKnownParticipant(request.nextUrl.searchParams.get("viewerCode"));
+  const viewerCode = request.nextUrl.searchParams.get("viewerCode") || "";
+  let viewer = findKnownParticipant(viewerCode);
 
   try {
     const db = await connectToPoolaramaDatabase();
@@ -57,11 +59,25 @@ export async function GET(request: NextRequest) {
       ParticipantModel.find({ poolSlug: defaultPoolSlug }).lean(),
       SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "preTournament" }).lean()
     ]);
+    const viewerParticipant = participants.find(
+      (participant) => participant.participantCode === viewerCode || participant.inviteCode === viewerCode
+    );
+
+    if (viewerParticipant) {
+      viewer = {
+        code: viewerParticipant.participantCode,
+        name: viewerParticipant.name,
+        nickname: viewerParticipant.nickname,
+        venmoPaid: viewerParticipant.venmoPaid
+      };
+    }
+
     const poolState = buildPoolState(pool);
     const isLocked = poolState.preTournament.status === "locked";
+    const roster = mergeKnownAndMongoParticipants(participants.map(participantFromMongo));
 
     return NextResponse.json({
-      participants: knownParticipants.map((knownParticipant) => {
+      participants: roster.map((knownParticipant) => {
         const participant =
           participants.find((item) => item.participantCode === knownParticipant.code) || null;
         const submission =

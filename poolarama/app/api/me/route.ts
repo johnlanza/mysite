@@ -4,7 +4,7 @@ import {
   defaultPoolSlug,
   getMockSubmission
 } from "@/lib/mock-api-data";
-import { findKnownParticipant } from "@/lib/known-participants";
+import { defaultParticipant, knownParticipants } from "@/lib/known-participants";
 import type { PoolSubmissionPicks, SavedSubmission } from "@/lib/poolarama-types";
 import ParticipantModel from "@/models/Participant";
 import SubmissionModel from "@/models/Submission";
@@ -26,7 +26,9 @@ function normalizePicks(picks: unknown): PoolSubmissionPicks {
 }
 
 export async function GET(request: NextRequest) {
-  const selectedParticipant = findKnownParticipant(request.nextUrl.searchParams.get("code"));
+  const requestedCode = request.nextUrl.searchParams.get("code") || "";
+  const selectedParticipant =
+    knownParticipants.find((participant) => participant.code === requestedCode) || defaultParticipant;
 
   try {
     const db = await connectToPoolaramaDatabase();
@@ -44,19 +46,35 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const participant = await ParticipantModel.findOneAndUpdate(
+    const existingParticipant = requestedCode ? await ParticipantModel.findOne({
+      poolSlug: defaultPoolSlug,
+      $or: [
+        { participantCode: requestedCode },
+        { inviteCode: requestedCode }
+      ]
+    }).lean() : null;
+
+    if (requestedCode && !existingParticipant && selectedParticipant.code !== requestedCode) {
+      return NextResponse.json(
+        { error: "Invite link not found." },
+        { status: 404 }
+      );
+    }
+
+    const participant = existingParticipant || (await ParticipantModel.findOneAndUpdate(
       { poolSlug: defaultPoolSlug, participantCode: selectedParticipant.code },
       {
         $setOnInsert: {
           poolSlug: defaultPoolSlug,
           participantCode: selectedParticipant.code,
+          inviteCode: selectedParticipant.code,
           name: selectedParticipant.name,
           nickname: selectedParticipant.nickname,
           venmoPaid: selectedParticipant.venmoPaid
         }
       },
       { new: true, upsert: true }
-    ).lean();
+    ).lean());
     const submission = await SubmissionModel.findOne({
       poolSlug: defaultPoolSlug,
       participantCode: selectedParticipant.code,
