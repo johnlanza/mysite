@@ -1,12 +1,17 @@
 #!/usr/bin/env node
 
 const baseUrl = (process.env.PODCAST_CLUB_BASE_URL || 'https://www.johnlanza.com/podcastclub').replace(/\/+$/, '');
-const sessionCookie = process.env.PODCAST_CLUB_SESSION_COOKIE;
+let sessionCookie = process.env.PODCAST_CLUB_SESSION_COOKIE || '';
+const loginEmail = process.env.PODCAST_CLUB_EMAIL || '';
+const loginPassword = process.env.PODCAST_CLUB_PASSWORD || '';
 const runId = Date.now();
 
-if (!sessionCookie) {
-  console.error('Missing PODCAST_CLUB_SESSION_COOKIE.');
-  console.error('Pass the full cookie value, for example: PODCAST_CLUB_SESSION_COOKIE="mysite_session=..." npm run smoke:live');
+if (!sessionCookie && (!loginEmail || !loginPassword)) {
+  console.error('Missing credentials.');
+  console.error('Use either:');
+  console.error('  PODCAST_CLUB_SESSION_COOKIE="mysite_session=..." npm run smoke:live');
+  console.error('or:');
+  console.error('  PODCAST_CLUB_EMAIL="you@example.com" PODCAST_CLUB_PASSWORD="..." npm run smoke:live');
   process.exit(1);
 }
 
@@ -19,6 +24,49 @@ const results = [];
 
 function note(name, status) {
   results.push({ name, status });
+}
+
+function parseCookies(headers) {
+  if (typeof headers.getSetCookie === 'function') {
+    return headers.getSetCookie();
+  }
+
+  const cookieHeader = headers.get('set-cookie');
+  return cookieHeader ? [cookieHeader] : [];
+}
+
+function buildCookieHeader(setCookieHeaders) {
+  return setCookieHeaders
+    .map((cookie) => cookie.split(';')[0])
+    .filter(Boolean)
+    .join('; ');
+}
+
+async function login() {
+  if (sessionCookie) return;
+
+  const response = await fetch(`${baseUrl}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email: loginEmail,
+      password: loginPassword,
+      remember: false
+    })
+  });
+
+  const text = await response.text();
+  if (!response.ok) {
+    throw new Error(`login: expected 2xx, got ${response.status}: ${text.slice(0, 500)}`);
+  }
+
+  const cookieHeader = buildCookieHeader(parseCookies(response.headers));
+  if (!cookieHeader.includes('mysite_session=')) {
+    throw new Error('login: response did not include a mysite_session cookie.');
+  }
+
+  sessionCookie = cookieHeader;
+  note('login', response.status);
 }
 
 async function request(name, path, options = {}, expected = {}) {
@@ -58,6 +106,7 @@ async function cleanupRequest(name, path, body) {
 }
 
 try {
+  await login();
   await request('auth session', '/api/auth/me', {}, { ok: true });
   await request('submission health', '/api/submission-health', {}, { ok: true });
 
