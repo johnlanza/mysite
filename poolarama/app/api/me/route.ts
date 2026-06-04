@@ -75,14 +75,15 @@ export async function GET(request: NextRequest) {
       },
       { new: true, upsert: true }
     ).lean());
-    const submission = await SubmissionModel.findOne({
+    const submissions = await SubmissionModel.find({
       poolSlug: defaultPoolSlug,
-      participantCode: selectedParticipant.code,
-      stage: "preTournament"
+      participantCode: participant.participantCode
     })
       .sort({ submittedAt: -1 })
       .lean();
-    const responseSubmission: SavedSubmission | null = submission
+    const preTournamentSubmission = submissions.find((submission) => submission.stage === "preTournament") || null;
+    const r32Submission = submissions.find((submission) => submission.stage === "r32") || null;
+    const toResponseSubmission = (submission: typeof preTournamentSubmission): SavedSubmission | null => submission
       ? {
           poolSlug: submission.poolSlug,
           participantCode: submission.participantCode,
@@ -93,6 +94,7 @@ export async function GET(request: NextRequest) {
           storageMode: "mongo"
         }
       : null;
+    const responseSubmission = toResponseSubmission(preTournamentSubmission);
 
     return NextResponse.json({
       storageMode: "mongo",
@@ -102,7 +104,11 @@ export async function GET(request: NextRequest) {
         nickname: participant.nickname,
         venmoPaid: participant.venmoPaid
       },
-      submission: responseSubmission
+      submission: responseSubmission,
+      submissions: {
+        preTournament: responseSubmission,
+        r32: toResponseSubmission(r32Submission)
+      }
     });
   } catch (error) {
     console.error("Poolarama /api/me failed", error);

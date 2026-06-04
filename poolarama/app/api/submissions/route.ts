@@ -18,10 +18,28 @@ function isValidPickText(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0 && value.trim().length <= 80;
 }
 
-function parsePicks(body: Record<string, unknown>): PoolSubmissionPicks {
+function parsePicks(body: Record<string, unknown>, stage: PoolStage): PoolSubmissionPicks {
   const picks = (body.picks || {}) as Partial<PoolSubmissionPicks>;
   const champion = picks.champion;
   const goldenBoot = picks.goldenBoot;
+
+  if (stage === "r32") {
+    const matchWinners = picks.matchWinners || {};
+
+    if (Object.keys(matchWinners).length === 0) {
+      throw new Error("Round of 32 picks are required.");
+    }
+
+    return {
+      champion: typeof champion === "string" ? champion.trim() : "",
+      goldenBoot: typeof goldenBoot === "string" ? goldenBoot.trim() : "",
+      groupFilter: picks.groupFilter || "All",
+      roundOf32Winner: typeof picks.roundOf32Winner === "string" ? picks.roundOf32Winner.trim() : "",
+      groupWinners: picks.groupWinners || {},
+      groupRunnersUp: picks.groupRunnersUp || {},
+      matchWinners
+    };
+  }
 
   if (!isValidPickText(champion)) {
     throw new Error("Champion pick is required.");
@@ -48,7 +66,7 @@ export async function POST(request: NextRequest) {
     const stage = validStages.has(body.stage as PoolStage) ? (body.stage as PoolStage) : "preTournament";
     const participantCode = typeof body.participantCode === "string" ? body.participantCode : "";
     let selectedParticipant = findKnownParticipant(participantCode);
-    const picks = parsePicks(body);
+    const picks = parsePicks(body, stage);
     const submittedAt = new Date();
     const db = await connectToPoolaramaDatabase();
 
@@ -99,6 +117,17 @@ export async function POST(request: NextRequest) {
       if (poolState.preTournament.status === "locked") {
         return NextResponse.json(
           { error: "Pre-tournament picks are locked." },
+          { status: 423 }
+        );
+      }
+    }
+
+    if (stage === "r32") {
+      const pool = await getOrCreateDefaultPool();
+
+      if (pool.r32Status !== "open") {
+        return NextResponse.json(
+          { error: "Round of 32 picks are not open." },
           { status: 423 }
         );
       }

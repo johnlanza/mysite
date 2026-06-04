@@ -26,10 +26,15 @@ type ApiSubmissionResponse = {
       groupFilter?: GroupId | "All";
       groupWinners?: Partial<Record<GroupId, string>>;
       groupRunnersUp?: Partial<Record<GroupId, string>>;
+      matchWinners?: Record<string, string>;
     };
     submittedAt: string;
     storageMode: "mongo" | "mock";
   } | null;
+  submissions?: {
+    preTournament: ApiSubmissionResponse["submission"];
+    r32: ApiSubmissionResponse["submission"];
+  };
   participant?: {
     code: string;
     inviteCode?: string;
@@ -50,6 +55,34 @@ type PoolState = {
     status: "open" | "locked";
     lockedAt: string | null;
   };
+  r32: {
+    status: "setup" | "open" | "locked";
+    openedAt: string | null;
+    lockedAt: string | null;
+  };
+};
+
+type GroupStandingRow = {
+  group: GroupId;
+  team: string;
+  played: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
+  points: number;
+  rank: number;
+};
+
+type R32Match = {
+  matchId: string;
+  label: string;
+  teamA: string;
+  teamB: string;
+  winner?: string;
+  order: number;
 };
 
 type PublicPickParticipant = {
@@ -91,6 +124,11 @@ const defaultPoolState: PoolState = {
   preTournament: {
     status: "open",
     lockedAt: null
+  },
+  r32: {
+    status: "setup",
+    openedAt: null,
+    lockedAt: null
   }
 };
 
@@ -130,6 +168,22 @@ function completeGroupPicks(partialPicks: Partial<Record<GroupId, string>> | und
     ...buildEmptyGroupPicks(),
     ...(partialPicks || {})
   };
+}
+
+function buildDefaultGroupStandings(): GroupStandingRow[] {
+  return teams.map((team, index) => ({
+    group: team.group,
+    team: team.name,
+    played: 0,
+    wins: 0,
+    draws: 0,
+    losses: 0,
+    goalsFor: 0,
+    goalsAgainst: 0,
+    goalDifference: 0,
+    points: 0,
+    rank: (index % 4) + 1
+  }));
 }
 
 function getCountryColors(country: string): [string, string] {
@@ -312,6 +366,12 @@ export function PoolaramaPrototype() {
   const [newParticipantNickname, setNewParticipantNickname] = useState("");
   const [poolState, setPoolState] = useState<PoolState>(defaultPoolState);
   const [publicPicks, setPublicPicks] = useState<PublicPickParticipant[]>([]);
+  const [groupStandingsRows, setGroupStandingsRows] = useState<GroupStandingRow[]>(() => buildDefaultGroupStandings());
+  const [r32Preview, setR32Preview] = useState<R32Match[]>([]);
+  const [r32Matches, setR32Matches] = useState<R32Match[]>([]);
+  const [r32Picks, setR32Picks] = useState<Record<string, string>>({});
+  const [r32SavedPicks, setR32SavedPicks] = useState<Record<string, string> | null>(null);
+  const [r32Feedback, setR32Feedback] = useState("Round of 32 picks are not open yet.");
   const [testStage, setTestStage] = useState<TestStage>("Group");
   const [testMatches, setTestMatches] = useState<TestMatch[]>([]);
   const [testScore, setTestScore] = useState(0);
@@ -346,6 +406,9 @@ export function PoolaramaPrototype() {
     Boolean(selectedChampion) &&
     Boolean(finalGoldenBootPick);
   const preTournamentLocked = poolState.preTournament.status === "locked";
+  const r32Open = poolState.r32.status === "open";
+  const r32Locked = poolState.r32.status === "locked";
+  const r32PicksComplete = r32Matches.length > 0 && r32Matches.every((match) => Boolean(r32Picks[match.matchId]));
   const completionHint = duplicateGroupPicks.length > 0
     ? `Fix duplicate picks in Group ${duplicateGroupPicks[0]}.`
     : missingGroupPicks.length > 0
@@ -478,6 +541,15 @@ export function PoolaramaPrototype() {
               savedAt: data.submission.submittedAt,
               storageMode: data.submission.storageMode
             });
+          }
+
+          if (data.submissions?.r32?.picks.matchWinners) {
+            setR32Picks(data.submissions.r32.picks.matchWinners);
+            setR32SavedPicks(data.submissions.r32.picks.matchWinners);
+            setR32Feedback("Restored Round of 32 picks.");
+          }
+
+          if (data.submission || data.submissions?.r32) {
             return;
           }
         }
@@ -505,6 +577,8 @@ export function PoolaramaPrototype() {
 
   useEffect(() => {
     loadAdminOverview();
+    loadGroupStandings();
+    loadRoundOf32();
   }, []);
 
   useEffect(() => {
@@ -570,6 +644,119 @@ export function PoolaramaPrototype() {
         const message = error instanceof Error ? error.message : "Could not load pick visibility.";
         setAdminFeedback(`${message} Database connection may be unavailable.`);
       }
+    }
+  }
+
+  async function loadGroupStandings() {
+    try {
+      const response = await fetch(withBasePath("/api/admin/group-standings"), { cache: "no-store" });
+
+      if (!response.ok) {
+        throw new Error("Group standings failed.");
+      }
+
+      const data = (await response.json()) as { standings: GroupStandingRow[]; r32Preview: R32Match[] };
+      setGroupStandingsRows(data.standings);
+      setR32Preview(data.r32Preview);
+    } catch {
+      setAdminFeedback("Could not load group standings.");
+    }
+  }
+
+  async function loadRoundOf32() {
+    try {
+      const response = await fetch(withBasePath("/api/admin/r32"), { cache: "no-store" });
+
+      if (!response.ok) {
+        throw new Error("Round of 32 failed.");
+      }
+
+      const data = (await response.json()) as { matches: R32Match[]; pool: PoolState };
+      setR32Matches(data.matches);
+      setPoolState(data.pool);
+    } catch {
+      setR32Feedback("Round of 32 unavailable.");
+    }
+  }
+
+  function updateGroupStanding(team: string, field: keyof GroupStandingRow, value: string) {
+    setGroupStandingsRows((currentRows) =>
+      currentRows.map((row) => {
+        if (row.team !== team) return row;
+
+        const nextValue = field === "team" || field === "group" ? value : Number(value);
+        const nextRow = { ...row, [field]: nextValue } as GroupStandingRow;
+
+        return {
+          ...nextRow,
+          goalDifference: nextRow.goalsFor - nextRow.goalsAgainst
+        };
+      })
+    );
+  }
+
+  async function handleSaveGroupStandings() {
+    setAdminFeedback("Saving group standings...");
+
+    try {
+      const response = await fetch(withBasePath("/api/admin/group-standings"), {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ standings: groupStandingsRows })
+      });
+
+      if (!response.ok) {
+        throw new Error("Could not save group standings.");
+      }
+
+      const data = (await response.json()) as { standings: GroupStandingRow[]; r32Preview: R32Match[] };
+      setGroupStandingsRows(data.standings);
+      setR32Preview(data.r32Preview);
+      setAdminFeedback("Group standings saved. R32 preview updated.");
+    } catch {
+      setAdminFeedback("Could not save group standings.");
+    }
+  }
+
+  async function handleRoundOf32Action(action: "generate" | "open" | "lock") {
+    setAdminFeedback(
+      action === "generate"
+        ? "Generating Round of 32..."
+        : action === "open"
+          ? "Opening Round of 32 picks..."
+          : "Locking Round of 32 picks..."
+    );
+
+    try {
+      const response = await fetch(withBasePath("/api/admin/r32"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ action })
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Could not update Round of 32.");
+      }
+
+      const data = (await response.json()) as { matches: R32Match[]; pool: PoolState };
+      setR32Matches(data.matches);
+      setPoolState(data.pool);
+      await loadPublicPicks();
+      setAdminFeedback(
+        action === "generate"
+          ? "Round of 32 generated and opened."
+          : action === "open"
+            ? "Round of 32 picks are open."
+            : "Round of 32 picks are locked."
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not update Round of 32.";
+      setAdminFeedback(message);
     }
   }
 
@@ -791,6 +978,11 @@ export function PoolaramaPrototype() {
             : `Loaded ${participant.nickname}'s saved picks from prototype API memory.`
         );
       }
+
+      if (data.submissions?.r32?.picks.matchWinners) {
+        setR32Picks(data.submissions.r32.picks.matchWinners);
+        setR32SavedPicks(data.submissions.r32.picks.matchWinners);
+      }
     } catch {
       setSaveFeedback(`Ready for ${participant.nickname}. API lookup unavailable.`);
     }
@@ -885,6 +1077,51 @@ export function PoolaramaPrototype() {
       loadAdminOverview();
       loadPublicPicks();
       setSaveFeedback(`API unavailable. Picks saved in this browser for ${selectedParticipant.nickname}.`);
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function handleSaveRoundOf32Picks() {
+    if (!r32PicksComplete) {
+      setR32Feedback("Pick every Round of 32 winner before submitting.");
+      return;
+    }
+
+    if (!r32Open) {
+      setR32Feedback(r32Locked ? "Round of 32 picks are locked." : "Round of 32 picks are not open yet.");
+      return;
+    }
+
+    setIsSaving(true);
+    setR32Feedback("Submitting Round of 32 picks...");
+
+    try {
+      const response = await fetch(withBasePath("/api/submissions"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          stage: "r32",
+          participantCode: selectedParticipant.code,
+          picks: {
+            matchWinners: r32Picks
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Could not submit Round of 32 picks.");
+      }
+
+      setR32SavedPicks(r32Picks);
+      await loadPublicPicks();
+      setR32Feedback("Round of 32 picks submitted.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not submit Round of 32 picks.";
+      setR32Feedback(message);
     } finally {
       setIsSaving(false);
     }
@@ -1335,6 +1572,71 @@ export function PoolaramaPrototype() {
               </div>
             </section>
           )}
+          {r32Matches.length > 0 && (
+            <section className="knockout-card" aria-labelledby="r32-picks-title">
+              <div className="section-title-row">
+                <div>
+                  <p className="eyebrow">Round of 32</p>
+                  <h3 id="r32-picks-title">Pick match winners</h3>
+                  <p>
+                    {r32Open
+                      ? `${Object.keys(r32Picks).length}/${r32Matches.length} winners picked`
+                      : r32Locked
+                        ? "Round of 32 picks are locked."
+                        : "Round of 32 picks are not open yet."}
+                  </p>
+                </div>
+                <div className="points-pill">
+                  <strong>16 pts</strong>
+                  <span>1 per match</span>
+                </div>
+              </div>
+              <div className="knockout-match-grid">
+                {r32Matches.map((match) => (
+                  <article className="knockout-match-card" key={match.matchId}>
+                    <span>{match.label}</span>
+                    <div>
+                      {[match.teamA, match.teamB].map((teamName) => {
+                        const team = teams.find((candidate) => candidate.name === teamName);
+
+                        return (
+                          <button
+                            className={r32Picks[match.matchId] === teamName ? "selected" : ""}
+                            key={`${match.matchId}-${teamName}`}
+                            type="button"
+                            disabled={!r32Open || isSaving}
+                            onClick={() => setR32Picks((current) => ({ ...current, [match.matchId]: teamName }))}
+                            style={{
+                              "--team-a": team?.colors[0] || "#0f9f6e",
+                              "--team-b": team?.colors[1] || "#ffffff"
+                            } as React.CSSProperties}
+                          >
+                            <span aria-hidden="true">{team?.flag || "⚽"}</span>
+                            <strong>{teamName}</strong>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <button
+                className="primary-action inline-action submit-action"
+                type="button"
+                onClick={handleSaveRoundOf32Picks}
+                disabled={!r32Open || isSaving}
+              >
+                {r32SavedPicks && JSON.stringify(r32SavedPicks) === JSON.stringify(r32Picks)
+                  ? "Round of 32 submitted"
+                  : r32Open
+                    ? `Submit R32 Picks: ${selectedParticipant.nickname}`
+                    : r32Locked
+                      ? "Round of 32 locked"
+                      : "Round of 32 not open"}
+              </button>
+              <p className="pick-status" aria-live="polite">{r32Feedback}</p>
+            </section>
+          )}
             </>
           )}
         </section>
@@ -1565,6 +1867,81 @@ export function PoolaramaPrototype() {
                 Add player
               </button>
             </form>
+          </section>
+          <section className="group-standings-admin" aria-labelledby="group-standings-admin-title">
+            <div className="section-title-row">
+              <div>
+                <p className="eyebrow">Live group tables</p>
+                <h3 id="group-standings-admin-title">Update group standings</h3>
+                <p>Adjust ranks and table stats whenever you want. The Round of 32 preview updates from these rows.</p>
+              </div>
+              <button className="admin-action compact" type="button" onClick={handleSaveGroupStandings}>
+                Save tables
+              </button>
+            </div>
+            <div className="group-standings-grid">
+              {groups.map((group) => (
+                <article className="group-standing-panel" key={`admin-group-${group}`}>
+                  <h4>Group {group}</h4>
+                  {groupStandingsRows
+                    .filter((row) => row.group === group)
+                    .sort((a, b) => a.rank - b.rank)
+                    .map((row) => (
+                      <div className="group-standing-row" key={row.team}>
+                        <strong>{getTeamDisplayName(teams.find((team) => team.name === row.team) || { name: row.team, code: row.team.slice(0, 3).toUpperCase() })}</strong>
+                        <label>
+                          <span>Rank</span>
+                          <input type="number" min="1" max="4" value={row.rank} onChange={(event) => updateGroupStanding(row.team, "rank", event.target.value)} />
+                        </label>
+                        <label>
+                          <span>Pts</span>
+                          <input type="number" min="0" value={row.points} onChange={(event) => updateGroupStanding(row.team, "points", event.target.value)} />
+                        </label>
+                        <label>
+                          <span>GF</span>
+                          <input type="number" min="0" value={row.goalsFor} onChange={(event) => updateGroupStanding(row.team, "goalsFor", event.target.value)} />
+                        </label>
+                        <label>
+                          <span>GA</span>
+                          <input type="number" min="0" value={row.goalsAgainst} onChange={(event) => updateGroupStanding(row.team, "goalsAgainst", event.target.value)} />
+                        </label>
+                      </div>
+                    ))}
+                </article>
+              ))}
+            </div>
+          </section>
+          <section className="r32-admin-card" aria-labelledby="r32-admin-title">
+            <div className="section-title-row">
+              <div>
+                <p className="eyebrow">Round of 32</p>
+                <h3 id="r32-admin-title">Generate and open picks</h3>
+                <p>Status: {poolState.r32.status}. Generate uses current group tables.</p>
+              </div>
+              <div className="points-pill">
+                <strong>{r32Matches.length || r32Preview.length}</strong>
+                <span>matches</span>
+              </div>
+            </div>
+            <div className="admin-toolbar-actions">
+              <button className="admin-action compact" type="button" onClick={() => handleRoundOf32Action("generate")}>
+                Generate/open R32
+              </button>
+              <button className="admin-action compact" type="button" onClick={() => handleRoundOf32Action("open")}>
+                Open R32 picks
+              </button>
+              <button className="admin-action compact quiet" type="button" onClick={() => handleRoundOf32Action("lock")}>
+                Lock R32 picks
+              </button>
+            </div>
+            <div className="r32-preview-grid">
+              {(r32Matches.length > 0 ? r32Matches : r32Preview).slice(0, 16).map((match) => (
+                <div key={`preview-${match.matchId}`}>
+                  <span>{match.label}</span>
+                  <strong>{match.teamA} vs {match.teamB}</strong>
+                </div>
+              ))}
+            </div>
           </section>
           <section className="test-tournament-card" aria-labelledby="test-tournament-title">
             <div className="section-title-row">

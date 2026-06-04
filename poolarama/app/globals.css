@@ -669,6 +669,138 @@ h1 {
   line-height: 1;
 }
 
+.knockout-card,
+.group-standings-admin,
+.r32-admin-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(20, 99, 255, 0.12), rgba(15, 159, 110, 0.12)), #fff;
+  border: 1px solid var(--line);
+}
+
+.knockout-card h3,
+.group-standings-admin h3,
+.r32-admin-card h3 {
+  margin: 0;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(1.55rem, 6vw, 2.2rem);
+  line-height: 1;
+}
+
+.knockout-match-grid,
+.r32-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.knockout-match-card,
+.r32-preview-grid div {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--line);
+}
+
+.knockout-match-card > span,
+.r32-preview-grid span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.knockout-match-card div {
+  display: grid;
+  gap: 8px;
+}
+
+.knockout-match-card button {
+  min-height: 54px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border: 3px solid rgba(17, 32, 51, 0.12);
+  border-radius: 14px;
+  color: var(--ink);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--team-a) 20%, white), color-mix(in srgb, var(--team-b) 12%, white)),
+    #fff;
+  cursor: pointer;
+  text-align: left;
+}
+
+.knockout-match-card button.selected {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 4px rgba(255, 200, 61, 0.45);
+}
+
+.knockout-match-card button:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.group-standings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.group-standing-panel {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--line);
+}
+
+.group-standing-panel h4 {
+  margin: 0;
+  color: var(--navy);
+}
+
+.group-standing-row {
+  display: grid;
+  grid-template-columns: minmax(54px, 1fr) repeat(4, 48px);
+  align-items: end;
+  gap: 6px;
+}
+
+.group-standing-row strong {
+  min-width: 0;
+  font-size: 0.9rem;
+  line-height: 1.05;
+}
+
+.group-standing-row label {
+  display: grid;
+  gap: 3px;
+}
+
+.group-standing-row span {
+  color: var(--muted);
+  font-size: 0.64rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.group-standing-row input {
+  width: 100%;
+  min-height: 38px;
+  border: 2px solid rgba(17, 32, 51, 0.14);
+  border-radius: 10px;
+  color: var(--ink);
+  font-weight: 900;
+  text-align: center;
+}
+
 .candidate-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1615,7 +1747,10 @@ h1 {
   .pantheon-grid,
   .admin-summary,
   .rules-grid,
-  .saved-grid {
+  .saved-grid,
+  .knockout-match-grid,
+  .r32-preview-grid,
+  .group-standings-grid {
     grid-template-columns: 1fr;
   }
 
