@@ -3,6 +3,7 @@
 import { Dispatch, FormEvent, SetStateAction, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { withBasePath } from '@/lib/base-path';
+import { fetchJson, getRequestErrorMessage } from '@/lib/client-fetch';
 import {
   deriveServiceSelection,
   getCarveOutServiceOptions,
@@ -147,23 +148,23 @@ export default function CarveOutsPage() {
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
+    if (saving) return;
+
     setError('');
     setSuccess('');
     setSaving(true);
 
     try {
-      const res = await fetch(withBasePath('/api/carveouts-legacy'), {
+      const result = await fetchJson<CarveOut>(withBasePath('/api/carveouts'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           ...form,
           service: resolveSelectedService(form.serviceChoice, form.customService)
-        })
+        }
       });
 
-      const data = (await res.json().catch(() => null)) as { message?: string } | null;
-      if (!res.ok) {
-        setError(data?.message || 'Unable to save carve out.');
+      if (!result.ok) {
+        setError(result.message || 'Unable to save carve out.');
         return;
       }
 
@@ -171,8 +172,8 @@ export default function CarveOutsPage() {
       await loadPageData();
       setSuccess('Carve out submitted successfully.');
       setActiveTab('library');
-    } catch {
-      setError('Unable to save carve out.');
+    } catch (error) {
+      setError(getRequestErrorMessage(error, 'Unable to save carve out.'));
     } finally {
       setSaving(false);
     }
@@ -205,18 +206,16 @@ export default function CarveOutsPage() {
     setSuccess('');
     setSavingEditId(editModalCarveOut._id);
     try {
-      const res = await fetch(withBasePath(`/api/carveouts-legacy/${editModalCarveOut._id}`), {
+      const result = await fetchJson<CarveOut>(withBasePath(`/api/carveouts/${editModalCarveOut._id}`), {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           ...editForm,
           service: resolveSelectedService(editForm.serviceChoice, editForm.customService)
-        })
+        }
       });
 
-      const payload = (await res.json().catch(() => null)) as { message?: string } | null;
-      if (!res.ok) {
-        setError(payload?.message || 'Unable to update carve out.');
+      if (!result.ok) {
+        setError(result.message || 'Unable to update carve out.');
         return;
       }
 
@@ -224,8 +223,8 @@ export default function CarveOutsPage() {
       setEditForm(initialForm);
       await loadPageData();
       setSuccess('Carve out updated successfully.');
-    } catch {
-      setError('Unable to update carve out.');
+    } catch (error) {
+      setError(getRequestErrorMessage(error, 'Unable to update carve out.'));
     } finally {
       setSavingEditId(null);
     }
@@ -251,15 +250,13 @@ export default function CarveOutsPage() {
     setSuccess('');
     setDeletingCarveOutId(deleteModalCarveOut._id);
     try {
-      const res = await fetch(withBasePath(`/api/carveouts-legacy/${deleteModalCarveOut._id}`), {
+      const result = await fetchJson(withBasePath(`/api/carveouts/${deleteModalCarveOut._id}`), {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ confirmText: deleteConfirmText })
+        body: { confirmText: deleteConfirmText }
       });
 
-      const payload = (await res.json().catch(() => null)) as { message?: string } | null;
-      if (!res.ok) {
-        setError(payload?.message || 'Unable to delete carve out.');
+      if (!result.ok) {
+        setError(result.message || 'Unable to delete carve out.');
         return;
       }
 
@@ -267,8 +264,8 @@ export default function CarveOutsPage() {
       setDeleteConfirmText('');
       await loadPageData();
       setSuccess('Carve out deleted successfully.');
-    } catch {
-      setError('Unable to delete carve out.');
+    } catch (error) {
+      setError(getRequestErrorMessage(error, 'Unable to delete carve out.'));
     } finally {
       setDeletingCarveOutId(null);
     }
@@ -280,24 +277,19 @@ export default function CarveOutsPage() {
     setFistBumpingId(carveOutId);
 
     try {
-      const res = await fetch(withBasePath(`/api/carveouts/${carveOutId}/fist-bump`), {
+      const result = await fetchJson<CarveOut>(withBasePath(`/api/carveouts/${carveOutId}/fist-bump`), {
         method: 'POST'
       });
 
-      const payload = (await res.json().catch(() => null)) as (CarveOut & { message?: string }) | null;
-      if (!res.ok) {
-        setError(payload?.message || 'Unable to fist bump carve out.');
-        return;
-      }
-      if (!payload) {
-        setError('Unable to fist bump carve out.');
+      if (!result.ok) {
+        setError(result.message || 'Unable to fist bump carve out.');
         return;
       }
 
-      setCarveOuts((prev) => prev.map((carveOut) => (carveOut._id === carveOutId ? payload : carveOut)));
+      setCarveOuts((prev) => prev.map((carveOut) => (carveOut._id === carveOutId ? result.data : carveOut)));
       setSuccess('Fist bump sent.');
-    } catch {
-      setError('Unable to fist bump carve out.');
+    } catch (error) {
+      setError(getRequestErrorMessage(error, 'Unable to fist bump carve out.'));
     } finally {
       setFistBumpingId(null);
     }
@@ -309,24 +301,19 @@ export default function CarveOutsPage() {
     setFistBumpingId(carveOutId);
 
     try {
-      const res = await fetch(withBasePath(`/api/carveouts/${carveOutId}/fist-bump`), {
+      const result = await fetchJson<CarveOut>(withBasePath(`/api/carveouts/${carveOutId}/fist-bump`), {
         method: 'DELETE'
       });
 
-      const payload = (await res.json().catch(() => null)) as (CarveOut & { message?: string }) | null;
-      if (!res.ok) {
-        setError(payload?.message || 'Unable to remove fist bump.');
-        return;
-      }
-      if (!payload) {
-        setError('Unable to remove fist bump.');
+      if (!result.ok) {
+        setError(result.message || 'Unable to remove fist bump.');
         return;
       }
 
-      setCarveOuts((prev) => prev.map((carveOut) => (carveOut._id === carveOutId ? payload : carveOut)));
+      setCarveOuts((prev) => prev.map((carveOut) => (carveOut._id === carveOutId ? result.data : carveOut)));
       setSuccess('Fist bump removed.');
-    } catch {
-      setError('Unable to remove fist bump.');
+    } catch (error) {
+      setError(getRequestErrorMessage(error, 'Unable to remove fist bump.'));
     } finally {
       setFistBumpingId(null);
     }

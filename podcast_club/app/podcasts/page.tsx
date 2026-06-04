@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { withBasePath } from '@/lib/base-path';
+import { fetchJson, getRequestErrorMessage } from '@/lib/client-fetch';
 import { dedupePodcastsByContent } from '@/lib/podcast-dedupe';
 import type { Meeting, Podcast, SessionMember } from '@/lib/types';
 import { RATING_OPTIONS } from '@/lib/ranking';
@@ -181,27 +182,31 @@ export default function PodcastsPage() {
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
+    if (saving) return;
+
     setError('');
     setSuccess('');
     setSaving(true);
 
-    const res = await fetch(withBasePath('/api/podcasts'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
-    });
+    try {
+      const result = await fetchJson(withBasePath('/api/podcasts'), {
+        method: 'POST',
+        body: form
+      });
 
-    if (!res.ok) {
-      const payload = await res.json();
-      setError(payload.message || 'Unable to save podcast.');
+      if (!result.ok) {
+        setError(result.message || 'Unable to save podcast.');
+        return;
+      }
+
+      setForm(initialForm);
+      await loadPageData();
+      setSuccess('Podcast submitted successfully. It now appears in Podcasts To Discuss.');
+    } catch (error) {
+      setError(getRequestErrorMessage(error, 'Unable to save podcast.'));
+    } finally {
       setSaving(false);
-      return;
     }
-
-    setForm(initialForm);
-    await loadPageData();
-    setSuccess('Podcast submitted successfully. It now appears in Podcasts To Discuss.');
-    setSaving(false);
   }
 
   async function saveRating(podcastId: string, selectedRating?: string) {
@@ -221,15 +226,13 @@ export default function PodcastsPage() {
     setSavingRatingId(podcastId);
 
     try {
-      const res = await fetch(withBasePath(`/api/podcasts/${podcastId}/vote`), {
+      const result = await fetchJson<Podcast>(withBasePath(`/api/podcasts/${podcastId}/vote`), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rating })
+        body: { rating }
       });
 
-      if (!res.ok) {
-        const payload = (await res.json().catch(() => null)) as { message?: string } | null;
-        setError(payload?.message || 'Unable to save rating.');
+      if (!result.ok) {
+        setError(result.message || 'Unable to save rating.');
         return;
       }
 
@@ -263,6 +266,8 @@ export default function PodcastsPage() {
       }, 2600);
 
       await loadPageData();
+    } catch (error) {
+      setError(getRequestErrorMessage(error, 'Unable to save rating.'));
     } finally {
       setSavingRatingId((current) => (current === podcastId ? null : current));
     }
@@ -292,23 +297,21 @@ export default function PodcastsPage() {
     setError('');
     setDeletingPodcastId(deleteModalPodcast._id);
     try {
-      const res = await fetch(withBasePath(`/api/podcasts/${deleteModalPodcast._id}`), {
+      const result = await fetchJson(withBasePath(`/api/podcasts/${deleteModalPodcast._id}`), {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ confirmText: deleteConfirmText })
+        body: { confirmText: deleteConfirmText }
       });
 
-      const payload = (await res.json().catch(() => null)) as { message?: string } | null;
-      if (!res.ok) {
-        setError(payload?.message || 'Unable to delete podcast.');
+      if (!result.ok) {
+        setError(result.message || 'Unable to delete podcast.');
         return;
       }
 
       setDeleteModalPodcast(null);
       setDeleteConfirmText('');
       await loadPageData();
-    } catch {
-      setError('Unable to delete podcast.');
+    } catch (error) {
+      setError(getRequestErrorMessage(error, 'Unable to delete podcast.'));
     } finally {
       setDeletingPodcastId(null);
     }

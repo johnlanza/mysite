@@ -5,6 +5,7 @@ import Link from 'next/link';
 import AddToCalendar from '@/components/AddToCalendar';
 import MeetingSelectedPodcastCard from '@/components/MeetingSelectedPodcastCard';
 import { withBasePath } from '@/lib/base-path';
+import { fetchJson, getRequestErrorMessage } from '@/lib/client-fetch';
 import { getMeetingPodcasts, MAX_MEETING_PODCASTS } from '@/lib/meeting-podcasts';
 import type { Meeting, Member, Podcast, SessionMember } from '@/lib/types';
 
@@ -192,6 +193,8 @@ export default function MeetingsPage() {
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
+    if (saving) return;
+
     setError('');
     setSaving(true);
 
@@ -205,23 +208,21 @@ export default function MeetingsPage() {
       const endpoint = editingMeetingId
         ? withBasePath(`/api/meetings/${editingMeetingId}`)
         : withBasePath('/api/meetings');
-      const res = await fetch(endpoint, {
+      const result = await fetchJson(endpoint, {
         method: editingMeetingId ? 'PATCH' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: payload
       });
 
-      const data = (await res.json().catch(() => null)) as { message?: string } | null;
-      if (!res.ok) {
-        setError(data?.message || 'Unable to save meeting.');
+      if (!result.ok) {
+        setError(result.message || 'Unable to save meeting.');
         return;
       }
 
       resetFormToCreate();
       await loadPageData();
       setActiveTab('next');
-    } catch {
-      setError('Unable to save meeting.');
+    } catch (error) {
+      setError(getRequestErrorMessage(error, 'Unable to save meeting.'));
     } finally {
       setSaving(false);
     }
@@ -250,23 +251,21 @@ export default function MeetingsPage() {
     setError('');
     setWorkingMeetingId(completeModalMeeting._id);
     try {
-      const res = await fetch(withBasePath(`/api/meetings/${completeModalMeeting._id}/complete`), {
+      const result = await fetchJson(withBasePath(`/api/meetings/${completeModalMeeting._id}/complete`), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notes: completeNotes })
+        body: { notes: completeNotes }
       });
 
-      const payload = (await res.json().catch(() => null)) as { message?: string } | null;
-      if (!res.ok) {
-        setError(payload?.message || 'Unable to complete meeting.');
+      if (!result.ok) {
+        setError(result.message || 'Unable to complete meeting.');
         return;
       }
 
       setCompleteModalMeeting(null);
       setCompleteNotes('');
       await loadPageData();
-    } catch {
-      setError('Unable to complete meeting.');
+    } catch (error) {
+      setError(getRequestErrorMessage(error, 'Unable to complete meeting.'));
     } finally {
       setWorkingMeetingId(null);
     }
@@ -297,15 +296,13 @@ export default function MeetingsPage() {
     setWorkingMeetingId(meeting._id);
 
     try {
-      const res = await fetch(withBasePath(`/api/meetings/${meeting._id}`), {
+      const result = await fetchJson(withBasePath(`/api/meetings/${meeting._id}`), {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(completed ? { confirmText: deleteConfirmText } : {})
+        body: completed ? { confirmText: deleteConfirmText } : {}
       });
 
-      const payload = (await res.json().catch(() => null)) as { message?: string } | null;
-      if (!res.ok) {
-        setError(payload?.message || 'Unable to delete meeting.');
+      if (!result.ok) {
+        setError(result.message || 'Unable to delete meeting.');
         return;
       }
 
@@ -316,8 +313,8 @@ export default function MeetingsPage() {
       setDeleteModalMeeting(null);
       setDeleteConfirmText('');
       await loadPageData();
-    } catch {
-      setError('Unable to delete meeting.');
+    } catch (error) {
+      setError(getRequestErrorMessage(error, 'Unable to delete meeting.'));
     } finally {
       setWorkingMeetingId(null);
     }

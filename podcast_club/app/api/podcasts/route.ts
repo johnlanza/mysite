@@ -72,6 +72,7 @@ export async function GET() {
 export async function POST(req: Request) {
   const session = await requireSession();
   if (!session.ok) {
+    console.warn('[podcasts:POST] auth failed', { status: session.status });
     return NextResponse.json({ message: session.message }, { status: session.status });
   }
 
@@ -93,6 +94,15 @@ export async function POST(req: Request) {
       !Number.isFinite(normalizedEpisodeCount) ||
       !Number.isFinite(normalizedTotalMinutes)
     ) {
+      console.warn('[podcasts:POST] validation failed', {
+        memberId: session.member._id,
+        hasTitle: Boolean(normalizedTitle),
+        hasHost: Boolean(normalizedHost),
+        hasEpisodeNames: Boolean(normalizedEpisodeNames),
+        hasLink: Boolean(normalizedLink),
+        episodeCount: episodeCount || null,
+        totalTimeMinutes: totalTimeMinutes || null
+      });
       return NextResponse.json(
         { message: 'Title, host, # of episodes, episode name(s), total time, and link are required.' },
         { status: 400 }
@@ -100,6 +110,11 @@ export async function POST(req: Request) {
     }
 
     if (normalizedEpisodeCount < 1 || normalizedTotalMinutes < 1 || !Number.isInteger(normalizedEpisodeCount)) {
+      console.warn('[podcasts:POST] numeric validation failed', {
+        memberId: session.member._id,
+        episodeCount: normalizedEpisodeCount,
+        totalTimeMinutes: normalizedTotalMinutes
+      });
       return NextResponse.json(
         { message: '# of episodes must be a whole number, and total time must be at least 1 minute.' },
         { status: 400 }
@@ -127,6 +142,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json(podcast, { status: 201 });
   } catch (error) {
+    console.error('[podcasts:POST] create failed', {
+      memberId: session.member._id,
+      error
+    });
     return NextResponse.json(
       { message: error instanceof Error ? error.message : 'Unable to create podcast.' },
       { status: 500 }

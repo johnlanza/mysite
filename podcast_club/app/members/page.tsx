@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { US_STATE_CODES } from '@/lib/address';
 import { withBasePath } from '@/lib/base-path';
+import { fetchJson, getRequestErrorMessage } from '@/lib/client-fetch';
 import type { Member, SessionMember } from '@/lib/types';
 
 const initialForm = {
@@ -92,6 +93,8 @@ export default function MembersPage() {
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
+    if (saving) return;
+
     setError('');
     setSaving(true);
 
@@ -107,36 +110,38 @@ export default function MembersPage() {
       ...(editingId ? {} : { password: form.password })
     };
 
-    const res = await fetch(editingId ? `/api/members/${editingId}` : '/api/members', {
-      method: editingId ? 'PATCH' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    try {
+      const result = await fetchJson<Member & { claimCode?: string | null; claimCodeExpiresAt?: string | null }>(
+        withBasePath(editingId ? `/api/members/${editingId}` : '/api/members'),
+        {
+          method: editingId ? 'PATCH' : 'POST',
+          body: payload
+        }
+      );
 
-    if (!res.ok) {
-      const payload = await res.json();
-      setError(payload.message || 'Unable to save member.');
-      setSaving(false);
-      return;
-    }
+      if (!result.ok) {
+        setError(result.message || 'Unable to save member.');
+        return;
+      }
 
-    if (!editingId) {
-      const payload = await res.json();
-      if (payload.claimCode) {
+      if (!editingId && result.data.claimCode) {
         setGeneratedClaimCodeByMember((prev) => ({
           ...prev,
-          [payload._id]: {
-            code: String(payload.claimCode),
-            expiresAt: String(payload.claimCodeExpiresAt || '')
+          [result.data._id]: {
+            code: String(result.data.claimCode),
+            expiresAt: String(result.data.claimCodeExpiresAt || '')
           }
         }));
       }
-    }
 
-    setForm(initialForm);
-    setEditingId(null);
-    await loadMembers();
-    setSaving(false);
+      setForm(initialForm);
+      setEditingId(null);
+      await loadMembers();
+    } catch (error) {
+      setError(getRequestErrorMessage(error, 'Unable to save member.'));
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function generateJoinCode() {

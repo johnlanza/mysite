@@ -43,25 +43,33 @@ export async function GET() {
 export async function POST(req: Request) {
   const session = await requireSession();
   if (!session.ok) {
+    console.warn('[carveouts:POST] auth failed', { status: session.status });
     return NextResponse.json({ message: session.message }, { status: session.status });
   }
 
   try {
     const { title, type, service, url, notes, meeting } = await req.json();
+    const nextTitle = String(title || '').trim();
+    const nextMeeting = String(meeting || '').trim();
 
-    if (!title || !meeting) {
+    if (!nextTitle || !nextMeeting) {
+      console.warn('[carveouts:POST] validation failed', {
+        memberId: session.member._id,
+        hasTitle: Boolean(nextTitle),
+        hasMeeting: Boolean(nextMeeting)
+      });
       return NextResponse.json({ message: 'title and meeting are required.' }, { status: 400 });
     }
 
     await connectToDatabase();
     const carveOut = await CarveOutModel.create({
-      title,
+      title: nextTitle,
       type,
       service: normalizeCarveOutServiceInput(service),
-      url,
-      notes,
+      url: String(url || '').trim(),
+      notes: String(notes || '').trim(),
       member: session.member._id,
-      meeting
+      meeting: nextMeeting
     });
 
     const populated = await CarveOutModel.findById(carveOut._id)
@@ -72,6 +80,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json(populated, { status: 201 });
   } catch (error) {
+    console.error('[carveouts:POST] create failed', {
+      memberId: session.member._id,
+      error
+    });
     return NextResponse.json(
       { message: error instanceof Error ? error.message : 'Unable to create carve out.' },
       { status: 500 }
