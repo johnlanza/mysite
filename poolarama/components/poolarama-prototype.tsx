@@ -41,6 +41,7 @@ type ApiSubmissionResponse = {
 type AdminOverviewResponse = {
   participants: AdminParticipantOverview[];
   storageMode: "mongo" | "mock";
+  warning?: string;
 };
 
 type PoolState = {
@@ -69,6 +70,7 @@ type PublicPicksResponse = {
   participants: PublicPickParticipant[];
   pool: PoolState;
   storageMode: "mongo" | "mock";
+  error?: string;
 };
 
 type TestStage = "Group" | "R32" | "R16" | "QF" | "SF" | "Final" | "Complete";
@@ -501,7 +503,7 @@ export function PoolaramaPrototype() {
       setAdminFeedback(
         data.storageMode === "mongo"
           ? "Admin overview loaded from Mongo."
-          : "Admin overview loaded from prototype API memory."
+          : data.warning || "Database unavailable. Showing fallback data, not live submissions."
       );
     } catch {
       setAdminFeedback("Admin overview unavailable. Showing local participant list.");
@@ -528,14 +530,19 @@ export function PoolaramaPrototype() {
       const response = await fetch(withBasePath(`/api/picks?viewerCode=${viewerCode}`), { cache: "no-store" });
 
       if (!response.ok) {
-        throw new Error("Public picks failed.");
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Public picks failed.");
       }
 
       const data = (await response.json()) as PublicPicksResponse;
       setPoolState(data.pool);
       setPublicPicks(data.participants);
-    } catch {
+    } catch (error) {
       setPublicPicks([]);
+      if (adminEnabled) {
+        const message = error instanceof Error ? error.message : "Could not load pick visibility.";
+        setAdminFeedback(`${message} Database connection may be unavailable.`);
+      }
     }
   }
 
@@ -625,14 +632,16 @@ export function PoolaramaPrototype() {
       });
 
       if (!response.ok) {
-        throw new Error("Payment update failed.");
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Payment update failed.");
       }
 
       await loadAdminOverview();
       await loadPublicPicks();
       setAdminFeedback(`${participant.nickname} marked ${nextPaid ? "paid" : "unpaid"}.`);
-    } catch {
-      setAdminFeedback(`Could not update payment for ${participant.nickname}.`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not update payment status.";
+      setAdminFeedback(`${message} ${participant.nickname}'s payment was not saved.`);
     }
   }
 
