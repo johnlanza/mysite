@@ -133,6 +133,13 @@ app.all("/poolarama*", (req, res) => {
   return poolaramaHandler(req, res);
 });
 
+// -----------------------
+// Podcast Club (Next.js)
+// -----------------------
+app.all("/podcastclub*", (req, res) => {
+  return nextHandler(req, res);
+});
+
 app.use(expressLayouts);
 app.use(express.static("public"));
 app.use("/music", express.static("music"));
@@ -749,13 +756,6 @@ app.put("/api/homekeeper-sync", async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-});
-
-// -----------------------
-// Podcast Club (Next.js)
-// -----------------------
-app.all("/podcastclub*", (req, res) => {
-  return nextHandler(req, res);
 });
 
 // -----------------------
