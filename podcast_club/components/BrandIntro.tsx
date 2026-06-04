@@ -1,6 +1,7 @@
 'use client';
 
 import { CSSProperties, useEffect, useState } from 'react';
+import Image from 'next/image';
 import { withBasePath } from '@/lib/base-path';
 
 const INTRO_STORAGE_KEY = 'royal-podcast-society-brand-intro-v2';
@@ -76,10 +77,13 @@ export function BrandIntro() {
       style={{ position: 'fixed', inset: 0, zIndex: 60, pointerEvents: 'none' }}
     >
       <div className="brand-intro-mark" style={introMarkStyle}>
-        <img
+        <Image
           className="brand-intro-logo"
           src={withBasePath('/royal-podcast-society-logo-transparent.png')}
           alt=""
+          width={1254}
+          height={1254}
+          priority
           style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
         />
       </div>

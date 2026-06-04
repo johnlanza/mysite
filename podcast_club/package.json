@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "render:status": "node scripts/render-status.mjs"
+    "render:status": "node scripts/render-status.mjs",
+    "smoke:live": "node scripts/live-save-flow-smoke.mjs"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -15,6 +16,9 @@
     "next": "^16.2.6",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
+  },
+  "overrides": {
+    "postcss": "8.5.15"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
