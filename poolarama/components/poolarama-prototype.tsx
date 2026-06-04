@@ -132,10 +132,6 @@ const defaultPoolState: PoolState = {
   }
 };
 
-function getSavedPicksKey(participantCode: string) {
-  return `poolarama-test-picks:${participantCode}`;
-}
-
 function getTeamDisplayName(team: { name: string; code: string }) {
   return team.name.length > 12 ? team.code : team.name;
 }
@@ -433,6 +429,14 @@ export function PoolaramaPrototype() {
     }
   }, [championCandidates, selectedChampion]);
 
+  useEffect(() => {
+    for (const key of Object.keys(window.localStorage)) {
+      if (key === "poolarama-test-picks" || key.startsWith("poolarama-test-picks:")) {
+        window.localStorage.removeItem(key);
+      }
+    }
+  }, []);
+
   function applyGoldenBootPick(nextGoldenBoot: string) {
     if (!nextGoldenBoot) {
       setSelectedGoldenBoot("");
@@ -554,21 +558,7 @@ export function PoolaramaPrototype() {
           }
         }
       } catch {
-        // Browser backup below keeps prototype testing usable when the API is down.
-      }
-
-      const storedPicks =
-        window.localStorage.getItem(getSavedPicksKey(initialParticipant.code)) ||
-        window.localStorage.getItem("poolarama-test-picks");
-
-      if (!storedPicks) {
-        return;
-      }
-
-      try {
-        applySavedPicks({ ...JSON.parse(storedPicks), storageMode: "browser" } as SavedPicks);
-      } catch {
-        window.localStorage.removeItem(getSavedPicksKey(initialParticipant.code));
+        setSaveFeedback("Could not check saved picks. Try refreshing.");
       }
     }
 
@@ -1008,17 +998,6 @@ export function PoolaramaPrototype() {
       return;
     }
 
-    const nextSavedPicks: SavedPicks = {
-      champion: selectedChampion,
-      goldenBoot: finalGoldenBootPick,
-      groupFilter: "All",
-      groupWinners,
-      groupRunnersUp,
-      savedAt: new Date().toISOString(),
-      storageMode: "browser"
-    };
-
-    window.localStorage.setItem(getSavedPicksKey(selectedParticipant.code), JSON.stringify(nextSavedPicks));
     setIsSaving(true);
     setSaveFeedback("Submitting picks...");
 
@@ -1061,7 +1040,6 @@ export function PoolaramaPrototype() {
         storageMode: data.submission.storageMode
       };
 
-      window.localStorage.setItem(getSavedPicksKey(selectedParticipant.code), JSON.stringify(apiSavedPicks));
       setSavedPicks(apiSavedPicks);
       setIsReviewing(false);
       loadAdminOverview();
@@ -1072,11 +1050,10 @@ export function PoolaramaPrototype() {
           : "Picks submitted. Prototype API memory updated."
       );
     } catch {
-      setSavedPicks(nextSavedPicks);
       setIsReviewing(false);
       loadAdminOverview();
       loadPublicPicks();
-      setSaveFeedback(`API unavailable. Picks saved in this browser for ${selectedParticipant.nickname}.`);
+      setSaveFeedback("Could not submit picks. Please try again.");
     } finally {
       setIsSaving(false);
     }
