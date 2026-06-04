@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectToPoolaramaDatabase } from "@/lib/db";
 import { defaultPoolSlug, getMockAdminOverview } from "@/lib/mock-api-data";
 import { mergeKnownAndMongoParticipants, participantFromMongo } from "@/lib/participant-utils";
+import { buildPoolState, getOrCreateDefaultPool } from "@/lib/pool-state";
 import type { AdminParticipantOverview } from "@/lib/poolarama-types";
 import ParticipantModel from "@/models/Participant";
 import SubmissionModel from "@/models/Submission";
@@ -16,10 +17,12 @@ export async function GET() {
       return NextResponse.json({ participants: getMockAdminOverview(), storageMode: "mock" });
     }
 
-    const [participants, submissions] = await Promise.all([
+    const [pool, participants, submissions] = await Promise.all([
+      getOrCreateDefaultPool(),
       ParticipantModel.find({ poolSlug: defaultPoolSlug }).lean(),
       SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "preTournament" }).lean()
     ]);
+    const preTournamentLocked = buildPoolState(pool).preTournament.status === "locked";
 
     const roster = mergeKnownAndMongoParticipants(participants.map(participantFromMongo));
     const overview: AdminParticipantOverview[] = roster.map((knownParticipant) => {
@@ -36,12 +39,12 @@ export async function GET() {
         venmoPaid: participant?.venmoPaid ?? knownParticipant.venmoPaid,
         submitted: Boolean(submission),
         submittedAt: submission?.submittedAt?.toISOString() || null,
-        champion: submission?.picks?.champion || null,
-        goldenBoot: submission?.picks?.goldenBoot || null
+        champion: preTournamentLocked ? submission?.picks?.champion || null : null,
+        goldenBoot: preTournamentLocked ? submission?.picks?.goldenBoot || null : null
       };
     });
 
-    return NextResponse.json({ participants: overview, storageMode: "mongo" });
+    return NextResponse.json({ participants: overview, pool: buildPoolState(pool), storageMode: "mongo" });
   } catch (error) {
     console.error("Poolarama /api/admin/overview failed", error);
 

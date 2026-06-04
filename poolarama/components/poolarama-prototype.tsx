@@ -2018,7 +2018,13 @@ export function PoolaramaPrototype() {
                   </div>
                   <div className="admin-pick-summary">
                     <span>{participant.submittedAt ? new Date(participant.submittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
-                    <strong>{participant.champion ? `${participant.champion} / ${participant.goldenBoot}` : "No picks on file"}</strong>
+                    <strong>
+                      {participant.champion
+                        ? `${participant.champion} / ${participant.goldenBoot}`
+                        : participant.submitted
+                          ? "Picks hidden until locked"
+                          : "No picks on file"}
+                    </strong>
                     <em>{participant.inviteCode ? "Private invite ready" : "Basic invite"}</em>
                   </div>
                   <div className="admin-row-actions">

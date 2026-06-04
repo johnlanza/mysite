@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectToPoolaramaDatabase } from "@/lib/db";
 import { knownParticipants } from "@/lib/known-participants";
 import { defaultPoolSlug } from "@/lib/mock-api-data";
+import { buildPoolState, getOrCreateDefaultPool } from "@/lib/pool-state";
 import { groups, type GroupId } from "@/lib/tournament-data";
 import ParticipantModel from "@/models/Participant";
 import SubmissionModel from "@/models/Submission";
@@ -28,6 +29,15 @@ export async function GET() {
       return NextResponse.json(
         { error: "Mongo is not configured; export is unavailable." },
         { status: 503 }
+      );
+    }
+
+    const pool = await getOrCreateDefaultPool();
+
+    if (buildPoolState(pool).preTournament.status !== "locked") {
+      return NextResponse.json(
+        { error: "Picks are hidden until pre-tournament picks are locked." },
+        { status: 423 }
       );
     }
 
