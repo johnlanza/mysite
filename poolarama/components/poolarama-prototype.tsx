@@ -399,15 +399,18 @@ export function PoolaramaPrototype() {
 
     const urlParticipantCode = new URLSearchParams(window.location.search).get("player");
     const adminParam = new URLSearchParams(window.location.search).get("admin");
+    const adminAccessRequested = adminParam === "john";
     const urlParticipant = knownParticipants.find((participant) => participant.code === urlParticipantCode) || null;
-    setAdminEnabled(adminParam === "john");
+    const adminParticipant = adminAccessRequested ? defaultParticipant : null;
+    setAdminEnabled(adminAccessRequested);
     const storedParticipantCode = window.localStorage.getItem(selectedParticipantKey);
     const confirmedParticipantCode = window.localStorage.getItem(confirmedParticipantKey);
     const initialParticipant =
       urlParticipant ||
+      adminParticipant ||
       knownParticipants.find((participant) => participant.code === storedParticipantCode) ||
       defaultParticipant;
-    const linkLocked = Boolean(urlParticipant);
+    const linkLocked = Boolean(urlParticipant || adminParticipant);
 
     setSelectedParticipant(initialParticipant);
     setIdentityLockedByLink(linkLocked);
@@ -416,6 +419,10 @@ export function PoolaramaPrototype() {
     if (linkLocked) {
       window.localStorage.setItem(selectedParticipantKey, initialParticipant.code);
       window.localStorage.setItem(confirmedParticipantKey, initialParticipant.code);
+    }
+
+    if (adminAccessRequested) {
+      setTab("admin");
     }
 
     async function loadSavedPicks() {
