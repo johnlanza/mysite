@@ -120,6 +120,7 @@ type TestMatch = {
 const selectedParticipantKey = "poolarama-selected-participant";
 const confirmedParticipantKey = "poolarama-confirmed-participant";
 const goldenBootWriteInLabel = "Other / write-in";
+const adminInviteToken = "admin-7f4d9c2b8a61e0f5";
 const defaultPoolState: PoolState = {
   preTournament: {
     status: "open",
@@ -488,14 +489,12 @@ export function PoolaramaPrototype() {
 
     const urlParticipantCode = new URLSearchParams(window.location.search).get("player");
     const adminParam = new URLSearchParams(window.location.search).get("admin");
-    const adminAccessRequested = adminParam === "john";
-    const urlParticipant = knownParticipants.find((participant) => participant.code === urlParticipantCode) || null;
+    const adminAccessRequested = adminParam === adminInviteToken;
     const adminParticipant = adminAccessRequested ? defaultParticipant : null;
     setAdminEnabled(adminAccessRequested);
     const storedParticipantCode = window.localStorage.getItem(selectedParticipantKey);
     const confirmedParticipantCode = window.localStorage.getItem(confirmedParticipantKey);
     const initialParticipant =
-      urlParticipant ||
       adminParticipant ||
       knownParticipants.find((participant) => participant.code === storedParticipantCode) ||
       defaultParticipant;
@@ -504,9 +503,9 @@ export function PoolaramaPrototype() {
 
     setSelectedParticipant(initialParticipant);
     setIdentityLockedByLink(linkLocked);
-    setIdentityConfirmed(linkLocked || confirmedParticipantCode === initialParticipant.code);
+    setIdentityConfirmed(Boolean(adminParticipant) || (!urlParticipantCode && confirmedParticipantCode === initialParticipant.code));
 
-    if (linkLocked) {
+    if (adminParticipant) {
       window.localStorage.setItem(selectedParticipantKey, initialParticipant.code);
       window.localStorage.setItem(confirmedParticipantKey, initialParticipant.code);
     }
@@ -528,6 +527,7 @@ export function PoolaramaPrototype() {
               getParticipantFromApi(data.participant);
 
             setSelectedParticipant(matchedParticipant);
+            setIdentityConfirmed(true);
             window.localStorage.setItem(selectedParticipantKey, matchedParticipant.code);
 
             if (linkLocked) {
@@ -556,6 +556,10 @@ export function PoolaramaPrototype() {
           if (data.submission || data.submissions?.r32) {
             return;
           }
+        } else if (urlParticipantCode) {
+          setIdentityLockedByLink(false);
+          setIdentityConfirmed(false);
+          setSaveFeedback("This invite link is no longer valid. Ask John for a new private link.");
         }
       } catch {
         setSaveFeedback("Could not check saved picks. Try refreshing.");
@@ -859,6 +863,32 @@ export function PoolaramaPrototype() {
       setAdminFeedback(`${data.participant.nickname} added. Copy their invite link below.`);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not add participant.";
+      setAdminFeedback(message);
+    }
+  }
+
+  async function handleDeleteParticipant(participant: AdminParticipantOverview) {
+    const confirmed = window.confirm(`Delete ${participant.nickname} and their picks?`);
+
+    if (!confirmed) return;
+
+    setAdminFeedback(`Deleting ${participant.nickname}...`);
+
+    try {
+      const response = await fetch(withBasePath(`/api/admin/participants?code=${participant.code}`), {
+        method: "DELETE"
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Could not delete participant.");
+      }
+
+      await loadAdminOverview();
+      await loadPublicPicks();
+      setAdminFeedback(`${participant.nickname} deleted.`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not delete participant.";
       setAdminFeedback(message);
     }
   }
@@ -1985,6 +2015,8 @@ export function PoolaramaPrototype() {
           </section>
           <div className="admin-list">
             {adminOverview.map((participant) => {
+              const isSeededParticipant = knownParticipants.some((knownParticipant) => knownParticipant.code === participant.code);
+
               return (
                 <article className="admin-row" key={participant.code}>
                   <div className="admin-person">
@@ -2024,6 +2056,11 @@ export function PoolaramaPrototype() {
                     <button className="admin-action compact quiet" type="button" onClick={() => handleCopyReminder(participant)}>
                       Copy reminder
                     </button>
+                    {!isSeededParticipant && (
+                      <button className="admin-action compact danger" type="button" onClick={() => handleDeleteParticipant(participant)}>
+                        Delete
+                      </button>
+                    )}
                   </div>
                 </article>
               );

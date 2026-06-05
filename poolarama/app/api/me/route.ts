@@ -4,7 +4,7 @@ import {
   defaultPoolSlug,
   getMockSubmission
 } from "@/lib/mock-api-data";
-import { defaultParticipant, knownParticipants } from "@/lib/known-participants";
+import { defaultParticipant } from "@/lib/known-participants";
 import type { PoolSubmissionPicks, SavedSubmission } from "@/lib/poolarama-types";
 import ParticipantModel from "@/models/Participant";
 import SubmissionModel from "@/models/Submission";
@@ -27,8 +27,7 @@ function normalizePicks(picks: unknown): PoolSubmissionPicks {
 
 export async function GET(request: NextRequest) {
   const requestedCode = request.nextUrl.searchParams.get("code") || "";
-  const selectedParticipant =
-    knownParticipants.find((participant) => participant.code === requestedCode) || defaultParticipant;
+  const selectedParticipant = defaultParticipant;
 
   try {
     const db = await connectToPoolaramaDatabase();
@@ -48,13 +47,10 @@ export async function GET(request: NextRequest) {
 
     const existingParticipant = requestedCode ? await ParticipantModel.findOne({
       poolSlug: defaultPoolSlug,
-      $or: [
-        { participantCode: requestedCode },
-        { inviteCode: requestedCode }
-      ]
+      inviteCode: requestedCode
     }).lean() : null;
 
-    if (requestedCode && !existingParticipant && selectedParticipant.code !== requestedCode) {
+    if (requestedCode && !existingParticipant) {
       return NextResponse.json(
         { error: "Invite link not found." },
         { status: 404 }
