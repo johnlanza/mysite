@@ -325,8 +325,9 @@ const participants = [
 
 const pantheon = [
   { year: "2024", tournament: "Euro Pool", champion: "Jessie", detail: "51 points" },
-  { year: "2023", tournament: "Women’s World Cup", champion: "Needs tiebreaker", detail: "Brett and Mike tied on points" },
-  { year: "2022", tournament: "Men’s World Cup", champion: "Brett", detail: "23 points" }
+  { year: "2023", tournament: "Women’s World Cup", champion: "Mike", detail: "Pool champion" },
+  { year: "2022", tournament: "Men’s World Cup", champion: "Brett", detail: "23 points" },
+  { year: "2021", tournament: "Euro Pool", champion: "Quinn", detail: "21 points" }
 ];
 
 export function PoolaramaPrototype() {
