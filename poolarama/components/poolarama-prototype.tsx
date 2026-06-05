@@ -361,6 +361,7 @@ export function PoolaramaPrototype() {
   const [adminFeedback, setAdminFeedback] = useState("Admin overview is ready.");
   const [newParticipantName, setNewParticipantName] = useState("");
   const [newParticipantNickname, setNewParticipantNickname] = useState("");
+  const [pendingDeleteCode, setPendingDeleteCode] = useState("");
   const [poolState, setPoolState] = useState<PoolState>(defaultPoolState);
   const [publicPicks, setPublicPicks] = useState<PublicPickParticipant[]>([]);
   const [groupStandingsRows, setGroupStandingsRows] = useState<GroupStandingRow[]>(() => buildDefaultGroupStandings());
@@ -868,9 +869,11 @@ export function PoolaramaPrototype() {
   }
 
   async function handleDeleteParticipant(participant: AdminParticipantOverview) {
-    const confirmed = window.confirm(`Delete ${participant.nickname} and their picks?`);
-
-    if (!confirmed) return;
+    if (pendingDeleteCode !== participant.code) {
+      setPendingDeleteCode(participant.code);
+      setAdminFeedback(`Tap Confirm delete for ${participant.nickname} to remove this test player.`);
+      return;
+    }
 
     setAdminFeedback(`Deleting ${participant.nickname}...`);
 
@@ -886,6 +889,7 @@ export function PoolaramaPrototype() {
 
       await loadAdminOverview();
       await loadPublicPicks();
+      setPendingDeleteCode("");
       setAdminFeedback(`${participant.nickname} deleted.`);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not delete participant.";
@@ -2057,8 +2061,12 @@ export function PoolaramaPrototype() {
                       Copy reminder
                     </button>
                     {!isSeededParticipant && (
-                      <button className="admin-action compact danger" type="button" onClick={() => handleDeleteParticipant(participant)}>
-                        Delete
+                      <button
+                        className={`admin-action compact danger ${pendingDeleteCode === participant.code ? "confirm" : ""}`}
+                        type="button"
+                        onClick={() => handleDeleteParticipant(participant)}
+                      >
+                        {pendingDeleteCode === participant.code ? "Confirm delete" : "Delete"}
                       </button>
                     )}
                   </div>

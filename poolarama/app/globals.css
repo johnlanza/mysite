@@ -1341,6 +1341,12 @@ h1 {
   background: var(--red);
 }
 
+.admin-action.danger.confirm {
+  color: #fff;
+  background: #8f1d28;
+  box-shadow: 0 0 0 4px rgba(227, 60, 74, 0.22);
+}
+
 .admin-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
