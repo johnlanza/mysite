@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { connectToPoolaramaDatabase } from "@/lib/db";
-import { generateRoundOf32Matches, getDefaultGroupStandings, type GroupStandingInput } from "@/lib/bracket";
+import { generateRoundOf32Matches, getDefaultGroupStandings, reconcileGroupStandings, type GroupStandingInput } from "@/lib/bracket";
 import { defaultPoolSlug } from "@/lib/mock-api-data";
 import { buildPoolState, getOrCreateDefaultPool } from "@/lib/pool-state";
 import { type GroupId } from "@/lib/tournament-data";
@@ -39,7 +39,7 @@ function rowToStanding(row: {
 
 async function loadStandings() {
   const rows = await GroupStandingModel.find({ poolSlug: defaultPoolSlug }).lean();
-  return rows.length > 0 ? rows.map(rowToStanding) : getDefaultGroupStandings();
+  return rows.length > 0 ? reconcileGroupStandings(rows.map(rowToStanding)) : getDefaultGroupStandings();
 }
 
 async function loadMatches() {

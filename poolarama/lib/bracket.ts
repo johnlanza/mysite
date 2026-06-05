@@ -47,6 +47,15 @@ export function getDefaultGroupStandings(): GroupStandingInput[] {
   }));
 }
 
+export function reconcileGroupStandings(savedStandings: GroupStandingInput[]) {
+  const savedByTeam = new Map(savedStandings.map((standing) => [`${standing.group}:${standing.team}`, standing]));
+
+  return getDefaultGroupStandings().map((defaultStanding) => ({
+    ...defaultStanding,
+    ...savedByTeam.get(`${defaultStanding.group}:${defaultStanding.team}`)
+  }));
+}
+
 export function rankGroupStandings(standings: GroupStandingInput[]) {
   return groups.flatMap((group) => {
     const groupRows = standings

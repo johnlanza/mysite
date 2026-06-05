@@ -1,8 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { connectToPoolaramaDatabase } from "@/lib/db";
-import { generateRoundOf32Matches, getDefaultGroupStandings, type GroupStandingInput } from "@/lib/bracket";
+import { generateRoundOf32Matches, getDefaultGroupStandings, reconcileGroupStandings, type GroupStandingInput } from "@/lib/bracket";
 import { defaultPoolSlug } from "@/lib/mock-api-data";
-import { groups, type GroupId } from "@/lib/tournament-data";
+import { groups, teams, type GroupId } from "@/lib/tournament-data";
 import GroupStandingModel from "@/models/GroupStanding";
 
 export const dynamic = "force-dynamic";
@@ -31,6 +31,12 @@ function normalizeStanding(input: Partial<GroupStandingInput>): GroupStandingInp
   };
 }
 
+const currentTeamKeys = new Set(teams.map((team) => `${team.group}:${team.name}`));
+
+function isCurrentStanding(standing: GroupStandingInput) {
+  return currentTeamKeys.has(`${standing.group}:${standing.team}`);
+}
+
 async function getStandings() {
   const rows = await GroupStandingModel.find({ poolSlug: defaultPoolSlug }).lean();
 
@@ -38,19 +44,21 @@ async function getStandings() {
     return getDefaultGroupStandings();
   }
 
-  return rows.map((row) => normalizeStanding({
-    group: row.group as GroupId,
-    team: row.team,
-    played: row.played,
-    wins: row.wins,
-    draws: row.draws,
-    losses: row.losses,
-    goalsFor: row.goalsFor,
-    goalsAgainst: row.goalsAgainst,
-    goalDifference: row.goalDifference,
-    points: row.points,
-    rank: row.rank
-  }));
+  return reconcileGroupStandings(
+    rows.map((row) => normalizeStanding({
+      group: row.group as GroupId,
+      team: row.team,
+      played: row.played,
+      wins: row.wins,
+      draws: row.draws,
+      losses: row.losses,
+      goalsFor: row.goalsFor,
+      goalsAgainst: row.goalsAgainst,
+      goalDifference: row.goalDifference,
+      points: row.points,
+      rank: row.rank
+    }))
+  );
 }
 
 export async function GET() {
@@ -94,7 +102,9 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = (await request.json()) as { standings?: Partial<GroupStandingInput>[] };
-    const standings = (body.standings || []).map(normalizeStanding).filter((standing) => standing.team);
+    const standings = reconcileGroupStandings(
+      (body.standings || []).map(normalizeStanding).filter(isCurrentStanding)
+    );
 
     await Promise.all(
       standings.map((standing) =>
