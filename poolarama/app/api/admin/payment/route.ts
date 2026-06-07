@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { requireAdminRequest } from "@/lib/admin-auth";
 import { connectToPoolaramaDatabase } from "@/lib/db";
 import { findKnownParticipant, knownParticipants } from "@/lib/known-participants";
 import { defaultPoolSlug, setMockParticipantPayment } from "@/lib/mock-api-data";
@@ -7,6 +8,9 @@ import ParticipantModel from "@/models/Participant";
 export const dynamic = "force-dynamic";
 
 export async function PATCH(request: NextRequest) {
+  const unauthorized = requireAdminRequest(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const body = (await request.json()) as Record<string, unknown>;
     const participantCode = typeof body.participantCode === "string" ? body.participantCode : "";

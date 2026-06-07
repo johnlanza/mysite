@@ -126,6 +126,19 @@ const selectedParticipantKey = "poolarama-selected-participant";
 const confirmedParticipantKey = "poolarama-confirmed-participant";
 const goldenBootWriteInLabel = "Other / write-in";
 const adminInviteToken = "admin-7f4d9c2b8a61e0f5";
+
+const adminFetchOptions = {
+  headers: {
+    "x-poolarama-admin": adminInviteToken
+  }
+};
+
+function adminJsonHeaders() {
+  return {
+    "Content-Type": "application/json",
+    "x-poolarama-admin": adminInviteToken
+  };
+}
 const defaultPoolState: PoolState = {
   preTournament: {
     status: "open",
@@ -603,7 +616,10 @@ export function PoolaramaPrototype() {
 
   async function loadAdminOverview() {
     try {
-      const response = await fetch(withBasePath("/api/admin/overview"), { cache: "no-store" });
+      const response = await fetch(withBasePath("/api/admin/overview"), {
+        cache: "no-store",
+        ...adminFetchOptions
+      });
 
       if (!response.ok) {
         throw new Error("Admin overview failed.");
@@ -659,7 +675,10 @@ export function PoolaramaPrototype() {
 
   async function loadGroupStandings() {
     try {
-      const response = await fetch(withBasePath("/api/admin/group-standings"), { cache: "no-store" });
+      const response = await fetch(withBasePath("/api/admin/group-standings"), {
+        cache: "no-store",
+        ...adminFetchOptions
+      });
 
       if (!response.ok) {
         throw new Error("Group standings failed.");
@@ -675,7 +694,10 @@ export function PoolaramaPrototype() {
 
   async function loadRoundOf32() {
     try {
-      const response = await fetch(withBasePath("/api/admin/r32"), { cache: "no-store" });
+      const response = await fetch(withBasePath("/api/admin/r32"), {
+        cache: "no-store",
+        ...adminFetchOptions
+      });
 
       if (!response.ok) {
         throw new Error("Round of 32 failed.");
@@ -711,9 +733,7 @@ export function PoolaramaPrototype() {
     try {
       const response = await fetch(withBasePath("/api/admin/group-standings"), {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: adminJsonHeaders(),
         body: JSON.stringify({ standings: groupStandingsRows })
       });
 
@@ -742,9 +762,7 @@ export function PoolaramaPrototype() {
     try {
       const response = await fetch(withBasePath("/api/admin/r32"), {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: adminJsonHeaders(),
         body: JSON.stringify({ action })
       });
 
@@ -777,9 +795,7 @@ export function PoolaramaPrototype() {
     try {
       const response = await fetch(withBasePath("/api/admin/pool-state"), {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: adminJsonHeaders(),
         body: JSON.stringify({
           preTournamentStatus: nextStatus
         })
@@ -803,7 +819,8 @@ export function PoolaramaPrototype() {
 
     try {
       const response = await fetch(withBasePath("/api/admin/seed-participants"), {
-        method: "POST"
+        method: "POST",
+        ...adminFetchOptions
       });
 
       if (!response.ok) {
@@ -860,9 +877,7 @@ export function PoolaramaPrototype() {
     try {
       const response = await fetch(withBasePath("/api/admin/participants"), {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: adminJsonHeaders(),
         body: JSON.stringify({ name, nickname })
       });
 
@@ -894,7 +909,8 @@ export function PoolaramaPrototype() {
 
     try {
       const response = await fetch(withBasePath(`/api/admin/participants?code=${participant.code}`), {
-        method: "DELETE"
+        method: "DELETE",
+        ...adminFetchOptions
       });
 
       if (!response.ok) {
@@ -917,7 +933,8 @@ export function PoolaramaPrototype() {
 
     try {
       const response = await fetch(withBasePath("/api/admin/clear-submissions"), {
-        method: "DELETE"
+        method: "DELETE",
+        ...adminFetchOptions
       });
 
       if (!response.ok) {
@@ -940,9 +957,7 @@ export function PoolaramaPrototype() {
     try {
       const response = await fetch(withBasePath("/api/admin/payment"), {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: adminJsonHeaders(),
         body: JSON.stringify({
           participantCode: participant.code,
           venmoPaid: nextPaid
@@ -964,7 +979,7 @@ export function PoolaramaPrototype() {
   }
 
   function handleExportPicks() {
-    window.location.href = withBasePath("/api/admin/export");
+    window.location.href = withBasePath(`/api/admin/export?adminToken=${adminInviteToken}`);
   }
 
   async function handleSelectParticipant(participant: KnownParticipant) {

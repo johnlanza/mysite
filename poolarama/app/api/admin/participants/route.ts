@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { requireAdminRequest } from "@/lib/admin-auth";
 import { connectToPoolaramaDatabase } from "@/lib/db";
 import { knownParticipants } from "@/lib/known-participants";
 import { defaultPoolSlug } from "@/lib/mock-api-data";
@@ -13,6 +14,9 @@ function isValidName(value: unknown): value is string {
 }
 
 export async function POST(request: NextRequest) {
+  const unauthorized = requireAdminRequest(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const db = await connectToPoolaramaDatabase();
 
@@ -75,6 +79,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const unauthorized = requireAdminRequest(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const db = await connectToPoolaramaDatabase();
 

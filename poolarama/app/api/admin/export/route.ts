@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
+import { requireAdminRequest } from "@/lib/admin-auth";
 import { connectToPoolaramaDatabase } from "@/lib/db";
 import { knownParticipants } from "@/lib/known-participants";
 import { defaultPoolSlug } from "@/lib/mock-api-data";
@@ -21,7 +22,10 @@ function getPickValue(picks: unknown, group: GroupId) {
   return "";
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const unauthorized = requireAdminRequest(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const db = await connectToPoolaramaDatabase();
 

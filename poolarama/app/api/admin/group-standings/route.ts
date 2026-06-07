@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { requireAdminRequest } from "@/lib/admin-auth";
 import { connectToPoolaramaDatabase } from "@/lib/db";
 import { generateRoundOf32Matches, getDefaultGroupStandings, reconcileGroupStandings, type GroupStandingInput } from "@/lib/bracket";
 import { defaultPoolSlug } from "@/lib/mock-api-data";
@@ -61,7 +62,10 @@ async function getStandings() {
   );
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const unauthorized = requireAdminRequest(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const db = await connectToPoolaramaDatabase();
 
@@ -91,6 +95,9 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
+  const unauthorized = requireAdminRequest(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const db = await connectToPoolaramaDatabase();
 

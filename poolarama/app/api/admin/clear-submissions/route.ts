@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
+import { requireAdminRequest } from "@/lib/admin-auth";
 import { connectToPoolaramaDatabase } from "@/lib/db";
 import { defaultPoolSlug } from "@/lib/mock-api-data";
 import { getOrCreateDefaultPool } from "@/lib/pool-state";
@@ -6,7 +7,10 @@ import SubmissionModel from "@/models/Submission";
 
 export const dynamic = "force-dynamic";
 
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
+  const unauthorized = requireAdminRequest(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const db = await connectToPoolaramaDatabase();
 

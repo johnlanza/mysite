@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
+import { requireAdminRequest } from "@/lib/admin-auth";
 import { connectToPoolaramaDatabase } from "@/lib/db";
 import { knownParticipants } from "@/lib/known-participants";
 import { defaultPoolSlug, getMockAdminOverview } from "@/lib/mock-api-data";
@@ -7,7 +8,10 @@ import ParticipantModel from "@/models/Participant";
 
 export const dynamic = "force-dynamic";
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+  const unauthorized = requireAdminRequest(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const db = await connectToPoolaramaDatabase();
 
