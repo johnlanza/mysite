@@ -4,7 +4,11 @@ import { findKnownParticipant, knownParticipants } from "@/lib/known-participant
 import { defaultPoolSlug } from "@/lib/mock-api-data";
 import { mergeKnownAndMongoParticipants, participantFromMongo } from "@/lib/participant-utils";
 import { buildPoolState, getOrCreateDefaultPool } from "@/lib/pool-state";
+import { getDefaultGroupStandings, reconcileGroupStandings, type GroupStandingInput } from "@/lib/bracket";
+import { scorePreTournamentPicks } from "@/lib/scoring";
 import type { PoolSubmissionPicks } from "@/lib/poolarama-types";
+import { type GroupId } from "@/lib/tournament-data";
+import GroupStandingModel from "@/models/GroupStanding";
 import ParticipantModel from "@/models/Participant";
 import SubmissionModel from "@/models/Submission";
 
@@ -31,6 +35,34 @@ function normalizeGroupPicks(picks: unknown) {
   return {};
 }
 
+function rowToStanding(row: {
+  group: string;
+  team: string;
+  played: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
+  points: number;
+  rank: number;
+}): GroupStandingInput {
+  return {
+    group: row.group as GroupId,
+    team: row.team,
+    played: row.played,
+    wins: row.wins,
+    draws: row.draws,
+    losses: row.losses,
+    goalsFor: row.goalsFor,
+    goalsAgainst: row.goalsAgainst,
+    goalDifference: row.goalDifference,
+    points: row.points,
+    rank: row.rank
+  };
+}
+
 export async function GET(request: NextRequest) {
   const viewerCode = request.nextUrl.searchParams.get("viewerCode") || "";
   let viewer = findKnownParticipant(viewerCode);
@@ -46,6 +78,8 @@ export async function GET(request: NextRequest) {
           nickname: participant.nickname,
           submitted: false,
           submittedAt: null,
+          points: 0,
+          scoring: [],
           visible: participant.code === viewer.code,
           picks: null
         })),
@@ -54,10 +88,11 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const [pool, participants, submissions] = await Promise.all([
+    const [pool, participants, submissions, groupStandingRows] = await Promise.all([
       getOrCreateDefaultPool(),
       ParticipantModel.find({ poolSlug: defaultPoolSlug }).lean(),
-      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "preTournament" }).lean()
+      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "preTournament" }).lean(),
+      GroupStandingModel.find({ poolSlug: defaultPoolSlug }).lean()
     ]);
     const viewerParticipant = participants.find(
       (participant) => participant.participantCode === viewerCode || participant.inviteCode === viewerCode
@@ -75,6 +110,10 @@ export async function GET(request: NextRequest) {
     const poolState = buildPoolState(pool);
     const isLocked = poolState.preTournament.status === "locked";
     const roster = mergeKnownAndMongoParticipants(participants.map(participantFromMongo));
+    const groupStandings =
+      groupStandingRows.length > 0
+        ? reconcileGroupStandings(groupStandingRows.map(rowToStanding))
+        : getDefaultGroupStandings();
 
     return NextResponse.json({
       participants: roster.map((knownParticipant) => {
@@ -83,6 +122,8 @@ export async function GET(request: NextRequest) {
         const submission =
           submissions.find((item) => item.participantCode === knownParticipant.code) || null;
         const visible = isLocked || knownParticipant.code === viewer.code;
+        const picks = submission ? normalizePicks(submission.picks) : null;
+        const score = picks ? scorePreTournamentPicks(picks, groupStandings, pool.scoringRules || {}) : null;
 
         return {
           code: knownParticipant.code,
@@ -90,10 +131,19 @@ export async function GET(request: NextRequest) {
           nickname: participant?.nickname || knownParticipant.nickname,
           submitted: Boolean(submission),
           submittedAt: submission?.submittedAt?.toISOString() || null,
+          points: score?.total || 0,
+          scoring: score
+            ? [
+                { label: "Advancers", value: score.groupAdvancers },
+                { label: "Winner bonus", value: score.groupWinnerBonus },
+                { label: "Champion", value: score.champion },
+                { label: "Knockout", value: score.knockout }
+              ]
+            : [],
           visible,
-          picks: visible && submission ? normalizePicks(submission.picks) : null
+          picks: visible && picks ? picks : null
         };
-      }),
+      }).sort((a, b) => b.points - a.points || Number(b.submitted) - Number(a.submitted) || a.nickname.localeCompare(b.nickname)),
       pool: poolState,
       storageMode: "mongo"
     });

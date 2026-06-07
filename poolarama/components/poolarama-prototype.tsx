@@ -91,6 +91,11 @@ type PublicPickParticipant = {
   nickname: string;
   submitted: boolean;
   submittedAt: string | null;
+  points: number;
+  scoring: {
+    label: string;
+    value: number;
+  }[];
   visible: boolean;
   picks: {
     champion: string;
@@ -420,7 +425,15 @@ export function PoolaramaPrototype() {
             ? "Pre-tournament picks are locked."
             : "Ready to review.";
   const submittedCount = adminOverview.filter((participant) => participant.submitted).length;
-  const leaderLabel = submittedCount === 0 ? "Awaiting initial picks" : "Scoring not started";
+  const leadingScore = publicPicks.reduce((maxPoints, participant) => Math.max(maxPoints, participant.points), 0);
+  const leaders = leadingScore > 0
+    ? publicPicks.filter((participant) => participant.points === leadingScore).map((participant) => participant.nickname)
+    : [];
+  const leaderLabel = submittedCount === 0
+    ? "Awaiting initial picks"
+    : leaders.length > 0
+      ? `${leaders.slice(0, 2).join(", ")}${leaders.length > 2 ? " +" : ""}`
+      : "Scoring not started";
   const unpaidCount = adminOverview.filter((participant) => !participant.venmoPaid).length;
   const activeTestMatches = testMatches.filter((match) => match.stage === testStage);
   const completedTestMatches = activeTestMatches.filter((match) => match.winner).length;
@@ -1661,6 +1674,8 @@ export function PoolaramaPrototype() {
           <div className="standings-list">
             {(publicPicks.length > 0 ? publicPicks : adminOverview.map((participant) => ({
               ...participant,
+              points: 0,
+              scoring: [],
               visible: participant.code === selectedParticipant.code,
               picks: null
             }))).map((person, index) => (
@@ -1674,8 +1689,18 @@ export function PoolaramaPrototype() {
                       {person.code === selectedParticipant.code ? " · you" : ""}
                     </p>
                   </div>
-                  <strong>{person.submitted ? "✓" : "—"}</strong>
+                  <strong>{person.submitted ? `${person.points} pts` : "—"}</strong>
                 </div>
+                {person.submitted && person.scoring.length > 0 && (
+                  <div className="score-breakdown" aria-label={`${person.nickname} score breakdown`}>
+                    {person.scoring.map((item) => (
+                      <div key={`${person.code}-${item.label}`}>
+                        <span>{item.label}</span>
+                        <strong>{item.value}</strong>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 <details className="pick-details">
                   <summary>View {person.nickname}&apos;s picks</summary>
                   {person.visible && person.picks ? (
@@ -1719,8 +1744,8 @@ export function PoolaramaPrototype() {
             {[
               { label: "Entry", value: "$10", note: "Winner takes all. No second place unless we decide otherwise." },
               { label: "Champion", value: "6 pts", note: "Pre-tournament champion pick. You can still pick a different team later." },
-              { label: "Group winner", value: "2 pts", note: "Awarded for each correct group winner." },
-              { label: "Group runner-up", value: "1 pt", note: "Awarded for each correct runner-up." },
+              { label: "Group advancers", value: "1 pt each", note: "Each picked team that finishes top two earns 1 point, no matter which slot you used." },
+              { label: "Group winner bonus", value: "+1 pt", note: "Earned when your winner pick actually wins the group." },
               { label: "Round of 32", value: "1 pt", note: "One point for each correct match winner." },
               { label: "Round of 16", value: "2 pts", note: "Escalating value once the bracket gets serious." },
               { label: "Quarterfinals", value: "3 pts", note: "Correct picks become more valuable each round." },
@@ -1732,6 +1757,10 @@ export function PoolaramaPrototype() {
                 <p>{rule.note}</p>
               </article>
             ))}
+          </div>
+          <div className="tiebreaker-card">
+            <p className="eyebrow">Group-stage example</p>
+            <p>A perfect group is worth 3 points. If you pick the correct two advancing teams but flip winner and runner-up, you still earn 2 points.</p>
           </div>
           <div className="tiebreaker-card">
             <p className="eyebrow">Tiebreakers</p>
