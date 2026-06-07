@@ -4,7 +4,6 @@ import {
   defaultPoolSlug,
   getMockSubmission
 } from "@/lib/mock-api-data";
-import { defaultParticipant } from "@/lib/known-participants";
 import type { PoolSubmissionPicks, SavedSubmission } from "@/lib/poolarama-types";
 import ParticipantModel from "@/models/Participant";
 import SubmissionModel from "@/models/Submission";
@@ -27,7 +26,6 @@ function normalizePicks(picks: unknown): PoolSubmissionPicks {
 
 export async function GET(request: NextRequest) {
   const requestedCode = request.nextUrl.searchParams.get("code") || "";
-  const selectedParticipant = defaultParticipant;
 
   try {
     const db = await connectToPoolaramaDatabase();
@@ -35,14 +33,16 @@ export async function GET(request: NextRequest) {
     if (!db) {
       return NextResponse.json({
         storageMode: "mock",
-        participant: {
-          code: selectedParticipant.code,
-          name: selectedParticipant.name,
-          nickname: selectedParticipant.nickname,
-          venmoPaid: selectedParticipant.venmoPaid
-        },
-        submission: getMockSubmission(selectedParticipant.code)
+        participant: null,
+        submission: null
       });
+    }
+
+    if (!requestedCode) {
+      return NextResponse.json(
+        { error: "Invite link required." },
+        { status: 404 }
+      );
     }
 
     const existingParticipant = requestedCode ? await ParticipantModel.findOne({
@@ -50,27 +50,14 @@ export async function GET(request: NextRequest) {
       inviteCode: requestedCode
     }).lean() : null;
 
-    if (requestedCode && !existingParticipant) {
+    if (!existingParticipant || existingParticipant.inviteCode === existingParticipant.participantCode) {
       return NextResponse.json(
         { error: "Invite link not found." },
         { status: 404 }
       );
     }
 
-    const participant = existingParticipant || (await ParticipantModel.findOneAndUpdate(
-      { poolSlug: defaultPoolSlug, participantCode: selectedParticipant.code },
-      {
-        $setOnInsert: {
-          poolSlug: defaultPoolSlug,
-          participantCode: selectedParticipant.code,
-          inviteCode: selectedParticipant.code,
-          name: selectedParticipant.name,
-          nickname: selectedParticipant.nickname,
-          venmoPaid: selectedParticipant.venmoPaid
-        }
-      },
-      { new: true, upsert: true }
-    ).lean());
+    const participant = existingParticipant;
     const submissions = await SubmissionModel.find({
       poolSlug: defaultPoolSlug,
       participantCode: participant.participantCode
@@ -96,6 +83,7 @@ export async function GET(request: NextRequest) {
       storageMode: "mongo",
       participant: {
         code: participant.participantCode,
+        inviteCode: participant.inviteCode,
         name: participant.name,
         nickname: participant.nickname,
         venmoPaid: participant.venmoPaid
@@ -111,13 +99,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       storageMode: "mock",
-      participant: {
-        code: selectedParticipant.code,
-        name: selectedParticipant.name,
-        nickname: selectedParticipant.nickname,
-        venmoPaid: selectedParticipant.venmoPaid
-      },
-      submission: getMockSubmission(selectedParticipant.code),
+      participant: null,
+      submission: getMockSubmission(),
       warning: "Database unavailable; using mock prototype data."
     });
   }

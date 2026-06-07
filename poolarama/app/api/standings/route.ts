@@ -86,6 +86,7 @@ export async function GET() {
         ? reconcileGroupStandings(groupStandingRows.map(rowToStanding))
         : getDefaultGroupStandings();
     const roster = mergeKnownAndMongoParticipants(participants.map(participantFromMongo));
+    const preTournamentLocked = pool.preTournamentStatus === "locked";
 
     return NextResponse.json({
       standings: roster.map((knownParticipant) => {
@@ -101,10 +102,10 @@ export async function GET() {
           nickname: participant?.nickname || knownParticipant.nickname,
           points: score?.total || 0,
           paid: participant?.venmoPaid ?? knownParticipant.venmoPaid,
-          champion: picks?.champion || "",
+          champion: preTournamentLocked ? picks?.champion || "" : "",
           picks: {
-            champion: picks?.champion || "",
-            goldenBoot: picks?.goldenBoot || "",
+            champion: preTournamentLocked ? picks?.champion || "" : "",
+            goldenBoot: preTournamentLocked ? picks?.goldenBoot || "" : "",
             groups: `${score?.groupAdvancers || 0} advancer pts, ${score?.groupWinnerBonus || 0} winner bonus pts`,
             knockout: []
           },

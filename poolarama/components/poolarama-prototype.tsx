@@ -514,7 +514,7 @@ export function PoolaramaPrototype() {
       knownParticipants.find((participant) => participant.code === storedParticipantCode) ||
       defaultParticipant;
     const linkLocked = Boolean(urlParticipantCode || adminParticipant);
-    const lookupCode = urlParticipantCode || initialParticipant.code;
+    const lookupCode = urlParticipantCode || "";
 
     setSelectedParticipant(initialParticipant);
     setIdentityLockedByLink(linkLocked);
@@ -537,9 +537,10 @@ export function PoolaramaPrototype() {
           const data = (await response.json()) as ApiSubmissionResponse;
 
           if (data.participant) {
-            const matchedParticipant =
-              knownParticipants.find((participant) => participant.code === data.participant?.code) ||
-              getParticipantFromApi(data.participant);
+            const knownParticipant = knownParticipants.find((participant) => participant.code === data.participant?.code);
+            const matchedParticipant = knownParticipant
+              ? { ...knownParticipant, inviteCode: data.participant.inviteCode }
+              : getParticipantFromApi(data.participant);
 
             setSelectedParticipant(matchedParticipant);
             setIdentityConfirmed(true);
@@ -597,8 +598,8 @@ export function PoolaramaPrototype() {
   }, [adminEnabled, tab]);
 
   useEffect(() => {
-    loadPublicPicks(selectedParticipant.code);
-  }, [selectedParticipant.code]);
+    loadPublicPicks(selectedParticipant.inviteCode || "");
+  }, [selectedParticipant.code, selectedParticipant.inviteCode]);
 
   async function loadAdminOverview() {
     try {
@@ -635,7 +636,7 @@ export function PoolaramaPrototype() {
     }
   }
 
-  async function loadPublicPicks(viewerCode = selectedParticipant.code) {
+  async function loadPublicPicks(viewerCode = selectedParticipant.inviteCode || "") {
     try {
       const response = await fetch(withBasePath(`/api/picks?viewerCode=${viewerCode}`), { cache: "no-store" });
 

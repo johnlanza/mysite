@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { connectToPoolaramaDatabase } from "@/lib/db";
-import { findKnownParticipant, knownParticipants } from "@/lib/known-participants";
+import { knownParticipants, type KnownParticipant } from "@/lib/known-participants";
 import { defaultPoolSlug } from "@/lib/mock-api-data";
 import { mergeKnownAndMongoParticipants, participantFromMongo } from "@/lib/participant-utils";
 import { buildPoolState, getOrCreateDefaultPool } from "@/lib/pool-state";
@@ -65,7 +65,7 @@ function rowToStanding(row: {
 
 export async function GET(request: NextRequest) {
   const viewerCode = request.nextUrl.searchParams.get("viewerCode") || "";
-  let viewer = findKnownParticipant(viewerCode);
+  let viewer: KnownParticipant | null = null;
 
   try {
     const db = await connectToPoolaramaDatabase();
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
           submittedAt: null,
           points: 0,
           scoring: [],
-          visible: participant.code === viewer.code,
+          visible: false,
           picks: null
         })),
         pool: buildPoolState(null),
@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
       GroupStandingModel.find({ poolSlug: defaultPoolSlug }).lean()
     ]);
     const viewerParticipant = participants.find(
-      (participant) => participant.participantCode === viewerCode || participant.inviteCode === viewerCode
+      (participant) => participant.inviteCode === viewerCode && participant.inviteCode !== participant.participantCode
     );
 
     if (viewerParticipant) {
@@ -121,7 +121,7 @@ export async function GET(request: NextRequest) {
           participants.find((item) => item.participantCode === knownParticipant.code) || null;
         const submission =
           submissions.find((item) => item.participantCode === knownParticipant.code) || null;
-        const visible = isLocked || knownParticipant.code === viewer.code;
+        const visible = isLocked || knownParticipant.code === viewer?.code;
         const picks = submission ? normalizePicks(submission.picks) : null;
         const score = picks ? scorePreTournamentPicks(picks, groupStandings, pool.scoringRules || {}) : null;
 
