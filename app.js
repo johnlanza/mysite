@@ -61,6 +61,8 @@ if (!runZetteOutOfProcess) {
 }
 
 const podcastClubDir = path.join(__dirname, "podcast_club");
+process.env.NEXT_PUBLIC_BASE_PATH =
+  process.env.NEXT_PUBLIC_BASE_PATH || "/podcastclub";
 const podcastRequire = createRequire(path.join(podcastClubDir, "package.json"));
 const next = podcastRequire("next");
 const nextApp = next({
