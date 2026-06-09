@@ -4,6 +4,7 @@ import {
   defaultPoolSlug,
   getMockSubmission
 } from "@/lib/mock-api-data";
+import { isRetiredParticipant } from "@/lib/known-participants";
 import type { PoolSubmissionPicks, SavedSubmission } from "@/lib/poolarama-types";
 import ParticipantModel from "@/models/Participant";
 import SubmissionModel from "@/models/Submission";
@@ -50,7 +51,11 @@ export async function GET(request: NextRequest) {
       inviteCode: requestedCode
     }).lean() : null;
 
-    if (!existingParticipant || existingParticipant.inviteCode === existingParticipant.participantCode) {
+    if (
+      !existingParticipant ||
+      existingParticipant.inviteCode === existingParticipant.participantCode ||
+      isRetiredParticipant(existingParticipant.participantCode)
+    ) {
       return NextResponse.json(
         { error: "Invite link not found." },
         { status: 404 }

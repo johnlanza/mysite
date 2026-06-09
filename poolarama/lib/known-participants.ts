@@ -6,7 +6,7 @@ export type KnownParticipant = {
   venmoPaid: boolean;
 };
 
-export const knownParticipants: KnownParticipant[] = [
+export const allKnownParticipants: KnownParticipant[] = [
   { code: "cheddar", name: "John", nickname: "Cheddar", venmoPaid: false },
   { code: "fall-guy", name: "Fall Guy", nickname: "Fall Guy", venmoPaid: false },
   { code: "jessie", name: "Jessie", nickname: "Jessie", venmoPaid: false },
@@ -19,7 +19,17 @@ export const knownParticipants: KnownParticipant[] = [
   { code: "quinn", name: "Quinn", nickname: "Quinn", venmoPaid: false }
 ];
 
+export const retiredParticipantCodes = new Set(["jessie"]);
+
+export const knownParticipants = allKnownParticipants.filter(
+  (participant) => !retiredParticipantCodes.has(participant.code)
+);
+
 export const defaultParticipant = knownParticipants[0];
+
+export function isRetiredParticipant(code: string | null | undefined) {
+  return Boolean(code && retiredParticipantCodes.has(code));
+}
 
 export function findKnownParticipant(code: string | null | undefined) {
   return knownParticipants.find((participant) => participant.code === code) || defaultParticipant;

@@ -1,4 +1,4 @@
-import { knownParticipants, type KnownParticipant } from "@/lib/known-participants";
+import { isRetiredParticipant, knownParticipants, type KnownParticipant } from "@/lib/known-participants";
 
 export type ParticipantRecord = KnownParticipant & {
   inviteCode?: string | null;
@@ -40,7 +40,7 @@ export function mergeKnownAndMongoParticipants(mongoParticipants: ParticipantRec
     participantMap.set(participant.code, participant);
   }
 
-  for (const participant of mongoParticipants) {
+  for (const participant of mongoParticipants.filter((participant) => !isRetiredParticipant(participant.code))) {
     participantMap.set(participant.code, participant);
   }
 

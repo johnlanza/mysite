@@ -4,7 +4,7 @@ import {
   defaultPoolSlug,
   setMockSubmission
 } from "@/lib/mock-api-data";
-import { findKnownParticipant, knownParticipants } from "@/lib/known-participants";
+import { findKnownParticipant, isRetiredParticipant, knownParticipants } from "@/lib/known-participants";
 import { buildPoolState, getOrCreateDefaultPool } from "@/lib/pool-state";
 import type { PoolStage, PoolSubmissionPicks, SavedSubmission } from "@/lib/poolarama-types";
 import ParticipantModel from "@/models/Participant";
@@ -65,6 +65,14 @@ export async function POST(request: NextRequest) {
     const body = (await request.json()) as Record<string, unknown>;
     const stage = validStages.has(body.stage as PoolStage) ? (body.stage as PoolStage) : "preTournament";
     const participantCode = typeof body.participantCode === "string" ? body.participantCode : "";
+
+    if (isRetiredParticipant(participantCode)) {
+      return NextResponse.json(
+        { error: "Participant is not active for this pool." },
+        { status: 403 }
+      );
+    }
+
     let selectedParticipant = findKnownParticipant(participantCode);
     const picks = parsePicks(body, stage);
     const submittedAt = new Date();

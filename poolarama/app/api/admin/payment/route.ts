@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { requireAdminRequest } from "@/lib/admin-auth";
 import { connectToPoolaramaDatabase } from "@/lib/db";
-import { findKnownParticipant, knownParticipants } from "@/lib/known-participants";
+import { findKnownParticipant, isRetiredParticipant, knownParticipants } from "@/lib/known-participants";
 import { defaultPoolSlug, setMockParticipantPayment } from "@/lib/mock-api-data";
 import ParticipantModel from "@/models/Participant";
 
@@ -14,6 +14,14 @@ export async function PATCH(request: NextRequest) {
   try {
     const body = (await request.json()) as Record<string, unknown>;
     const participantCode = typeof body.participantCode === "string" ? body.participantCode : "";
+
+    if (isRetiredParticipant(participantCode)) {
+      return NextResponse.json(
+        { error: "Participant is not active for this pool." },
+        { status: 403 }
+      );
+    }
+
     const venmoPaid = Boolean(body.venmoPaid);
     let participant = findKnownParticipant(participantCode);
     const db = await connectToPoolaramaDatabase();

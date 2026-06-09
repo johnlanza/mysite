@@ -64,25 +64,6 @@ export const mockStandings: StandingParticipant[] = [
     ]
   },
   {
-    name: "Jessie",
-    nickname: "Jessie",
-    points: 19,
-    paid: true,
-    champion: "Japan",
-    picks: {
-      champion: "Japan",
-      goldenBoot: "H. Miyazawa",
-      groups: "7 correct group picks",
-      knockout: ["Round of 32: Japan, Spain, Mexico", "Round of 16: Japan, Spain", "Quarterfinals: Spain"]
-    },
-    scoring: [
-      { label: "Group winners", value: 8 },
-      { label: "Group runners-up", value: 2 },
-      { label: "Knockout picks", value: 9 },
-      { label: "Champion bonus", value: 0 }
-    ]
-  },
-  {
     name: "Eileen",
     nickname: "Irish Eyes",
     points: 17,
