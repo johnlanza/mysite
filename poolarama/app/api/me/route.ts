@@ -4,7 +4,7 @@ import {
   defaultPoolSlug,
   getMockSubmission
 } from "@/lib/mock-api-data";
-import { isRetiredParticipant } from "@/lib/known-participants";
+import { isRetiredParticipant, knownParticipants } from "@/lib/known-participants";
 import type { PoolSubmissionPicks, SavedSubmission } from "@/lib/poolarama-types";
 import ParticipantModel from "@/models/Participant";
 import SubmissionModel from "@/models/Submission";
@@ -83,14 +83,15 @@ export async function GET(request: NextRequest) {
         }
       : null;
     const responseSubmission = toResponseSubmission(preTournamentSubmission);
+    const knownParticipant = knownParticipants.find((item) => item.code === participant.participantCode);
 
     return NextResponse.json({
       storageMode: "mongo",
       participant: {
         code: participant.participantCode,
         inviteCode: participant.inviteCode,
-        name: participant.name,
-        nickname: participant.nickname,
+        name: knownParticipant?.name || participant.name,
+        nickname: knownParticipant?.nickname || participant.nickname,
         venmoPaid: participant.venmoPaid
       },
       submission: responseSubmission,

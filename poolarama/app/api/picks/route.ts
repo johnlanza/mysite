@@ -99,10 +99,12 @@ export async function GET(request: NextRequest) {
     );
 
     if (viewerParticipant) {
+      const knownViewer = knownParticipants.find((participant) => participant.code === viewerParticipant.participantCode);
+
       viewer = {
         code: viewerParticipant.participantCode,
-        name: viewerParticipant.name,
-        nickname: viewerParticipant.nickname,
+        name: knownViewer?.name || viewerParticipant.name,
+        nickname: knownViewer?.nickname || viewerParticipant.nickname,
         venmoPaid: viewerParticipant.venmoPaid
       };
     }
@@ -127,8 +129,8 @@ export async function GET(request: NextRequest) {
 
         return {
           code: knownParticipant.code,
-          name: participant?.name || knownParticipant.name,
-          nickname: participant?.nickname || knownParticipant.nickname,
+          name: knownParticipant.name,
+          nickname: knownParticipant.nickname,
           submitted: Boolean(submission),
           submittedAt: submission?.submittedAt?.toISOString() || null,
           points: score?.total || 0,

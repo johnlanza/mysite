@@ -92,10 +92,12 @@ export async function POST(request: NextRequest) {
       }
 
       if (participant) {
+        const knownParticipant = knownParticipants.find((item) => item.code === participant.participantCode);
+
         selectedParticipant = {
           code: participant.participantCode,
-          name: participant.name,
-          nickname: participant.nickname,
+          name: knownParticipant?.name || participant.name,
+          nickname: knownParticipant?.nickname || participant.nickname,
           venmoPaid: participant.venmoPaid
         };
       }
