@@ -80,6 +80,77 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export async function PATCH(request: NextRequest) {
+  const unauthorized = requireAdminRequest(request);
+  if (unauthorized) return unauthorized;
+  if (isMaintenanceMode()) return maintenanceModeResponse();
+
+  try {
+    const db = await connectToPoolaramaDatabase();
+
+    if (!db) {
+      return NextResponse.json(
+        { error: "Database unavailable; cannot update participants." },
+        { status: 503 }
+      );
+    }
+
+    const body = (await request.json()) as Record<string, unknown>;
+    const participantCode = typeof body.code === "string" ? body.code.trim() : "";
+    const name = body.name === undefined ? undefined : isValidName(body.name) ? body.name.trim() : "";
+    const nickname = body.nickname === undefined ? undefined : isValidName(body.nickname) ? body.nickname.trim() : "";
+
+    if (!participantCode) {
+      return NextResponse.json(
+        { error: "Participant code is required." },
+        { status: 400 }
+      );
+    }
+
+    if (name === "" || nickname === "" || (name === undefined && nickname === undefined)) {
+      return NextResponse.json(
+        { error: "At least one valid name field is required." },
+        { status: 400 }
+      );
+    }
+
+    const update: Record<string, string> = {};
+    if (name !== undefined) update.name = name;
+    if (nickname !== undefined) update.nickname = nickname;
+
+    const participant = await ParticipantModel.findOneAndUpdate(
+      { poolSlug: defaultPoolSlug, participantCode },
+      { $set: update },
+      { new: true }
+    );
+
+    if (!participant) {
+      return NextResponse.json(
+        { error: "Participant not found." },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      participant: {
+        code: participant.participantCode,
+        inviteCode: participant.inviteCode,
+        name: participant.name,
+        nickname: participant.nickname,
+        venmoPaid: participant.venmoPaid
+      },
+      storageMode: "mongo"
+    });
+  } catch (error) {
+    console.error("Poolarama /api/admin/participants PATCH failed", error);
+
+    return NextResponse.json(
+      { error: "Could not update participant." },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(request: NextRequest) {
   const unauthorized = requireAdminRequest(request);
   if (unauthorized) return unauthorized;

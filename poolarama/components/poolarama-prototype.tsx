@@ -544,6 +544,8 @@ export function PoolaramaPrototype() {
     }
 
     async function loadSavedPicks() {
+      if (!lookupCode) return;
+
       try {
         const response = await fetch(withBasePath(`/api/me?code=${lookupCode}`), { cache: "no-store" });
 
