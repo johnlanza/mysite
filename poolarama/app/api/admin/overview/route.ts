@@ -4,6 +4,7 @@ import { connectToPoolaramaDatabase } from "@/lib/db";
 import { defaultPoolSlug, getMockAdminOverview } from "@/lib/mock-api-data";
 import { mergeKnownAndMongoParticipants, participantFromMongo } from "@/lib/participant-utils";
 import { buildPoolState, getOrCreateDefaultPool } from "@/lib/pool-state";
+import { allowMockFallback, poolDataUnavailableResponse } from "@/lib/runtime-safety";
 import type { AdminParticipantOverview } from "@/lib/poolarama-types";
 import ParticipantModel from "@/models/Participant";
 import SubmissionModel from "@/models/Submission";
@@ -18,6 +19,8 @@ export async function GET(request: NextRequest) {
     const db = await connectToPoolaramaDatabase();
 
     if (!db) {
+      if (!allowMockFallback()) return poolDataUnavailableResponse();
+
       return NextResponse.json({ participants: getMockAdminOverview(), storageMode: "mock" });
     }
 
@@ -26,6 +29,9 @@ export async function GET(request: NextRequest) {
       ParticipantModel.find({ poolSlug: defaultPoolSlug }).lean(),
       SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "preTournament" }).lean()
     ]);
+
+    if (participants.length === 0 && !allowMockFallback()) return poolDataUnavailableResponse();
+
     const preTournamentLocked = buildPoolState(pool).preTournament.status === "locked";
 
     const roster = mergeKnownAndMongoParticipants(participants.map(participantFromMongo));
@@ -51,6 +57,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ participants: overview, pool: buildPoolState(pool), storageMode: "mongo" });
   } catch (error) {
     console.error("Poolarama /api/admin/overview failed", error);
+
+    if (!allowMockFallback()) return poolDataUnavailableResponse();
 
     return NextResponse.json({
       participants: getMockAdminOverview(),

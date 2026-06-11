@@ -3,6 +3,7 @@ import { requireAdminRequest } from "@/lib/admin-auth";
 import { connectToPoolaramaDatabase } from "@/lib/db";
 import { generateRoundOf32Matches, getDefaultGroupStandings, reconcileGroupStandings, type GroupStandingInput } from "@/lib/bracket";
 import { defaultPoolSlug } from "@/lib/mock-api-data";
+import { allowMockFallback, isMaintenanceMode, maintenanceModeResponse, poolDataUnavailableResponse } from "@/lib/runtime-safety";
 import { groups, teams, type GroupId } from "@/lib/tournament-data";
 import GroupStandingModel from "@/models/GroupStanding";
 
@@ -70,6 +71,8 @@ export async function GET(request: NextRequest) {
     const db = await connectToPoolaramaDatabase();
 
     if (!db) {
+      if (!allowMockFallback()) return poolDataUnavailableResponse();
+
       return NextResponse.json({
         standings: getDefaultGroupStandings(),
         r32Preview: generateRoundOf32Matches(getDefaultGroupStandings()),
@@ -97,6 +100,7 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   const unauthorized = requireAdminRequest(request);
   if (unauthorized) return unauthorized;
+  if (isMaintenanceMode()) return maintenanceModeResponse();
 
   try {
     const db = await connectToPoolaramaDatabase();

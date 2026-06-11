@@ -4,6 +4,7 @@ import { connectToPoolaramaDatabase } from "@/lib/db";
 import { knownParticipants } from "@/lib/known-participants";
 import { defaultPoolSlug, getMockAdminOverview } from "@/lib/mock-api-data";
 import { generateInviteCode } from "@/lib/participant-utils";
+import { allowMockFallback, isMaintenanceMode, maintenanceModeResponse, poolDataUnavailableResponse } from "@/lib/runtime-safety";
 import ParticipantModel from "@/models/Participant";
 
 export const dynamic = "force-dynamic";
@@ -11,11 +12,14 @@ export const dynamic = "force-dynamic";
 export async function POST(request: NextRequest) {
   const unauthorized = requireAdminRequest(request);
   if (unauthorized) return unauthorized;
+  if (isMaintenanceMode()) return maintenanceModeResponse();
 
   try {
     const db = await connectToPoolaramaDatabase();
 
     if (!db) {
+      if (!allowMockFallback()) return poolDataUnavailableResponse();
+
       return NextResponse.json({
         participants: getMockAdminOverview(),
         seeded: knownParticipants.length,

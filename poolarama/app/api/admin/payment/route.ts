@@ -3,6 +3,7 @@ import { requireAdminRequest } from "@/lib/admin-auth";
 import { connectToPoolaramaDatabase } from "@/lib/db";
 import { findKnownParticipant, isRetiredParticipant, knownParticipants } from "@/lib/known-participants";
 import { defaultPoolSlug, setMockParticipantPayment } from "@/lib/mock-api-data";
+import { allowMockFallback, isMaintenanceMode, maintenanceModeResponse, poolDataUnavailableResponse } from "@/lib/runtime-safety";
 import ParticipantModel from "@/models/Participant";
 
 export const dynamic = "force-dynamic";
@@ -10,6 +11,7 @@ export const dynamic = "force-dynamic";
 export async function PATCH(request: NextRequest) {
   const unauthorized = requireAdminRequest(request);
   if (unauthorized) return unauthorized;
+  if (isMaintenanceMode()) return maintenanceModeResponse();
 
   try {
     const body = (await request.json()) as Record<string, unknown>;
@@ -27,6 +29,8 @@ export async function PATCH(request: NextRequest) {
     const db = await connectToPoolaramaDatabase();
 
     if (!db) {
+      if (!allowMockFallback()) return poolDataUnavailableResponse();
+
       const updatedParticipant = setMockParticipantPayment(participant.code, venmoPaid);
 
       return NextResponse.json({

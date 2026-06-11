@@ -11,6 +11,7 @@ import { type GroupId } from "@/lib/tournament-data";
 import GroupStandingModel from "@/models/GroupStanding";
 import ParticipantModel from "@/models/Participant";
 import SubmissionModel from "@/models/Submission";
+import { allowMockFallback, poolDataUnavailableResponse } from "@/lib/runtime-safety";
 
 export const dynamic = "force-dynamic";
 
@@ -71,6 +72,8 @@ export async function GET(request: NextRequest) {
     const db = await connectToPoolaramaDatabase();
 
     if (!db) {
+      if (!allowMockFallback()) return poolDataUnavailableResponse();
+
       return NextResponse.json({
         participants: knownParticipants.map((participant) => ({
           code: participant.code,
@@ -94,6 +97,9 @@ export async function GET(request: NextRequest) {
       SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "preTournament" }).lean(),
       GroupStandingModel.find({ poolSlug: defaultPoolSlug }).lean()
     ]);
+
+    if (participants.length === 0 && !allowMockFallback()) return poolDataUnavailableResponse();
+
     const viewerParticipant = participants.find(
       (participant) => participant.inviteCode === viewerCode && participant.inviteCode !== participant.participantCode
     );
@@ -149,6 +155,8 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Poolarama /api/picks failed", error);
+
+    if (!allowMockFallback()) return poolDataUnavailableResponse();
 
     return NextResponse.json(
       { error: "Could not load pick visibility." },

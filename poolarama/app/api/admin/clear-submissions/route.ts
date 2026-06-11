@@ -3,6 +3,7 @@ import { requireAdminRequest } from "@/lib/admin-auth";
 import { connectToPoolaramaDatabase } from "@/lib/db";
 import { defaultPoolSlug } from "@/lib/mock-api-data";
 import { getOrCreateDefaultPool } from "@/lib/pool-state";
+import { isMaintenanceMode, maintenanceModeResponse } from "@/lib/runtime-safety";
 import SubmissionModel from "@/models/Submission";
 
 export const dynamic = "force-dynamic";
@@ -10,6 +11,7 @@ export const dynamic = "force-dynamic";
 export async function DELETE(request: NextRequest) {
   const unauthorized = requireAdminRequest(request);
   if (unauthorized) return unauthorized;
+  if (isMaintenanceMode()) return maintenanceModeResponse();
 
   try {
     const db = await connectToPoolaramaDatabase();

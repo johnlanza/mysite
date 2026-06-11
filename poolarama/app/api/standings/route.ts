@@ -10,6 +10,7 @@ import { getOrCreateDefaultPool } from "@/lib/pool-state";
 import { scorePreTournamentPicks } from "@/lib/scoring";
 import type { PoolSubmissionPicks } from "@/lib/poolarama-types";
 import { type GroupId } from "@/lib/tournament-data";
+import { allowMockFallback, poolDataUnavailableResponse } from "@/lib/runtime-safety";
 
 export const dynamic = "force-dynamic";
 
@@ -67,6 +68,8 @@ export async function GET() {
     const db = await connectToPoolaramaDatabase();
 
     if (!db) {
+      if (!allowMockFallback()) return poolDataUnavailableResponse();
+
       return NextResponse.json({ standings: mockStandings, storageMode: "mock" });
     }
 
@@ -76,6 +79,8 @@ export async function GET() {
       SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "preTournament" }).lean(),
       GroupStandingModel.find({ poolSlug: defaultPoolSlug }).lean()
     ]);
+
+    if (participants.length === 0 && !allowMockFallback()) return poolDataUnavailableResponse();
 
     if (participants.length === 0) {
       return NextResponse.json({ standings: mockStandings, storageMode: "mongo", seeded: false });
@@ -121,6 +126,8 @@ export async function GET() {
     });
   } catch (error) {
     console.error("Poolarama /api/standings failed", error);
+
+    if (!allowMockFallback()) return poolDataUnavailableResponse();
 
     return NextResponse.json({
       standings: mockStandings,

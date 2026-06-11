@@ -1,8 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { requireAdminRequest } from "@/lib/admin-auth";
 import { connectToPoolaramaDatabase } from "@/lib/db";
-import { knownParticipants } from "@/lib/known-participants";
 import { defaultPoolSlug } from "@/lib/mock-api-data";
+import { mergeKnownAndMongoParticipants, participantFromMongo } from "@/lib/participant-utils";
 import { buildPoolState, getOrCreateDefaultPool } from "@/lib/pool-state";
 import { groups, type GroupId } from "@/lib/tournament-data";
 import ParticipantModel from "@/models/Participant";
@@ -60,7 +60,8 @@ export async function GET(request: NextRequest) {
       "Golden Boot",
       ...groups.flatMap((group) => [`Group ${group} Winner`, `Group ${group} Runner-up`])
     ];
-    const rows = knownParticipants.map((knownParticipant) => {
+    const roster = mergeKnownAndMongoParticipants(participants.map(participantFromMongo));
+    const rows = roster.map((knownParticipant) => {
       const participant =
         participants.find((item) => item.participantCode === knownParticipant.code) || null;
       const submission =

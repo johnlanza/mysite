@@ -4,6 +4,7 @@ import { connectToPoolaramaDatabase } from "@/lib/db";
 import { generateRoundOf32Matches, getDefaultGroupStandings, reconcileGroupStandings, type GroupStandingInput } from "@/lib/bracket";
 import { defaultPoolSlug } from "@/lib/mock-api-data";
 import { buildPoolState, getOrCreateDefaultPool } from "@/lib/pool-state";
+import { allowMockFallback, isMaintenanceMode, maintenanceModeResponse, poolDataUnavailableResponse } from "@/lib/runtime-safety";
 import { type GroupId } from "@/lib/tournament-data";
 import GroupStandingModel from "@/models/GroupStanding";
 import MatchModel from "@/models/Match";
@@ -55,6 +56,8 @@ export async function GET(request: NextRequest) {
     const db = await connectToPoolaramaDatabase();
 
     if (!db) {
+      if (!allowMockFallback()) return poolDataUnavailableResponse();
+
       return NextResponse.json({
         matches: generateRoundOf32Matches(getDefaultGroupStandings()),
         pool: buildPoolState(null),
@@ -85,6 +88,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const unauthorized = requireAdminRequest(request);
   if (unauthorized) return unauthorized;
+  if (isMaintenanceMode()) return maintenanceModeResponse();
 
   try {
     const db = await connectToPoolaramaDatabase();

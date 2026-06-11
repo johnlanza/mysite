@@ -378,6 +378,7 @@ export function PoolaramaPrototype() {
     }))
   );
   const [adminFeedback, setAdminFeedback] = useState("Admin overview is ready.");
+  const [poolDataWarning, setPoolDataWarning] = useState<string | null>(null);
   const [newParticipantName, setNewParticipantName] = useState("");
   const [newParticipantNickname, setNewParticipantNickname] = useState("");
   const [pendingDeleteCode, setPendingDeleteCode] = useState("");
@@ -396,7 +397,7 @@ export function PoolaramaPrototype() {
 
   const paidCount = adminOverview.filter((person) => person.venmoPaid).length;
   const potTotal = paidCount * 10;
-  const totalPlayers = adminOverview.length || knownParticipants.length;
+  const totalPlayers = publicPicks.length || adminOverview.length;
   const championCandidates = useMemo(() => {
     const candidateNames = groups.flatMap((group) => [groupWinners[group], groupRunnersUp[group]]);
 
@@ -627,13 +628,16 @@ export function PoolaramaPrototype() {
 
       const data = (await response.json()) as AdminOverviewResponse;
       setAdminOverview(data.participants);
+      setPoolDataWarning(null);
       setAdminFeedback(
         data.storageMode === "mongo"
           ? "Admin overview loaded from Mongo."
           : data.warning || "Database unavailable. Showing fallback data, not live submissions."
       );
     } catch {
-      setAdminFeedback("Admin overview unavailable. Showing local participant list.");
+      setAdminOverview([]);
+      setPoolDataWarning("Pool data is temporarily unavailable. Please refresh in a minute.");
+      setAdminFeedback("Admin overview unavailable. Live pool data is not being shown.");
     }
   }
 
@@ -647,8 +651,10 @@ export function PoolaramaPrototype() {
 
       const data = (await response.json()) as { pool: PoolState };
       setPoolState(data.pool);
+      setPoolDataWarning(null);
     } catch {
       setPoolState(defaultPoolState);
+      setPoolDataWarning("Pool data is temporarily unavailable. Please refresh in a minute.");
     }
   }
 
@@ -664,8 +670,10 @@ export function PoolaramaPrototype() {
       const data = (await response.json()) as PublicPicksResponse;
       setPoolState(data.pool);
       setPublicPicks(data.participants);
+      setPoolDataWarning(null);
     } catch (error) {
       setPublicPicks([]);
+      setPoolDataWarning("Pool data is temporarily unavailable. Please refresh in a minute.");
       if (adminEnabled) {
         const message = error instanceof Error ? error.message : "Could not load pick visibility.";
         setAdminFeedback(`${message} Database connection may be unavailable.`);
@@ -1284,6 +1292,11 @@ export function PoolaramaPrototype() {
                 ? `Making picks as ${selectedParticipant.nickname}. Start with group winners and runners-up.`
                 : "For this live test, confirm your assigned name before making picks."}
           />
+          {poolDataWarning && (
+            <div className="inline-alert" role="alert">
+              <strong>{poolDataWarning}</strong>
+            </div>
+          )}
           <section className="identity-card" aria-labelledby="identity-title">
             <div>
               <p className="eyebrow">Step 1 of 5</p>
@@ -1687,6 +1700,11 @@ export function PoolaramaPrototype() {
             title="Standings"
             note={preTournamentLocked ? "Pre-tournament picks are locked and visible." : "Picks stay hidden until John locks the round."}
           />
+          {poolDataWarning && (
+            <div className="inline-alert" role="alert">
+              <strong>{poolDataWarning}</strong>
+            </div>
+          )}
           <div className="standings-list">
             {(publicPicks.length > 0 ? publicPicks : adminOverview.map((participant) => ({
               ...participant,

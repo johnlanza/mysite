@@ -1,12 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { connectToPoolaramaDatabase } from "@/lib/db";
 import {
-  defaultPoolSlug,
-  setMockSubmission
+  defaultPoolSlug
 } from "@/lib/mock-api-data";
 import { findKnownParticipant, isRetiredParticipant, knownParticipants } from "@/lib/known-participants";
 import { buildPoolState, getOrCreateDefaultPool } from "@/lib/pool-state";
 import type { PoolStage, PoolSubmissionPicks, SavedSubmission } from "@/lib/poolarama-types";
+import { isMaintenanceMode, maintenanceModeResponse, poolDataUnavailableResponse } from "@/lib/runtime-safety";
 import ParticipantModel from "@/models/Participant";
 import SubmissionModel from "@/models/Submission";
 
@@ -61,6 +61,8 @@ function parsePicks(body: Record<string, unknown>, stage: PoolStage): PoolSubmis
 }
 
 export async function POST(request: NextRequest) {
+  if (isMaintenanceMode()) return maintenanceModeResponse();
+
   try {
     const body = (await request.json()) as Record<string, unknown>;
     const stage = validStages.has(body.stage as PoolStage) ? (body.stage as PoolStage) : "preTournament";
@@ -78,27 +80,29 @@ export async function POST(request: NextRequest) {
     const submittedAt = new Date();
     const db = await connectToPoolaramaDatabase();
 
-    if (db) {
-      const participant = await ParticipantModel.findOne({
-        poolSlug: defaultPoolSlug,
-        participantCode
-      }).lean();
+    if (!db) {
+      return poolDataUnavailableResponse();
+    }
 
-      if (!participant && !knownParticipants.some((knownParticipant) => knownParticipant.code === participantCode)) {
-        return NextResponse.json(
-          { error: "Participant not found." },
-          { status: 404 }
-        );
-      }
+    const participant = await ParticipantModel.findOne({
+      poolSlug: defaultPoolSlug,
+      participantCode
+    }).lean();
 
-      if (participant) {
-        selectedParticipant = {
-          code: participant.participantCode,
-          name: participant.name,
-          nickname: participant.nickname,
-          venmoPaid: participant.venmoPaid
-        };
-      }
+    if (!participant && !knownParticipants.some((knownParticipant) => knownParticipant.code === participantCode)) {
+      return NextResponse.json(
+        { error: "Participant not found." },
+        { status: 404 }
+      );
+    }
+
+    if (participant) {
+      selectedParticipant = {
+        code: participant.participantCode,
+        name: participant.name,
+        nickname: participant.nickname,
+        venmoPaid: participant.venmoPaid
+      };
     }
 
     const baseSubmission = {
@@ -109,15 +113,6 @@ export async function POST(request: NextRequest) {
       picks,
       submittedAt: submittedAt.toISOString()
     };
-    if (!db) {
-      const mockSubmission = setMockSubmission({
-        ...baseSubmission,
-        storageMode: "mock"
-      });
-
-      return NextResponse.json({ submission: mockSubmission, storageMode: "mock" });
-    }
-
     if (stage === "preTournament") {
       const pool = await getOrCreateDefaultPool();
       const poolState = buildPoolState(pool);

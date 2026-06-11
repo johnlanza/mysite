@@ -8,6 +8,7 @@ import { isRetiredParticipant } from "@/lib/known-participants";
 import type { PoolSubmissionPicks, SavedSubmission } from "@/lib/poolarama-types";
 import ParticipantModel from "@/models/Participant";
 import SubmissionModel from "@/models/Submission";
+import { allowMockFallback, poolDataUnavailableResponse } from "@/lib/runtime-safety";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +33,8 @@ export async function GET(request: NextRequest) {
     const db = await connectToPoolaramaDatabase();
 
     if (!db) {
+      if (!allowMockFallback()) return poolDataUnavailableResponse();
+
       return NextResponse.json({
         storageMode: "mock",
         participant: null,
@@ -101,6 +104,8 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Poolarama /api/me failed", error);
+
+    if (!allowMockFallback()) return poolDataUnavailableResponse();
 
     return NextResponse.json({
       storageMode: "mock",
