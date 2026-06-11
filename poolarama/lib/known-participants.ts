@@ -7,16 +7,16 @@ export type KnownParticipant = {
 };
 
 export const allKnownParticipants: KnownParticipant[] = [
-  { code: "cheddar", name: "John Lanza", nickname: "Cheddar", venmoPaid: false },
-  { code: "fall-guy", name: "G-Man Lanza", nickname: "Fall Guy", venmoPaid: false },
+  { code: "cheddar", name: "John", nickname: "Cheddar", venmoPaid: false },
+  { code: "fall-guy", name: "Fall Guy", nickname: "Fall Guy", venmoPaid: false },
   { code: "jessie", name: "Jessie", nickname: "Jessie", venmoPaid: false },
-  { code: "ruby", name: "Ruby Lanza", nickname: "Ruby", venmoPaid: false },
-  { code: "kellyn", name: "Kellyn Lanza", nickname: "Kellyn", venmoPaid: false },
+  { code: "ruby", name: "Ruby", nickname: "Ruby", venmoPaid: false },
+  { code: "kellyn", name: "Kellyn", nickname: "Kellyn", venmoPaid: false },
   { code: "brett", name: "Brett Lanza", nickname: "Brett", venmoPaid: false },
-  { code: "irish-eyes", name: "Eileen Lanza", nickname: "Irish Eyes", venmoPaid: false },
+  { code: "irish-eyes", name: "Eileen", nickname: "Irish Eyes", venmoPaid: false },
   { code: "jeff-lanza", name: "Jeff Lanza", nickname: "Jeff Lanza", venmoPaid: false },
-  { code: "cleatus-the-great", name: "Jack Lee Lanza", nickname: "Cleatus the Great", venmoPaid: false },
-  { code: "quinn", name: "Quinn Lanza", nickname: "Quinn", venmoPaid: false }
+  { code: "cleatus-the-great", name: "Jeff Lanza", nickname: "Cleatus the Great", venmoPaid: false },
+  { code: "quinn", name: "Quinn", nickname: "Quinn", venmoPaid: false }
 ];
 
 export const retiredParticipantCodes = new Set(["jessie"]);

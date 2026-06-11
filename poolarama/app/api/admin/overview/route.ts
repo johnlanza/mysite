@@ -38,8 +38,8 @@ export async function GET(request: NextRequest) {
       return {
         code: knownParticipant.code,
         inviteCode: participant?.inviteCode || knownParticipant.inviteCode || knownParticipant.code,
-        name: knownParticipant.name,
-        nickname: knownParticipant.nickname,
+        name: participant?.name || knownParticipant.name,
+        nickname: participant?.nickname || knownParticipant.nickname,
         venmoPaid: participant?.venmoPaid ?? knownParticipant.venmoPaid,
         submitted: Boolean(submission),
         submittedAt: submission?.submittedAt?.toISOString() || null,

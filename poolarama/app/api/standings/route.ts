@@ -98,8 +98,8 @@ export async function GET() {
         const score = picks ? scorePreTournamentPicks(picks, groupStandings, pool.scoringRules || {}) : null;
 
         return {
-          name: knownParticipant.name,
-          nickname: knownParticipant.nickname,
+          name: participant?.name || knownParticipant.name,
+          nickname: participant?.nickname || knownParticipant.nickname,
           points: score?.total || 0,
           paid: participant?.venmoPaid ?? knownParticipant.venmoPaid,
           champion: preTournamentLocked ? picks?.champion || "" : "",

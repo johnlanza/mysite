@@ -70,8 +70,8 @@ export async function GET(request: NextRequest) {
 
       return [
         knownParticipant.code,
-        knownParticipant.name,
-        knownParticipant.nickname,
+        participant?.name || knownParticipant.name,
+        participant?.nickname || knownParticipant.nickname,
         participant?.venmoPaid ? "Yes" : "No",
         submission ? "Yes" : "No",
         submission?.submittedAt ? submission.submittedAt.toISOString() : "",

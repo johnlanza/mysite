@@ -41,18 +41,7 @@ export function mergeKnownAndMongoParticipants(mongoParticipants: ParticipantRec
   }
 
   for (const participant of mongoParticipants.filter((participant) => !isRetiredParticipant(participant.code))) {
-    const seededParticipant = participantMap.get(participant.code);
-
-    participantMap.set(
-      participant.code,
-      seededParticipant
-        ? {
-            ...participant,
-            name: seededParticipant.name,
-            nickname: seededParticipant.nickname
-          }
-        : participant
-    );
+    participantMap.set(participant.code, participant);
   }
 
   return Array.from(participantMap.values());
