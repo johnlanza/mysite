@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { requireAdminRequest } from "@/lib/admin-auth";
 import { connectToPoolaramaDatabase } from "@/lib/db";
-import { generateRoundOf32Matches, getDefaultGroupStandings, reconcileGroupStandings, type GroupStandingInput } from "@/lib/bracket";
+import { generateRoundOf32Matches, getDefaultGroupStandings, rankGroupStandings, reconcileGroupStandings, type GroupStandingInput } from "@/lib/bracket";
 import { defaultPoolSlug } from "@/lib/mock-api-data";
 import { allowMockFallback, isMaintenanceMode, maintenanceModeResponse, poolDataUnavailableResponse } from "@/lib/runtime-safety";
 import { groups, teams, type GroupId } from "@/lib/tournament-data";
@@ -113,9 +113,9 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = (await request.json()) as { standings?: Partial<GroupStandingInput>[] };
-    const standings = reconcileGroupStandings(
+    const standings = rankGroupStandings(reconcileGroupStandings(
       (body.standings || []).map(normalizeStanding).filter(isCurrentStanding)
-    );
+    ));
 
     await Promise.all(
       standings.map((standing) =>

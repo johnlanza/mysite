@@ -31,6 +31,23 @@ function compareStandings(a: GroupStandingInput, b: GroupStandingInput) {
   );
 }
 
+function compareGroupRanks(a: GroupStandingInput, b: GroupStandingInput) {
+  const aHasPoints = a.points > 0;
+  const bHasPoints = b.points > 0;
+
+  if (aHasPoints !== bHasPoints) {
+    return aHasPoints ? -1 : 1;
+  }
+
+  return (
+    b.points - a.points ||
+    b.goalDifference - a.goalDifference ||
+    b.goalsFor - a.goalsFor ||
+    a.rank - b.rank ||
+    a.team.localeCompare(b.team)
+  );
+}
+
 export function getDefaultGroupStandings(): GroupStandingInput[] {
   return teams.map((team, index) => ({
     group: team.group,
@@ -50,21 +67,21 @@ export function getDefaultGroupStandings(): GroupStandingInput[] {
 export function reconcileGroupStandings(savedStandings: GroupStandingInput[]) {
   const savedByTeam = new Map(savedStandings.map((standing) => [`${standing.group}:${standing.team}`, standing]));
 
-  return getDefaultGroupStandings().map((defaultStanding) => ({
+  return rankGroupStandings(getDefaultGroupStandings().map((defaultStanding) => ({
     ...defaultStanding,
     ...savedByTeam.get(`${defaultStanding.group}:${defaultStanding.team}`)
-  }));
+  })));
 }
 
 export function rankGroupStandings(standings: GroupStandingInput[]) {
   return groups.flatMap((group) => {
     const groupRows = standings
       .filter((standing) => standing.group === group)
-      .sort((a, b) => a.rank - b.rank || compareStandings(a, b));
+      .sort(compareGroupRanks);
 
     return groupRows.map((standing, index) => ({
       ...standing,
-      rank: standing.rank || index + 1
+      rank: index + 1
     }));
   });
 }

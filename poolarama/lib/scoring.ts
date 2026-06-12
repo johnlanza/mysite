@@ -1,5 +1,5 @@
 import { groups, type GroupId } from "@/lib/tournament-data";
-import type { GroupStandingInput } from "@/lib/bracket";
+import { rankGroupStandings, type GroupStandingInput } from "@/lib/bracket";
 import type { PoolSubmissionPicks } from "@/lib/poolarama-types";
 
 export type ScoringRules = {
@@ -42,7 +42,7 @@ function getCompletedGroupResults(standings: GroupStandingInput[]) {
   const results = new Map<GroupId, { winner: string; runnerUp: string; advancers: Set<string> }>();
 
   for (const group of groups) {
-    const groupRows = standings.filter((standing) => standing.group === group);
+    const groupRows = rankGroupStandings(standings).filter((standing) => standing.group === group);
     const hasEnteredResults = groupRows.some(
       (standing) =>
         standing.played > 0 ||
@@ -57,8 +57,8 @@ function getCompletedGroupResults(standings: GroupStandingInput[]) {
 
     if (!hasEnteredResults) continue;
 
-    const winner = groupRows.find((standing) => standing.rank === 1);
-    const runnerUp = groupRows.find((standing) => standing.rank === 2);
+    const winner = groupRows.find((standing) => standing.rank === 1 && standing.points > 0);
+    const runnerUp = groupRows.find((standing) => standing.rank === 2 && standing.points > 0);
 
     if (winner?.team && runnerUp?.team && winner.team !== runnerUp.team) {
       results.set(group, {
