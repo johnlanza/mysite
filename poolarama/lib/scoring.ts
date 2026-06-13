@@ -39,7 +39,7 @@ function normalizeGroupPicks(picks: PoolSubmissionPicks["groupWinners"] | PoolSu
 }
 
 function getCompletedGroupResults(standings: GroupStandingInput[]) {
-  const results = new Map<GroupId, { winner: string; runnerUp: string; advancers: Set<string> }>();
+  const results = new Map<GroupId, { winner: string | null; runnerUp: string | null; advancers: Set<string> }>();
 
   for (const group of groups) {
     const groupRows = rankGroupStandings(standings).filter((standing) => standing.group === group);
@@ -60,14 +60,14 @@ function getCompletedGroupResults(standings: GroupStandingInput[]) {
     const pointTotals = new Set(groupRows.map((standing) => standing.points));
     if (pointTotals.size === 1) continue;
 
-    const winner = groupRows.find((standing) => standing.rank === 1 && standing.points > 0);
-    const runnerUp = groupRows.find((standing) => standing.rank === 2 && standing.points > 0);
+    const winner = groupRows.find((standing) => standing.rank === 1 && standing.points > 0) || null;
+    const runnerUp = groupRows.find((standing) => standing.rank === 2 && standing.points > 0) || null;
 
-    if (winner?.team && runnerUp?.team && winner.team !== runnerUp.team) {
+    if (winner?.team || runnerUp?.team) {
       results.set(group, {
-        winner: winner.team,
-        runnerUp: runnerUp.team,
-        advancers: new Set([winner.team, runnerUp.team])
+        winner: winner?.team || null,
+        runnerUp: runnerUp?.team || null,
+        advancers: new Set([winner?.team, runnerUp?.team].filter(Boolean) as string[])
       });
     }
   }
