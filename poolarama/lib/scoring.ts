@@ -57,6 +57,9 @@ function getCompletedGroupResults(standings: GroupStandingInput[]) {
 
     if (!hasEnteredResults) continue;
 
+    const pointTotals = new Set(groupRows.map((standing) => standing.points));
+    if (pointTotals.size === 1) continue;
+
     const winner = groupRows.find((standing) => standing.rank === 1 && standing.points > 0);
     const runnerUp = groupRows.find((standing) => standing.rank === 2 && standing.points > 0);
 
