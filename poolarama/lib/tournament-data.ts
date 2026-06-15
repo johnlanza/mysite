@@ -58,7 +58,7 @@ export const teams: Team[] = [
   { group: "G", name: "IR Iran", code: "IRN", flag: "🇮🇷", colors: ["#239f40", "#da0000"] },
   { group: "G", name: "New Zealand", code: "NZL", flag: "🇳🇿", colors: ["#00247d", "#cc142b"] },
   { group: "H", name: "Spain", code: "ESP", flag: "🇪🇸", colors: ["#aa151b", "#f1bf00"] },
-  { group: "H", name: "Cabo Verde", code: "CPV", flag: "🇨🇻", colors: ["#003893", "#f7d116"] },
+  { group: "H", name: "Cape Verde", code: "CPV", flag: "🇨🇻", colors: ["#003893", "#f7d116"] },
   { group: "H", name: "Saudi Arabia", code: "KSA", flag: "🇸🇦", colors: ["#006c35", "#ffffff"] },
   { group: "H", name: "Uruguay", code: "URU", flag: "🇺🇾", colors: ["#0038a8", "#fcd116"] },
   { group: "I", name: "France", code: "FRA", flag: "🇫🇷", colors: ["#0055a4", "#ef4135"] },
