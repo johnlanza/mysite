@@ -131,6 +131,10 @@ export async function PUT(request: NextRequest) {
         )
       )
     );
+    await GroupStandingModel.deleteMany({
+      poolSlug: defaultPoolSlug,
+      $nor: teams.map((team) => ({ group: team.group, team: team.name }))
+    });
 
     return NextResponse.json({
       standings,
