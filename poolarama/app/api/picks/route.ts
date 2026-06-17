@@ -147,7 +147,8 @@ export async function GET(request: NextRequest) {
               ]
             : [],
           visible,
-          picks: visible && picks ? picks : null
+          picks: visible && picks ? picks : null,
+          groupPickScores: visible && score ? score.groupPickScores : {}
         };
       }).sort((a, b) => b.points - a.points || Number(b.submitted) - Number(a.submitted) || a.nickname.localeCompare(b.nickname)),
       pool: poolState,

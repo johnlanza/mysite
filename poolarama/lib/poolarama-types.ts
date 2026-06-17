@@ -34,6 +34,10 @@ export type StandingParticipant = {
     champion: string;
     goldenBoot: string;
     groups: string;
+    groupPickScores?: Partial<Record<GroupId, {
+      winner: number;
+      runnerUp: number;
+    }>>;
     knockout: string[];
   };
   scoring: {

@@ -942,6 +942,42 @@ h1 {
   line-height: 1.16;
 }
 
+.review-groups .group-pick-score-line {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.review-groups .group-pick-score-line + .group-pick-score-line {
+  margin-top: 7px;
+}
+
+.review-groups .pick-country {
+  display: inline;
+  color: var(--navy);
+  font-size: 1rem;
+  font-weight: 900;
+  text-transform: none;
+}
+
+.review-groups .pick-score {
+  display: inline;
+  color: var(--red);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 1.08rem;
+  font-weight: 900;
+  text-transform: none;
+}
+
+.review-groups .pick-label {
+  display: inline;
+  color: #607085;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
 .big-choice,
 .primary-action,
 .admin-action {

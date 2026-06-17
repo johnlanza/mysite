@@ -112,6 +112,7 @@ export async function GET() {
             champion: preTournamentLocked ? picks?.champion || "" : "",
             goldenBoot: preTournamentLocked ? picks?.goldenBoot || "" : "",
             groups: `${score?.groupAdvancers || 0} advancer pts, ${score?.groupWinnerBonus || 0} winner bonus pts`,
+            groupPickScores: preTournamentLocked ? score?.groupPickScores || {} : {},
             knockout: []
           },
           scoring: [

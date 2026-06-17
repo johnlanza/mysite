@@ -19,6 +19,10 @@ export type ScoreBreakdown = {
   champion: number;
   knockout: number;
   total: number;
+  groupPickScores: Partial<Record<GroupId, {
+    winner: number;
+    runnerUp: number;
+  }>>;
 };
 
 export const defaultScoringRules: ScoringRules = {
@@ -86,6 +90,7 @@ export function scorePreTournamentPicks(
   const completedResults = getCompletedGroupResults(standings);
   let groupAdvancers = 0;
   let groupWinnerBonus = 0;
+  const groupPickScores: ScoreBreakdown["groupPickScores"] = {};
 
   for (const group of groups) {
     const result = completedResults.get(group);
@@ -93,18 +98,28 @@ export function scorePreTournamentPicks(
 
     const winnerPick = groupWinners[group];
     const runnerUpPick = groupRunnersUp[group];
+    let winnerPoints = 0;
+    let runnerUpPoints = 0;
 
     if (winnerPick && result.advancers.has(winnerPick)) {
       groupAdvancers += scoringRules.groupRunnerUp;
+      winnerPoints += scoringRules.groupRunnerUp;
     }
 
     if (runnerUpPick && result.advancers.has(runnerUpPick)) {
       groupAdvancers += scoringRules.groupRunnerUp;
+      runnerUpPoints += scoringRules.groupRunnerUp;
     }
 
     if (winnerPick && winnerPick === result.winner) {
       groupWinnerBonus += scoringRules.groupWinner - scoringRules.groupRunnerUp;
+      winnerPoints += scoringRules.groupWinner - scoringRules.groupRunnerUp;
     }
+
+    groupPickScores[group] = {
+      winner: winnerPoints,
+      runnerUp: runnerUpPoints
+    };
   }
 
   const champion = 0;
@@ -115,6 +130,7 @@ export function scorePreTournamentPicks(
     groupWinnerBonus,
     champion,
     knockout,
-    total: groupAdvancers + groupWinnerBonus + champion + knockout
+    total: groupAdvancers + groupWinnerBonus + champion + knockout,
+    groupPickScores
   };
 }

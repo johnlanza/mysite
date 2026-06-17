@@ -97,6 +97,10 @@ type PublicPickParticipant = {
     value: number;
   }[];
   visible: boolean;
+  groupPickScores?: Partial<Record<GroupId, {
+    winner: number;
+    runnerUp: number;
+  }>>;
   picks: {
     champion: string;
     goldenBoot: string;
@@ -1713,6 +1717,7 @@ export function PoolaramaPrototype() {
               points: 0,
               scoring: [],
               visible: participant.code === selectedParticipant.code,
+              groupPickScores: {},
               picks: null
             }))).map((person, index) => (
               <article className={`standing-row standing-${index + 1}`} key={person.nickname}>
@@ -1747,8 +1752,15 @@ export function PoolaramaPrototype() {
                         {groups.map((group) => (
                           <div key={`${person.code}-${group}`}>
                             <span>Group {group}</span>
-                            <strong>
-                              {person.picks?.groupWinners?.[group] || "No winner"} / {person.picks?.groupRunnersUp?.[group] || "No runner-up"}
+                            <strong className="group-pick-score-line">
+                              <span className="pick-country">{person.picks?.groupWinners?.[group] || "No winner"}</span>
+                              <span className="pick-score">({person.groupPickScores?.[group]?.winner ?? 0})</span>
+                              <span className="pick-label">winner</span>
+                            </strong>
+                            <strong className="group-pick-score-line">
+                              <span className="pick-country">{person.picks?.groupRunnersUp?.[group] || "No runner-up"}</span>
+                              <span className="pick-score">({person.groupPickScores?.[group]?.runnerUp ?? 0})</span>
+                              <span className="pick-label">runner-up</span>
                             </strong>
                           </div>
                         ))}
