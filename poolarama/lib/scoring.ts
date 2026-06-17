@@ -42,8 +42,23 @@ function normalizeGroupPicks(picks: PoolSubmissionPicks["groupWinners"] | PoolSu
   return picks;
 }
 
+function isSeparatedByTableTiebreakers(a: GroupStandingInput | null, b: GroupStandingInput | null) {
+  return Boolean(
+    a &&
+      b &&
+      (a.points !== b.points ||
+        a.goalDifference !== b.goalDifference ||
+        a.goalsFor !== b.goalsFor)
+  );
+}
+
 function getCompletedGroupResults(standings: GroupStandingInput[]) {
-  const results = new Map<GroupId, { winner: string | null; runnerUp: string | null; advancers: Set<string> }>();
+  const results = new Map<GroupId, {
+    winner: string | null;
+    runnerUp: string | null;
+    winnerResolved: boolean;
+    advancers: Set<string>;
+  }>();
 
   for (const group of groups) {
     const groupRows = rankGroupStandings(standings).filter((standing) => standing.group === group);
@@ -66,11 +81,13 @@ function getCompletedGroupResults(standings: GroupStandingInput[]) {
 
     const winner = groupRows.find((standing) => standing.rank === 1 && standing.points > 0) || null;
     const runnerUp = groupRows.find((standing) => standing.rank === 2 && standing.points > 0) || null;
+    const secondPlaceRow = groupRows.find((standing) => standing.rank === 2) || null;
 
     if (winner?.team || runnerUp?.team) {
       results.set(group, {
         winner: winner?.team || null,
         runnerUp: runnerUp?.team || null,
+        winnerResolved: isSeparatedByTableTiebreakers(winner, secondPlaceRow),
         advancers: new Set([winner?.team, runnerUp?.team].filter(Boolean) as string[])
       });
     }
@@ -111,7 +128,7 @@ export function scorePreTournamentPicks(
       runnerUpPoints += scoringRules.groupRunnerUp;
     }
 
-    if (winnerPick && winnerPick === result.winner) {
+    if (winnerPick && winnerPick === result.winner && result.winnerResolved) {
       groupWinnerBonus += scoringRules.groupWinner - scoringRules.groupRunnerUp;
       winnerPoints += scoringRules.groupWinner - scoringRules.groupRunnerUp;
     }
