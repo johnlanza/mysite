@@ -444,8 +444,8 @@ export default function CarveOutsPage() {
 
   if (!member) {
     return (
-      <section className="grid" style={{ marginTop: '1rem' }}>
-        <div className="card">
+      <section className="carveouts-page page-stack">
+        <div className="section-panel">
           <h2>Carve Outs</h2>
           <p>Please login to manage carve outs.</p>
           <Link className="nav-link" href="/login">

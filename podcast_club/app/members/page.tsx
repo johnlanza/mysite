@@ -285,8 +285,8 @@ export default function MembersPage() {
 
   if (!currentMember) {
     return (
-      <section className="grid" style={{ marginTop: '1rem' }}>
-        <div className="card">
+      <section className="members-page page-stack">
+        <div className="section-panel">
           <h2>Members</h2>
           <p>Please login to view members.</p>
           <Link className="nav-link" href="/login">
@@ -300,7 +300,7 @@ export default function MembersPage() {
     member._id === currentMember._id ? `${member.name} (you)` : member.name;
 
   return (
-    <section className="grid two" style={{ marginTop: '1rem' }}>
+    <section className="members-page grid two" style={{ marginTop: '1rem' }}>
       <div className="card">
         <h2>{editingId ? 'Edit Member' : 'Add Member'}</h2>
         {currentMember.isAdmin ? (

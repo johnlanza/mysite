@@ -335,8 +335,8 @@ export default function MeetingsPage() {
 
   if (!currentMember) {
     return (
-      <section className="grid" style={{ marginTop: '1rem' }}>
-        <div className="card">
+      <section className="meetings-page page-stack">
+        <div className="section-panel">
           <h2>Meetings</h2>
           <p>Please login to view meetings.</p>
           <Link className="nav-link" href="/login">
