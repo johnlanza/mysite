@@ -519,8 +519,8 @@ export default function PodcastsPage() {
 
   if (!member) {
     return (
-      <section className="grid" style={{ marginTop: '1rem' }}>
-        <div className="card">
+      <section className="podcasts-page page-stack">
+        <div className="section-panel">
           <h2>Podcasts</h2>
           <p>Please login to submit and rank podcasts.</p>
           <Link className="nav-link" href="/login">
@@ -576,7 +576,6 @@ export default function PodcastsPage() {
           <div className="rank-card-list">
             {podcastsToRank.length === 0 ? (
               <div className="empty-state rank-empty-state">
-                <span className="empty-state-kicker">All caught up</span>
                 <h3>Ranking complete</h3>
                 <p>You are caught up on pending podcast ratings. Browse the library or add something new for the group to consider.</p>
                 <div className="empty-state-actions">

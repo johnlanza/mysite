@@ -234,8 +234,8 @@ export default function ImportsPage() {
 
   if (!member) {
     return (
-      <section className="grid" style={{ marginTop: '1rem' }}>
-        <div className="card">
+      <section className="imports-page page-stack">
+        <div className="section-panel">
           <h2>Imports</h2>
           <p>Please login to run imports.</p>
           <Link className="nav-link" href="/login">
@@ -248,8 +248,8 @@ export default function ImportsPage() {
 
   if (!member.isAdmin) {
     return (
-      <section className="grid" style={{ marginTop: '1rem' }}>
-        <div className="card">
+      <section className="imports-page page-stack">
+        <div className="section-panel">
           <h2>Imports</h2>
           <p>Only admins can run imports.</p>
         </div>
@@ -258,7 +258,7 @@ export default function ImportsPage() {
   }
 
   return (
-    <section className="grid two" style={{ marginTop: '1rem' }}>
+    <section className="imports-page grid two" style={{ marginTop: '1rem' }}>
       <div className="card">
         <h2>Run Import</h2>
         <form className="form" onSubmit={runImport}>

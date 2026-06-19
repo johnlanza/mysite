@@ -25,6 +25,12 @@ type HomeAction = {
   count: string;
 };
 
+function getActionTone(href: HomeAction['href']) {
+  if (href === MEETINGS_HREF) return 'meetings';
+  if (href === CARVE_OUT_SHARE_HREF) return 'carveouts';
+  return 'podcasts';
+}
+
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString(undefined, {
     weekday: 'short',
@@ -549,7 +555,7 @@ export default function HomePage() {
 
   return (
     <section className="home-dashboard page-stack">
-      <div className="section-panel command-panel">
+      <div className="section-panel command-panel" data-tone={getActionTone(primaryAction.href)}>
         <div>
           <p className="section-kicker">{primaryAction.kicker}</p>
           <div className="hero-heading-row">
@@ -558,7 +564,7 @@ export default function HomePage() {
           </div>
           <p className="muted-line">{primaryAction.detail}</p>
         </div>
-        <Link className="action-link full-width-action" href={primaryAction.href}>
+        <Link className="action-link full-width-action" href={primaryAction.href} data-tone={getActionTone(primaryAction.href)}>
           {primaryAction.label}
         </Link>
       </div>
@@ -569,7 +575,11 @@ export default function HomePage() {
           <span className="badge">{podcastsToRank.length} to rank</span>
         </div>
         <div className="todo-list">
-          <Link className={`todo-row${podcastsToRank.length > 0 ? ' primary' : ''}`} href={PODCAST_RANK_HREF}>
+          <Link
+            className={`todo-row${podcastsToRank.length > 0 ? ' primary' : ''}`}
+            href={PODCAST_RANK_HREF}
+            data-tone="podcasts"
+          >
             <span>
               <strong>{podcastsToRank.length > 0 ? 'Rank podcasts' : 'Ranking complete'}</strong>
               <small>
@@ -580,21 +590,21 @@ export default function HomePage() {
             </span>
             <span aria-hidden="true">&gt;</span>
           </Link>
-          <Link className="todo-row" href={MEETINGS_HREF}>
+          <Link className="todo-row" href={MEETINGS_HREF} data-tone="meetings">
             <span>
               <strong>{nextMeeting ? 'View meeting' : 'Meetings'}</strong>
               <small>{nextMeeting ? `${formatDate(nextMeeting.date)} is next.` : 'Review meeting history.'}</small>
             </span>
             <span aria-hidden="true">&gt;</span>
           </Link>
-          <Link className="todo-row" href={PODCAST_SUBMIT_HREF}>
+          <Link className="todo-row" href={PODCAST_SUBMIT_HREF} data-tone="podcasts">
             <span>
               <strong>Submit a podcast</strong>
               <small>Add something for the club to consider.</small>
             </span>
             <span aria-hidden="true">&gt;</span>
           </Link>
-          <Link className="todo-row" href={CARVE_OUT_SHARE_HREF}>
+          <Link className="todo-row" href={CARVE_OUT_SHARE_HREF} data-tone="carveouts">
             <span>
               <strong>Share a carve out</strong>
               <small>Post something that made an impact.</small>
@@ -633,7 +643,7 @@ export default function HomePage() {
             ) : (
               <p className="muted-line">Awaiting host podcast picks.</p>
             )}
-            <Link className="action-link full-width-action" href="/meetings">
+            <Link className="action-link full-width-action" href="/meetings" data-tone="meetings">
               View Meeting
             </Link>
           </>
@@ -641,7 +651,7 @@ export default function HomePage() {
           <>
             <h2>No meeting scheduled</h2>
             <p className="muted-line">Check the meetings page for past discussions or schedule the next one.</p>
-            <Link className="action-link full-width-action" href="/meetings">
+            <Link className="action-link full-width-action" href="/meetings" data-tone="meetings">
               View Meetings
             </Link>
           </>
@@ -700,7 +710,7 @@ export default function HomePage() {
 
       <div className="section-panel podcasts-to-discuss-card">
         <div className="section-title-row">
-          <h2>Top Candidates</h2>
+          <h2>Top Podcast Candidates</h2>
           <Link href={PODCAST_LIBRARY_HREF}>View All</Link>
         </div>
         <div className="compact-list">
@@ -722,7 +732,7 @@ export default function HomePage() {
 
       <div className="section-panel discussed-card">
         <div className="section-title-row">
-          <h2>Recently Discussed</h2>
+          <h2>Recently Discussed Podcasts</h2>
           <Link href={PODCAST_LIBRARY_HREF}>View Library</Link>
         </div>
         <div className="compact-list">
