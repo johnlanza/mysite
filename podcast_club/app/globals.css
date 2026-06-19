@@ -25,21 +25,21 @@
   --accent-strong: #1765d4;
   --line: #ead8bc;
   --danger: var(--palette-red);
-  --nav-home: var(--palette-blue);
+  --nav-home: var(--palette-teal);
   --nav-podcasts: var(--palette-plum);
-  --nav-meetings: var(--palette-teal);
+  --nav-meetings: var(--palette-blue);
   --nav-carveouts: var(--palette-red);
   --nav-more: var(--palette-gold);
   --nav-members: var(--palette-gold);
-  --nav-imports: var(--palette-teal);
-  --home-rgb: var(--blue-rgb);
+  --nav-imports: var(--nav-meetings);
+  --home-rgb: var(--teal-rgb);
   --podcasts-rgb: var(--plum-rgb);
-  --meetings-rgb: var(--teal-rgb);
+  --meetings-rgb: var(--blue-rgb);
   --carveouts-rgb: var(--red-rgb);
   --more-rgb: var(--gold-rgb);
-  --home-surface: var(--fiesta-blue);
+  --home-surface: var(--fiesta-purple);
   --podcasts-surface: var(--fiesta-pink);
-  --meetings-surface: var(--fiesta-purple);
+  --meetings-surface: var(--fiesta-blue);
   --carveouts-surface: var(--fiesta-orange);
   --more-surface: var(--fiesta-yellow);
   --gold-ink: #241c00;
@@ -48,9 +48,9 @@
   --meetings-ink: #fff;
   --carveouts-ink: #fff;
   --more-ink: var(--gold-ink);
-  --home-muted: rgb(255 255 255 / 0.78);
+  --home-muted: rgb(255 255 255 / 0.82);
   --podcasts-muted: rgb(255 255 255 / 0.78);
-  --meetings-muted: rgb(255 255 255 / 0.82);
+  --meetings-muted: rgb(255 255 255 / 0.78);
   --carveouts-muted: rgb(255 255 255 / 0.78);
   --more-muted: rgb(36 28 0 / 0.72);
   --home-badge-ink: var(--nav-home);
@@ -60,7 +60,7 @@
   --more-badge-ink: var(--gold-ink);
   --section-ink: var(--home-ink);
   --section-muted: var(--home-muted);
-  --field-rgb: var(--blue-rgb);
+  --field-rgb: var(--home-rgb);
 }
 
 * {
