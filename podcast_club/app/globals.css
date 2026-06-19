@@ -4644,6 +4644,62 @@ button {
   color: var(--carveouts-badge-ink) !important;
 }
 
+.public-home .public-welcome-panel,
+.public-home .public-welcome-panel .section-kicker,
+.public-home .public-welcome-panel h2 {
+  color: var(--home-ink) !important;
+}
+
+.public-home .public-welcome-panel .muted-line {
+  color: var(--home-muted) !important;
+}
+
+.public-home .public-welcome-panel .badge,
+.public-home .public-welcome-panel .action-link {
+  background: #fff !important;
+  border-color: rgb(255 255 255 / 0.62) !important;
+  color: var(--home-badge-ink) !important;
+}
+
+.public-home .discussed-card .public-library-card {
+  border-color: rgb(var(--podcasts-rgb) / 0.2) !important;
+  background: #fff !important;
+}
+
+.public-home .discussed-card .public-detail-grid div,
+.public-home .discussed-card .public-copy-section,
+.public-home .discussed-card .podcast-link-card {
+  border: 1px solid rgb(var(--podcasts-rgb) / 0.18) !important;
+  background: #fff !important;
+  color: var(--ink) !important;
+}
+
+.public-home .discussed-card .badge {
+  background: rgb(var(--podcasts-rgb) / 0.12) !important;
+  border-color: rgb(var(--podcasts-rgb) / 0.24) !important;
+  color: var(--podcasts-badge-ink) !important;
+}
+
+.public-home .carveouts-card .public-library-card {
+  border-color: rgb(var(--carveouts-rgb) / 0.2) !important;
+  background: #fff !important;
+}
+
+.public-home .carveouts-card .public-detail-grid div,
+.public-home .carveouts-card .public-copy-section,
+.public-home .carveouts-card .carveout-link-row {
+  border: 1px solid rgb(var(--carveouts-rgb) / 0.22) !important;
+  background: #fff !important;
+  color: var(--ink) !important;
+}
+
+.public-home .carveouts-card .badge,
+.public-home .carveouts-card .secondary-badge {
+  background: rgb(var(--carveouts-rgb) / 0.12) !important;
+  border-color: rgb(var(--carveouts-rgb) / 0.24) !important;
+  color: var(--carveouts-badge-ink) !important;
+}
+
 .shell {
   padding-top: 9.4rem !important;
 }
