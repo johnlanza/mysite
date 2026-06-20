@@ -659,7 +659,8 @@ h1 {
 
 .knockout-card,
 .group-standings-admin,
-.r32-admin-card {
+.r32-admin-card,
+.golden-boot-table-card {
   display: grid;
   gap: 14px;
   padding: 16px;
@@ -670,11 +671,18 @@ h1 {
 
 .knockout-card h3,
 .group-standings-admin h3,
-.r32-admin-card h3 {
+.r32-admin-card h3,
+.golden-boot-table-card h3 {
   margin: 0;
   font-family: var(--font-display), system-ui, sans-serif;
   font-size: clamp(1.55rem, 6vw, 2.2rem);
   line-height: 1;
+}
+
+.golden-boot-table-card p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-weight: 700;
 }
 
 .knockout-match-grid,
@@ -854,6 +862,80 @@ h1 {
 
 .public-table-row .negative-gd {
   color: #b42318;
+}
+
+.golden-boot-table {
+  display: grid;
+  gap: 6px;
+}
+
+.golden-boot-table-header,
+.golden-boot-table-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 62px 56px;
+  align-items: center;
+  gap: 8px;
+}
+
+.golden-boot-table-header {
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.golden-boot-table-row,
+.golden-boot-empty {
+  min-height: 44px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(17, 32, 51, 0.08);
+}
+
+.golden-boot-table-row strong {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.05;
+}
+
+.golden-boot-table-row strong span {
+  min-width: 34px;
+  min-height: 24px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--navy);
+  font-size: 0.78rem;
+  font-weight: 1000;
+}
+
+.golden-boot-table-row em {
+  color: var(--muted);
+  font-style: normal;
+  font-weight: 900;
+  text-align: center;
+}
+
+.golden-boot-table-row > span {
+  color: var(--ink);
+  font-weight: 1000;
+  text-align: center;
+}
+
+.golden-boot-empty {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.golden-boot-status {
+  margin-left: 6px;
+  color: #08784e;
+  font-weight: 900;
 }
 
 .candidate-grid {

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { withBasePath } from "@/lib/base-path";
+import { normalizeGoldenBootName, type GoldenBootRow } from "@/lib/golden-boot";
 import { defaultParticipant, knownParticipants, type KnownParticipant } from "@/lib/known-participants";
 import type { AdminParticipantOverview } from "@/lib/poolarama-types";
 import { goldenBootCandidates, groups, teams, type GroupId } from "@/lib/tournament-data";
@@ -126,6 +127,14 @@ type SyncStandingsResponse = {
   storageMode: "mongo";
 };
 
+type GoldenBootResponse = {
+  provider: string;
+  syncedAt: string;
+  completedMatchCount: number;
+  rows: GoldenBootRow[];
+  storageMode: "provider";
+};
+
 const selectedParticipantKey = "poolarama-selected-participant";
 const confirmedParticipantKey = "poolarama-confirmed-participant";
 const goldenBootWriteInLabel = "Other / write-in";
@@ -207,6 +216,15 @@ function buildDefaultGroupStandings(): GroupStandingRow[] {
 
 function getCountryColors(country: string): [string, string] {
   return teams.find((team) => team.name === country)?.colors || ["#5b6676", "#ffffff"];
+}
+
+function getGoldenBootStatus(pick: string, rows: GoldenBootRow[]) {
+  const normalizedPick = normalizeGoldenBootName(pick);
+  const row = rows.find((candidate) => candidate.normalizedPlayer === normalizedPick);
+
+  if (!row) return "0 goals, not ranked";
+
+  return `${row.goals} goal${row.goals === 1 ? "" : "s"}, ${row.placeLabel}`;
 }
 
 const participants = [
@@ -374,6 +392,8 @@ export function PoolaramaPrototype() {
   const [r32Picks, setR32Picks] = useState<Record<string, string>>({});
   const [r32SavedPicks, setR32SavedPicks] = useState<Record<string, string> | null>(null);
   const [r32Feedback, setR32Feedback] = useState("Round of 32 picks are not open yet.");
+  const [goldenBootRows, setGoldenBootRows] = useState<GoldenBootRow[]>([]);
+  const [goldenBootFeedback, setGoldenBootFeedback] = useState("Golden Boot table is loading.");
 
   const paidCount = adminOverview.filter((person) => person.venmoPaid).length;
   const potTotal = paidCount * 10;
@@ -582,6 +602,7 @@ export function PoolaramaPrototype() {
   useEffect(() => {
     loadAdminOverview();
     loadGroupStandings();
+    loadGoldenBootTable();
     loadRoundOf32();
   }, []);
 
@@ -676,6 +697,22 @@ export function PoolaramaPrototype() {
     }
   }
 
+  async function loadGoldenBootTable() {
+    try {
+      const response = await fetch(withBasePath("/api/golden-boot"), { cache: "no-store" });
+
+      if (!response.ok) {
+        throw new Error("Golden Boot table failed.");
+      }
+
+      const data = (await response.json()) as GoldenBootResponse;
+      setGoldenBootRows(data.rows);
+      setGoldenBootFeedback(`Updated from ${data.provider} after ${data.completedMatchCount} completed matches.`);
+    } catch {
+      setGoldenBootFeedback("Golden Boot table is unavailable.");
+    }
+  }
+
   async function loadRoundOf32() {
     try {
       const response = await fetch(withBasePath("/api/admin/r32"), {
@@ -753,6 +790,7 @@ export function PoolaramaPrototype() {
       const data = (await response.json()) as SyncStandingsResponse;
       setGroupStandingsRows(data.standings);
       await loadPublicPicks();
+      await loadGoldenBootTable();
       setAdminFeedback(
         `Synced ${data.finishedGroupGameCount} finished group matches from ${data.provider} at ${new Date(data.syncedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.`
       );
@@ -1659,7 +1697,12 @@ export function PoolaramaPrototype() {
                       {person.visible && person.picks ? (
                         <div className="pick-sheet">
                           <p><strong>Champion:</strong> {person.picks.champion}</p>
-                          <p><strong>Golden Boot:</strong> {person.picks.goldenBoot}</p>
+                          <p>
+                            <strong>Golden Boot:</strong> {person.picks.goldenBoot}
+                            <span className="golden-boot-status">
+                              ({getGoldenBootStatus(person.picks.goldenBoot, goldenBootRows)})
+                            </span>
+                          </p>
                           <div className="review-groups">
                             {groups.map((group) => (
                               <div key={`${person.code}-${group}`}>
@@ -1804,6 +1847,7 @@ export function PoolaramaPrototype() {
             note="Current group tables used for pool scoring."
           />
           <GroupStandingsDisplay rows={groupStandingsRows} />
+          <GoldenBootTable rows={goldenBootRows} feedback={goldenBootFeedback} />
         </section>
       )}
 
@@ -1926,6 +1970,7 @@ export function PoolaramaPrototype() {
               ))}
             </div>
           </section>
+          <GoldenBootTable rows={goldenBootRows} feedback={goldenBootFeedback} />
           <div className="admin-list">
             {adminOverview.map((participant) => {
               const isSeededParticipant = knownParticipants.some((knownParticipant) => knownParticipant.code === participant.code);
@@ -2038,6 +2083,38 @@ function GroupStandingsDisplay({ rows }: { rows: GroupStandingRow[] }) {
         </article>
       ))}
     </div>
+  );
+}
+
+function GoldenBootTable({ rows, feedback }: { rows: GoldenBootRow[]; feedback: string }) {
+  return (
+    <section className="golden-boot-table-card" aria-labelledby="golden-boot-table-title">
+      <div>
+        <p className="eyebrow">Golden Boot</p>
+        <h3 id="golden-boot-table-title">Top scorers</h3>
+        <p>{feedback}</p>
+      </div>
+      <div className="golden-boot-table">
+        <div className="golden-boot-table-header" aria-hidden="true">
+          <span>Player</span>
+          <span>Team</span>
+          <span>Goals</span>
+        </div>
+        {(rows.length > 0 ? rows.slice(0, 15) : []).map((row) => (
+          <div className="golden-boot-table-row" key={`${row.normalizedPlayer}-${row.countryCode}`}>
+            <strong>
+              <span>{row.tied ? `T-${row.rank}` : row.rank}</span>
+              {row.player}
+            </strong>
+            <em>{row.countryCode || row.country}</em>
+            <span>{row.goals}</span>
+          </div>
+        ))}
+        {rows.length === 0 && (
+          <div className="golden-boot-empty">No scorers available yet.</div>
+        )}
+      </div>
+    </section>
   );
 }
 
