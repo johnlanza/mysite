@@ -16,6 +16,37 @@ type ProviderGamesResponse = {
   games?: ProviderGame[];
 };
 
+type EspnTeam = {
+  abbreviation?: string;
+  displayName?: string;
+};
+
+type EspnCompetitor = {
+  homeAway?: "home" | "away";
+  score?: string;
+  team?: EspnTeam;
+};
+
+type EspnEvent = {
+  id?: string;
+  season?: {
+    slug?: string;
+  };
+  competitions?: Array<{
+    altGameNote?: string;
+    status?: {
+      type?: {
+        completed?: boolean;
+      };
+    };
+    competitors?: EspnCompetitor[];
+  }>;
+};
+
+type EspnScoreboardResponse = {
+  events?: EspnEvent[];
+};
+
 type TeamStats = GroupStandingInput & {
   teamId: string;
 };
@@ -30,7 +61,9 @@ type FinishedGame = {
 };
 
 const providerUrl = "https://worldcup26.ir/get/games";
+const espnProviderUrl = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?limit=200&dates=20260611-20260628";
 const teamByProviderId = new Map(teams.map((team, index) => [String(index + 1), team]));
+const teamByCode = new Map(teams.map((team, index) => [team.code, { team, teamId: String(index + 1) }]));
 
 function toNumber(value: unknown) {
   const numberValue = Number(value);
@@ -208,12 +241,12 @@ async function fetchProviderGamesOnce() {
   }
 }
 
-async function fetchProviderGames() {
+async function fetchJsonWithRetry<T>(url: string) {
   let lastError: unknown = null;
 
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     try {
-      return await fetchProviderGamesOnce();
+      return (url === providerUrl ? await fetchProviderGamesOnce() : await fetchJsonOnce<T>(url)) as T;
     } catch (error) {
       lastError = error;
       if (attempt < 3) {
@@ -225,10 +258,53 @@ async function fetchProviderGames() {
   throw lastError instanceof Error ? lastError : new Error("Provider fetch failed.");
 }
 
-export async function fetchSyncedGroupStandings() {
-  const providerData = await fetchProviderGames();
-  const rawGames = providerData.games || [];
-  const finishedGames: FinishedGame[] = rawGames.filter(isFinishedGame).map((game) => ({
+async function fetchJsonOnce<T>(url: string) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 25000);
+
+  try {
+    const response = await fetch(url, {
+      cache: "no-store",
+      signal: controller.signal,
+      headers: {
+        accept: "application/json",
+        "user-agent": "Poolarama/1.0"
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Provider returned ${response.status}`);
+    }
+
+    return (await response.json()) as T;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function fetchProviderGames() {
+  try {
+    const providerData = await fetchJsonWithRetry<ProviderGamesResponse>(providerUrl);
+    return {
+      provider: "worldcup26.ir",
+      providerUrl,
+      rawGameCount: providerData.games?.length || 0,
+      finishedGames: providerGamesToFinishedGames(providerData.games || [])
+    };
+  } catch (primaryError) {
+    const espnData = await fetchJsonWithRetry<EspnScoreboardResponse>(espnProviderUrl);
+    return {
+      provider: "ESPN scoreboard fallback",
+      providerUrl: espnProviderUrl,
+      primaryProviderError: primaryError instanceof Error ? primaryError.message : "Unknown primary provider error",
+      rawGameCount: espnData.events?.length || 0,
+      finishedGames: espnGamesToFinishedGames(espnData.events || [])
+    };
+  }
+}
+
+function providerGamesToFinishedGames(rawGames: ProviderGame[]) {
+  return rawGames.filter(isFinishedGame).map((game) => ({
     id: String(game.id || `${game.home_team_id}-${game.away_team_id}`),
     group: game.group as GroupId,
     homeTeamId: game.home_team_id,
@@ -236,6 +312,47 @@ export async function fetchSyncedGroupStandings() {
     homeScore: Number(game.home_score),
     awayScore: Number(game.away_score)
   }));
+}
+
+function espnGamesToFinishedGames(events: EspnEvent[]) {
+  return events.flatMap((event) => {
+    const competition = event.competitions?.[0];
+    const groupMatch = competition?.altGameNote?.match(/Group\s+([A-L])/i);
+    const group = groupMatch?.[1]?.toUpperCase() as GroupId | undefined;
+    const home = competition?.competitors?.find((competitor) => competitor.homeAway === "home");
+    const away = competition?.competitors?.find((competitor) => competitor.homeAway === "away");
+    const homeTeam = home?.team?.abbreviation ? teamByCode.get(home.team.abbreviation) : null;
+    const awayTeam = away?.team?.abbreviation ? teamByCode.get(away.team.abbreviation) : null;
+    const homeScore = toNumber(home?.score);
+    const awayScore = toNumber(away?.score);
+
+    if (
+      event.season?.slug !== "group-stage" ||
+      !competition?.status?.type?.completed ||
+      !group ||
+      !groups.includes(group) ||
+      !homeTeam ||
+      !awayTeam ||
+      homeScore === null ||
+      awayScore === null
+    ) {
+      return [];
+    }
+
+    return [{
+      id: String(event.id || `${homeTeam.teamId}-${awayTeam.teamId}`),
+      group,
+      homeTeamId: homeTeam.teamId,
+      awayTeamId: awayTeam.teamId,
+      homeScore,
+      awayScore
+    }];
+  });
+}
+
+export async function fetchSyncedGroupStandings() {
+  const providerData = await fetchProviderGames();
+  const finishedGames = providerData.finishedGames;
   const unknownTeamIds = new Set(
     finishedGames
       .flatMap((game) => [game.homeTeamId, game.awayTeamId])
@@ -255,10 +372,11 @@ export async function fetchSyncedGroupStandings() {
   const standings = rankSyncedStandings(stats, finishedGames).map(({ teamId, ...standing }) => standing);
 
   return {
-    provider: "worldcup26.ir",
-    providerUrl,
+    provider: providerData.provider,
+    providerUrl: providerData.providerUrl,
+    primaryProviderError: providerData.primaryProviderError,
     syncedAt: new Date().toISOString(),
-    rawGameCount: rawGames.length,
+    rawGameCount: providerData.rawGameCount,
     finishedGroupGameCount: finishedGames.length,
     standings
   };
