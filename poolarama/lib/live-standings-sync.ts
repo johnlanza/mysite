@@ -185,9 +185,9 @@ function rankSyncedStandings(rows: TeamStats[], finishedGames: FinishedGame[]) {
   });
 }
 
-async function fetchProviderGames() {
+async function fetchProviderGamesOnce() {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10000);
+  const timeout = setTimeout(() => controller.abort(), 25000);
 
   try {
     const response = await fetch(providerUrl, {
@@ -206,6 +206,23 @@ async function fetchProviderGames() {
   } finally {
     clearTimeout(timeout);
   }
+}
+
+async function fetchProviderGames() {
+  let lastError: unknown = null;
+
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      return await fetchProviderGamesOnce();
+    } catch (error) {
+      lastError = error;
+      if (attempt < 3) {
+        await new Promise((resolve) => setTimeout(resolve, attempt * 1500));
+      }
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error("Provider fetch failed.");
 }
 
 export async function fetchSyncedGroupStandings() {
