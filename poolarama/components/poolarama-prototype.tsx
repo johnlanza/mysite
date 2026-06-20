@@ -6,7 +6,7 @@ import { defaultParticipant, knownParticipants, type KnownParticipant } from "@/
 import type { AdminParticipantOverview } from "@/lib/poolarama-types";
 import { goldenBootCandidates, groups, teams, type GroupId } from "@/lib/tournament-data";
 
-type Tab = "picks" | "standings" | "rules" | "payments" | "pantheon" | "admin";
+type Tab = "picks" | "standings" | "rules" | "payments" | "pantheon" | "tables" | "admin";
 
 type SavedPicks = {
   champion: string;
@@ -123,18 +123,7 @@ type SyncStandingsResponse = {
   rawGameCount: number;
   finishedGroupGameCount: number;
   standings: GroupStandingRow[];
-  r32Preview: R32Match[];
   storageMode: "mongo";
-};
-
-type TestStage = "Group" | "R32" | "R16" | "QF" | "SF" | "Final" | "Complete";
-
-type TestMatch = {
-  id: string;
-  stage: Exclude<TestStage, "Group" | "Complete">;
-  teamA: string;
-  teamB: string;
-  winner: string | null;
 };
 
 const selectedParticipantKey = "poolarama-selected-participant";
@@ -218,25 +207,6 @@ function buildDefaultGroupStandings(): GroupStandingRow[] {
 
 function getCountryColors(country: string): [string, string] {
   return teams.find((team) => team.name === country)?.colors || ["#5b6676", "#ffffff"];
-}
-
-function getNextTestStage(stage: TestStage): TestStage {
-  const stageOrder: TestStage[] = ["Group", "R32", "R16", "QF", "SF", "Final", "Complete"];
-  return stageOrder[Math.min(stageOrder.indexOf(stage) + 1, stageOrder.length - 1)];
-}
-
-function getStagePointValue(stage: TestMatch["stage"]) {
-  return stage === "R32" ? 1 : stage === "R16" ? 2 : stage === "QF" ? 3 : stage === "SF" ? 4 : 5;
-}
-
-function buildTestMatches(stage: TestMatch["stage"], stageTeams: string[]) {
-  return Array.from({ length: Math.floor(stageTeams.length / 2) }, (_, index) => ({
-    id: `${stage.toLowerCase()}-${String(index + 1).padStart(2, "0")}`,
-    stage,
-    teamA: stageTeams[index * 2],
-    teamB: stageTeams[index * 2 + 1],
-    winner: null
-  }));
 }
 
 const participants = [
@@ -400,15 +370,10 @@ export function PoolaramaPrototype() {
   const [poolState, setPoolState] = useState<PoolState>(defaultPoolState);
   const [publicPicks, setPublicPicks] = useState<PublicPickParticipant[]>([]);
   const [groupStandingsRows, setGroupStandingsRows] = useState<GroupStandingRow[]>(() => buildDefaultGroupStandings());
-  const [r32Preview, setR32Preview] = useState<R32Match[]>([]);
   const [r32Matches, setR32Matches] = useState<R32Match[]>([]);
   const [r32Picks, setR32Picks] = useState<Record<string, string>>({});
   const [r32SavedPicks, setR32SavedPicks] = useState<Record<string, string> | null>(null);
   const [r32Feedback, setR32Feedback] = useState("Round of 32 picks are not open yet.");
-  const [testStage, setTestStage] = useState<TestStage>("Group");
-  const [testMatches, setTestMatches] = useState<TestMatch[]>([]);
-  const [testScore, setTestScore] = useState(0);
-  const [testLog, setTestLog] = useState<string[]>(["Ready to run a 10 minute tournament."]);
 
   const paidCount = adminOverview.filter((person) => person.venmoPaid).length;
   const potTotal = paidCount * 10;
@@ -464,8 +429,6 @@ export function PoolaramaPrototype() {
       ? `${leaders.slice(0, 2).join(", ")}${leaders.length > 2 ? " +" : ""}`
       : "Scoring not started";
   const unpaidCount = adminOverview.filter((participant) => !participant.venmoPaid).length;
-  const activeTestMatches = testMatches.filter((match) => match.stage === testStage);
-  const completedTestMatches = activeTestMatches.filter((match) => match.winner).length;
 
   useEffect(() => {
     if (selectedChampion && !championCandidates.some((team) => team.name === selectedChampion)) {
@@ -700,18 +663,14 @@ export function PoolaramaPrototype() {
 
   async function loadGroupStandings() {
     try {
-      const response = await fetch(withBasePath("/api/admin/group-standings"), {
-        cache: "no-store",
-        ...adminFetchOptions
-      });
+      const response = await fetch(withBasePath("/api/group-standings"), { cache: "no-store" });
 
       if (!response.ok) {
         throw new Error("Group standings failed.");
       }
 
-      const data = (await response.json()) as { standings: GroupStandingRow[]; r32Preview: R32Match[] };
+      const data = (await response.json()) as { standings: GroupStandingRow[] };
       setGroupStandingsRows(data.standings);
-      setR32Preview(data.r32Preview);
     } catch {
       setAdminFeedback("Could not load group standings.");
     }
@@ -744,10 +703,14 @@ export function PoolaramaPrototype() {
         const nextValue = field === "team" || field === "group" ? value : Number(value);
         const nextRow = { ...row, [field]: nextValue } as GroupStandingRow;
 
-        return {
-          ...nextRow,
-          goalDifference: nextRow.goalsFor - nextRow.goalsAgainst
-        };
+        if (field === "goalsFor" || field === "goalsAgainst") {
+          return {
+            ...nextRow,
+            goalDifference: nextRow.goalsFor - nextRow.goalsAgainst
+          };
+        }
+
+        return nextRow;
       })
     );
   }
@@ -768,7 +731,6 @@ export function PoolaramaPrototype() {
 
       const data = (await response.json()) as { standings: GroupStandingRow[]; r32Preview: R32Match[] };
       setGroupStandingsRows(data.standings);
-      setR32Preview(data.r32Preview);
       setAdminFeedback("Group standings saved. R32 preview updated.");
     } catch {
       setAdminFeedback("Could not save group standings.");
@@ -790,51 +752,12 @@ export function PoolaramaPrototype() {
 
       const data = (await response.json()) as SyncStandingsResponse;
       setGroupStandingsRows(data.standings);
-      setR32Preview(data.r32Preview);
       await loadPublicPicks();
       setAdminFeedback(
         `Synced ${data.finishedGroupGameCount} finished group matches from ${data.provider} at ${new Date(data.syncedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.`
       );
     } catch {
       setAdminFeedback("Could not sync live group tables. Manual tables are unchanged.");
-    }
-  }
-
-  async function handleRoundOf32Action(action: "generate" | "open" | "lock") {
-    setAdminFeedback(
-      action === "generate"
-        ? "Generating Round of 32..."
-        : action === "open"
-          ? "Opening Round of 32 picks..."
-          : "Locking Round of 32 picks..."
-    );
-
-    try {
-      const response = await fetch(withBasePath("/api/admin/r32"), {
-        method: "POST",
-        headers: adminJsonHeaders(),
-        body: JSON.stringify({ action })
-      });
-
-      if (!response.ok) {
-        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
-        throw new Error(errorData?.error || "Could not update Round of 32.");
-      }
-
-      const data = (await response.json()) as { matches: R32Match[]; pool: PoolState };
-      setR32Matches(data.matches);
-      setPoolState(data.pool);
-      await loadPublicPicks();
-      setAdminFeedback(
-        action === "generate"
-          ? "Round of 32 generated and opened."
-          : action === "open"
-            ? "Round of 32 picks are open."
-            : "Round of 32 picks are locked."
-      );
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Could not update Round of 32.";
-      setAdminFeedback(message);
     }
   }
 
@@ -1218,74 +1141,6 @@ export function PoolaramaPrototype() {
     }
   }
 
-  function handleGenerateTestRound() {
-    const seedTeams = teams.slice(0, 32).map((team) => team.name);
-    const matches = buildTestMatches("R32", seedTeams);
-
-    setTestStage("R32");
-    setTestMatches(matches);
-    setTestScore(0);
-    setTestLog(["Generated fake Round of 32 from the first 32 teams."]);
-  }
-
-  function handleRandomizeTestWinners() {
-    if (activeTestMatches.length === 0) {
-      setTestLog((current) => ["Generate a round first.", ...current]);
-      return;
-    }
-
-    setTestMatches((current) =>
-      current.map((match) =>
-        match.stage === testStage
-          ? {
-              ...match,
-              winner: Math.random() > 0.5 ? match.teamA : match.teamB
-            }
-          : match
-      )
-    );
-    setTestLog((current) => [`Randomized ${activeTestMatches.length} ${testStage} winners.`, ...current]);
-  }
-
-  function handleScoreTestRound() {
-    if (activeTestMatches.length === 0 || testStage === "Group" || testStage === "Complete") {
-      setTestLog((current) => ["No active knockout round to score.", ...current]);
-      return;
-    }
-
-    const roundPoints = completedTestMatches * getStagePointValue(testStage);
-    setTestScore((current) => current + roundPoints);
-    setTestLog((current) => [`Scored ${testStage}: ${completedTestMatches} winners, ${roundPoints} fake points.`, ...current]);
-  }
-
-  function handleAdvanceTestRound() {
-    if (activeTestMatches.length === 0) {
-      setTestLog((current) => ["Generate or complete the current round first.", ...current]);
-      return;
-    }
-
-    const winners = activeTestMatches.map((match) => match.winner).filter(Boolean) as string[];
-    const nextStage = getNextTestStage(testStage);
-
-    if (winners.length !== activeTestMatches.length) {
-      setTestLog((current) => ["Every match needs a winner before advancing.", ...current]);
-      return;
-    }
-
-    if (nextStage === "Complete") {
-      setTestStage("Complete");
-      setTestLog((current) => [`Tournament complete. Fake champion: ${winners[0]}.`, ...current]);
-      return;
-    }
-
-    if (nextStage === "Group") return;
-
-    const nextMatches = buildTestMatches(nextStage, winners);
-    setTestStage(nextStage);
-    setTestMatches((current) => [...current, ...nextMatches]);
-    setTestLog((current) => [`Advanced to ${nextStage} with ${winners.length} teams.`, ...current]);
-  }
-
   return (
     <main className="app-shell">
       <section className="hero" aria-labelledby="poolarama-title">
@@ -1320,7 +1175,11 @@ export function PoolaramaPrototype() {
         <TabButton label="Rules" tabName="rules" activeTab={tab} onSelect={setTab} />
         <TabButton label="Pay" tabName="payments" activeTab={tab} onSelect={setTab} />
         <TabButton label="Pantheon" tabName="pantheon" activeTab={tab} onSelect={setTab} />
-        {adminEnabled && <TabButton label="Admin" tabName="admin" activeTab={tab} onSelect={setTab} />}
+        {adminEnabled ? (
+          <TabButton label="Admin" tabName="admin" activeTab={tab} onSelect={setTab} />
+        ) : (
+          <TabButton label="Tables" tabName="tables" activeTab={tab} onSelect={setTab} />
+        )}
       </nav>
 
       {tab === "picks" && (
@@ -1937,6 +1796,17 @@ export function PoolaramaPrototype() {
         </section>
       )}
 
+      {tab === "tables" && (
+        <section className="screen stack" aria-labelledby="tables-title">
+          <ScreenHeader
+            kicker="Live tables"
+            title="Group standings"
+            note="Current group tables used for pool scoring."
+          />
+          <GroupStandingsDisplay rows={groupStandingsRows} />
+        </section>
+      )}
+
       {adminEnabled && tab === "admin" && (
         <section className="screen stack" aria-labelledby="admin-title">
           <ScreenHeader
@@ -1975,14 +1845,8 @@ export function PoolaramaPrototype() {
               <button className="admin-action compact" type="button" onClick={handleSeedParticipants}>
                 Seed participants
               </button>
-              <button className="admin-action compact quiet" type="button" onClick={handleClearSubmissions}>
-                Clear test picks
-              </button>
               <button className="admin-action compact" type="button" onClick={handleExportPicks}>
                 Export CSV
-              </button>
-              <button className="admin-action compact" type="button" onClick={loadAdminOverview}>
-                Refresh
               </button>
             </div>
           </div>
@@ -2053,105 +1917,12 @@ export function PoolaramaPrototype() {
                           <input type="number" min="0" value={row.points} onChange={(event) => updateGroupStanding(row.team, "points", event.target.value)} />
                         </label>
                         <label>
-                          <span>GF</span>
-                          <input type="number" min="0" value={row.goalsFor} onChange={(event) => updateGroupStanding(row.team, "goalsFor", event.target.value)} />
-                        </label>
-                        <label>
-                          <span>GA</span>
-                          <input type="number" min="0" value={row.goalsAgainst} onChange={(event) => updateGroupStanding(row.team, "goalsAgainst", event.target.value)} />
+                          <span>GD</span>
+                          <input type="number" value={row.goalDifference} onChange={(event) => updateGroupStanding(row.team, "goalDifference", event.target.value)} />
                         </label>
                       </div>
                     ))}
                 </article>
-              ))}
-            </div>
-          </section>
-          <section className="r32-admin-card" aria-labelledby="r32-admin-title">
-            <div className="section-title-row">
-              <div>
-                <p className="eyebrow">Round of 32</p>
-                <h3 id="r32-admin-title">Generate and open picks</h3>
-                <p>Status: {poolState.r32.status}. Generate uses current group tables.</p>
-              </div>
-              <div className="points-pill">
-                <strong>{r32Matches.length || r32Preview.length}</strong>
-                <span>matches</span>
-              </div>
-            </div>
-            <div className="admin-toolbar-actions">
-              <button className="admin-action compact" type="button" onClick={() => handleRoundOf32Action("generate")}>
-                Generate/open R32
-              </button>
-              <button className="admin-action compact" type="button" onClick={() => handleRoundOf32Action("open")}>
-                Open R32 picks
-              </button>
-              <button className="admin-action compact quiet" type="button" onClick={() => handleRoundOf32Action("lock")}>
-                Lock R32 picks
-              </button>
-            </div>
-            <div className="r32-preview-grid">
-              {(r32Matches.length > 0 ? r32Matches : r32Preview).slice(0, 16).map((match) => (
-                <div key={`preview-${match.matchId}`}>
-                  <span>{match.label}</span>
-                  <strong>{match.teamA} vs {match.teamB}</strong>
-                </div>
-              ))}
-            </div>
-          </section>
-          <section className="test-tournament-card" aria-labelledby="test-tournament-title">
-            <div className="section-title-row">
-              <div>
-                <p className="eyebrow">Test tournament</p>
-                <h3 id="test-tournament-title">10 minute tournament</h3>
-                <p>Fast-forward later rounds without touching real pool data.</p>
-              </div>
-              <div className="points-pill">
-                <strong>{testStage}</strong>
-                <span>{testScore} fake pts</span>
-              </div>
-            </div>
-            <div className="test-controls">
-              <button className="admin-action compact" type="button" onClick={handleGenerateTestRound}>
-                Generate fake R32
-              </button>
-              <button className="admin-action compact" type="button" onClick={handleRandomizeTestWinners}>
-                Randomize winners
-              </button>
-              <button className="admin-action compact" type="button" onClick={handleScoreTestRound}>
-                Score round
-              </button>
-              <button className="admin-action compact" type="button" onClick={handleAdvanceTestRound}>
-                Advance round
-              </button>
-            </div>
-            <div className="test-summary">
-              <div>
-                <span>Active matches</span>
-                <strong>{activeTestMatches.length}</strong>
-              </div>
-              <div>
-                <span>Winners set</span>
-                <strong>{completedTestMatches}/{activeTestMatches.length}</strong>
-              </div>
-              <div>
-                <span>Round value</span>
-                <strong>{testStage === "Group" || testStage === "Complete" ? "N/A" : `${getStagePointValue(testStage)} pt`}</strong>
-              </div>
-            </div>
-            {activeTestMatches.length > 0 && (
-              <div className="test-match-list">
-                {activeTestMatches.map((match) => (
-                  <article className="test-match-row" key={match.id}>
-                    <span>{match.id.toUpperCase()}</span>
-                    <strong>{match.teamA} vs. {match.teamB}</strong>
-                    <em>{match.winner ? `Winner: ${match.winner}` : "No winner yet"}</em>
-                  </article>
-                ))}
-              </div>
-            )}
-            <div className="test-log" aria-label="Test tournament log">
-              {testLog.slice(0, 5).map((item) => (
-                <p key={item}>{item}</p>
               ))}
             </div>
           </section>
@@ -2212,9 +1983,61 @@ export function PoolaramaPrototype() {
               );
             })}
           </div>
+          <div className="admin-maintenance-actions">
+            <button className="admin-action compact" type="button" onClick={loadAdminOverview}>
+              Refresh participants
+            </button>
+            <button className="admin-action compact quiet" type="button" onClick={handleClearSubmissions}>
+              Clear test picks
+            </button>
+          </div>
         </section>
       )}
     </main>
+  );
+}
+
+function GroupStandingsDisplay({ rows }: { rows: GroupStandingRow[] }) {
+  return (
+    <div className="group-standings-grid public-tables-grid">
+      {groups.map((group) => (
+        <article className="group-standing-panel public-table-panel" key={`public-group-${group}`}>
+          <h4>Group {group}</h4>
+          <div className="public-table-header" aria-hidden="true">
+            <span>Team</span>
+            <span>P</span>
+            <span>GD</span>
+            <span>Pts</span>
+          </div>
+          {rows
+            .filter((row) => row.group === group)
+            .sort((a, b) => a.rank - b.rank)
+            .map((row) => {
+              const team = teams.find((item) => item.name === row.team) || {
+                name: row.team,
+                code: row.team.slice(0, 3).toUpperCase(),
+                flag: ""
+              };
+              const goalDifference = row.goalDifference > 0 ? `+${row.goalDifference}` : String(row.goalDifference);
+
+              return (
+                <div className="public-table-row" key={`${group}-${row.team}`}>
+                  <strong>
+                    <span>{row.rank}</span>
+                    {team.flag && <em aria-hidden="true">{team.flag}</em>}
+                    {getTeamDisplayName(team)}
+                  </strong>
+                  <span>{row.played}</span>
+                  <span className={row.goalDifference > 0 ? "positive-gd" : row.goalDifference < 0 ? "negative-gd" : ""}>
+                    {goalDifference}
+                  </span>
+                  <span>{row.points}</span>
+                </div>
+              );
+            })}
+        </article>
+      ))}
+    </div>
   );
 }
 
