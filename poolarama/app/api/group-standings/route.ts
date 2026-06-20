@@ -38,6 +38,16 @@ function rowToStanding(row: {
   };
 }
 
+function getLatestUpdatedAt(rows: Array<{ updatedAt?: Date | string }>) {
+  const timestamps = rows
+    .map((row) => row.updatedAt ? new Date(row.updatedAt).getTime() : 0)
+    .filter((timestamp) => Number.isFinite(timestamp) && timestamp > 0);
+
+  if (timestamps.length === 0) return null;
+
+  return new Date(Math.max(...timestamps)).toISOString();
+}
+
 export async function GET() {
   try {
     const db = await connectToPoolaramaDatabase();
@@ -58,6 +68,7 @@ export async function GET() {
 
     return NextResponse.json({
       standings,
+      latestUpdatedAt: getLatestUpdatedAt(rows),
       storageMode: "mongo"
     });
   } catch (error) {

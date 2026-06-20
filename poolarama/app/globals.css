@@ -347,14 +347,15 @@ h1 {
 }
 
 .locked-round-actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
 .locked-round-actions .primary-action,
 .locked-round-actions .admin-action {
-  min-width: 160px;
+  width: 100%;
+  min-width: 0;
 }
 
 .identity-card h3 {
@@ -1607,6 +1608,44 @@ h1 {
   gap: 10px;
 }
 
+.admin-sync-status {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.admin-sync-status div {
+  min-width: 0;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid var(--line);
+}
+
+.admin-sync-status span,
+.admin-sync-status em {
+  display: block;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.admin-sync-status strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--ink);
+  font-size: 0.96rem;
+  line-height: 1.15;
+}
+
+.admin-sync-status em {
+  margin-top: 4px;
+  text-transform: none;
+}
+
 .admin-toolbar-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1621,6 +1660,43 @@ h1 {
   gap: 8px;
   padding-top: 10px;
   border-top: 1px solid var(--line);
+}
+
+.advanced-admin-card,
+.advanced-row-actions {
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.advanced-admin-card {
+  padding: 12px;
+}
+
+.advanced-row-actions {
+  padding: 8px;
+}
+
+.advanced-admin-card summary,
+.advanced-row-actions summary {
+  cursor: pointer;
+  color: var(--navy);
+  font-weight: 1000;
+}
+
+.advanced-admin-card p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.advanced-row-actions[open] {
+  display: grid;
+  gap: 8px;
+}
+
+.advanced-row-actions[open] summary {
+  margin-bottom: 6px;
 }
 
 .admin-toolbar p {
@@ -1954,6 +2030,10 @@ h1 {
     grid-template-columns: 1fr;
   }
 
+  .locked-round-actions {
+    grid-template-columns: 1fr;
+  }
+
   .tabbar {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -1992,7 +2072,8 @@ h1 {
   }
 
   .admin-toolbar,
-  .admin-row {
+  .admin-row,
+  .admin-sync-status {
     grid-template-columns: 1fr;
   }
 

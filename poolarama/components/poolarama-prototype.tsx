@@ -227,6 +227,17 @@ function getGoldenBootStatus(pick: string, rows: GoldenBootRow[]) {
   return `${row.goals} goal${row.goals === 1 ? "" : "s"}, ${row.placeLabel}`;
 }
 
+function formatAdminTimestamp(timestamp: string | null) {
+  if (!timestamp) return "Not available";
+
+  return new Date(timestamp).toLocaleString([], {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  });
+}
+
 const participants = [
   {
     name: "John",
@@ -394,6 +405,9 @@ export function PoolaramaPrototype() {
   const [r32Feedback, setR32Feedback] = useState("Round of 32 picks are not open yet.");
   const [goldenBootRows, setGoldenBootRows] = useState<GoldenBootRow[]>([]);
   const [goldenBootFeedback, setGoldenBootFeedback] = useState("Golden Boot table is loading.");
+  const [groupTablesUpdatedAt, setGroupTablesUpdatedAt] = useState<string | null>(null);
+  const [goldenBootUpdatedAt, setGoldenBootUpdatedAt] = useState<string | null>(null);
+  const [goldenBootProvider, setGoldenBootProvider] = useState("ESPN scoreboard");
 
   const paidCount = adminOverview.filter((person) => person.venmoPaid).length;
   const potTotal = paidCount * 10;
@@ -691,8 +705,9 @@ export function PoolaramaPrototype() {
         throw new Error("Group standings failed.");
       }
 
-      const data = (await response.json()) as { standings: GroupStandingRow[] };
+      const data = (await response.json()) as { standings: GroupStandingRow[]; latestUpdatedAt?: string | null };
       setGroupStandingsRows(data.standings);
+      setGroupTablesUpdatedAt(data.latestUpdatedAt || null);
     } catch {
       setAdminFeedback("Could not load group standings.");
     }
@@ -708,6 +723,8 @@ export function PoolaramaPrototype() {
 
       const data = (await response.json()) as GoldenBootResponse;
       setGoldenBootRows(data.rows);
+      setGoldenBootUpdatedAt(data.syncedAt);
+      setGoldenBootProvider(data.provider);
       setGoldenBootFeedback(`Updated from ${data.provider} after ${data.completedMatchCount} completed matches.`);
     } catch {
       setGoldenBootFeedback("Golden Boot table is unavailable.");
@@ -769,6 +786,7 @@ export function PoolaramaPrototype() {
 
       const data = (await response.json()) as { standings: GroupStandingRow[]; r32Preview: R32Match[] };
       setGroupStandingsRows(data.standings);
+      setGroupTablesUpdatedAt(new Date().toISOString());
       setAdminFeedback("Group standings saved. R32 preview updated.");
     } catch {
       setAdminFeedback("Could not save group standings.");
@@ -790,6 +808,7 @@ export function PoolaramaPrototype() {
 
       const data = (await response.json()) as SyncStandingsResponse;
       setGroupStandingsRows(data.standings);
+      setGroupTablesUpdatedAt(data.syncedAt);
       await loadPublicPicks();
       await loadGoldenBootTable();
       setAdminFeedback(
@@ -1898,19 +1917,24 @@ export function PoolaramaPrototype() {
               <span>pre-tournament</span>
             </div>
           </div>
+          <section className="admin-sync-status" aria-label="Live data status">
+            <div>
+              <span>Group tables</span>
+              <strong>{formatAdminTimestamp(groupTablesUpdatedAt)}</strong>
+            </div>
+            <div>
+              <span>Golden Boot</span>
+              <strong>{formatAdminTimestamp(goldenBootUpdatedAt)}</strong>
+              <em>{goldenBootProvider}</em>
+            </div>
+            <div>
+              <span>Round of 32</span>
+              <strong>{poolState.r32.status}</strong>
+            </div>
+          </section>
           <div className="admin-toolbar">
             <p>{adminFeedback}</p>
             <div className="admin-toolbar-actions">
-              <button
-                className={`admin-action compact ${preTournamentLocked ? "quiet" : ""}`}
-                type="button"
-                onClick={handleTogglePreTournamentLock}
-              >
-                {preTournamentLocked ? "Unlock picks" : "Lock picks"}
-              </button>
-              <button className="admin-action compact" type="button" onClick={handleSeedParticipants}>
-                Seed participants
-              </button>
               <button className="admin-action compact" type="button" onClick={handleExportPicks}>
                 Export CSV
               </button>
@@ -2023,41 +2047,58 @@ export function PoolaramaPrototype() {
                     <em>{participant.inviteCode ? "Private invite ready" : "Basic invite"}</em>
                   </div>
                   <div className="admin-row-actions">
-                    <button
-                      className={`admin-action compact payment-toggle ${participant.venmoPaid ? "quiet" : ""}`}
-                      type="button"
-                      onClick={() => handleTogglePayment(participant)}
-                    >
-                      {participant.venmoPaid ? "Mark unpaid" : "Mark paid"}
-                    </button>
                     <button className="admin-action compact" type="button" onClick={() => handleCopyInvite(participant)}>
                       Copy link
                     </button>
                     <button className="admin-action compact quiet" type="button" onClick={() => handleCopyReminder(participant)}>
                       Copy reminder
                     </button>
-                    {!isSeededParticipant && (
+                    <details className="advanced-row-actions">
+                      <summary>Advanced</summary>
                       <button
-                        className={`admin-action compact danger ${pendingDeleteCode === participant.code ? "confirm" : ""}`}
+                        className={`admin-action compact payment-toggle ${participant.venmoPaid ? "quiet" : ""}`}
                         type="button"
-                        onClick={() => handleDeleteParticipant(participant)}
+                        onClick={() => handleTogglePayment(participant)}
                       >
-                        {pendingDeleteCode === participant.code ? "Confirm delete" : "Delete"}
+                        {participant.venmoPaid ? "Mark unpaid" : "Mark paid"}
                       </button>
-                    )}
+                      {!isSeededParticipant && (
+                        <button
+                          className={`admin-action compact danger ${pendingDeleteCode === participant.code ? "confirm" : ""}`}
+                          type="button"
+                          onClick={() => handleDeleteParticipant(participant)}
+                        >
+                          {pendingDeleteCode === participant.code ? "Confirm delete" : "Delete"}
+                        </button>
+                      )}
+                    </details>
                   </div>
                 </article>
               );
             })}
           </div>
-          <div className="admin-maintenance-actions">
-            <button className="admin-action compact" type="button" onClick={loadAdminOverview}>
-              Refresh participants
-            </button>
-            <button className="admin-action compact quiet" type="button" onClick={handleClearSubmissions}>
-              Clear test picks
-            </button>
-          </div>
+          <details className="advanced-admin-card">
+            <summary>Advanced admin</summary>
+            <p>Use these only when changing pool state or repairing data.</p>
+            <div className="admin-maintenance-actions">
+              <button className="admin-action compact" type="button" onClick={loadAdminOverview}>
+                Refresh participants
+              </button>
+              <button
+                className={`admin-action compact ${preTournamentLocked ? "quiet" : ""}`}
+                type="button"
+                onClick={handleTogglePreTournamentLock}
+              >
+                {preTournamentLocked ? "Unlock picks" : "Lock picks"}
+              </button>
+              <button className="admin-action compact" type="button" onClick={handleSeedParticipants}>
+                Seed participants
+              </button>
+              <button className="admin-action compact quiet" type="button" onClick={handleClearSubmissions}>
+                Clear test picks
+              </button>
+            </div>
+          </details>
         </section>
       )}
     </main>
