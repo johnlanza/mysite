@@ -1712,71 +1712,90 @@ export function PoolaramaPrototype() {
             </div>
           )}
           <div className="standings-list">
-            {(publicPicks.length > 0 ? publicPicks : adminOverview.map((participant) => ({
-              ...participant,
-              points: 0,
-              scoring: [],
-              visible: participant.code === selectedParticipant.code,
-              groupPickScores: {},
-              picks: null
-            }))).map((person, index) => (
-              <article className={`standing-row standing-${index + 1}`} key={person.nickname}>
-                <div className="standing-main">
-                  <div className="rank">{index + 1}</div>
-                  <div>
-                    <h3>{person.nickname}</h3>
-                    <p>
-                      {person.name} · {person.submitted ? "Submitted" : "No picks yet"}
-                      {person.code === selectedParticipant.code ? " · you" : ""}
-                    </p>
-                  </div>
-                  <strong>{person.submitted ? `${person.points} pts` : "—"}</strong>
-                </div>
-                {person.submitted && person.scoring.length > 0 && (
-                  <div className="score-breakdown" aria-label={`${person.nickname} score breakdown`}>
-                    {person.scoring.map((item) => (
-                      <div key={`${person.code}-${item.label}`}>
-                        <span>{item.label}</span>
-                        <strong>{item.value}</strong>
+            {(() => {
+              const standingsPeople: PublicPickParticipant[] = publicPicks.length > 0
+                ? publicPicks
+                : adminOverview.map((participant) => ({
+                    code: participant.code,
+                    name: participant.name,
+                    nickname: participant.nickname,
+                    submitted: participant.submitted,
+                    submittedAt: participant.submittedAt,
+                    points: 0,
+                    scoring: [],
+                    visible: participant.code === selectedParticipant.code,
+                    groupPickScores: {},
+                    picks: null
+                  }));
+              let previousPoints: number | null = null;
+              let displayRank = 0;
+
+              return standingsPeople.map((person, index) => {
+                if (index === 0 || person.points !== previousPoints) {
+                  displayRank += 1;
+                  previousPoints = person.points;
+                }
+
+                return (
+                  <article className={`standing-row standing-${displayRank}`} key={person.code}>
+                    <div className="standing-main">
+                      <div className="rank">{displayRank}</div>
+                      <div>
+                        <h3>{person.nickname}</h3>
+                        <p>
+                          {person.name} · {person.submitted ? "Submitted" : "No picks yet"}
+                          {person.code === selectedParticipant.code ? " · you" : ""}
+                        </p>
                       </div>
-                    ))}
-                  </div>
-                )}
-                <details className="pick-details">
-                  <summary>View {person.nickname}&apos;s picks</summary>
-                  {person.visible && person.picks ? (
-                    <div className="pick-sheet">
-                      <p><strong>Champion:</strong> {person.picks.champion}</p>
-                      <p><strong>Golden Boot:</strong> {person.picks.goldenBoot}</p>
-                      <div className="review-groups">
-                        {groups.map((group) => (
-                          <div key={`${person.code}-${group}`}>
-                            <span>Group {group}</span>
-                            <strong className="group-pick-score-line">
-                              <span className="pick-country">{person.picks?.groupWinners?.[group] || "No winner"}</span>
-                              <span className="pick-score">({person.groupPickScores?.[group]?.winner ?? 0})</span>
-                              <span className="pick-label">winner</span>
-                            </strong>
-                            <strong className="group-pick-score-line">
-                              <span className="pick-country">{person.picks?.groupRunnersUp?.[group] || "No runner-up"}</span>
-                              <span className="pick-score">({person.groupPickScores?.[group]?.runnerUp ?? 0})</span>
-                              <span className="pick-label">runner-up</span>
-                            </strong>
+                      <strong>{person.submitted ? `${person.points} pts` : "—"}</strong>
+                    </div>
+                    {person.submitted && person.scoring.length > 0 && (
+                      <div className="score-breakdown" aria-label={`${person.nickname} score breakdown`}>
+                        {person.scoring.map((item) => (
+                          <div key={`${person.code}-${item.label}`}>
+                            <span>{item.label}</span>
+                            <strong>{item.value}</strong>
                           </div>
                         ))}
                       </div>
-                    </div>
-                  ) : (
-                    <div className="pick-sheet">
-                      <p>
-                        <strong>{person.submitted ? "Picks hidden." : "No picks submitted."}</strong>
-                      </p>
-                      <p>{person.submitted ? "They will appear here after this round locks." : "Nothing to show yet."}</p>
-                    </div>
-                  )}
-                </details>
-              </article>
-            ))}
+                    )}
+                    <details className="pick-details">
+                      <summary>View {person.nickname}&apos;s picks</summary>
+                      {person.visible && person.picks ? (
+                        <div className="pick-sheet">
+                          <p><strong>Champion:</strong> {person.picks.champion}</p>
+                          <p><strong>Golden Boot:</strong> {person.picks.goldenBoot}</p>
+                          <div className="review-groups">
+                            {groups.map((group) => (
+                              <div key={`${person.code}-${group}`}>
+                                <span>Group {group}</span>
+                                <strong className="group-pick-score-line">
+                                  <span className="pick-country">{person.picks?.groupWinners?.[group] || "No winner"}</span>
+                                  <span className="pick-score">({person.groupPickScores?.[group]?.winner ?? 0})</span>
+                                  <span className="pick-label">winner</span>
+                                </strong>
+                                <strong className="group-pick-score-line">
+                                  <span className="pick-country">{person.picks?.groupRunnersUp?.[group] || "No runner-up"}</span>
+                                  <span className="pick-score">({person.groupPickScores?.[group]?.runnerUp ?? 0})</span>
+                                  <span className="pick-label">runner-up</span>
+                                </strong>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="pick-sheet">
+                          <p>
+                            <strong>{person.submitted ? "Picks hidden." : "No picks submitted."}</strong>
+                          </p>
+                          <p>{person.submitted ? "They will appear here after this round locks." : "Nothing to show yet."}</p>
+                        </div>
+                      )}
+                    </details>
+                  </article>
+                );
+              });
+            })()}
           </div>
         </section>
       )}
