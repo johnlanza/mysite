@@ -427,6 +427,7 @@ export function PoolaramaPrototype() {
   const r32Open = poolState.r32.status === "open";
   const r32Locked = poolState.r32.status === "locked";
   const r32PicksComplete = r32Matches.length > 0 && r32Matches.every((match) => Boolean(r32Picks[match.matchId]));
+  const showLockedHomeNotice = preTournamentLocked && !identityConfirmed && !identityLockedByLink && !adminEnabled;
   const completionHint = duplicateGroupPicks.length > 0
     ? `Fix duplicate picks in Group ${duplicateGroupPicks[0]}.`
     : missingGroupPicks.length > 0
@@ -1223,19 +1224,39 @@ export function PoolaramaPrototype() {
       {tab === "picks" && (
         <section className="screen stack" aria-labelledby="picks-title">
           <ScreenHeader
-            kicker={identityConfirmed ? "Picks open" : "Test claim"}
-            title={identityConfirmed ? "Make your group picks" : "Claim your test name"}
-            note={identityLockedByLink
+            kicker={showLockedHomeNotice ? "Current round locked" : identityConfirmed ? "Picks open" : "Player access"}
+            title={showLockedHomeNotice ? "All picks are in" : identityConfirmed ? "Make your group picks" : "Open your player link"}
+            note={showLockedHomeNotice
+              ? "The group-stage picks are locked and visible in the standings."
+              : identityLockedByLink
               ? `This test link is assigned to ${selectedParticipant.nickname}.`
               : identityConfirmed
                 ? `Making picks as ${selectedParticipant.nickname}. Start with group winners and runners-up.`
-                : "For this live test, confirm your assigned name before making picks."}
+                : "Use your private player link to view or edit picks when a round is open."}
           />
           {poolDataWarning && (
             <div className="inline-alert" role="alert">
               <strong>{poolDataWarning}</strong>
             </div>
           )}
+          {showLockedHomeNotice && (
+            <section className="locked-round-card" aria-labelledby="locked-round-title">
+              <div>
+                <p className="eyebrow">Group stage</p>
+                <h3 id="locked-round-title">Picks locked</h3>
+                <p>Everyone&apos;s picks are submitted. Follow the live standings, group tables, and Golden Boot race as the tournament unfolds.</p>
+              </div>
+              <div className="locked-round-actions">
+                <button className="primary-action inline-action" type="button" onClick={() => setTab("standings")}>
+                  View standings
+                </button>
+                <button className="admin-action compact" type="button" onClick={() => setTab("tables")}>
+                  View tables
+                </button>
+              </div>
+            </section>
+          )}
+          {!showLockedHomeNotice && (
           <section className="identity-card" aria-labelledby="identity-title">
             <div>
               <p className="eyebrow">Step 1 of 5</p>
@@ -1272,6 +1293,7 @@ export function PoolaramaPrototype() {
               </button>
             )}
           </section>
+          )}
           {identityConfirmed && (
             <>
           <section className="group-picks-card" aria-labelledby="group-picks-title">
