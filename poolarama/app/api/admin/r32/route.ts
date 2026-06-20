@@ -23,6 +23,7 @@ function rowToStanding(row: {
   goalDifference: number;
   points: number;
   rank: number;
+  tiebreaker?: GroupStandingInput["tiebreaker"];
 }): GroupStandingInput {
   return {
     group: row.group as GroupId,
@@ -35,7 +36,8 @@ function rowToStanding(row: {
     goalsAgainst: row.goalsAgainst,
     goalDifference: row.goalDifference,
     points: row.points,
-    rank: row.rank
+    rank: row.rank,
+    tiebreaker: row.tiebreaker
   };
 }
 

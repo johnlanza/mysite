@@ -12,6 +12,7 @@ export type GroupStandingInput = {
   goalDifference: number;
   points: number;
   rank: number;
+  tiebreaker?: "overall" | "headToHead" | "manual" | "unresolved";
 };
 
 export type GeneratedMatch = {

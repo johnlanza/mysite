@@ -29,7 +29,8 @@ function normalizeStanding(input: Partial<GroupStandingInput>): GroupStandingInp
     goalsAgainst,
     goalDifference: typeof input.goalDifference === "number" ? input.goalDifference : goalsFor - goalsAgainst,
     points: normalizeNumber(input.points),
-    rank: normalizeNumber(input.rank)
+    rank: normalizeNumber(input.rank),
+    tiebreaker: input.tiebreaker || "manual"
   };
 }
 
@@ -58,7 +59,8 @@ async function getStandings() {
       goalsAgainst: row.goalsAgainst,
       goalDifference: row.goalDifference,
       points: row.points,
-      rank: row.rank
+      rank: row.rank,
+      tiebreaker: row.tiebreaker
     }))
   );
 }

@@ -13,7 +13,12 @@ const GroupStandingSchema = new Schema(
     goalsAgainst: { type: Number, default: 0 },
     goalDifference: { type: Number, default: 0 },
     points: { type: Number, default: 0 },
-    rank: { type: Number, default: 0 }
+    rank: { type: Number, default: 0 },
+    tiebreaker: {
+      type: String,
+      enum: ["overall", "headToHead", "manual", "unresolved"],
+      default: "manual"
+    }
   },
   { timestamps: true }
 );

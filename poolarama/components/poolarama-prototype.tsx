@@ -74,6 +74,7 @@ type GroupStandingRow = {
   goalDifference: number;
   points: number;
   rank: number;
+  tiebreaker?: "overall" | "headToHead" | "manual" | "unresolved";
 };
 
 type R32Match = {
@@ -114,6 +115,16 @@ type PublicPicksResponse = {
   pool: PoolState;
   storageMode: "mongo" | "mock";
   error?: string;
+};
+
+type SyncStandingsResponse = {
+  provider: string;
+  syncedAt: string;
+  rawGameCount: number;
+  finishedGroupGameCount: number;
+  standings: GroupStandingRow[];
+  r32Preview: R32Match[];
+  storageMode: "mongo";
 };
 
 type TestStage = "Group" | "R32" | "R16" | "QF" | "SF" | "Final" | "Complete";
@@ -761,6 +772,31 @@ export function PoolaramaPrototype() {
       setAdminFeedback("Group standings saved. R32 preview updated.");
     } catch {
       setAdminFeedback("Could not save group standings.");
+    }
+  }
+
+  async function handleSyncGroupStandings() {
+    setAdminFeedback("Syncing live group tables...");
+
+    try {
+      const response = await fetch(withBasePath("/api/admin/sync-standings"), {
+        method: "POST",
+        headers: adminJsonHeaders()
+      });
+
+      if (!response.ok) {
+        throw new Error("Could not sync live group tables.");
+      }
+
+      const data = (await response.json()) as SyncStandingsResponse;
+      setGroupStandingsRows(data.standings);
+      setR32Preview(data.r32Preview);
+      await loadPublicPicks();
+      setAdminFeedback(
+        `Synced ${data.finishedGroupGameCount} finished group matches from ${data.provider} at ${new Date(data.syncedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.`
+      );
+    } catch {
+      setAdminFeedback("Could not sync live group tables. Manual tables are unchanged.");
     }
   }
 
@@ -1987,11 +2023,16 @@ export function PoolaramaPrototype() {
               <div>
                 <p className="eyebrow">Live group tables</p>
                 <h3 id="group-standings-admin-title">Update group standings</h3>
-                <p>Adjust ranks and table stats whenever you want. The Round of 32 preview updates from these rows.</p>
+                <p>Sync from live match data, or adjust ranks and table stats manually whenever you want.</p>
               </div>
-              <button className="admin-action compact" type="button" onClick={handleSaveGroupStandings}>
-                Save tables
-              </button>
+              <div className="admin-toolbar-actions compact-actions">
+                <button className="admin-action compact" type="button" onClick={handleSyncGroupStandings}>
+                  Sync live tables
+                </button>
+                <button className="admin-action compact quiet" type="button" onClick={handleSaveGroupStandings}>
+                  Save tables
+                </button>
+              </div>
             </div>
             <div className="group-standings-grid">
               {groups.map((group) => (

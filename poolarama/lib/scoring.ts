@@ -43,6 +43,8 @@ function normalizeGroupPicks(picks: PoolSubmissionPicks["groupWinners"] | PoolSu
 }
 
 function isSeparatedByTableTiebreakers(a: GroupStandingInput | null, b: GroupStandingInput | null) {
+  if (a?.tiebreaker === "overall" || a?.tiebreaker === "headToHead") return true;
+
   return Boolean(
     a &&
       b &&

@@ -81,6 +81,9 @@ const poolaramaApp = poolaramaNext({
   dir: poolaramaDir
 });
 const poolaramaHandler = poolaramaApp.getRequestHandler();
+const poolaramaSyncIntervalMs = Number(
+  process.env.POOLARAMA_SYNC_INTERVAL_MS || 3 * 60 * 1000
+);
 
 // -----------------------
 // DB Connection
@@ -791,13 +794,55 @@ async function startServer() {
   }
   await nextApp.prepare();
   await poolaramaApp.prepare();
-  app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+  app.listen(PORT, () => {
+    console.log(`Server running on ${PORT}`);
+    startPoolaramaLiveSync();
+  });
 }
 
 startServer().catch((err) => {
   console.error("Failed to start server:", err);
   process.exit(1);
 });
+
+function startPoolaramaLiveSync() {
+  if (process.env.NODE_ENV !== "production") return;
+  if (process.env.POOLARAMA_DISABLE_AUTO_SYNC === "true") return;
+  if (poolaramaSyncIntervalMs <= 0) return;
+
+  const sync = () => {
+    const req = http.request(
+      {
+        hostname: "127.0.0.1",
+        port: PORT,
+        path: "/poolarama/api/admin/sync-standings",
+        method: "POST",
+        timeout: 30000,
+        headers: {
+          "x-poolarama-admin": "admin-7f4d9c2b8a61e0f5"
+        }
+      },
+      (res) => {
+        res.resume();
+        if (!res.statusCode || res.statusCode >= 400) {
+          console.error(`Poolarama live sync failed with status ${res.statusCode}`);
+        }
+      }
+    );
+
+    req.on("error", (err) => {
+      console.error("Poolarama live sync error:", err.message);
+    });
+    req.on("timeout", () => {
+      req.destroy();
+      console.error("Poolarama live sync timed out");
+    });
+    req.end();
+  };
+
+  setTimeout(sync, 15000);
+  setInterval(sync, poolaramaSyncIntervalMs);
+}
 
 function startZetteProcess() {
   if (zetteProcess) return Promise.resolve();
