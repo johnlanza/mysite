@@ -173,7 +173,8 @@ const compactTableTeamNames: Record<string, string> = {
   "Côte d'Ivoire": "CIV",
   "Korea Republic": "Korea",
   "Saudi Arabia": "Saudi",
-  "South Africa": "S. Africa"
+  "South Africa": "S. Africa",
+  "Uzbekistan": "UZB"
 };
 
 function getTableTeamDisplayName(team: { name: string; code: string }) {
