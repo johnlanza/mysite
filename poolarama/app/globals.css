@@ -890,6 +890,13 @@ h1 {
   font-style: normal;
 }
 
+.public-table-row strong b {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .public-table-row > span {
   color: var(--ink);
   font-weight: 900;

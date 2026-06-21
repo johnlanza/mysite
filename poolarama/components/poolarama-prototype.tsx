@@ -168,6 +168,18 @@ function getTeamDisplayName(team: { name: string; code: string }) {
   return team.name.length > 12 ? team.code : team.name;
 }
 
+const compactTableTeamNames: Record<string, string> = {
+  "Bosnia and Herzegovina": "Bosnia",
+  "Côte d'Ivoire": "CIV",
+  "Korea Republic": "Korea",
+  "Saudi Arabia": "Saudi",
+  "South Africa": "S. Africa"
+};
+
+function getTableTeamDisplayName(team: { name: string; code: string }) {
+  return compactTableTeamNames[team.name] || (team.name.length > 10 ? team.code : team.name);
+}
+
 function getParticipantFromApi(participant: {
   code: string;
   inviteCode?: string;
@@ -2117,7 +2129,7 @@ function GroupStandingsDisplay({ rows }: { rows: GroupStandingRow[] }) {
           <h4>Group {group}</h4>
           <div className="public-table-header" aria-hidden="true">
             <span>Team</span>
-            <span>P</span>
+            <span>GP</span>
             <span>GD</span>
             <span>GF</span>
             <span>Pts</span>
@@ -2138,7 +2150,7 @@ function GroupStandingsDisplay({ rows }: { rows: GroupStandingRow[] }) {
                   <strong>
                     <span>{row.rank}</span>
                     {team.flag && <em aria-hidden="true">{team.flag}</em>}
-                    {getTeamDisplayName(team)}
+                    <b title={team.name}>{getTableTeamDisplayName(team)}</b>
                   </strong>
                   <span>{row.played}</span>
                   <span className={row.goalDifference > 0 ? "positive-gd" : row.goalDifference < 0 ? "negative-gd" : ""}>
