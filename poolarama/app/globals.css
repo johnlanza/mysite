@@ -804,7 +804,7 @@ h1 {
 
 .group-standing-row {
   display: grid;
-  grid-template-columns: minmax(54px, 1fr) repeat(3, 52px);
+  grid-template-columns: minmax(54px, 1fr) repeat(4, 44px);
   align-items: end;
   gap: 6px;
 }
@@ -844,7 +844,7 @@ h1 {
 .public-table-header,
 .public-table-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 38px 46px 42px;
+  grid-template-columns: minmax(0, 1fr) 34px 42px 34px 42px;
   align-items: center;
   gap: 6px;
 }

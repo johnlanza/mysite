@@ -2007,6 +2007,10 @@ export function PoolaramaPrototype() {
                           <input type="number" min="0" value={row.points} onChange={(event) => updateGroupStanding(row.team, "points", event.target.value)} />
                         </label>
                         <label>
+                          <span>GF</span>
+                          <input type="number" min="0" value={row.goalsFor} onChange={(event) => updateGroupStanding(row.team, "goalsFor", event.target.value)} />
+                        </label>
+                        <label>
                           <span>GD</span>
                           <input type="number" value={row.goalDifference} onChange={(event) => updateGroupStanding(row.team, "goalDifference", event.target.value)} />
                         </label>
@@ -2115,6 +2119,7 @@ function GroupStandingsDisplay({ rows }: { rows: GroupStandingRow[] }) {
             <span>Team</span>
             <span>P</span>
             <span>GD</span>
+            <span>GF</span>
             <span>Pts</span>
           </div>
           {rows
@@ -2139,6 +2144,7 @@ function GroupStandingsDisplay({ rows }: { rows: GroupStandingRow[] }) {
                   <span className={row.goalDifference > 0 ? "positive-gd" : row.goalDifference < 0 ? "negative-gd" : ""}>
                     {goalDifference}
                   </span>
+                  <span>{row.goalsFor}</span>
                   <span>{row.points}</span>
                 </div>
               );
