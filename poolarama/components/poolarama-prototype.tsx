@@ -2007,27 +2007,34 @@ export function PoolaramaPrototype() {
                   {groupStandingsRows
                     .filter((row) => row.group === group)
                     .sort((a, b) => a.rank - b.rank)
-                    .map((row) => (
-                      <div className="group-standing-row" key={row.team}>
-                        <strong>{getTeamDisplayName(teams.find((team) => team.name === row.team) || { name: row.team, code: row.team.slice(0, 3).toUpperCase() })}</strong>
-                        <label>
-                          <span>Rank</span>
-                          <input type="number" min="1" max="4" value={row.rank} onChange={(event) => updateGroupStanding(row.team, "rank", event.target.value)} />
-                        </label>
-                        <label>
-                          <span>Pts</span>
-                          <input type="number" min="0" value={row.points} onChange={(event) => updateGroupStanding(row.team, "points", event.target.value)} />
-                        </label>
-                        <label>
-                          <span>GF</span>
-                          <input type="number" min="0" value={row.goalsFor} onChange={(event) => updateGroupStanding(row.team, "goalsFor", event.target.value)} />
-                        </label>
-                        <label>
-                          <span>GD</span>
-                          <input type="number" value={row.goalDifference} onChange={(event) => updateGroupStanding(row.team, "goalDifference", event.target.value)} />
-                        </label>
-                      </div>
-                    ))}
+                    .map((row) => {
+                      const team = teams.find((item) => item.name === row.team) || {
+                        name: row.team,
+                        code: row.team.slice(0, 3).toUpperCase()
+                      };
+
+                      return (
+                        <div className="group-standing-row" key={row.team}>
+                          <strong title={team.name}>{getTableTeamDisplayName(team)}</strong>
+                          <label>
+                            <span>Rank</span>
+                            <input type="number" min="1" max="4" value={row.rank} onChange={(event) => updateGroupStanding(row.team, "rank", event.target.value)} />
+                          </label>
+                          <label>
+                            <span>Pts</span>
+                            <input type="number" min="0" value={row.points} onChange={(event) => updateGroupStanding(row.team, "points", event.target.value)} />
+                          </label>
+                          <label>
+                            <span>GF</span>
+                            <input type="number" min="0" value={row.goalsFor} onChange={(event) => updateGroupStanding(row.team, "goalsFor", event.target.value)} />
+                          </label>
+                          <label>
+                            <span>GD</span>
+                            <input type="number" value={row.goalDifference} onChange={(event) => updateGroupStanding(row.team, "goalDifference", event.target.value)} />
+                          </label>
+                        </div>
+                      );
+                    })}
                 </article>
               ))}
             </div>
