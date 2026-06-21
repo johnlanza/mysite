@@ -2,7 +2,7 @@ Zette project rules and working context
 
 Product
 - Product name: Zette
-- Working location: /Users/johnlanza/Dev/zette
+- Working location: /Users/johnlanza/Dev/mySite/zette
 - Audience for now: John only
 - Primary purpose: create a trusted, simple, local quote-focused Zettelkasten from Logseq
 - Quotes are now a protected content type with their own parser; new note types should be added through separate pipelines instead of loosening quote parsing
@@ -108,4 +108,4 @@ Operational workflow
   - review page shows newly added quotes and suspicious parses
   - suspicious flags should help target parser cleanup batches
 - Before future work sessions, John may tell Codex to refer to this rules file first:
-  /Users/johnlanza/Dev/zette/docs/project-rules.txt
+  /Users/johnlanza/Dev/mySite/zette/docs/project-rules.txt

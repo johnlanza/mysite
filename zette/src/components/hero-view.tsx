@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { PieceNoteBox } from "@/components/piece-note-box";
 import { PieceSearch } from "@/components/piece-search";
 import { getLogseqUrl } from "@/lib/logseq";
 import type { Piece } from "@/lib/pieces";
@@ -23,11 +24,6 @@ function textSizeClass(length: number): string {
 
 function combinedLength(piece: Piece): number {
   return piece.text.length + (piece.note?.length ?? 0);
-}
-
-function echoTextClass(length: number): string {
-  if (length < 140) return "text-[1.0625rem] leading-snug";
-  return "text-[0.9375rem] leading-snug";
 }
 
 function buildNowHref(
@@ -161,7 +157,7 @@ export function HeroView({
 
               {piece.tags.length > 0 ? (
                 <ul className="mt-7 flex flex-wrap gap-2">
-                  {piece.tags.slice(0, 6).map((tag) => (
+                  {piece.tags.map((tag) => (
                     <li key={tag}>
                       <Link
                         href={`/?tags=${encodeURIComponent(tag)}`}
@@ -187,45 +183,15 @@ export function HeroView({
                 <ul className="flex flex-col gap-3">
                   {echoes.map((echo) => (
                     <li key={echo.id}>
-                      <Link
+                      <PieceNoteBox
                         href={`/?${new URLSearchParams({
                           ...(selectedTags.length > 0
                             ? { tags: selectedTags.join(",") }
                             : {}),
                           p: echo.id,
                         }).toString()}`}
-                        className="block w-full rounded-[1.25rem] border border-line bg-card/70 px-5 py-4 shadow-[0_12px_30px_rgba(89,64,34,0.05)] transition active:scale-[0.99] hover:border-accent/60"
-                      >
-                        <p
-                          className={`font-serif text-foreground ${echoTextClass(echo.text.length)}`}
-                          style={{
-                            display: "-webkit-box",
-                            WebkitBoxOrient: "vertical",
-                            WebkitLineClamp: 4,
-                            overflow: "hidden",
-                          }}
-                        >
-                          {echo.text}
-                        </p>
-                        {echo.note ? (
-                          <p
-                            className="mt-3 border-l-2 border-accent-soft pl-3 text-[0.8rem] leading-snug text-muted"
-                            style={{
-                              display: "-webkit-box",
-                              WebkitBoxOrient: "vertical",
-                              WebkitLineClamp: 2,
-                              overflow: "hidden",
-                            }}
-                          >
-                            {echo.note}
-                          </p>
-                        ) : null}
-                        {echo.attribution ? (
-                          <p className="mt-3 font-sans text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-muted">
-                            — {echo.attribution}
-                          </p>
-                        ) : null}
-                      </Link>
+                        piece={echo}
+                      />
                     </li>
                   ))}
                 </ul>

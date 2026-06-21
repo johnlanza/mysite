@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-11T00:51:05.293Z",
+  "generatedAt": "2026-06-20T23:41:28.378Z",
   "sourceDirectories": [
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/journals",
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages"
@@ -46,10 +46,10 @@
     "writing"
   ],
   "stats": {
-    "totalQuotes": 314,
+    "totalQuotes": 315,
     "taggedQuotes": 138,
-    "suspiciousQuotes": 114,
-    "newQuotes": 0
+    "suspiciousQuotes": 115,
+    "newQuotes": 1
   },
   "quotes": [
     {
@@ -2299,6 +2299,26 @@
       "review": {
         "isNew": false,
         "flags": []
+      }
+    },
+    {
+      "id": "journals:2026_06_10.md:0",
+      "text": "If there is one systematic flaw that humans have, it is an excessive willingness to ascribe conscious intent and to anthropomorphize purely natural and material entities. It seems we are strongly disposed toward this bias",
+      "author": "Tyler Cowen",
+      "source": null,
+      "sourcePageTitle": "2026_06_10",
+      "sourceDisplay": "2026_06_10",
+      "note": null,
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2026_06_10.md",
+      "review": {
+        "isNew": true,
+        "flags": [
+          "journal-date-fallback"
+        ]
       }
     },
     {

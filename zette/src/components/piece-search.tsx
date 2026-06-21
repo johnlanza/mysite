@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { PieceNoteBox } from "@/components/piece-note-box";
 import { RefreshQuotesButton } from "@/components/refresh-quotes-button";
 import type { Piece } from "@/lib/pieces";
 
@@ -12,6 +13,12 @@ type PieceSearchProps = {
   selectedTags: string[];
   mode?: "compact" | "browse";
 };
+
+type TagSortMode = "alphabetical" | "frequency";
+const TAG_SORT_OPTIONS: { value: TagSortMode; label: string }[] = [
+  { value: "alphabetical", label: "Alphabetical" },
+  { value: "frequency", label: "Frequency" },
+];
 
 function parseQuery(query: string): string[] {
   const tokens = [];
@@ -43,14 +50,6 @@ function pieceHaystack(piece: Piece): string {
   ]
     .join(" ")
     .toLowerCase();
-}
-
-function resultLabel(piece: Piece): string {
-  if (piece.kind === "quote") {
-    return piece.attribution ?? piece.sourceDisplay;
-  }
-
-  return piece.context ?? piece.sourceDisplay;
 }
 
 function pieceHref(piece: Piece, selectedTags: string[]): string {
@@ -90,8 +89,44 @@ export function PieceSearch({
   const [query, setQuery] = useState("");
   const isBrowse = mode === "browse";
   const [showTags, setShowTags] = useState(isBrowse);
+  const [tagSort, setTagSort] = useState<TagSortMode>("alphabetical");
   const normalizedQuery = query.trim();
-  const resultLimit = isBrowse ? 160 : selectedTags.length > 0 ? 80 : 12;
+  const resultLimit = isBrowse && selectedTags.length > 0
+    ? null
+    : isBrowse
+      ? 160
+      : selectedTags.length > 0
+        ? 80
+        : 12;
+
+  const tagCounts = useMemo(() => {
+    const counts = new Map(tags.map((tag) => [tag, 0]));
+
+    for (const piece of pieces) {
+      for (const tag of piece.tags) {
+        if (counts.has(tag)) {
+          counts.set(tag, (counts.get(tag) ?? 0) + 1);
+        }
+      }
+    }
+
+    return counts;
+  }, [pieces, tags]);
+
+  const sortedTags = useMemo(() => {
+    return [...tags].sort((firstTag, secondTag) => {
+      if (tagSort === "frequency") {
+        const frequencyDifference =
+          (tagCounts.get(secondTag) ?? 0) - (tagCounts.get(firstTag) ?? 0);
+
+        if (frequencyDifference !== 0) {
+          return frequencyDifference;
+        }
+      }
+
+      return firstTag.localeCompare(secondTag);
+    });
+  }, [tagCounts, tagSort, tags]);
 
   const results = useMemo(() => {
     const tokens = parseQuery(normalizedQuery);
@@ -100,17 +135,17 @@ export function PieceSearch({
       return [];
     }
 
-    return pieces
-      .filter((piece) => {
-        const matchesTags = selectedTags.every((tag) => piece.tags.includes(tag));
-        if (!matchesTags) return false;
+    const filtered = pieces.filter((piece) => {
+      const matchesTags = selectedTags.every((tag) => piece.tags.includes(tag));
+      if (!matchesTags) return false;
 
-        if (tokens.length === 0) return true;
+      if (tokens.length === 0) return true;
 
-        const haystack = pieceHaystack(piece);
-        return tokens.every((token) => haystack.includes(token));
-      })
-      .slice(0, resultLimit);
+      const haystack = pieceHaystack(piece);
+      return tokens.every((token) => haystack.includes(token));
+    });
+
+    return resultLimit === null ? filtered : filtered.slice(0, resultLimit);
   }, [normalizedQuery, pieces, resultLimit, selectedTags]);
 
   const showResults =
@@ -205,101 +240,104 @@ export function PieceSearch({
         </div>
 
         {showTags ? (
-          <div
-            className={`mt-4 flex gap-2 ${
-              isBrowse
-                ? "flex-wrap"
-                : "capsule-scrollbar overflow-x-auto pb-1"
-            }`}
-          >
-            <Link
-              className={`shrink-0 rounded-full border px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition ${
-                selectedTags.length > 0
-                  ? "border-line bg-[#fffaf3]/75 text-muted hover:border-accent hover:text-accent"
-                  : "border-accent bg-accent text-[#f8f2e9]"
-              }`}
-              href={tagsHref(selectedTags, null)}
-            >
-              All
-            </Link>
-            {tags.map((tag) => (
-              <Link
-                key={tag}
-                className={`shrink-0 rounded-full border px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition ${
-                  selectedTags.includes(tag)
-                    ? "border-accent bg-accent text-[#f8f2e9]"
-                    : "border-line bg-[#fffaf3]/75 text-muted hover:border-accent hover:text-accent"
-                }`}
-                href={tagsHref(selectedTags, tag)}
+          <div className="mt-4">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <span className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted/70">
+                Sort
+              </span>
+              <div
+                aria-label="Sort tags"
+                className="inline-flex rounded-full border border-line bg-[#fffaf3]/75 p-0.5"
+                role="group"
               >
-                #{tag}
+                {TAG_SORT_OPTIONS.map(({ value, label }) => {
+                  const active = tagSort === value;
+
+                  return (
+                    <button
+                      key={value}
+                      aria-pressed={active}
+                      className={`rounded-full px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.16em] transition ${
+                        active
+                          ? "bg-accent text-[#f8f2e9]"
+                          : "text-muted hover:text-accent"
+                      }`}
+                      onClick={() => setTagSort(value)}
+                      type="button"
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div
+              className={`flex gap-2 ${
+                isBrowse
+                  ? "flex-wrap"
+                  : "capsule-scrollbar overflow-x-auto pb-1"
+              }`}
+            >
+              <Link
+                className={`shrink-0 rounded-full border px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition ${
+                  selectedTags.length > 0
+                    ? "border-line bg-[#fffaf3]/75 text-muted hover:border-accent hover:text-accent"
+                    : "border-accent bg-accent text-[#f8f2e9]"
+                }`}
+                href={tagsHref(selectedTags, null)}
+              >
+                All
               </Link>
-            ))}
+              {sortedTags.map((tag) => (
+                <Link
+                  key={tag}
+                  className={`shrink-0 rounded-full border px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition ${
+                    selectedTags.includes(tag)
+                      ? "border-accent bg-accent text-[#f8f2e9]"
+                      : "border-line bg-[#fffaf3]/75 text-muted hover:border-accent hover:text-accent"
+                  }`}
+                  href={tagsHref(selectedTags, tag)}
+                >
+                  #{tag}
+                  {tagSort === "frequency" ? (
+                    <>
+                      {" "}
+                      <span className="ml-1 tabular-nums text-current/65">
+                        {tagCounts.get(tag) ?? 0}
+                      </span>
+                    </>
+                  ) : null}
+                </Link>
+              ))}
+            </div>
           </div>
         ) : null}
       </div>
 
       {showResults ? (
-        <div
-          className={`mt-4 overflow-hidden border border-line bg-card/90 shadow-[0_16px_40px_rgba(89,64,34,0.08)] backdrop-blur-sm ${
-            isBrowse ? "rounded-[1.5rem]" : "rounded-[1.25rem]"
-          }`}
-        >
+        <div className="mt-4">
           {results.length > 0 ? (
             <ul
               className={
                 isBrowse
-                  ? "grid divide-y divide-line sm:grid-cols-2 sm:divide-x sm:divide-y-0"
-                  : "max-h-[22rem] overflow-y-auto"
+                  ? "grid gap-3 sm:grid-cols-2"
+                  : "max-h-[22rem] space-y-3 overflow-y-auto pr-1"
               }
             >
               {results.map((piece) => (
-                <li
-                  key={piece.id}
-                  className={isBrowse ? "border-b border-line" : "border-b border-line last:border-b-0"}
-                >
-                  <Link
-                    className={`block transition hover:bg-accent-soft/40 ${
-                      isBrowse ? "h-full px-6 py-5 sm:px-7 sm:py-6" : "px-5 py-4"
-                    }`}
+                <li key={piece.id}>
+                  <PieceNoteBox
+                    className={isBrowse ? "h-full sm:px-6 sm:py-5" : ""}
                     href={pieceHref(piece, selectedTags)}
-                    onClick={() => setQuery("")}
-                  >
-                    <p
-                      className={`font-serif leading-snug text-foreground ${
-                        isBrowse ? "text-[1.18rem]" : "text-[1.05rem]"
-                      }`}
-                      style={{
-                        display: "-webkit-box",
-                        WebkitBoxOrient: "vertical",
-                        WebkitLineClamp: 3,
-                        overflow: "hidden",
-                      }}
-                    >
-                      {piece.text}
-                    </p>
-                    {piece.note ? (
-                      <p
-                        className="mt-3 border-l-2 border-accent-soft pl-3 text-[0.8rem] leading-snug text-muted"
-                        style={{
-                          display: "-webkit-box",
-                          WebkitBoxOrient: "vertical",
-                          WebkitLineClamp: 2,
-                          overflow: "hidden",
-                        }}
-                      >
-                        {piece.note}
-                      </p>
-                    ) : null}
-                    <p className="mt-3 text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-muted">
-                      {resultLabel(piece)}
-                    </p>
-                  </Link>
+                    piece={piece}
+                  />
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="px-5 py-4 text-sm text-muted">No matches</p>
+            <p className="rounded-[1.25rem] border border-line bg-card/78 px-5 py-4 text-sm text-muted">
+              No matches
+            </p>
           )}
         </div>
       ) : null}

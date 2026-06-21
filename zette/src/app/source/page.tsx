@@ -2,6 +2,9 @@ import fs from "node:fs/promises";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { readBookNotesDataset } from "@/lib/book-notes-data";
+import { readQuestionsDataset } from "@/lib/questions-data";
+import { readQuotesDataset } from "@/lib/quotes-data";
 import { getSourcePath } from "@/lib/source-paths";
 
 type SourcePageProps = {
@@ -10,6 +13,28 @@ type SourcePageProps = {
     type?: string;
   }>;
 };
+
+async function isKnownSource(originType: string, originFile: string) {
+  const [quotesDataset, bookNotesDataset, questionsDataset] = await Promise.all([
+    readQuotesDataset(),
+    readBookNotesDataset(),
+    readQuestionsDataset(),
+  ]);
+
+  return (
+    quotesDataset.quotes.some(
+      (quote) =>
+        quote.originType === originType && quote.originFile === originFile,
+    ) ||
+    bookNotesDataset.notes.some(
+      (note) => note.originType === originType && note.originFile === originFile,
+    ) ||
+    questionsDataset.questions.some(
+      (question) =>
+        question.originType === originType && question.originFile === originFile,
+    )
+  );
+}
 
 export default async function SourcePage({ searchParams }: SourcePageProps) {
   const params = await searchParams;
@@ -23,6 +48,10 @@ export default async function SourcePage({ searchParams }: SourcePageProps) {
   const sourcePath = getSourcePath(originType, originFile);
 
   if (!sourcePath) {
+    notFound();
+  }
+
+  if (!(await isKnownSource(originType, originFile))) {
     notFound();
   }
 

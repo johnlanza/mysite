@@ -1,9 +1,15 @@
 import fs from "node:fs";
 import { spawn } from "node:child_process";
+import path from "node:path";
 
 const DIRECTORIES = [
   "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/journals",
   "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages",
+];
+const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const BUILD_SCRIPTS = [
+  "build-quotes-dataset.mjs",
+  "build-book-notes-dataset.mjs",
 ];
 
 let timeoutId = null;
@@ -18,39 +24,37 @@ function runBuild() {
 
   running = true;
   console.log(`[quotes:watch] rebuilding library at ${new Date().toLocaleTimeString()}`);
+  runScript(0);
+}
 
-  const child = spawn(process.execPath, [
-    "/Users/johnlanza/Dev/zette/scripts/build-quotes-dataset.mjs",
-  ], {
+function finishBuild() {
+  running = false;
+
+  if (queued) {
+    queued = false;
+    runBuild();
+  }
+}
+
+function runScript(scriptIndex) {
+  const scriptName = BUILD_SCRIPTS[scriptIndex];
+  const child = spawn(process.execPath, [path.join(ROOT, "scripts", scriptName)], {
+    cwd: ROOT,
     stdio: "inherit",
   });
 
   child.on("exit", (code) => {
     if (code !== 0) {
-      running = false;
-
-      if (queued) {
-        queued = false;
-        runBuild();
-      }
-
+      finishBuild();
       return;
     }
 
-    const booksChild = spawn(process.execPath, [
-      "/Users/johnlanza/Dev/zette/scripts/build-book-notes-dataset.mjs",
-    ], {
-      stdio: "inherit",
-    });
+    if (scriptIndex < BUILD_SCRIPTS.length - 1) {
+      runScript(scriptIndex + 1);
+      return;
+    }
 
-    booksChild.on("exit", () => {
-      running = false;
-
-      if (queued) {
-        queued = false;
-        runBuild();
-      }
-    });
+    finishBuild();
   });
 }
 

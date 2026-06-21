@@ -19,7 +19,6 @@
     "react-dom": "^19.2.6"
   },
   "overrides": {
-    "brace-expansion": "5.0.6",
     "postcss": "8.5.15"
   },
   "devDependencies": {

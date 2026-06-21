@@ -7,8 +7,21 @@ export const SOURCE_DIRECTORIES = {
 
 export type SourceType = keyof typeof SOURCE_DIRECTORIES;
 
+function isSafeSourceFileName(originFile: string) {
+  return (
+    originFile.endsWith(".md") &&
+    !originFile.includes("/") &&
+    !originFile.includes("\\") &&
+    !originFile.includes("\0")
+  );
+}
+
 export function getSourcePath(originType: string, originFile: string) {
   if (originType !== "journals" && originType !== "pages") {
+    return null;
+  }
+
+  if (!isSafeSourceFileName(originFile)) {
     return null;
   }
 

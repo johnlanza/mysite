@@ -76,7 +76,7 @@ export function QuestionView({ question, remaining, seen }: QuestionViewProps) {
 
           {question.tags.length > 0 ? (
             <ul className="mt-7 flex flex-wrap gap-1.5">
-              {question.tags.slice(0, 6).map((tag) => (
+              {question.tags.map((tag) => (
                 <li key={tag}>
                   <Link
                     href={`/?tags=${encodeURIComponent(tag)}`}

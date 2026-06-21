@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-11T01:15:58.615Z",
+  "generatedAt": "2026-06-20T23:41:28.385Z",
   "sourceDirectories": [
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/journals",
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages"
@@ -13,8 +13,8 @@
   ],
   "stats": {
     "totalQuestions": 66,
-    "taggedQuestions": 25,
-    "newQuestions": 0
+    "taggedQuestions": 26,
+    "newQuestions": 1
   },
   "questions": [
     {
@@ -395,16 +395,18 @@
     },
     {
       "id": "pages:My Questions.md:67",
-      "text": "What are you trying to figure out?",
+      "text": "What are you trying to figure out right now?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
       "blockId": null,
-      "tags": [],
+      "tags": [
+        "powerful"
+      ],
       "originType": "pages",
       "originFile": "My Questions.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
