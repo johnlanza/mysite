@@ -65,9 +65,12 @@ export function HeroView({
   return (
     <div className="flex min-h-[100dvh] w-full flex-col">
       <header className="mx-auto flex w-full max-w-[38rem] items-center justify-between px-7 pt-7 sm:px-10">
-        <span className="font-sans text-[0.64rem] font-semibold uppercase tracking-[0.26em] text-muted/55">
+        <Link
+          href="/"
+          className="font-sans text-[0.64rem] font-semibold uppercase tracking-[0.26em] text-muted/55 transition hover:text-accent"
+        >
           Zette
-        </span>
+        </Link>
         <span className="rounded-full border border-line bg-card/55 px-3 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-muted/75">
           {viewLabel}
         </span>
