@@ -1,14 +1,14 @@
 # Agent Instructions
 
-This repo is governed by John Lanza’s Hermes operating system.
+This repo is governed by the Lanza operating system.
 
-Before making changes, read the canonical Hermes knowledge repo:
+Before making changes, read the canonical Lanza operating knowledge repo:
 
-`/Users/johnlanza/Dev/hermes-agent-knowledge`
+`/Users/johnlanza/Dev/lanza-operating-knowledge`
 
 At minimum, review:
 
-- `HERMES_OPERATING_BRIEF.md`
+- `LANZA_OPERATING_BRIEF.md`
 - `SESSION_BOOTLOADER.md`
 - `CODEX_BRIEF_FORMAT.md`
 - `REVIEW_CRITERIA.md`
