@@ -2,6 +2,7 @@
 
 const baseUrl = (process.env.PODCAST_CLUB_BASE_URL || 'https://www.johnlanza.com/podcastclub').replace(/\/+$/, '');
 let sessionCookie = process.env.PODCAST_CLUB_SESSION_COOKIE || '';
+const sessionCookieName = process.env.PODCAST_CLUB_SESSION_COOKIE_NAME || process.env.MYSITE_SESSION_COOKIE || 'mysite_session';
 const loginEmail = process.env.PODCAST_CLUB_EMAIL || '';
 const loginPassword = process.env.PODCAST_CLUB_PASSWORD || '';
 const runId = Date.now();
@@ -42,6 +43,16 @@ function buildCookieHeader(setCookieHeaders) {
     .join('; ');
 }
 
+function parseJson(name, status, text) {
+  if (!text) return null;
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`${name}: expected JSON, got ${status}: ${text.slice(0, 500)}`);
+  }
+}
+
 async function login() {
   if (sessionCookie) return;
 
@@ -61,8 +72,12 @@ async function login() {
   }
 
   const cookieHeader = buildCookieHeader(parseCookies(response.headers));
-  if (!cookieHeader.includes('mysite_session=')) {
-    throw new Error('login: response did not include a mysite_session cookie.');
+  const hasSessionCookie = cookieHeader
+    .split(/;\s*/)
+    .some((cookie) => cookie.startsWith(`${sessionCookieName}=`));
+
+  if (!hasSessionCookie) {
+    throw new Error(`login: response did not include a ${sessionCookieName} cookie.`);
   }
 
   sessionCookie = cookieHeader;
@@ -80,7 +95,7 @@ async function request(name, path, options = {}, expected = {}) {
   });
 
   const text = await response.text();
-  const data = text ? JSON.parse(text) : null;
+  const data = parseJson(name, response.status, text);
 
   if (expected.status && response.status !== expected.status) {
     throw new Error(`${name}: expected ${expected.status}, got ${response.status}: ${text.slice(0, 500)}`);
@@ -163,5 +178,5 @@ try {
     await cleanupRequest('cleanup podcast', `/api/podcasts/${cleanup.podcastId}`, { confirmText: 'DELETE' });
   }
 
-  console.log(JSON.stringify({ baseUrl, results }, null, 2));
+  console.log(JSON.stringify({ baseUrl, sessionCookieName, results }, null, 2));
 }

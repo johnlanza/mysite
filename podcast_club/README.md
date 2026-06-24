@@ -95,6 +95,60 @@ npm run start
 
 4. Configure your reverse proxy to forward `/podcastclub/*` to this Next.js app.
 
+## Render Preview/Staging Verification
+
+Use this flow before merging a branch that changes auth, podcast submission, carve-out submission, or shared API/database behavior. Render PR service previews are temporary service instances with their own `onrender.com` URL, and they copy settings from the base service when they are first created. Point previews at a staging/test MongoDB database before running this smoke test.
+
+Preview or staging service env:
+
+- `MONGODB_URI` for the staging/preview database
+- `MYSITE_SESSION_KEY`
+- `APP_BASE_URL` set to the full public preview/staging URL users open
+- `NEXT_PUBLIC_BASE_PATH` blank for a root Render URL, or `/podcastclub` when the deploy is served under that subpath
+- `MONGODB_DB` if the database name is not `podcast_club`
+- `MYSITE_SESSION_COOKIE` only if the cookie name is not `mysite_session`
+
+Local verification env:
+
+- `RENDER_API_KEY`
+- `RENDER_SERVICE_ID` for the preview or staging service being verified
+- `PODCAST_CLUB_BASE_URL`, including `/podcastclub` if `NEXT_PUBLIC_BASE_PATH=/podcastclub`
+- `PODCAST_CLUB_EMAIL` and `PODCAST_CLUB_PASSWORD` for a non-production smoke-test member, or `PODCAST_CLUB_SESSION_COOKIE` with a valid cookie header
+- Optional: `RENDER_DEPLOY_ID` to verify a specific deploy instead of the service's latest deploy
+
+Run the full gate:
+
+```bash
+PODCAST_CLUB_BASE_URL=https://podcast-club-pr-123.onrender.com \
+RENDER_API_KEY=... \
+RENDER_SERVICE_ID=srv-... \
+PODCAST_CLUB_EMAIL=smoke@example.com \
+PODCAST_CLUB_PASSWORD=... \
+npm run verify:render:preview
+```
+
+For a staging service, use the same env shape with the staging URL and service ID:
+
+```bash
+PODCAST_CLUB_BASE_URL=https://staging.example.com/podcastclub \
+RENDER_API_KEY=... \
+RENDER_SERVICE_ID=srv-... \
+PODCAST_CLUB_EMAIL=smoke@example.com \
+PODCAST_CLUB_PASSWORD=... \
+npm run verify:render:staging
+```
+
+The wrapper first runs `render:status` with `RENDER_WAIT=1`, `RENDER_REQUIRED_STATUS=live`, and `RENDER_REQUIRE_SHA_MATCH=1`. It then runs `smoke:live`, which logs in, checks `/api/auth/me`, checks `/api/submission-health`, creates and verifies a temporary podcast, creates and verifies a temporary carve out against the first available meeting, then deletes both records.
+
+Useful one-off commands:
+
+```bash
+RENDER_WAIT=1 RENDER_REQUIRED_STATUS=live RENDER_REQUIRE_SHA_MATCH=1 npm run render:status
+PODCAST_CLUB_BASE_URL=https://podcast-club-pr-123.onrender.com npm run smoke:live
+```
+
+If Render does not expose a commit SHA for the target deploy, the full gate fails while `RENDER_REQUIRE_SHA_MATCH=1`. Only set `RENDER_REQUIRE_SHA_MATCH=0` after checking the deploy commit in the Render dashboard.
+
 ## Data Model
 
 - `Member`: `name`, `email`, `passwordHash`, `address`, `isAdmin`

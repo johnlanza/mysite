@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "eslint .",
     "render:status": "node scripts/render-status.mjs",
-    "smoke:live": "node scripts/live-save-flow-smoke.mjs"
+    "smoke:live": "node scripts/live-save-flow-smoke.mjs",
+    "verify:render": "node scripts/render-preview-verify.mjs",
+    "verify:render:preview": "node scripts/render-preview-verify.mjs",
+    "verify:render:staging": "node scripts/render-preview-verify.mjs"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
