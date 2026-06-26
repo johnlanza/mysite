@@ -443,7 +443,7 @@ function buildDailyReview(
   }
 
   const splitLine = highVolumeWrongSeats
-    ? `${highVolumeWrongSeats.person.nickname} has one of the most unusual score profiles: ${highVolumeWrongSeats.advancers} advancer points but only ${highVolumeWrongSeats.bonus} winner-bonus points. That suggests strong team selection but several winner/runner-up flips.`
+    ? `${highVolumeWrongSeats.person.nickname} has one of the more unusual score profiles: ${highVolumeWrongSeats.advancers} advancer points but only ${highVolumeWrongSeats.bonus} winner-bonus points. That may point to strong team selection with several winner/runner-up flips.`
     : `${joinNames(biggestAdvancerScore.people)} ${biggestAdvancerScore.people.length === 1 ? "has" : "have"} the best advancer haul (${biggestAdvancerScore.score}); ${joinNames(biggestWinnerBonus.people)} ${biggestWinnerBonus.people.length === 1 ? "has" : "have"} the most winner-bonus points (${biggestWinnerBonus.score}).`;
   const goldenBootLine = topScorer
     ? `${topScorer.player} leads Golden Boot with ${topScorer.goals} goal${topScorer.goals === 1 ? "" : "s"}. ${goldenBootBackers.length ? `${joinNames(goldenBootBackers.map((person) => person.nickname))} picked him.` : "No active picker selected him."}`
@@ -457,7 +457,7 @@ function buildDailyReview(
     ? `${joinNames(goldenBootZeros.map((person) => person.nickname))} ${goldenBootZeros.length === 1 ? "has" : "have"} a Golden Boot pick not currently on the scoring table.`
     : "Every submitted Golden Boot pick is currently represented on the scoring table.";
   const championLeverageLine = uniqueChampionUpside.length > 0
-    ? `${uniqueChampionUpside[0].person.nickname} has the cleanest champion leverage: ${uniqueChampionUpside[0].champion} is currently ${getOrdinal(uniqueChampionUpside[0].row!.rank)} in its group and nobody else picked it.`
+    ? `${uniqueChampionUpside[0].person.nickname} may have the cleanest champion leverage: ${uniqueChampionUpside[0].champion} is currently ${getOrdinal(uniqueChampionUpside[0].row!.rank)} in its group and nobody else picked it.`
     : crowdedChampionLane
       ? `${crowdedChampionLane[1]} players have ${crowdedChampionLane[0]} as champion, so that pick may protect people from falling behind more than it helps them separate.`
       : championTroubleLine;
@@ -465,10 +465,10 @@ function buildDailyReview(
     ? `Among players tied on ${hiddenUpsideBand.points}, ${hiddenUpsideBand.best.person.nickname} appears to have more remaining leverage than ${hiddenUpsideBand.worst.person.nickname} because of ${hiddenUpsideBand.best.champion}${hiddenUpsideBand.best.goldenBootRow ? ` plus ${hiddenUpsideBand.best.goldenBootRow.player}` : ""}.`
     : championLeverageLine;
   const goldenBootLeverageLine = goldenBootLeverage.length > 0
-    ? `${goldenBootLeverage[0].person.nickname} has the best Golden Boot leverage right now: ${goldenBootLeverage[0].row!.player} is ${goldenBootLeverage[0].row!.placeLabel} and only ${goldenBootLeverage[0].pickCount} ${goldenBootLeverage[0].pickCount === 1 ? "player picked him" : "players picked him"}.`
+    ? `${goldenBootLeverage[0].person.nickname} may have the best Golden Boot leverage right now: ${goldenBootLeverage[0].row!.player} is ${goldenBootLeverage[0].row!.placeLabel} and only ${goldenBootLeverage[0].pickCount} ${goldenBootLeverage[0].pickCount === 1 ? "player picked him" : "players picked him"}.`
     : `${goldenBootLine} ${goldenBootZeroLine}`;
   const fragilityLine = secondPlaceExposure.length > 0
-    ? `Among current contenders, ${secondPlaceExposure[0].person.nickname} has the most points sitting on 2nd-place teams: ${secondPlaceExposure[0].points} points tied to ${joinNames(secondPlaceExposure[0].exposedTeams, 4)}. That makes their score more exposed to one group-table swing.`
+    ? `Among current contenders, ${secondPlaceExposure[0].person.nickname} has the most points sitting on 2nd-place teams: ${secondPlaceExposure[0].points} points tied to ${joinNames(secondPlaceExposure[0].exposedTeams, 4)}. That might make ${secondPlaceExposure[0].person.nickname}'s score more exposed to one group-table swing.`
     : "Among current contenders, nobody has meaningful exposure to 2nd-place teams yet.";
 
   return {
