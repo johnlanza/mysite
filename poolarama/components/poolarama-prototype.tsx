@@ -277,6 +277,10 @@ function getPickScoreValue(person: PublicPickParticipant, label: string) {
   return person.scoring.find((item) => item.label === label)?.value || 0;
 }
 
+function formatPersonPoints(people: PublicPickParticipant[]) {
+  return people.map((person) => `${person.nickname} (${person.points})`).join(", ");
+}
+
 function joinNames(names: string[], limit = 3) {
   if (names.length <= limit) return names.join(", ");
 
@@ -294,6 +298,8 @@ function buildDailyReview(
   const leaderScore = submittedPeople[0]?.points || 0;
   const leaders = submittedPeople.filter((person) => person.points === leaderScore);
   const chasePack = submittedPeople.filter((person) => person.points < leaderScore).slice(0, 4);
+  const onePointBack = submittedPeople.filter((person) => leaderScore - person.points === 1);
+  const twoPointBack = submittedPeople.filter((person) => leaderScore - person.points === 2);
   const topScorer = goldenBootRows[0];
   const goldenBootBackers = topScorer
     ? submittedPeople.filter((person) => normalizeGoldenBootName(person.picks?.goldenBoot || "") === topScorer.normalizedPlayer)
@@ -347,40 +353,45 @@ function buildDailyReview(
 
   if (submittedPeople.length === 0) {
     return {
-      headline: "Daily Review: still waiting for the first tremor",
-      dek: "No submitted picks are on the board yet, so the column is still standing by the buffet pretending it meant to arrive this early.",
-      bullets: ["Once the table has picks and scores, this space will call out leaders, useful weirdness, and the picks that looked clever until the games started."],
+      headline: "Pool insights",
+      dek: "",
+      bullets: ["No submitted picks are on the board yet. Once scoring begins, this section will summarize the most relevant leaderboard, pick, champion, and Golden Boot notes."],
       kicker: "",
       updatedLabel: updatedAt ? `Tables updated ${formatAdminTimestamp(updatedAt)}.` : "Tables have not been updated yet."
     };
   }
 
   const leaderNames = leaders.map((person) => person.nickname).join(", ");
-  const leaderVerb = leaders.length === 1 ? "is" : "are";
-  const chaseLine = chasePack.length > 0
-    ? `${chasePack.map((person) => `${person.nickname} ${person.points}`).join(", ")} are the first row of folding chairs behind them.`
-    : "There is no chase pack yet, just a leaderboard and a few people checking whether the app has a typo.";
+  const chaseLine = onePointBack.length > 0
+    ? `${formatPersonPoints(onePointBack)} ${onePointBack.length === 1 ? "is" : "are"} one point back.`
+    : twoPointBack.length > 0
+      ? `${formatPersonPoints(twoPointBack)} ${twoPointBack.length === 1 ? "is" : "are"} two points back.`
+      : chasePack.length > 0
+        ? `Closest chasers: ${formatPersonPoints(chasePack)}.`
+        : "No clear chase pack yet.";
   const splitLine = highVolumeWrongSeats
-    ? `${highVolumeWrongSeats.person.nickname} is the interesting case: ${highVolumeWrongSeats.advancers} advancer points, only ${highVolumeWrongSeats.bonus} winner-bonus points. That means the scouting was good; the seating chart was the problem.`
-    : `${joinNames(biggestAdvancerScore.people)} ${biggestAdvancerScore.people.length === 1 ? "has" : "have"} the best advancer haul (${biggestAdvancerScore.score}), while ${joinNames(biggestWinnerBonus.people)} ${biggestWinnerBonus.people.length === 1 ? "is" : "are"} cashing the most winner-bonus tickets (${biggestWinnerBonus.score}).`;
+    ? `${highVolumeWrongSeats.person.nickname} has one of the most unusual score profiles: ${highVolumeWrongSeats.advancers} advancer points but only ${highVolumeWrongSeats.bonus} winner-bonus points. That suggests strong team selection but several winner/runner-up flips.`
+    : `${joinNames(biggestAdvancerScore.people)} ${biggestAdvancerScore.people.length === 1 ? "has" : "have"} the best advancer haul (${biggestAdvancerScore.score}); ${joinNames(biggestWinnerBonus.people)} ${biggestWinnerBonus.people.length === 1 ? "has" : "have"} the most winner-bonus points (${biggestWinnerBonus.score}).`;
   const goldenBootLine = topScorer
-    ? `${topScorer.player} is doing Golden Boot damage with ${topScorer.goals} goal${topScorer.goals === 1 ? "" : "s"}${goldenBootBackers.length ? `, which gives ${joinNames(goldenBootBackers.map((person) => person.nickname))} a nice little side hustle` : ", which helps absolutely nobody in the pool and is therefore rude"}.`
-    : "Golden Boot has not produced a useful edge yet.";
+    ? `${topScorer.player} leads Golden Boot with ${topScorer.goals} goal${topScorer.goals === 1 ? "" : "s"}. ${goldenBootBackers.length ? `${joinNames(goldenBootBackers.map((person) => person.nickname))} picked him.` : "No active picker selected him."}`
+    : "Golden Boot has not produced a meaningful edge yet.";
   const championTroubleLine = championTrouble.length > 0
-    ? `${joinNames(championTrouble.map((item) => `${item.person.nickname} (${item.champion})`))} ${championTrouble.length === 1 ? "has" : "have"} a champion pick currently below the cut line. It is not fatal yet, but it is the pool equivalent of hearing your carry-on get gate-checked.`
+    ? `${joinNames(championTrouble.map((item) => `${item.person.nickname}: ${item.champion}`))} ${championTrouble.length === 1 ? "has" : "have"} a champion pick currently outside the top two in its group.`
     : championWave.length > 0
-      ? `${joinNames(championWave.map((item) => `${item.person.nickname} (${item.champion})`))} ${championWave.length === 1 ? "has" : "have"} a champion pick riding in first place, which is the rare kind of early confidence that does not immediately sound delusional.`
-      : "The champion board is still too early to prosecute, though several picks have asked for a lawyer.";
+      ? `${joinNames(championWave.map((item) => `${item.person.nickname}: ${item.champion}`))} ${championWave.length === 1 ? "has" : "have"} a champion pick currently leading its group.`
+      : "Champion-pick impact is still limited because too many groups remain unsettled.";
   const goldenBootZeroLine = goldenBootZeros.length > 0
-    ? `${joinNames(goldenBootZeros.map((person) => person.nickname))} ${goldenBootZeros.length === 1 ? "is" : "are"} still waiting for a Golden Boot pulse. This is fine in the same way a 0-0 draw is technically a soccer game.`
-    : "No obvious Golden Boot disaster zone yet, which is bad for jokes but good for family harmony.";
+    ? `${joinNames(goldenBootZeros.map((person) => person.nickname))} ${goldenBootZeros.length === 1 ? "has" : "have"} a Golden Boot pick not currently on the scoring table.`
+    : "Every submitted Golden Boot pick is currently represented on the scoring table.";
 
   return {
-    headline: `${formatDailyReviewDate()}: ${leaderNames} ${leaderVerb} setting the pace`,
-    dek: `${leaderNames} ${leaders.length === 1 ? "leads" : "lead"} with ${leaderScore}, but the board is still compressed enough that nobody gets to start acting like they invented soccer. ${chaseLine} The real signal is underneath the total: ${joinNames(biggestAdvancerScore.people)} ${biggestAdvancerScore.people.length === 1 ? "has" : "have"} squeezed out ${biggestAdvancerScore.score} advancer points, and ${joinNames(biggestWinnerBonus.people)} ${biggestWinnerBonus.people.length === 1 ? "has" : "have"} nailed ${biggestWinnerBonus.score} winner bonuses.`,
+    headline: `${formatDailyReviewDate()} pool insights`,
+    dek: "",
     bullets: [
-      `${splitLine} ${championTroubleLine}`,
-      `${goldenBootLine} ${goldenBootZeroLine}`
+      `Leaderboard: ${leaderNames} ${leaders.length === 1 ? "leads" : "lead"} with ${leaderScore}. ${chaseLine}`,
+      `Scoring pattern: ${splitLine}`,
+      `Champion picks: ${championTroubleLine}`,
+      `Golden Boot: ${goldenBootLine} ${goldenBootZeroLine}`
     ],
     kicker: "",
     updatedLabel: updatedAt ? `Tables updated ${formatAdminTimestamp(updatedAt)}.` : "Tables have not been updated yet."
@@ -2281,13 +2292,13 @@ export function PoolaramaPrototype() {
           <section className="daily-review-card" aria-labelledby="daily-review-title">
             <div className="daily-review-heading">
               <div>
-                <p className="eyebrow">Admin draft</p>
+                <p className="eyebrow">Admin insights</p>
                 <h3 id="daily-review-title">{dailyReview.headline}</h3>
                 <p>{dailyReview.updatedLabel}</p>
               </div>
               <span>Not public</span>
             </div>
-            <p className="daily-review-dek">{dailyReview.dek}</p>
+            {dailyReview.dek && <p className="daily-review-dek">{dailyReview.dek}</p>}
             <div className="daily-review-list">
               {dailyReview.bullets.map((line) => (
                 <p key={line}>{line}</p>

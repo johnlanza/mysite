@@ -1830,12 +1830,12 @@ h1 {
 
 .daily-review-list p {
   margin: 0;
-  padding: 10px 12px;
+  padding: 11px 12px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.76);
   border: 1px solid rgba(17, 32, 51, 0.1);
-  color: var(--muted);
-  font-weight: 780;
+  color: var(--ink);
+  font-weight: 760;
   line-height: 1.35;
 }
 
