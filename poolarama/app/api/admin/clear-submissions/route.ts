@@ -14,6 +14,15 @@ export async function DELETE(request: NextRequest) {
   if (isMaintenanceMode()) return maintenanceModeResponse();
 
   try {
+    const body = (await request.json().catch(() => ({}))) as { confirmation?: string };
+
+    if (body.confirmation !== "RESET") {
+      return NextResponse.json(
+        { error: "Type RESET to confirm clearing submissions." },
+        { status: 400 }
+      );
+    }
+
     const db = await connectToPoolaramaDatabase();
 
     if (!db) {

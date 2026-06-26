@@ -103,11 +103,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = (await request.json().catch(() => ({}))) as { action?: string };
+    const body = (await request.json().catch(() => ({}))) as { action?: string; confirmation?: string };
     const action = body.action || "generate";
     const pool = await getOrCreateDefaultPool();
 
     if (action === "reset") {
+      if (body.confirmation !== "RESET") {
+        return NextResponse.json(
+          { error: "Type RESET to confirm Round of 32 reset." },
+          { status: 400 }
+        );
+      }
+
       await Promise.all([
         MatchModel.deleteMany({ poolSlug: defaultPoolSlug, stage: "r32" }),
         SubmissionModel.deleteMany({ poolSlug: defaultPoolSlug, stage: "r32" })

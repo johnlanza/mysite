@@ -924,8 +924,13 @@ export function PoolaramaPrototype() {
       return;
     }
 
-    if (action === "reset" && !window.confirm("Reset Round of 32 matchups and R32 submissions? Group-stage picks will not be changed.")) {
-      return;
+    if (action === "reset") {
+      const confirmation = window.prompt("Type RESET to delete Round of 32 matchups and R32 submissions. Group-stage picks will not be changed.");
+
+      if (confirmation !== "RESET") {
+        setAdminFeedback("Round of 32 reset cancelled.");
+        return;
+      }
     }
 
     setAdminFeedback(labels[action]);
@@ -934,7 +939,7 @@ export function PoolaramaPrototype() {
       const response = await fetch(withBasePath("/api/admin/r32"), {
         method: "POST",
         headers: adminJsonHeaders(),
-        body: JSON.stringify({ action })
+        body: JSON.stringify({ action, confirmation: action === "reset" ? "RESET" : undefined })
       });
 
       if (!response.ok) {
@@ -1073,12 +1078,20 @@ export function PoolaramaPrototype() {
   }
 
   async function handleClearSubmissions() {
+    const confirmation = window.prompt("Type RESET to clear pre-tournament submissions. This affects player picks.");
+
+    if (confirmation !== "RESET") {
+      setAdminFeedback("Clear test submissions cancelled.");
+      return;
+    }
+
     setAdminFeedback("Clearing test submissions...");
 
     try {
       const response = await fetch(withBasePath("/api/admin/clear-submissions"), {
         method: "DELETE",
-        ...adminFetchOptions
+        headers: adminJsonHeaders(),
+        body: JSON.stringify({ confirmation: "RESET" })
       });
 
       if (!response.ok) {
