@@ -280,7 +280,7 @@ function getPickScoreValue(person: PublicPickParticipant, label: string) {
 function joinNames(names: string[], limit = 3) {
   if (names.length <= limit) return names.join(", ");
 
-  return `${names.slice(0, limit).join(", ")} +${names.length - limit}`;
+  return `${names.slice(0, limit).join(", ")} and ${names.length - limit} other${names.length - limit === 1 ? "" : "s"}`;
 }
 
 function buildDailyReview(
