@@ -4,8 +4,9 @@
 
 - Active development path: `/Users/johnlanza/Dev/mySite/podcast_club`
 - Canonical git/deploy source: `johnlanza/mysite` (`main`)
-- Render service: `mysite`
-- Do not use the standalone `/Users/johnlanza/Dev/podcast_club` repo for production changes.
+- Render production service: `mysite`
+- Render staging model: full `mysite` service, with Podcast Club served at `/podcastclub`
+- `/Users/johnlanza/Dev/podcast_club` should resolve to this folder; do not create or deploy from a separate standalone copy.
 
 Podcast Club web app with email/password auth, ranked voting, admin-managed meetings, and carve outs.
 
@@ -29,7 +30,7 @@ Podcast Club web app with email/password auth, ranked voting, admin-managed meet
 
 ## Stack
 
-- Next.js 14 (App Router, TypeScript)
+- Next.js 16 (App Router, TypeScript)
 - MongoDB Atlas via Mongoose
 - `bcryptjs` for password hashing
 
@@ -95,16 +96,45 @@ npm run start
 
 4. Configure your reverse proxy to forward `/podcastclub/*` to this Next.js app.
 
+## Full `mysite` Render Staging
+
+Use a separate personal Render staging service for `johnlanza/mysite`, not a business Render workspace, environment group, datastore, or API key. The staging service should mirror the full `mysite` app and serve Podcast Club at `/podcastclub`.
+
+Staging service setup:
+
+- Repository: `johnlanza/mysite`
+- Branch: a staging/review branch, or `main` after the change is intentionally pushed
+- Build command: same as production `mysite`
+- Start command: same as production `mysite`
+- Public Podcast Club URL: `https://<mysite-staging-host>/podcastclub`
+- `NEXT_PUBLIC_BASE_PATH=/podcastclub`
+- `APP_BASE_URL=https://<mysite-staging-host>/podcastclub`
+
+Personal staging data boundaries:
+
+- Use a staging/test MongoDB database for Podcast Club, never the production Podcast Club database.
+- Use separate staging values for `MYSITE_SESSION_KEY`, `SESSION_KEY`, and `POOLARAMA_ADMIN_TOKEN`.
+- Use separate personal Render environment groups/datastores from business services.
+- Set `POOLARAMA_DISABLE_AUTO_SYNC=true` unless the staging run is intentionally testing Poolarama live sync.
+- Do not point staging at business Render services, business API keys, or business data stores.
+
+Minimum full-`mysite` staging env:
+
+- Root app: `DB_URL`, `SESSION_KEY`
+- Podcast Club: `MONGODB_URI`, `MYSITE_SESSION_KEY`, `APP_BASE_URL`, `NEXT_PUBLIC_BASE_PATH`
+- Optional Podcast Club: `MONGODB_DB`, `MYSITE_SESSION_COOKIE`, `RESEND_API_KEY`, `EMAIL_FROM`, `OWNER_RECOVERY_CODE`
+- Poolarama: `POOLARAMA_MONGODB_URI` or a safe staging `DB_URL`, `POOLARAMA_DB_NAME`, `POOLARAMA_ADMIN_TOKEN`, `POOLARAMA_DISABLE_AUTO_SYNC`
+
 ## Render Preview/Staging Verification
 
-Use this flow before merging a branch that changes auth, podcast submission, carve-out submission, or shared API/database behavior. Render PR service previews are temporary service instances with their own `onrender.com` URL, and they copy settings from the base service when they are first created. Point previews at a staging/test MongoDB database before running this smoke test.
+Use this flow before merging a branch that changes auth, podcast submission, carve-out submission, or shared API/database behavior. For the chosen full-`mysite` staging model, Podcast Club is verified at `/podcastclub`. Render PR service previews are temporary service instances with their own `onrender.com` URL, and they copy settings from the base service when they are first created. Point previews at staging/test MongoDB databases before running this smoke test.
 
 Preview or staging service env:
 
 - `MONGODB_URI` for the staging/preview database
 - `MYSITE_SESSION_KEY`
-- `APP_BASE_URL` set to the full public preview/staging URL users open
-- `NEXT_PUBLIC_BASE_PATH` blank for a root Render URL, or `/podcastclub` when the deploy is served under that subpath
+- `APP_BASE_URL` set to the full public preview/staging URL users open, including `/podcastclub`
+- `NEXT_PUBLIC_BASE_PATH=/podcastclub`
 - `MONGODB_DB` if the database name is not `podcast_club`
 - `MYSITE_SESSION_COOKIE` only if the cookie name is not `mysite_session`
 
@@ -112,14 +142,14 @@ Local verification env:
 
 - `RENDER_API_KEY`
 - `RENDER_SERVICE_ID` for the preview or staging service being verified
-- `PODCAST_CLUB_BASE_URL`, including `/podcastclub` if `NEXT_PUBLIC_BASE_PATH=/podcastclub`
+- `PODCAST_CLUB_BASE_URL`, including `/podcastclub`
 - `PODCAST_CLUB_EMAIL` and `PODCAST_CLUB_PASSWORD` for a non-production smoke-test member, or `PODCAST_CLUB_SESSION_COOKIE` with a valid cookie header
 - Optional: `RENDER_DEPLOY_ID` to verify a specific deploy instead of the service's latest deploy
 
 Run the full gate:
 
 ```bash
-PODCAST_CLUB_BASE_URL=https://podcast-club-pr-123.onrender.com \
+PODCAST_CLUB_BASE_URL=https://mysite-pr-123.onrender.com/podcastclub \
 RENDER_API_KEY=... \
 RENDER_SERVICE_ID=srv-... \
 PODCAST_CLUB_EMAIL=smoke@example.com \
@@ -130,7 +160,7 @@ npm run verify:render:preview
 For a staging service, use the same env shape with the staging URL and service ID:
 
 ```bash
-PODCAST_CLUB_BASE_URL=https://staging.example.com/podcastclub \
+PODCAST_CLUB_BASE_URL=https://mysite-staging.onrender.com/podcastclub \
 RENDER_API_KEY=... \
 RENDER_SERVICE_ID=srv-... \
 PODCAST_CLUB_EMAIL=smoke@example.com \
@@ -144,7 +174,7 @@ Useful one-off commands:
 
 ```bash
 RENDER_WAIT=1 RENDER_REQUIRED_STATUS=live RENDER_REQUIRE_SHA_MATCH=1 npm run render:status
-PODCAST_CLUB_BASE_URL=https://podcast-club-pr-123.onrender.com npm run smoke:live
+PODCAST_CLUB_BASE_URL=https://mysite-staging.onrender.com/podcastclub npm run smoke:live
 ```
 
 If Render does not expose a commit SHA for the target deploy, the full gate fails while `RENDER_REQUIRE_SHA_MATCH=1`. Only set `RENDER_REQUIRE_SHA_MATCH=0` after checking the deploy commit in the Render dashboard.

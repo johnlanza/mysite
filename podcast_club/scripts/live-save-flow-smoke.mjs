@@ -1,11 +1,43 @@
 #!/usr/bin/env node
 
-const baseUrl = (process.env.PODCAST_CLUB_BASE_URL || 'https://www.johnlanza.com/podcastclub').replace(/\/+$/, '');
+const rawBaseUrl = process.env.PODCAST_CLUB_BASE_URL || '';
+const allowProductionSmoke = parseBoolean(process.env.PODCAST_CLUB_ALLOW_PRODUCTION_SMOKE);
+const productionHosts = new Set(['johnlanza.com', 'www.johnlanza.com']);
+
+if (!rawBaseUrl) {
+  console.error('Missing required env var: PODCAST_CLUB_BASE_URL.');
+  console.error('Use a non-production preview/staging URL, including /podcastclub for full-mysite Render staging.');
+  console.error('Example: PODCAST_CLUB_BASE_URL=https://mysite-staging.onrender.com/podcastclub npm run smoke:live');
+  process.exit(1);
+}
+
+const baseUrl = rawBaseUrl.replace(/\/+$/, '');
+const parsedBaseUrl = parseBaseUrl(baseUrl);
+
+if (productionHosts.has(parsedBaseUrl.hostname) && !allowProductionSmoke) {
+  console.error(`Refusing to run write smoke test against production host: ${parsedBaseUrl.hostname}`);
+  console.error('Set PODCAST_CLUB_ALLOW_PRODUCTION_SMOKE=1 only for an intentional production smoke test.');
+  process.exit(1);
+}
+
 let sessionCookie = process.env.PODCAST_CLUB_SESSION_COOKIE || '';
 const sessionCookieName = process.env.PODCAST_CLUB_SESSION_COOKIE_NAME || process.env.MYSITE_SESSION_COOKIE || 'mysite_session';
 const loginEmail = process.env.PODCAST_CLUB_EMAIL || '';
 const loginPassword = process.env.PODCAST_CLUB_PASSWORD || '';
 const runId = Date.now();
+
+function parseBoolean(value) {
+  return ['1', 'true', 'yes', 'on'].includes(String(value || '').toLowerCase());
+}
+
+function parseBaseUrl(value) {
+  try {
+    return new URL(value);
+  } catch {
+    console.error(`Invalid PODCAST_CLUB_BASE_URL: ${value}`);
+    process.exit(1);
+  }
+}
 
 if (!sessionCookie && (!loginEmail || !loginPassword)) {
   console.error('Missing credentials.');

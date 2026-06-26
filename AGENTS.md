@@ -35,4 +35,4 @@ When working on Podcast Club:
 - Commit and push to `johnlanza/mysite` `main`.
 - Assume Render deploys from the `mysite` service.
 
-Do not direct production fixes to `/Users/johnlanza/Dev/podcast_club` (standalone deprecated copy).
+`/Users/johnlanza/Dev/podcast_club` should resolve to `podcast_club/`; do not create or deploy from a separate standalone copy.

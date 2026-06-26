@@ -8,4 +8,5 @@ Source of truth:
 - Deploy target: Render `mysite` service
 
 Guardrail:
-- Do not ship Podcast Club changes from the standalone `/Users/johnlanza/Dev/podcast_club` repo.
+- `/Users/johnlanza/Dev/podcast_club` should resolve to `podcast_club/`.
+- Do not create, revive, or deploy from a separate standalone Podcast Club repo.
