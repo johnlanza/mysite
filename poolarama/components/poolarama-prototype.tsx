@@ -232,6 +232,130 @@ function getGoldenBootStatus(pick: string, rows: GoldenBootRow[]) {
   return `${row.goals} goal${row.goals === 1 ? "" : "s"}, ${row.placeLabel}`;
 }
 
+function formatDailyReviewDate() {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  return yesterday.toLocaleDateString([], {
+    weekday: "long",
+    month: "short",
+    day: "numeric"
+  });
+}
+
+function getOrdinal(rank: number) {
+  const mod100 = rank % 100;
+  if (mod100 >= 11 && mod100 <= 13) return `${rank}th`;
+
+  switch (rank % 10) {
+    case 1:
+      return `${rank}st`;
+    case 2:
+      return `${rank}nd`;
+    case 3:
+      return `${rank}rd`;
+    default:
+      return `${rank}th`;
+  }
+}
+
+function getDisplayRanks(people: PublicPickParticipant[]) {
+  let previousPoints: number | null = null;
+  let displayRank = 0;
+
+  return people.map((person, index) => {
+    if (index === 0 || person.points !== previousPoints) {
+      displayRank += 1;
+      previousPoints = person.points;
+    }
+
+    return { ...person, displayRank };
+  });
+}
+
+function getPickScoreValue(person: PublicPickParticipant, label: string) {
+  return person.scoring.find((item) => item.label === label)?.value || 0;
+}
+
+function buildDailyReview(
+  people: PublicPickParticipant[],
+  groupRows: GroupStandingRow[],
+  goldenBootRows: GoldenBootRow[],
+  updatedAt: string | null
+) {
+  const rankedPeople = getDisplayRanks([...people].sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname)));
+  const submittedPeople = rankedPeople.filter((person) => person.submitted);
+  const leaderScore = submittedPeople[0]?.points || 0;
+  const leaders = submittedPeople.filter((person) => person.points === leaderScore);
+  const chasePack = submittedPeople.filter((person) => person.points < leaderScore).slice(0, 4);
+  const playedGroups = groups
+    .map((group) => groupRows.filter((row) => row.group === group).sort((a, b) => a.rank - b.rank))
+    .filter((rows) => rows.some((row) => row.played > 0 || row.points > 0));
+  const unsettledGroups = playedGroups.filter((rows) => {
+    const first = rows[0];
+    const second = rows[1];
+    return Boolean(first && second && first.points === second.points && first.goalDifference === second.goalDifference);
+  });
+  const topGroup = playedGroups
+    .map((rows) => rows[0])
+    .filter(Boolean)
+    .sort((a, b) => b.points - a.points || b.goalDifference - a.goalDifference || b.goalsFor - a.goalsFor)[0];
+  const topScorer = goldenBootRows[0];
+  const goldenBootBackers = topScorer
+    ? submittedPeople.filter((person) => normalizeGoldenBootName(person.picks?.goldenBoot || "") === topScorer.normalizedPlayer)
+    : [];
+  const biggestAdvancerScore = submittedPeople.reduce((best, person) => {
+    const advancers = getPickScoreValue(person, "Advancers");
+    return advancers > best.score ? { score: advancers, people: [person.nickname] } :
+      advancers === best.score && advancers > 0 ? { ...best, people: [...best.people, person.nickname] } :
+      best;
+  }, { score: 0, people: [] as string[] });
+  const biggestWinnerBonus = submittedPeople.reduce((best, person) => {
+    const bonus = getPickScoreValue(person, "Winner bonus");
+    return bonus > best.score ? { score: bonus, people: [person.nickname] } :
+      bonus === best.score && bonus > 0 ? { ...best, people: [...best.people, person.nickname] } :
+      best;
+  }, { score: 0, people: [] as string[] });
+
+  if (submittedPeople.length === 0) {
+    return {
+      headline: "Daily Review: still waiting for the first tremor",
+      dek: "No submitted picks are on the board yet, so today’s column is mostly a man standing at a microphone while the band tunes.",
+      bullets: ["Once the table has picks and scores, this space will call out leaders, lucky breaks, and regrettable optimism."],
+      kicker: "The newsletter currently has the dramatic tension of a locked spreadsheet.",
+      updatedLabel: updatedAt ? `Tables updated ${formatAdminTimestamp(updatedAt)}.` : "Tables have not been updated yet."
+    };
+  }
+
+  const leaderNames = leaders.map((person) => person.nickname).join(", ");
+  const chaseLine = chasePack.length > 0
+    ? `${chasePack.map((person) => `${person.nickname} (${person.points})`).join(", ")} are close enough to make the leader check the table twice.`
+    : "Nobody is in the chase pack yet, which is less a race than a ceremonial walk to midfield.";
+  const groupLine = topGroup
+    ? `Best table flex: ${topGroup.team} sits on ${topGroup.points} points with ${topGroup.goalDifference >= 0 ? "+" : ""}${topGroup.goalDifference} GD, which is exactly the sort of tiny spreadsheet swing that ruins a cousin's afternoon.`
+    : "The group tables are still mostly vibes, flags, and future arguments.";
+  const unsettledLine = unsettledGroups.length > 0
+    ? `Groups ${unsettledGroups.map((rows) => rows[0].group).join(", ")} are still tiebreaker soup, so nobody should buy a commemorative hat yet.`
+    : "The current table order is separated enough to score cleanly, which feels suspiciously adult for this pool.";
+  const goldenBootLine = topScorer
+    ? `${topScorer.player} leads the Golden Boot board with ${topScorer.goals} goal${topScorer.goals === 1 ? "" : "s"}; ${goldenBootBackers.length ? `${goldenBootBackers.map((person) => person.nickname).join(", ")} may now pretend this was obvious.` : "no Poolarama voter is currently allowed to act smug about it."}`
+    : "Golden Boot remains a blank canvas, which is how every bad prediction briefly gets to feel handsome.";
+
+  return {
+    headline: `${formatDailyReviewDate()}: ${leaderNames} ${leaders.length === 1 ? "has" : "have"} the wheel`,
+    dek: `${leaderNames} ${leaders.length === 1 ? "leads" : "lead"} on ${leaderScore} points, built from ${biggestAdvancerScore.score} max advancer points and ${biggestWinnerBonus.score} max winner-bonus points floating around the room. This is not destiny. It is June math wearing a fake mustache.`,
+    bullets: [
+      chaseLine,
+      groupLine,
+      unsettledLine,
+      goldenBootLine,
+      `${biggestAdvancerScore.people.join(", ")} ${biggestAdvancerScore.people.length === 1 ? "has" : "have"} the best advancer haul so far (${biggestAdvancerScore.score}). ${biggestWinnerBonus.people.join(", ")} ${biggestWinnerBonus.people.length === 1 ? "has" : "have"} squeezed the most winner-bonus juice (${biggestWinnerBonus.score}).`
+    ],
+    kicker: `Current official mood: ${leaders.length > 1 ? `${leaders.length} people tied for ${getOrdinal(leaders[0].displayRank)}, which is democratic but annoying.` : `${leaders[0].nickname} is in ${getOrdinal(leaders[0].displayRank)}, a dangerous place to stand this early because everyone can see the target.`}`,
+    updatedLabel: updatedAt ? `Tables updated ${formatAdminTimestamp(updatedAt)}.` : "Tables have not been updated yet."
+  };
+}
+
 function formatAdminTimestamp(timestamp: string | null) {
   if (!timestamp) return "Not available";
 
@@ -471,6 +595,10 @@ export function PoolaramaPrototype() {
       ? `${leaders.slice(0, 2).join(", ")}${leaders.length > 2 ? " +" : ""}`
       : "Scoring not started";
   const unpaidCount = adminOverview.filter((participant) => !participant.venmoPaid).length;
+  const dailyReview = useMemo(
+    () => buildDailyReview(publicPicks, groupStandingsRows, goldenBootRows, groupTablesUpdatedAt),
+    [goldenBootRows, groupStandingsRows, groupTablesUpdatedAt, publicPicks]
+  );
   const adminFetchOptions = useMemo<RequestInit>(() => {
     if (!adminToken) return {};
 
@@ -2119,6 +2247,23 @@ export function PoolaramaPrototype() {
               </button>
             </div>
           </div>
+          <section className="daily-review-card" aria-labelledby="daily-review-title">
+            <div className="daily-review-heading">
+              <div>
+                <p className="eyebrow">Admin draft</p>
+                <h3 id="daily-review-title">{dailyReview.headline}</h3>
+                <p>{dailyReview.updatedLabel}</p>
+              </div>
+              <span>Not public</span>
+            </div>
+            <p className="daily-review-dek">{dailyReview.dek}</p>
+            <div className="daily-review-list">
+              {dailyReview.bullets.map((line) => (
+                <p key={line}>{line}</p>
+              ))}
+            </div>
+            <p className="daily-review-kicker">{dailyReview.kicker}</p>
+          </section>
           <section className="invite-card" aria-labelledby="invite-title">
             <div>
               <p className="eyebrow">Invites</p>

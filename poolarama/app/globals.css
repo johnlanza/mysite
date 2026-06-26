@@ -1770,6 +1770,83 @@ h1 {
   line-height: 1.35;
 }
 
+.daily-review-card {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 20px;
+  color: var(--ink);
+  background:
+    linear-gradient(135deg, rgba(255, 200, 61, 0.3), rgba(227, 60, 74, 0.13)),
+    #fff;
+  border: 1px solid rgba(17, 32, 51, 0.14);
+  box-shadow: 0 16px 34px rgba(17, 32, 51, 0.08);
+}
+
+.daily-review-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.daily-review-heading h3 {
+  margin: 0;
+  color: var(--navy);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(1.6rem, 6vw, 2.35rem);
+  line-height: 1;
+}
+
+.daily-review-heading p:last-child {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.daily-review-heading > span {
+  padding: 8px 10px;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--navy);
+  font-size: 0.72rem;
+  font-weight: 1000;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.daily-review-dek {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 850;
+  line-height: 1.4;
+}
+
+.daily-review-list {
+  display: grid;
+  gap: 8px;
+}
+
+.daily-review-list p {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(17, 32, 51, 0.1);
+  color: var(--muted);
+  font-weight: 780;
+  line-height: 1.35;
+}
+
+.daily-review-kicker {
+  margin: 0;
+  padding-top: 2px;
+  color: var(--red);
+  font-weight: 1000;
+  line-height: 1.35;
+}
+
 .invite-card {
   display: grid;
   gap: 14px;
@@ -2138,7 +2215,8 @@ h1 {
 
   .admin-toolbar,
   .admin-row,
-  .admin-sync-status {
+  .admin-sync-status,
+  .daily-review-heading {
     grid-template-columns: 1fr;
   }
 
