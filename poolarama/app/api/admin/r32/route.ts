@@ -8,6 +8,7 @@ import { allowMockFallback, isMaintenanceMode, maintenanceModeResponse, poolData
 import { type GroupId } from "@/lib/tournament-data";
 import GroupStandingModel from "@/models/GroupStanding";
 import MatchModel from "@/models/Match";
+import SubmissionModel from "@/models/Submission";
 
 export const dynamic = "force-dynamic";
 
@@ -105,6 +106,25 @@ export async function POST(request: NextRequest) {
     const body = (await request.json().catch(() => ({}))) as { action?: string };
     const action = body.action || "generate";
     const pool = await getOrCreateDefaultPool();
+
+    if (action === "reset") {
+      await Promise.all([
+        MatchModel.deleteMany({ poolSlug: defaultPoolSlug, stage: "r32" }),
+        SubmissionModel.deleteMany({ poolSlug: defaultPoolSlug, stage: "r32" })
+      ]);
+
+      pool.currentStage = "preTournament";
+      pool.r32Status = "setup";
+      pool.r32OpenedAt = null;
+      pool.r32LockedAt = null;
+      await pool.save();
+
+      return NextResponse.json({
+        matches: [],
+        pool: buildPoolState(pool),
+        storageMode: "mongo"
+      });
+    }
 
     if (action === "open") {
       const matches = await loadMatches();

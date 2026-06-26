@@ -408,6 +408,7 @@ export function PoolaramaPrototype() {
   const [r32Matches, setR32Matches] = useState<R32Match[]>([]);
   const [r32Picks, setR32Picks] = useState<Record<string, string>>({});
   const [r32SavedPicks, setR32SavedPicks] = useState<Record<string, string> | null>(null);
+  const [r32SavedAt, setR32SavedAt] = useState<string | null>(null);
   const [r32Feedback, setR32Feedback] = useState("Round of 32 picks are not open yet.");
   const [goldenBootRows, setGoldenBootRows] = useState<GoldenBootRow[]>([]);
   const [goldenBootFeedback, setGoldenBootFeedback] = useState("Golden Boot table is loading.");
@@ -621,6 +622,7 @@ export function PoolaramaPrototype() {
           if (data.submissions?.r32?.picks.matchWinners) {
             setR32Picks(data.submissions.r32.picks.matchWinners);
             setR32SavedPicks(data.submissions.r32.picks.matchWinners);
+            setR32SavedAt(data.submissions.r32.submittedAt);
             setR32Feedback("Restored Round of 32 picks.");
           }
 
@@ -903,20 +905,26 @@ export function PoolaramaPrototype() {
     }
   }
 
-  async function handleRoundOf32AdminAction(action: "generate" | "open" | "lock") {
+  async function handleRoundOf32AdminAction(action: "generate" | "open" | "lock" | "reset") {
     const labels = {
       generate: "Generating Round of 32 preview...",
       open: "Opening Round of 32 picks...",
-      lock: "Locking Round of 32 picks..."
+      lock: "Locking Round of 32 picks...",
+      reset: "Resetting Round of 32 test data..."
     };
     const successMessages = {
       generate: "Round of 32 preview generated. Review the matchups before opening picks.",
       open: "Round of 32 picks are open.",
-      lock: "Round of 32 picks are locked."
+      lock: "Round of 32 picks are locked.",
+      reset: "Round of 32 reset to setup. Group-stage picks were not changed."
     };
 
     if (action === "open" && r32Matches.length !== 16) {
       setAdminFeedback("Generate and verify 16 Round of 32 matches before opening picks.");
+      return;
+    }
+
+    if (action === "reset" && !window.confirm("Reset Round of 32 matchups and R32 submissions? Group-stage picks will not be changed.")) {
       return;
     }
 
@@ -937,6 +945,11 @@ export function PoolaramaPrototype() {
       const data = (await response.json()) as RoundOf32Response;
       setR32Matches(data.matches);
       setPoolState(data.pool);
+      if (action === "reset") {
+        setR32Picks({});
+        setR32SavedPicks(null);
+        setR32SavedAt(null);
+      }
       await loadPublicPicks();
       setAdminFeedback(successMessages[action]);
     } catch (error) {
@@ -1129,6 +1142,9 @@ export function PoolaramaPrototype() {
     setGroupWinners(buildEmptyGroupPicks());
     setGroupRunnersUp(buildEmptyGroupPicks());
     setSavedPicks(null);
+    setR32Picks({});
+    setR32SavedPicks(null);
+    setR32SavedAt(null);
     setIsReviewing(false);
     setIncompleteAlertVisible(false);
     setSaveFeedback(`Ready for ${participant.nickname}.`);
@@ -1172,6 +1188,7 @@ export function PoolaramaPrototype() {
       if (data.submissions?.r32?.picks.matchWinners) {
         setR32Picks(data.submissions.r32.picks.matchWinners);
         setR32SavedPicks(data.submissions.r32.picks.matchWinners);
+        setR32SavedAt(data.submissions.r32.submittedAt);
       }
     } catch {
       setSaveFeedback(`Ready for ${participant.nickname}. API lookup unavailable.`);
@@ -1293,7 +1310,9 @@ export function PoolaramaPrototype() {
         throw new Error(errorData?.error || "Could not submit Round of 32 picks.");
       }
 
+      const data = (await response.json()) as ApiSubmissionResponse;
       setR32SavedPicks(r32Picks);
+      setR32SavedAt(data.submission?.submittedAt || new Date().toISOString());
       await loadPublicPicks();
       setR32Feedback("Round of 32 picks submitted.");
     } catch (error) {
@@ -1686,7 +1705,7 @@ export function PoolaramaPrototype() {
               <div>
                 <p className="eyebrow">Saved picks</p>
                 <h3>{selectedParticipant.nickname}&apos;s picks are saved</h3>
-                <p>{saveFeedback}</p>
+                <p>Group-stage, champion, Golden Boot, and knockout picks will appear here as they are submitted.</p>
               </div>
               <div className="saved-grid">
                 <div>
@@ -1705,6 +1724,48 @@ export function PoolaramaPrototype() {
                   <span>Saved</span>
                   <strong>{new Date(savedPicks.savedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</strong>
                 </div>
+              </div>
+              <div className="saved-pick-section">
+                <h4>Group stage</h4>
+                <div className="saved-pick-list">
+                  {groups.map((group) => (
+                    <div key={`saved-group-${group}`}>
+                      <span>Group {group}</span>
+                      <strong>{savedPicks.groupWinners[group] || "No winner"} / {savedPicks.groupRunnersUp[group] || "No runner-up"}</strong>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="saved-pick-section">
+                <h4>Round of 32</h4>
+                {r32SavedPicks && Object.keys(r32SavedPicks).length > 0 ? (
+                  <>
+                    <div className="saved-pick-list">
+                      {(r32Matches.length > 0
+                        ? r32Matches.map((match) => ({
+                            id: match.matchId,
+                            label: match.label,
+                            winner: r32SavedPicks[match.matchId]
+                          }))
+                        : Object.entries(r32SavedPicks).map(([id, winner]) => ({
+                            id,
+                            label: id.toUpperCase(),
+                            winner
+                          }))
+                      ).map((pick) => (
+                        <div key={`saved-r32-${pick.id}`}>
+                          <span>{pick.label}</span>
+                          <strong>{pick.winner || "No pick"}</strong>
+                        </div>
+                      ))}
+                    </div>
+                    {r32SavedAt && (
+                      <p className="saved-pick-note">Round of 32 submitted {new Date(r32SavedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.</p>
+                    )}
+                  </>
+                ) : (
+                  <p className="saved-pick-note">No Round of 32 picks submitted yet.</p>
+                )}
               </div>
             </section>
           )}
@@ -2166,6 +2227,14 @@ export function PoolaramaPrototype() {
                   disabled={!r32Open}
                 >
                   Lock picks
+                </button>
+                <button
+                  className="admin-action compact danger"
+                  type="button"
+                  onClick={() => handleRoundOf32AdminAction("reset")}
+                  disabled={poolState.r32.status === "setup" && r32Matches.length === 0}
+                >
+                  Reset R32
                 </button>
               </div>
             </div>

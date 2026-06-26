@@ -84,6 +84,21 @@ if (expectedLockState === "locked") {
   assert(publicPicks.data?.participants?.filter((participant) => participant.visible).length === 0, "open public picks exposed data to invalid viewer");
 }
 
+const publicR32 = await requestJson("/api/r32");
+assert(publicR32.response.status === 200, `public r32 status ${publicR32.response.status}`);
+assert(publicR32.data?.storageMode === "mongo", `public r32 storageMode ${publicR32.data?.storageMode}`);
+
+const adminR32 = await requestJson("/api/admin/r32", { headers: adminHeaders() });
+assert(adminR32.response.status === 200, `admin r32 status ${adminR32.response.status}`);
+assert(adminR32.data?.storageMode === "mongo", `admin r32 storageMode ${adminR32.data?.storageMode}`);
+assert(publicR32.data?.pool?.r32?.status === adminR32.data?.pool?.r32?.status, "public/admin r32 status mismatch");
+
+if (publicR32.data?.pool?.r32?.status === "setup") {
+  assert(publicR32.data?.matches?.length === 0, `setup public r32 exposed ${publicR32.data?.matches?.length} matches`);
+} else {
+  assert(publicR32.data?.matches?.length === adminR32.data?.matches?.length, "public/admin r32 match count mismatch");
+}
+
 const standings = await requestJson("/api/standings");
 assert(standings.response.status === 200, `standings status ${standings.response.status}`);
 assert(standings.data?.storageMode === "mongo", `standings storageMode ${standings.data?.storageMode}`);
