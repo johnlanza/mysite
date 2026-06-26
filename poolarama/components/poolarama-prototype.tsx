@@ -281,6 +281,14 @@ function formatPersonPoints(people: PublicPickParticipant[]) {
   return people.map((person) => `${person.nickname} (${person.points})`).join(", ");
 }
 
+function countByValue(values: string[]) {
+  return values.reduce((counts, value) => {
+    if (!value) return counts;
+    counts.set(value, (counts.get(value) || 0) + 1);
+    return counts;
+  }, new Map<string, number>());
+}
+
 function joinNames(names: string[], limit = 3) {
   if (names.length <= limit) return names.join(", ");
 
@@ -304,7 +312,18 @@ function buildDailyReview(
   const goldenBootBackers = topScorer
     ? submittedPeople.filter((person) => normalizeGoldenBootName(person.picks?.goldenBoot || "") === topScorer.normalizedPlayer)
     : [];
+  const championPickCounts = countByValue(submittedPeople.map((person) => person.picks?.champion || ""));
+  const goldenBootPickCounts = countByValue(submittedPeople.map((person) => normalizeGoldenBootName(person.picks?.goldenBoot || "")));
   const groupRankByTeam = new Map(groupRows.map((row) => [row.team, row]));
+  const championProfiles = submittedPeople
+    .map((person) => {
+      const champion = person.picks?.champion || "";
+      const row = champion ? groupRankByTeam.get(champion) : null;
+      const pickCount = championPickCounts.get(champion) || 0;
+
+      return { person, champion, row, pickCount };
+    })
+    .filter((item) => item.champion && item.row);
   const championTrouble = submittedPeople
     .map((person) => {
       const champion = person.picks?.champion || "";
@@ -323,6 +342,23 @@ function buildDailyReview(
     })
     .filter((item) => item.row && item.row.rank === 1 && item.row.points > 0)
     .sort((a, b) => b.person.points - a.person.points || a.person.nickname.localeCompare(b.person.nickname));
+  const uniqueChampionUpside = championProfiles
+    .filter((item) => item.pickCount === 1 && item.row && item.row.rank <= 2 && item.row.points > 0)
+    .sort((a, b) => a.row!.rank - b.row!.rank || b.person.points - a.person.points);
+  const crowdedChampionLane = Array.from(championPickCounts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .find(([, count]) => count >= Math.max(3, Math.ceil(submittedPeople.length / 4)));
+  const goldenBootRowsByNormalized = new Map(goldenBootRows.map((row) => [row.normalizedPlayer, row]));
+  const goldenBootLeverage = submittedPeople
+    .map((person) => {
+      const normalizedPick = normalizeGoldenBootName(person.picks?.goldenBoot || "");
+      const row = goldenBootRowsByNormalized.get(normalizedPick);
+      const pickCount = goldenBootPickCounts.get(normalizedPick) || 0;
+
+      return { person, row, pickCount };
+    })
+    .filter((item) => item.row && item.row.rank <= 5 && item.pickCount <= 2)
+    .sort((a, b) => a.row!.rank - b.row!.rank || a.pickCount - b.pickCount || b.person.points - a.person.points);
   const goldenBootZeros = submittedPeople.filter((person) => {
     const pick = person.picks?.goldenBoot || "";
     return pick && !goldenBootRows.some((row) => row.normalizedPlayer === normalizeGoldenBootName(pick));
@@ -350,6 +386,37 @@ function buildDailyReview(
     item.advancers >= Math.max(0, biggestAdvancerScore.score - 1) &&
     item.bonus <= Math.max(0, biggestWinnerBonus.score - 3)
   );
+  const scoreBands = Array.from(
+    submittedPeople.reduce((bands, person) => {
+      const current = bands.get(person.points) || [];
+      current.push(person);
+      bands.set(person.points, current);
+      return bands;
+    }, new Map<number, PublicPickParticipant[]>()).entries()
+  ).filter(([, band]) => band.length > 1);
+  const hiddenUpsideBand = scoreBands
+    .map(([points, band]) => {
+      const profiles = band.map((person) => {
+        const champion = person.picks?.champion || "";
+        const championRow = champion ? groupRankByTeam.get(champion) : null;
+        const championPickCount = championPickCounts.get(champion) || 0;
+        const goldenBoot = normalizeGoldenBootName(person.picks?.goldenBoot || "");
+        const goldenBootRow = goldenBootRowsByNormalized.get(goldenBoot);
+        const goldenBootPickCount = goldenBootPickCounts.get(goldenBoot) || 0;
+        const upsideScore =
+          (championRow?.rank === 1 ? 3 : championRow?.rank === 2 ? 1 : 0) +
+          (championPickCount === 1 ? 2 : championPickCount <= 3 ? 1 : 0) +
+          (goldenBootRow && goldenBootRow.rank <= 5 ? 2 : 0) +
+          (goldenBootPickCount === 1 ? 1 : 0);
+
+        return { person, champion, championRow, goldenBootRow, upsideScore };
+      }).sort((a, b) => b.upsideScore - a.upsideScore || b.person.points - a.person.points);
+      const best = profiles[0];
+      const worst = profiles[profiles.length - 1];
+
+      return { points, best, worst };
+    })
+    .find((band) => band.best && band.worst && band.best.upsideScore >= band.worst.upsideScore + 3);
 
   if (submittedPeople.length === 0) {
     return {
@@ -383,6 +450,17 @@ function buildDailyReview(
   const goldenBootZeroLine = goldenBootZeros.length > 0
     ? `${joinNames(goldenBootZeros.map((person) => person.nickname))} ${goldenBootZeros.length === 1 ? "has" : "have"} a Golden Boot pick not currently on the scoring table.`
     : "Every submitted Golden Boot pick is currently represented on the scoring table.";
+  const championLeverageLine = uniqueChampionUpside.length > 0
+    ? `${uniqueChampionUpside[0].person.nickname} has the cleanest champion leverage: ${uniqueChampionUpside[0].champion} is currently ${getOrdinal(uniqueChampionUpside[0].row!.rank)} in its group and nobody else picked it.`
+    : crowdedChampionLane
+      ? `${crowdedChampionLane[1]} players have ${crowdedChampionLane[0]} as champion, so that pick may protect people from falling behind more than it helps them separate.`
+      : championTroubleLine;
+  const hiddenUpsideLine = hiddenUpsideBand
+    ? `Among players tied on ${hiddenUpsideBand.points}, ${hiddenUpsideBand.best.person.nickname} appears to have more remaining leverage than ${hiddenUpsideBand.worst.person.nickname} because of ${hiddenUpsideBand.best.champion}${hiddenUpsideBand.best.goldenBootRow ? ` plus ${hiddenUpsideBand.best.goldenBootRow.player}` : ""}.`
+    : championLeverageLine;
+  const goldenBootLeverageLine = goldenBootLeverage.length > 0
+    ? `${goldenBootLeverage[0].person.nickname} has the best Golden Boot leverage right now: ${goldenBootLeverage[0].row!.player} is ${goldenBootLeverage[0].row!.placeLabel} and only ${goldenBootLeverage[0].pickCount} ${goldenBootLeverage[0].pickCount === 1 ? "player picked him" : "players picked him"}.`
+    : `${goldenBootLine} ${goldenBootZeroLine}`;
 
   return {
     headline: `${formatDailyReviewDate()} pool insights`,
@@ -390,8 +468,8 @@ function buildDailyReview(
     bullets: [
       `Leaderboard: ${leaderNames} ${leaders.length === 1 ? "leads" : "lead"} with ${leaderScore}. ${chaseLine}`,
       `Scoring pattern: ${splitLine}`,
-      `Champion picks: ${championTroubleLine}`,
-      `Golden Boot: ${goldenBootLine} ${goldenBootZeroLine}`
+      `Leverage: ${hiddenUpsideLine}`,
+      `Golden Boot: ${goldenBootLeverageLine} ${goldenBootZeroLine}`
     ],
     kicker: "",
     updatedLabel: updatedAt ? `Tables updated ${formatAdminTimestamp(updatedAt)}.` : "Tables have not been updated yet."
