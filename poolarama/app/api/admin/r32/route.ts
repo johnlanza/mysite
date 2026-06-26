@@ -107,6 +107,15 @@ export async function POST(request: NextRequest) {
     const pool = await getOrCreateDefaultPool();
 
     if (action === "open") {
+      const matches = await loadMatches();
+
+      if (matches.length !== 16) {
+        return NextResponse.json(
+          { error: "Generate and verify 16 Round of 32 matches before opening picks." },
+          { status: 409 }
+        );
+      }
+
       pool.currentStage = "r32";
       pool.r32Status = "open";
       pool.r32OpenedAt = new Date();
@@ -114,13 +123,20 @@ export async function POST(request: NextRequest) {
       await pool.save();
 
       return NextResponse.json({
-        matches: await loadMatches(),
+        matches,
         pool: buildPoolState(pool),
         storageMode: "mongo"
       });
     }
 
     if (action === "lock") {
+      if (pool.r32Status !== "open") {
+        return NextResponse.json(
+          { error: "Round of 32 picks must be open before they can be locked." },
+          { status: 409 }
+        );
+      }
+
       pool.r32Status = "locked";
       pool.r32LockedAt = new Date();
       await pool.save();
@@ -130,6 +146,13 @@ export async function POST(request: NextRequest) {
         pool: buildPoolState(pool),
         storageMode: "mongo"
       });
+    }
+
+    if (pool.r32Status !== "setup") {
+      return NextResponse.json(
+        { error: "Round of 32 matches cannot be regenerated after picks are opened." },
+        { status: 409 }
+      );
     }
 
     const standings = await loadStandings();
@@ -145,9 +168,8 @@ export async function POST(request: NextRequest) {
       }))
     );
 
-    pool.currentStage = "r32";
-    pool.r32Status = "open";
-    pool.r32OpenedAt = new Date();
+    pool.r32Status = "setup";
+    pool.r32OpenedAt = null;
     pool.r32LockedAt = null;
     await pool.save();
 

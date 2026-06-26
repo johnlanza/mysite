@@ -7,6 +7,7 @@ import { findKnownParticipant, isRetiredParticipant, knownParticipants } from "@
 import { buildPoolState, getOrCreateDefaultPool } from "@/lib/pool-state";
 import type { PoolStage, PoolSubmissionPicks, SavedSubmission } from "@/lib/poolarama-types";
 import { isMaintenanceMode, maintenanceModeResponse, poolDataUnavailableResponse } from "@/lib/runtime-safety";
+import MatchModel from "@/models/Match";
 import ParticipantModel from "@/models/Participant";
 import SubmissionModel from "@/models/Submission";
 
@@ -132,6 +133,28 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           { error: "Round of 32 picks are not open." },
           { status: 423 }
+        );
+      }
+
+      const matches = await MatchModel.find({ poolSlug: defaultPoolSlug, stage: "r32" }).lean();
+      const matchWinners = picks.matchWinners || {};
+
+      if (matches.length !== 16 || Object.keys(matchWinners).length !== matches.length) {
+        return NextResponse.json(
+          { error: "Pick every Round of 32 winner before submitting." },
+          { status: 400 }
+        );
+      }
+
+      const invalidPick = matches.some((match) => {
+        const winner = matchWinners[match.matchId];
+        return winner !== match.teamA && winner !== match.teamB;
+      });
+
+      if (invalidPick) {
+        return NextResponse.json(
+          { error: "Round of 32 picks include an invalid matchup winner." },
+          { status: 400 }
         );
       }
     }

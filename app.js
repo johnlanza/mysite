@@ -809,6 +809,10 @@ function startPoolaramaLiveSync() {
   if (process.env.NODE_ENV !== "production") return;
   if (process.env.POOLARAMA_DISABLE_AUTO_SYNC === "true") return;
   if (poolaramaSyncIntervalMs <= 0) return;
+  if (!process.env.POOLARAMA_ADMIN_TOKEN) {
+    console.error("Poolarama live sync disabled: missing POOLARAMA_ADMIN_TOKEN.");
+    return;
+  }
 
   const sync = () => {
     const req = http.request(
@@ -819,7 +823,7 @@ function startPoolaramaLiveSync() {
         method: "POST",
         timeout: 30000,
         headers: {
-          "x-poolarama-admin": "admin-7f4d9c2b8a61e0f5"
+          "x-poolarama-admin": process.env.POOLARAMA_ADMIN_TOKEN
         }
       },
       (res) => {

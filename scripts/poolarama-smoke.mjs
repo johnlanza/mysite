@@ -9,13 +9,19 @@ for (const arg of process.argv.slice(2)) {
 }
 
 const baseUrl = (args.get("base-url") || process.env.POOLARAMA_BASE_URL || "https://www.johnlanza.com/poolarama").replace(/\/+$/, "");
-const adminToken = args.get("admin-token") || process.env.POOLARAMA_ADMIN_TOKEN || "admin-7f4d9c2b8a61e0f5";
+const adminToken = args.get("admin-token") || process.env.POOLARAMA_ADMIN_TOKEN || "";
 const expectedParticipants = Number(args.get("expected-participants") || process.env.POOLARAMA_EXPECTED_PARTICIPANTS || 15);
 const expectedSubmissions = Number(args.get("expected-submissions") || process.env.POOLARAMA_EXPECTED_SUBMISSIONS || 15);
 const expectedLockState = args.get("expected-lock-state") || process.env.POOLARAMA_EXPECTED_LOCK_STATE || "locked";
 const backupDir = args.get("backup-dir") || process.env.POOLARAMA_BACKUP_DIR || ".poolarama-backups";
 
 const failures = [];
+
+if (!adminToken) {
+  console.error("Missing Poolarama admin token.");
+  console.error("Use --admin-token=... or set POOLARAMA_ADMIN_TOKEN.");
+  process.exit(1);
+}
 
 function assert(condition, message) {
   if (!condition) failures.push(message);

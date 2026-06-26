@@ -135,23 +135,15 @@ type GoldenBootResponse = {
   storageMode: "provider";
 };
 
+type RoundOf32Response = {
+  matches: R32Match[];
+  pool: PoolState;
+  storageMode?: "mongo" | "mock";
+};
+
 const selectedParticipantKey = "poolarama-selected-participant";
 const confirmedParticipantKey = "poolarama-confirmed-participant";
 const goldenBootWriteInLabel = "Other / write-in";
-const adminInviteToken = "admin-7f4d9c2b8a61e0f5";
-
-const adminFetchOptions = {
-  headers: {
-    "x-poolarama-admin": adminInviteToken
-  }
-};
-
-function adminJsonHeaders() {
-  return {
-    "Content-Type": "application/json",
-    "x-poolarama-admin": adminInviteToken
-  };
-}
 const defaultPoolState: PoolState = {
   preTournament: {
     status: "open",
@@ -388,6 +380,7 @@ export function PoolaramaPrototype() {
   const [identityLockedByLink, setIdentityLockedByLink] = useState(false);
   const [incompleteAlertVisible, setIncompleteAlertVisible] = useState(false);
   const [adminEnabled, setAdminEnabled] = useState(false);
+  const [adminToken, setAdminToken] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isReviewing, setIsReviewing] = useState(false);
   const [saveFeedback, setSaveFeedback] = useState("Prototype save is ready.");
@@ -477,6 +470,25 @@ export function PoolaramaPrototype() {
       ? `${leaders.slice(0, 2).join(", ")}${leaders.length > 2 ? " +" : ""}`
       : "Scoring not started";
   const unpaidCount = adminOverview.filter((participant) => !participant.venmoPaid).length;
+  const adminFetchOptions = useMemo<RequestInit>(() => {
+    if (!adminToken) return {};
+
+    return {
+      headers: { "x-poolarama-admin": adminToken }
+    };
+  }, [adminToken]);
+
+  function adminJsonHeaders(): HeadersInit {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json"
+    };
+
+    if (adminToken) {
+      headers["x-poolarama-admin"] = adminToken;
+    }
+
+    return headers;
+  }
 
   useEffect(() => {
     if (selectedChampion && !championCandidates.some((team) => team.name === selectedChampion)) {
@@ -543,9 +555,10 @@ export function PoolaramaPrototype() {
     }
 
     const urlParticipantCode = new URLSearchParams(window.location.search).get("player");
-    const adminParam = new URLSearchParams(window.location.search).get("admin");
-    const adminAccessRequested = adminParam === adminInviteToken;
+    const adminParam = new URLSearchParams(window.location.search).get("admin") || "";
+    const adminAccessRequested = Boolean(adminParam);
     const adminParticipant = adminAccessRequested ? defaultParticipant : null;
+    setAdminToken(adminParam);
     setAdminEnabled(adminAccessRequested);
     const storedParticipantCode = window.localStorage.getItem(selectedParticipantKey);
     const confirmedParticipantCode = window.localStorage.getItem(confirmedParticipantKey);
@@ -628,11 +641,15 @@ export function PoolaramaPrototype() {
   }, []);
 
   useEffect(() => {
-    loadAdminOverview();
     loadGroupStandings();
     loadGoldenBootTable();
-    loadRoundOf32();
   }, []);
+
+  useEffect(() => {
+    if (!adminEnabled || !adminToken) return;
+    loadAdminOverview();
+    loadRoundOf32();
+  }, [adminEnabled, adminToken]);
 
   useEffect(() => {
     if (!adminEnabled && tab === "admin") {
@@ -643,6 +660,17 @@ export function PoolaramaPrototype() {
   useEffect(() => {
     loadPublicPicks(selectedParticipant.inviteCode || "");
   }, [selectedParticipant.code, selectedParticipant.inviteCode]);
+
+  useEffect(() => {
+    if (adminEnabled) return;
+
+    if (poolState.r32.status === "open" || poolState.r32.status === "locked") {
+      loadPublicRoundOf32();
+      return;
+    }
+
+    setR32Matches([]);
+  }, [adminEnabled, poolState.r32.status]);
 
   async function loadAdminOverview() {
     try {
@@ -755,10 +783,27 @@ export function PoolaramaPrototype() {
         throw new Error("Round of 32 failed.");
       }
 
-      const data = (await response.json()) as { matches: R32Match[]; pool: PoolState };
+      const data = (await response.json()) as RoundOf32Response;
       setR32Matches(data.matches);
       setPoolState(data.pool);
     } catch {
+      setR32Feedback("Round of 32 unavailable.");
+    }
+  }
+
+  async function loadPublicRoundOf32() {
+    try {
+      const response = await fetch(withBasePath("/api/r32"), { cache: "no-store" });
+
+      if (!response.ok) {
+        throw new Error("Round of 32 failed.");
+      }
+
+      const data = (await response.json()) as RoundOf32Response;
+      setR32Matches(data.matches);
+      setPoolState(data.pool);
+    } catch {
+      setR32Matches([]);
       setR32Feedback("Round of 32 unavailable.");
     }
   }
@@ -855,6 +900,48 @@ export function PoolaramaPrototype() {
       setAdminFeedback(`Pre-tournament picks are ${nextStatus}.`);
     } catch {
       setAdminFeedback("Could not update pre-tournament lock.");
+    }
+  }
+
+  async function handleRoundOf32AdminAction(action: "generate" | "open" | "lock") {
+    const labels = {
+      generate: "Generating Round of 32 preview...",
+      open: "Opening Round of 32 picks...",
+      lock: "Locking Round of 32 picks..."
+    };
+    const successMessages = {
+      generate: "Round of 32 preview generated. Review the matchups before opening picks.",
+      open: "Round of 32 picks are open.",
+      lock: "Round of 32 picks are locked."
+    };
+
+    if (action === "open" && r32Matches.length !== 16) {
+      setAdminFeedback("Generate and verify 16 Round of 32 matches before opening picks.");
+      return;
+    }
+
+    setAdminFeedback(labels[action]);
+
+    try {
+      const response = await fetch(withBasePath("/api/admin/r32"), {
+        method: "POST",
+        headers: adminJsonHeaders(),
+        body: JSON.stringify({ action })
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Could not update Round of 32.");
+      }
+
+      const data = (await response.json()) as RoundOf32Response;
+      setR32Matches(data.matches);
+      setPoolState(data.pool);
+      await loadPublicPicks();
+      setAdminFeedback(successMessages[action]);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not update Round of 32.";
+      setAdminFeedback(message);
     }
   }
 
@@ -1023,7 +1110,12 @@ export function PoolaramaPrototype() {
   }
 
   function handleExportPicks() {
-    window.location.href = withBasePath(`/api/admin/export?adminToken=${adminInviteToken}`);
+    if (!adminToken) {
+      setAdminFeedback("Admin token is missing.");
+      return;
+    }
+
+    window.location.href = withBasePath(`/api/admin/export?adminToken=${encodeURIComponent(adminToken)}`);
   }
 
   async function handleSelectParticipant(participant: KnownParticipant) {
@@ -2041,6 +2133,70 @@ export function PoolaramaPrototype() {
             </div>
           </section>
           <GoldenBootTable rows={goldenBootRows} feedback={goldenBootFeedback} />
+          <section className="r32-admin-card" aria-labelledby="r32-admin-title">
+            <div className="section-title-row">
+              <div>
+                <p className="eyebrow">Knockout setup</p>
+                <h3 id="r32-admin-title">Round of 32 picks</h3>
+                <p>
+                  Generate a private preview first. Open picks only after the matchups look right.
+                </p>
+              </div>
+              <div className="admin-toolbar-actions compact-actions">
+                <button
+                  className="admin-action compact"
+                  type="button"
+                  onClick={() => handleRoundOf32AdminAction("generate")}
+                  disabled={poolState.r32.status !== "setup"}
+                >
+                  Generate preview
+                </button>
+                <button
+                  className="admin-action compact"
+                  type="button"
+                  onClick={() => handleRoundOf32AdminAction("open")}
+                  disabled={poolState.r32.status !== "setup" || r32Matches.length !== 16}
+                >
+                  Open picks
+                </button>
+                <button
+                  className="admin-action compact quiet"
+                  type="button"
+                  onClick={() => handleRoundOf32AdminAction("lock")}
+                  disabled={!r32Open}
+                >
+                  Lock picks
+                </button>
+              </div>
+            </div>
+            <div className="admin-sync-status" aria-label="Round of 32 status">
+              <div>
+                <span>Status</span>
+                <strong>{poolState.r32.status}</strong>
+              </div>
+              <div>
+                <span>Matchups</span>
+                <strong>{r32Matches.length}/16</strong>
+              </div>
+              <div>
+                <span>Opened</span>
+                <strong>{formatAdminTimestamp(poolState.r32.openedAt)}</strong>
+              </div>
+            </div>
+            {r32Matches.length > 0 ? (
+              <div className="r32-preview-grid">
+                {r32Matches.map((match) => (
+                  <div key={`admin-preview-${match.matchId}`}>
+                    <span>{match.label}</span>
+                    <strong>{match.teamA}</strong>
+                    <strong>{match.teamB}</strong>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="admin-empty-note">No Round of 32 preview has been generated yet.</p>
+            )}
+          </section>
           <div className="admin-list">
             {adminOverview.map((participant) => {
               const isSeededParticipant = knownParticipants.some((knownParticipant) => knownParticipant.code === participant.code);

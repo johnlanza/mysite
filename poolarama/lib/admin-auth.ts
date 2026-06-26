@@ -1,12 +1,17 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-export const adminInviteToken = "admin-7f4d9c2b8a61e0f5";
+function getAdminToken() {
+  return process.env.POOLARAMA_ADMIN_TOKEN || "";
+}
 
 export function isAdminRequest(request: NextRequest) {
+  const adminToken = getAdminToken();
+  if (!adminToken) return false;
+
   const headerToken = request.headers.get("x-poolarama-admin") || "";
   const queryToken = request.nextUrl.searchParams.get("adminToken") || "";
 
-  return headerToken === adminInviteToken || queryToken === adminInviteToken;
+  return headerToken === adminToken || queryToken === adminToken;
 }
 
 export function requireAdminRequest(request: NextRequest) {
