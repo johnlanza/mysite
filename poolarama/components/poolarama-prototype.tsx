@@ -277,10 +277,6 @@ function getPickScoreValue(person: PublicPickParticipant, label: string) {
   return person.scoring.find((item) => item.label === label)?.value || 0;
 }
 
-function formatPersonPoints(people: PublicPickParticipant[]) {
-  return people.map((person) => `${person.nickname} (${person.points})`).join(", ");
-}
-
 function countByValue(values: string[]) {
   return values.reduce((counts, value) => {
     if (!value) return counts;
@@ -303,11 +299,6 @@ function buildDailyReview(
 ) {
   const rankedPeople = getDisplayRanks([...people].sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname)));
   const submittedPeople = rankedPeople.filter((person) => person.submitted);
-  const leaderScore = submittedPeople[0]?.points || 0;
-  const leaders = submittedPeople.filter((person) => person.points === leaderScore);
-  const chasePack = submittedPeople.filter((person) => person.points < leaderScore).slice(0, 4);
-  const onePointBack = submittedPeople.filter((person) => leaderScore - person.points === 1);
-  const twoPointBack = submittedPeople.filter((person) => leaderScore - person.points === 2);
   const topScorer = goldenBootRows[0];
   const goldenBootBackers = topScorer
     ? submittedPeople.filter((person) => normalizeGoldenBootName(person.picks?.goldenBoot || "") === topScorer.normalizedPlayer)
@@ -386,6 +377,26 @@ function buildDailyReview(
     item.advancers >= Math.max(0, biggestAdvancerScore.score - 1) &&
     item.bonus <= Math.max(0, biggestWinnerBonus.score - 3)
   );
+  const secondPlaceExposure = submittedPeople
+    .map((person) => {
+      const exposure = groups.flatMap((group) => {
+        const winnerPick = person.picks?.groupWinners?.[group] || "";
+        const runnerUpPick = person.picks?.groupRunnersUp?.[group] || "";
+        const winnerScore = person.groupPickScores?.[group]?.winner || 0;
+        const runnerUpScore = person.groupPickScores?.[group]?.runnerUp || 0;
+
+        return [
+          { team: winnerPick, score: winnerScore },
+          { team: runnerUpPick, score: runnerUpScore }
+        ].filter((pick) => pick.score > 0 && groupRankByTeam.get(pick.team)?.rank === 2);
+      });
+      const points = exposure.reduce((total, pick) => total + pick.score, 0);
+      const exposedTeams = Array.from(new Set(exposure.map((pick) => pick.team)));
+
+      return { person, points, exposedTeams };
+    })
+    .filter((item) => item.points > 0)
+    .sort((a, b) => b.points - a.points || b.person.points - a.person.points || a.person.nickname.localeCompare(b.person.nickname));
   const scoreBands = Array.from(
     submittedPeople.reduce((bands, person) => {
       const current = bands.get(person.points) || [];
@@ -428,14 +439,6 @@ function buildDailyReview(
     };
   }
 
-  const leaderNames = leaders.map((person) => person.nickname).join(", ");
-  const chaseLine = onePointBack.length > 0
-    ? `${formatPersonPoints(onePointBack)} ${onePointBack.length === 1 ? "is" : "are"} one point back.`
-    : twoPointBack.length > 0
-      ? `${formatPersonPoints(twoPointBack)} ${twoPointBack.length === 1 ? "is" : "are"} two points back.`
-      : chasePack.length > 0
-        ? `Closest chasers: ${formatPersonPoints(chasePack)}.`
-        : "No clear chase pack yet.";
   const splitLine = highVolumeWrongSeats
     ? `${highVolumeWrongSeats.person.nickname} has one of the most unusual score profiles: ${highVolumeWrongSeats.advancers} advancer points but only ${highVolumeWrongSeats.bonus} winner-bonus points. That suggests strong team selection but several winner/runner-up flips.`
     : `${joinNames(biggestAdvancerScore.people)} ${biggestAdvancerScore.people.length === 1 ? "has" : "have"} the best advancer haul (${biggestAdvancerScore.score}); ${joinNames(biggestWinnerBonus.people)} ${biggestWinnerBonus.people.length === 1 ? "has" : "have"} the most winner-bonus points (${biggestWinnerBonus.score}).`;
@@ -461,13 +464,16 @@ function buildDailyReview(
   const goldenBootLeverageLine = goldenBootLeverage.length > 0
     ? `${goldenBootLeverage[0].person.nickname} has the best Golden Boot leverage right now: ${goldenBootLeverage[0].row!.player} is ${goldenBootLeverage[0].row!.placeLabel} and only ${goldenBootLeverage[0].pickCount} ${goldenBootLeverage[0].pickCount === 1 ? "player picked him" : "players picked him"}.`
     : `${goldenBootLine} ${goldenBootZeroLine}`;
+  const fragilityLine = secondPlaceExposure.length > 0
+    ? `${secondPlaceExposure[0].person.nickname} has the most points sitting on current 2nd-place teams: ${secondPlaceExposure[0].points} points tied to ${joinNames(secondPlaceExposure[0].exposedTeams, 4)}. That score may be more volatile than the total suggests.`
+    : "No player has meaningful exposure to current 2nd-place teams yet.";
 
   return {
     headline: `${formatDailyReviewDate()} pool insights`,
     dek: "",
     bullets: [
-      `Leaderboard: ${leaderNames} ${leaders.length === 1 ? "leads" : "lead"} with ${leaderScore}. ${chaseLine}`,
       `Scoring pattern: ${splitLine}`,
+      `Fragility: ${fragilityLine}`,
       `Leverage: ${hiddenUpsideLine}`,
       `Golden Boot: ${goldenBootLeverageLine} ${goldenBootZeroLine}`
     ],
