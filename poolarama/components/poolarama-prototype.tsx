@@ -309,6 +309,10 @@ function buildDailyReview(
   const championPickCounts = countByValue(submittedPeople.map((person) => person.picks?.champion || ""));
   const goldenBootPickCounts = countByValue(submittedPeople.map((person) => normalizeGoldenBootName(person.picks?.goldenBoot || "")));
   const groupRankByTeam = new Map(groupRows.map((row) => [row.team, row]));
+  const groupIsComplete = new Map(groups.map((group) => {
+    const rows = groupRows.filter((row) => row.group === group);
+    return [group, rows.length === 4 && rows.every((row) => row.played >= 3)];
+  }));
   const championProfiles = submittedPeople
     .map((person) => {
       const champion = person.picks?.champion || "";
@@ -383,6 +387,8 @@ function buildDailyReview(
   const secondPlaceExposure = fragilityPool
     .map((person) => {
       const exposure = groups.flatMap((group) => {
+        if (groupIsComplete.get(group)) return [];
+
         const winnerPick = person.picks?.groupWinners?.[group] || "";
         const runnerUpPick = person.picks?.groupRunnersUp?.[group] || "";
         const winnerScore = person.groupPickScores?.[group]?.winner || 0;
@@ -468,8 +474,8 @@ function buildDailyReview(
     ? `${goldenBootLeverage[0].person.nickname} may have the best Golden Boot leverage right now: ${goldenBootLeverage[0].row!.player} is ${goldenBootLeverage[0].row!.placeLabel} and only ${goldenBootLeverage[0].pickCount} ${goldenBootLeverage[0].pickCount === 1 ? "player picked him" : "players picked him"}.`
     : `${goldenBootLine} ${goldenBootZeroLine}`;
   const fragilityLine = secondPlaceExposure.length > 0
-    ? `Among current contenders, ${secondPlaceExposure[0].person.nickname} has the most points sitting on 2nd-place teams: ${secondPlaceExposure[0].points} points tied to ${joinNames(secondPlaceExposure[0].exposedTeams, 4)}. That might make ${secondPlaceExposure[0].person.nickname}'s score more exposed to one group-table swing.`
-    : "Among current contenders, nobody has meaningful exposure to 2nd-place teams yet.";
+    ? `Among current contenders, ${secondPlaceExposure[0].person.nickname} has the most points sitting on 2nd-place teams in unfinished groups: ${secondPlaceExposure[0].points} points tied to ${joinNames(secondPlaceExposure[0].exposedTeams, 4)}. That might make ${secondPlaceExposure[0].person.nickname}'s score more exposed to one group-table swing.`
+    : "Among current contenders, no one has meaningful points tied to 2nd-place teams in unfinished groups.";
 
   return {
     headline: `${formatDailyReviewDate()} pool insights`,
