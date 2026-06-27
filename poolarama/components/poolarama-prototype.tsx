@@ -713,6 +713,7 @@ export function PoolaramaPrototype() {
   const preTournamentLocked = poolState.preTournament.status === "locked";
   const r32Open = poolState.r32.status === "open";
   const r32Locked = poolState.r32.status === "locked";
+  const preTournamentControlsLocked = preTournamentLocked || r32Open || r32Locked;
   const r32PicksComplete = r32Matches.length > 0 && r32Matches.every((match) => Boolean(r32Picks[match.matchId]));
   const showLockedHomeNotice = preTournamentLocked && !identityConfirmed && !identityLockedByLink && !adminEnabled;
   const completionHint = duplicateGroupPicks.length > 0
@@ -721,11 +722,11 @@ export function PoolaramaPrototype() {
       ? `Finish Group ${missingGroupPicks[0]}.`
       : !selectedChampion
         ? "Pick a champion."
-        : !finalGoldenBootPick
-          ? "Pick a Golden Boot winner."
-          : preTournamentLocked
-            ? "Pre-tournament picks are locked."
-            : "Ready to review.";
+      : !finalGoldenBootPick
+        ? "Pick a Golden Boot winner."
+        : preTournamentControlsLocked
+          ? "Pre-tournament picks are locked."
+          : "Ready to review.";
   const submittedCount = adminOverview.filter((participant) => participant.submitted).length;
   const leadingScore = publicPicks.reduce((maxPoints, participant) => Math.max(maxPoints, participant.points), 0);
   const leaders = leadingScore > 0
@@ -1562,7 +1563,7 @@ export function PoolaramaPrototype() {
       return;
     }
 
-    if (preTournamentLocked) {
+    if (preTournamentControlsLocked) {
       setIsReviewing(false);
       setSaveFeedback("Pre-tournament picks are locked.");
       return;
@@ -1844,11 +1845,14 @@ export function PoolaramaPrototype() {
                             className={groupWinners[group] === team.name ? "selected" : ""}
                             key={`${group}-winner-${team.code}`}
                             type="button"
+                            disabled={preTournamentControlsLocked || isSaving}
                             style={{
                               "--team-a": team.colors[0],
                               "--team-b": team.colors[1]
                             } as React.CSSProperties}
                             onClick={() => {
+                              if (preTournamentControlsLocked) return;
+
                               setGroupWinners((current) => ({ ...current, [group]: team.name }));
                               setGroupRunnersUp((current) => (
                                 current[group] === team.name ? { ...current, [group]: "" } : current
@@ -1870,11 +1874,14 @@ export function PoolaramaPrototype() {
                             className={groupRunnersUp[group] === team.name ? "selected" : ""}
                             key={`${group}-runner-up-${team.code}`}
                             type="button"
+                            disabled={preTournamentControlsLocked || isSaving}
                             style={{
                               "--team-a": team.colors[0],
                               "--team-b": team.colors[1]
                             } as React.CSSProperties}
                             onClick={() => {
+                              if (preTournamentControlsLocked) return;
+
                               setGroupRunnersUp((current) => ({ ...current, [group]: team.name }));
                               setGroupWinners((current) => (
                                 current[group] === team.name ? { ...current, [group]: "" } : current
@@ -1912,7 +1919,12 @@ export function PoolaramaPrototype() {
                     className={`team-card ${selectedChampion === team.name ? "selected" : ""}`}
                     key={team.name}
                     type="button"
-                    onClick={() => setSelectedChampion(team.name)}
+                    disabled={preTournamentControlsLocked || isSaving}
+                    onClick={() => {
+                      if (preTournamentControlsLocked) return;
+
+                      setSelectedChampion(team.name);
+                    }}
                     style={{
                       "--team-a": team.colors[0],
                       "--team-b": team.colors[1]
@@ -1948,7 +1960,10 @@ export function PoolaramaPrototype() {
                     className={`candidate-option ${selectedGoldenBoot === candidate.name ? "selected" : ""}`}
                     key={candidate.name}
                     type="button"
+                    disabled={preTournamentControlsLocked || isSaving}
                     onClick={() => {
+                      if (preTournamentControlsLocked) return;
+
                       setSelectedGoldenBoot(candidate.name);
 
                       if (candidate.name !== goldenBootWriteInLabel) {
@@ -1976,6 +1991,7 @@ export function PoolaramaPrototype() {
                   onChange={(event) => setGoldenBootWriteIn(event.target.value)}
                   placeholder="Enter player name"
                   maxLength={80}
+                  disabled={preTournamentControlsLocked || isSaving}
                   autoFocus
                 />
               </label>
@@ -2034,7 +2050,7 @@ export function PoolaramaPrototype() {
                 return;
               }
 
-              if (preTournamentLocked) {
+              if (preTournamentControlsLocked) {
                 setIsReviewing(false);
                 setSaveFeedback("Pre-tournament picks are locked.");
                 return;
@@ -2047,14 +2063,14 @@ export function PoolaramaPrototype() {
 
               setIsReviewing(true);
             }}
-            disabled={isSaving}
-            aria-disabled={isSaving || !allRequiredPicksComplete}
+            disabled={isSaving || preTournamentControlsLocked}
+            aria-disabled={isSaving || preTournamentControlsLocked || !allRequiredPicksComplete}
           >
             {isSaving
               ? "Submitting picks..."
               : isReviewing
                 ? `Submit Picks: ${selectedParticipant.nickname}`
-                : preTournamentLocked
+                : preTournamentControlsLocked
                   ? "Picks Locked"
                 : !allRequiredPicksComplete
                   ? `Finish Picks: ${selectedParticipant.nickname}`

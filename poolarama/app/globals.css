@@ -681,6 +681,24 @@ h1 {
   line-height: 1;
 }
 
+.group-pick-set button:disabled,
+.team-card:disabled,
+.candidate-option:disabled {
+  cursor: not-allowed;
+}
+
+.group-pick-set button:disabled:not(.selected),
+.team-card:disabled:not(.selected),
+.candidate-option:disabled:not(.selected) {
+  opacity: 0.58;
+}
+
+.group-pick-set button:disabled.selected,
+.team-card:disabled.selected,
+.candidate-option:disabled.selected {
+  opacity: 0.92;
+}
+
 .candidate-card {
   display: grid;
   gap: 14px;
@@ -1061,6 +1079,11 @@ h1 {
     linear-gradient(135deg, color-mix(in srgb, var(--team-a) 45%, white), color-mix(in srgb, var(--team-b) 28%, white)),
     #fff;
   box-shadow: 0 0 0 4px rgba(255, 200, 61, 0.5);
+}
+
+.write-in-field input:disabled {
+  cursor: not-allowed;
+  opacity: 0.68;
 }
 
 .write-in-field {
