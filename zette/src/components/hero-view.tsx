@@ -129,7 +129,7 @@ export function HeroView({
           ) : null}
 
           <main className="flex flex-1 flex-col items-center px-7 pb-10 pt-12 sm:px-10">
-            {selectedTags.length > 0 ? (
+            {selectedTags.length > 0 && !isSeed ? (
               <Link
                 href={`/?tags=${encodeURIComponent(selectedTags.join(","))}`}
                 className="mb-8 inline-flex rounded-full border border-line bg-card/70 px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted transition hover:border-accent hover:text-accent"

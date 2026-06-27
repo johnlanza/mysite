@@ -38,7 +38,6 @@ export function QuestionView({ question, remaining, seen }: QuestionViewProps) {
         >
           Zette
         </Link>
-        <span aria-hidden="true" className="h-1 w-6 rounded-full bg-foreground/20" />
         <span className="w-[5rem] text-right font-sans text-[0.6rem] font-medium uppercase tracking-[0.2em] text-muted/50">
           Questions
         </span>

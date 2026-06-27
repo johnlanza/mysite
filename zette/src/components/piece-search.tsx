@@ -151,8 +151,6 @@ export function PieceSearch({
   const showResults =
     normalizedQuery.length > 0 || (isBrowse && selectedTags.length > 0);
   const selectedLabel = selectedTags.map((tag) => `#${tag}`).join(" + ");
-  const compactSummary =
-    selectedTags.length > 0 ? `Browsing ${selectedLabel}` : "Search or browse tags";
 
   return (
     <section
@@ -161,29 +159,13 @@ export function PieceSearch({
       }`}
     >
       {isBrowse ? (
-        <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="font-sans text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-accent">
-              Tags
-            </p>
-            <h1 className="mt-2 font-serif text-[2.25rem] leading-[1.04] text-foreground sm:text-[3rem]">
-              {selectedLabel || "Browse Zette"}
-            </h1>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href="/questions"
-              className="inline-flex w-fit items-center rounded-full border border-line bg-card/80 px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted shadow-[0_10px_28px_rgba(89,64,34,0.06)] transition hover:border-accent hover:text-accent"
-            >
-              Questions
-            </Link>
-            <Link
-              href="/"
-              className="inline-flex w-fit items-center rounded-full border border-line bg-card/80 px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted shadow-[0_10px_28px_rgba(89,64,34,0.06)] transition hover:border-accent hover:text-accent"
-            >
-              Featured Card
-            </Link>
-          </div>
+        <div className="mb-7">
+          <p className="font-sans text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-accent">
+            Tags
+          </p>
+          <h1 className="mt-2 font-serif text-[2.25rem] leading-[1.04] text-foreground sm:text-[3rem]">
+            {selectedLabel || "Browse Zette"}
+          </h1>
         </div>
       ) : null}
 
@@ -191,27 +173,15 @@ export function PieceSearch({
         <label className="sr-only" htmlFor="piece-search">
           Search Zette
         </label>
-        <div className="flex items-center gap-2">
+        <div>
           <input
             id="piece-search"
-            className="min-w-0 flex-1 rounded-full border border-line/80 bg-[#fffaf3]/85 px-5 py-3 text-sm text-foreground outline-none transition placeholder:text-muted/70 focus:border-accent"
+            className="w-full rounded-full border border-line/80 bg-[#fffaf3]/85 px-5 py-3 text-sm text-foreground outline-none transition placeholder:text-muted/70 focus:border-accent"
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search words or phrases"
             type="search"
             value={query}
           />
-          <button
-            aria-expanded={showTags}
-            className={`shrink-0 rounded-full border px-4 py-3 text-[0.68rem] font-semibold uppercase tracking-[0.2em] transition ${
-              selectedTags.length > 0
-                ? "border-accent bg-accent text-[#f8f2e9]"
-                : "border-line bg-[#fffaf3]/85 text-muted hover:border-accent hover:text-accent"
-            }`}
-            onClick={() => setShowTags((value) => !value)}
-            type="button"
-          >
-            {selectedTags.length > 0 ? `${selectedTags.length} Tags` : "Tags"}
-          </button>
         </div>
 
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
@@ -222,6 +192,18 @@ export function PieceSearch({
             >
               Questions
             </Link>
+            <button
+              aria-expanded={showTags}
+              className={`inline-flex items-center rounded-full border px-3.5 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.2em] transition ${
+                selectedTags.length > 0
+                  ? "border-accent bg-accent text-[#f8f2e9]"
+                  : "border-line bg-transparent text-muted hover:border-accent hover:text-accent"
+              }`}
+              onClick={() => setShowTags((value) => !value)}
+              type="button"
+            >
+              {selectedTags.length > 0 ? `${selectedTags.length} Tags` : "Tags"}
+            </button>
             {selectedTags.length > 0 ? (
               <Link
                 href="/"
@@ -232,11 +214,6 @@ export function PieceSearch({
             ) : null}
           </div>
           <RefreshQuotesButton compact />
-        </div>
-
-        <div className="mt-3 flex items-center justify-between gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted/70">
-          <span>{isBrowse && selectedTags.length > 0 ? `${results.length} cards match ${selectedLabel}` : compactSummary}</span>
-          {normalizedQuery.length > 0 ? <span>{results.length} matches</span> : null}
         </div>
 
         {showTags ? (
@@ -271,13 +248,7 @@ export function PieceSearch({
                 })}
               </div>
             </div>
-            <div
-              className={`flex gap-2 ${
-                isBrowse
-                  ? "flex-wrap"
-                  : "capsule-scrollbar overflow-x-auto pb-1"
-              }`}
-            >
+            <div className="capsule-scrollbar flex gap-2 overflow-x-auto pb-1">
               <Link
                 className={`shrink-0 rounded-full border px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition ${
                   selectedTags.length > 0
