@@ -998,6 +998,9 @@ export function PoolaramaPrototype() {
 
       const data = (await response.json()) as PublicPicksResponse;
       setPoolState(data.pool);
+      if (data.pool.r32.status === "open") {
+        setR32Feedback("Round of 32 picks are open.");
+      }
       setPublicPicks(data.participants);
       setPoolDataWarning(null);
     } catch (error) {
@@ -1076,6 +1079,13 @@ export function PoolaramaPrototype() {
       setR32Matches(data.matches);
       setPoolState(data.pool);
       setR32PreviewReady(false);
+      setR32Feedback(
+        data.pool.r32.status === "open"
+          ? "Round of 32 picks are open."
+          : data.pool.r32.status === "locked"
+            ? "Round of 32 picks are locked."
+            : "Round of 32 picks are not open yet."
+      );
     } catch {
       setR32Matches([]);
       setR32PreviewReady(false);
@@ -1710,10 +1720,12 @@ export function PoolaramaPrototype() {
       {tab === "picks" && (
         <section className="screen stack" aria-labelledby="picks-title">
           <ScreenHeader
-            kicker={showLockedHomeNotice ? "Current round locked" : identityConfirmed ? "Picks open" : "Player access"}
-            title={showLockedHomeNotice ? "All picks are in" : identityConfirmed ? "Make your group picks" : "Open your player link"}
+            kicker={showLockedHomeNotice ? "Current round locked" : r32Open ? "Round of 32 picks open" : identityConfirmed ? "Picks open" : "Player access"}
+            title={showLockedHomeNotice ? "All picks are in" : r32Open ? "Make your Round of 32 picks" : identityConfirmed ? "Make your group picks" : "Open your player link"}
             note={showLockedHomeNotice
               ? "The group-stage picks are locked and visible in the standings."
+              : r32Open
+              ? `This link is assigned to ${selectedParticipant.nickname}. Scroll to the Round of 32 card and pick every match winner.`
               : identityLockedByLink
               ? `This test link is assigned to ${selectedParticipant.nickname}.`
               : identityConfirmed
@@ -1779,6 +1791,24 @@ export function PoolaramaPrototype() {
               </button>
             )}
           </section>
+          )}
+          {identityConfirmed && r32Open && r32Matches.length > 0 && (
+            <section className="locked-round-card" aria-labelledby="r32-open-title">
+              <div>
+                <p className="eyebrow">Round of 32</p>
+                <h3 id="r32-open-title">Irish Eyes can test the knockout picker now</h3>
+                <p>Pick all 16 match winners, then submit the Round of 32 picks.</p>
+              </div>
+              <div className="locked-round-actions">
+                <button
+                  className="primary-action inline-action"
+                  type="button"
+                  onClick={() => document.getElementById("r32-picks-title")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                >
+                  Go to Round of 32 picks
+                </button>
+              </div>
+            </section>
           )}
           {identityConfirmed && (
             <>
