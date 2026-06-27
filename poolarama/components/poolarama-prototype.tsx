@@ -139,6 +139,12 @@ type RoundOf32Response = {
   matches: R32Match[];
   pool: PoolState;
   storageMode?: "mongo" | "mock";
+  previewOnly?: boolean;
+  backup?: {
+    backupId: string;
+    backupCreatedAt: string;
+    backupReason: string;
+  };
 };
 
 const selectedParticipantKey = "poolarama-selected-participant";
@@ -668,6 +674,7 @@ export function PoolaramaPrototype() {
   const [r32Picks, setR32Picks] = useState<Record<string, string>>({});
   const [r32SavedPicks, setR32SavedPicks] = useState<Record<string, string> | null>(null);
   const [r32SavedAt, setR32SavedAt] = useState<string | null>(null);
+  const [r32PreviewReady, setR32PreviewReady] = useState(false);
   const [r32Feedback, setR32Feedback] = useState("Round of 32 picks are not open yet.");
   const [goldenBootRows, setGoldenBootRows] = useState<GoldenBootRow[]>([]);
   const [goldenBootFeedback, setGoldenBootFeedback] = useState("Golden Boot table is loading.");
@@ -1051,6 +1058,7 @@ export function PoolaramaPrototype() {
       const data = (await response.json()) as RoundOf32Response;
       setR32Matches(data.matches);
       setPoolState(data.pool);
+      setR32PreviewReady(Boolean(data.previewOnly));
     } catch {
       setR32Feedback("Round of 32 unavailable.");
     }
@@ -1067,8 +1075,10 @@ export function PoolaramaPrototype() {
       const data = (await response.json()) as RoundOf32Response;
       setR32Matches(data.matches);
       setPoolState(data.pool);
+      setR32PreviewReady(false);
     } catch {
       setR32Matches([]);
+      setR32PreviewReady(false);
       setR32Feedback("Round of 32 unavailable.");
     }
   }
@@ -1110,6 +1120,7 @@ export function PoolaramaPrototype() {
       const data = (await response.json()) as { standings: GroupStandingRow[]; r32Preview: R32Match[] };
       setGroupStandingsRows(data.standings);
       setGroupTablesUpdatedAt(new Date().toISOString());
+      setR32PreviewReady(false);
       setAdminFeedback("Group standings saved. R32 preview updated.");
     } catch {
       setAdminFeedback("Could not save group standings.");
@@ -1132,6 +1143,7 @@ export function PoolaramaPrototype() {
       const data = (await response.json()) as SyncStandingsResponse;
       setGroupStandingsRows(data.standings);
       setGroupTablesUpdatedAt(data.syncedAt);
+      setR32PreviewReady(false);
       await loadPublicPicks();
       await loadGoldenBootTable();
       setAdminFeedback(
@@ -1168,15 +1180,19 @@ export function PoolaramaPrototype() {
     }
   }
 
+  function formatBackupMessage(data: RoundOf32Response) {
+    return data.backup?.backupId ? ` Backup ${data.backup.backupId.slice(-6)} saved.` : "";
+  }
+
   async function handleRoundOf32AdminAction(action: "generate" | "open" | "lock" | "reset") {
     const labels = {
-      generate: "Generating Round of 32 preview...",
-      open: "Opening Round of 32 picks...",
-      lock: "Locking Round of 32 picks...",
+      generate: "Generating private Round of 32 preview...",
+      open: "Creating backup and opening Round of 32 picks...",
+      lock: "Creating backup and locking Round of 32 picks...",
       reset: "Resetting Round of 32 test data..."
     };
     const successMessages = {
-      generate: "Round of 32 preview generated. Review the matchups before opening picks.",
+      generate: "Private Round of 32 preview generated. Review the matchups, then confirm and open.",
       open: "Round of 32 picks are open.",
       lock: "Round of 32 picks are locked.",
       reset: "Round of 32 reset to setup. Group-stage picks were not changed."
@@ -1184,6 +1200,21 @@ export function PoolaramaPrototype() {
 
     if (action === "open" && r32Matches.length !== 16) {
       setAdminFeedback("Generate and verify 16 Round of 32 matches before opening picks.");
+      return;
+    }
+
+    if (action === "open" && !r32PreviewReady) {
+      setAdminFeedback("Generate a fresh private preview before opening Round of 32 picks.");
+      return;
+    }
+
+    if (action === "open" && !window.confirm("Open Round of 32 picks from this preview? A backup will be saved first.")) {
+      setAdminFeedback("Round of 32 open cancelled.");
+      return;
+    }
+
+    if (action === "lock" && !window.confirm("Lock Round of 32 picks? A backup will be saved first.")) {
+      setAdminFeedback("Round of 32 lock cancelled.");
       return;
     }
 
@@ -1202,7 +1233,11 @@ export function PoolaramaPrototype() {
       const response = await fetch(withBasePath("/api/admin/r32"), {
         method: "POST",
         headers: adminJsonHeaders(),
-        body: JSON.stringify({ action, confirmation: action === "reset" ? "RESET" : undefined })
+        body: JSON.stringify({
+          action,
+          confirmation: action === "reset" ? "RESET" : action === "open" ? "OPEN" : undefined,
+          previewMatches: action === "open" ? r32Matches : undefined
+        })
       });
 
       if (!response.ok) {
@@ -1213,15 +1248,47 @@ export function PoolaramaPrototype() {
       const data = (await response.json()) as RoundOf32Response;
       setR32Matches(data.matches);
       setPoolState(data.pool);
+      setR32PreviewReady(Boolean(data.previewOnly));
       if (action === "reset") {
         setR32Picks({});
         setR32SavedPicks(null);
         setR32SavedAt(null);
       }
       await loadPublicPicks();
-      setAdminFeedback(successMessages[action]);
+      setAdminFeedback(`${successMessages[action]}${formatBackupMessage(data)}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not update Round of 32.";
+      setAdminFeedback(message);
+    }
+  }
+
+  async function handleRoundOf32Winner(matchId: string, winner: string) {
+    setAdminFeedback("Creating backup and saving Round of 32 winner...");
+
+    try {
+      const response = await fetch(withBasePath("/api/admin/r32"), {
+        method: "POST",
+        headers: adminJsonHeaders(),
+        body: JSON.stringify({
+          action: "score",
+          matchId,
+          winner
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Could not save Round of 32 winner.");
+      }
+
+      const data = (await response.json()) as RoundOf32Response;
+      setR32Matches(data.matches);
+      setPoolState(data.pool);
+      setR32PreviewReady(false);
+      await loadPublicPicks();
+      setAdminFeedback(`Round of 32 winner saved.${formatBackupMessage(data)}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not save Round of 32 winner.";
       setAdminFeedback(message);
     }
   }
@@ -2509,9 +2576,9 @@ export function PoolaramaPrototype() {
                   className="admin-action compact"
                   type="button"
                   onClick={() => handleRoundOf32AdminAction("open")}
-                  disabled={poolState.r32.status !== "setup" || r32Matches.length !== 16}
+                  disabled={poolState.r32.status !== "setup" || !r32PreviewReady || r32Matches.length !== 16}
                 >
-                  Open picks
+                  Confirm and open
                 </button>
                 <button
                   className="admin-action compact quiet"
@@ -2538,7 +2605,7 @@ export function PoolaramaPrototype() {
               </div>
               <div>
                 <span>Matchups</span>
-                <strong>{r32Matches.length}/16</strong>
+                <strong>{r32Matches.length}/16{r32PreviewReady ? " preview" : ""}</strong>
               </div>
               <div>
                 <span>Opened</span>
@@ -2552,6 +2619,21 @@ export function PoolaramaPrototype() {
                     <span>{match.label}</span>
                     <strong>{match.teamA}</strong>
                     <strong>{match.teamB}</strong>
+                    {match.winner && <em className="r32-result-winner">Winner: {match.winner}</em>}
+                    {poolState.r32.status === "locked" && (
+                      <div className="r32-result-actions">
+                        {[match.teamA, match.teamB].map((teamName) => (
+                          <button
+                            className={`admin-action compact ${match.winner === teamName ? "" : "quiet"}`}
+                            type="button"
+                            key={`${match.matchId}-${teamName}`}
+                            onClick={() => handleRoundOf32Winner(match.matchId, teamName)}
+                          >
+                            {match.winner === teamName ? "Winner" : `Set ${teamName}`}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

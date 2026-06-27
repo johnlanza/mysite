@@ -750,6 +750,23 @@ h1 {
   text-transform: uppercase;
 }
 
+.r32-result-winner {
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.r32-result-actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.r32-result-actions .admin-action {
+  width: 100%;
+}
+
 .admin-empty-note {
   margin: 0;
   color: var(--muted);

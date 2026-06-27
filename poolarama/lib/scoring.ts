@@ -2,6 +2,11 @@ import { groups, type GroupId } from "@/lib/tournament-data";
 import { rankGroupStandings, type GroupStandingInput } from "@/lib/bracket";
 import type { PoolSubmissionPicks } from "@/lib/poolarama-types";
 
+export type ScoredMatchInput = {
+  matchId: string;
+  winner?: string | null;
+};
+
 export type ScoringRules = {
   champion: number;
   groupWinner: number;
@@ -152,4 +157,19 @@ export function scorePreTournamentPicks(
     total: groupAdvancers + groupWinnerBonus + champion + knockout,
     groupPickScores
   };
+}
+
+export function scoreRoundOf32Picks(
+  picks: PoolSubmissionPicks | null,
+  matches: ScoredMatchInput[],
+  rules: Partial<ScoringRules> = {}
+) {
+  if (!picks?.matchWinners) return 0;
+
+  const scoringRules = { ...defaultScoringRules, ...rules };
+
+  return matches.reduce((total, match) => {
+    if (!match.winner) return total;
+    return picks.matchWinners?.[match.matchId] === match.winner ? total + scoringRules.r32 : total;
+  }, 0);
 }

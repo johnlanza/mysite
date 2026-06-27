@@ -7,10 +7,11 @@ import SubmissionModel from "@/models/Submission";
 import GroupStandingModel from "@/models/GroupStanding";
 import { mergeKnownAndMongoParticipants, participantFromMongo } from "@/lib/participant-utils";
 import { getOrCreateDefaultPool } from "@/lib/pool-state";
-import { scorePreTournamentPicks } from "@/lib/scoring";
+import { scorePreTournamentPicks, scoreRoundOf32Picks } from "@/lib/scoring";
 import type { PoolSubmissionPicks } from "@/lib/poolarama-types";
 import { type GroupId } from "@/lib/tournament-data";
 import { allowMockFallback, poolDataUnavailableResponse } from "@/lib/runtime-safety";
+import MatchModel from "@/models/Match";
 
 export const dynamic = "force-dynamic";
 
@@ -75,11 +76,12 @@ export async function GET() {
       return NextResponse.json({ standings: mockStandings, storageMode: "mock" });
     }
 
-    const [pool, participants, submissions, groupStandingRows] = await Promise.all([
+    const [pool, participants, submissions, groupStandingRows, r32Matches] = await Promise.all([
       getOrCreateDefaultPool(),
       ParticipantModel.find({ poolSlug: defaultPoolSlug }).lean(),
-      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "preTournament" }).lean(),
-      GroupStandingModel.find({ poolSlug: defaultPoolSlug }).lean()
+      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: { $in: ["preTournament", "r32"] } }).lean(),
+      GroupStandingModel.find({ poolSlug: defaultPoolSlug }).lean(),
+      MatchModel.find({ poolSlug: defaultPoolSlug, stage: "r32" }).lean()
     ]);
 
     if (participants.length === 0 && !allowMockFallback()) return poolDataUnavailableResponse();
@@ -99,15 +101,20 @@ export async function GET() {
       standings: roster.map((knownParticipant) => {
         const participant =
           participants.find((item) => item.participantCode === knownParticipant.code) || null;
-        const submission =
-          submissions.find((item) => item.participantCode === knownParticipant.code) || null;
-        const picks = submission ? normalizePicks(submission.picks) : null;
+        const preTournamentSubmission =
+          submissions.find((item) => item.participantCode === knownParticipant.code && item.stage === "preTournament") || null;
+        const r32Submission =
+          submissions.find((item) => item.participantCode === knownParticipant.code && item.stage === "r32") || null;
+        const picks = preTournamentSubmission ? normalizePicks(preTournamentSubmission.picks) : null;
+        const r32Picks = r32Submission ? normalizePicks(r32Submission.picks) : null;
         const score = picks ? scorePreTournamentPicks(picks, groupStandings, pool.scoringRules || {}) : null;
+        const knockoutScore = scoreRoundOf32Picks(r32Picks, r32Matches, pool.scoringRules || {});
+        const totalScore = (score?.total || 0) + knockoutScore;
 
         return {
           name: participant?.name || knownParticipant.name,
           nickname: participant?.nickname || knownParticipant.nickname,
-          points: score?.total || 0,
+          points: totalScore,
           paid: participant?.venmoPaid ?? knownParticipant.venmoPaid,
           champion: preTournamentLocked ? picks?.champion || "" : "",
           picks: {
@@ -121,7 +128,7 @@ export async function GET() {
             { label: "Advancers", value: score?.groupAdvancers || 0 },
             { label: "Winner bonus", value: score?.groupWinnerBonus || 0 },
             { label: "Champion", value: score?.champion || 0 },
-            { label: "Knockout", value: score?.knockout || 0 }
+            { label: "Knockout", value: knockoutScore }
           ]
         };
       }).sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname)),

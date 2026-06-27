@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm --prefix homekeeper ci && npm --prefix homekeeper run build && npm --prefix podcast_club ci --legacy-peer-deps && NEXT_PUBLIC_BASE_PATH=/podcastclub npm --prefix podcast_club run build && npm --prefix poolarama ci --legacy-peer-deps && NEXT_PUBLIC_POOLARAMA_BASE_PATH=/poolarama npm --prefix poolarama run build && npm --prefix zette ci --legacy-peer-deps && NEXT_PUBLIC_ZETTE_BASE_PATH=/zette npm --prefix zette run build",
     "poolarama:smoke": "node scripts/poolarama-smoke.mjs",
+    "poolarama:smoke:r32": "node scripts/poolarama-r32-smoke.mjs",
     "poolarama:smoke:visual": "node scripts/poolarama-visual-smoke.mjs",
     "sync:questions": "./scripts/sync-zette-questions.sh"
   },
