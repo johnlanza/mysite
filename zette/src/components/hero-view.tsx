@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 
 import { PieceNoteBox } from "@/components/piece-note-box";
 import { PieceSearch } from "@/components/piece-search";
@@ -13,6 +16,11 @@ type HeroViewProps = {
   selectedTags: string[];
   isSeed: boolean;
   echoesOpen: boolean;
+};
+
+type SearchOverride = {
+  routeKey: string;
+  open: boolean;
 };
 
 function textSizeClass(length: number): string {
@@ -60,24 +68,45 @@ export function HeroView({
     buildNowHref(piece, isSeed, !echoesOpen, selectedTags) + "#echoes";
   const logseqUrl = getLogseqUrl(piece.originType, piece.originFile, piece.blockId);
   const isBrowse = selectedTags.length > 0 && isSeed;
-  const viewLabel = isSeed ? "Today" : selectedTags.length > 0 ? "Selected" : "Card";
+  const selectedTagsKey = selectedTags.join("\u001f");
+  const searchRouteKey = `${isBrowse ? "browse" : "card"}:${selectedTagsKey}`;
+  const [searchOverride, setSearchOverride] = useState<SearchOverride | null>(
+    null,
+  );
+  const searchOpen =
+    searchOverride?.routeKey === searchRouteKey ? searchOverride.open : isBrowse;
+  const showBrowseSearch = isBrowse && searchOpen;
 
   return (
     <div className="flex min-h-[100dvh] w-full flex-col">
       <header className="mx-auto flex w-full max-w-[38rem] items-center justify-between px-7 pt-7 sm:px-10">
         <Link
           href="/"
+          aria-label="Go to today's card"
           className="font-sans text-[0.64rem] font-semibold uppercase tracking-[0.26em] text-muted/55 transition hover:text-accent"
+          onClick={() => setSearchOverride(null)}
         >
           Zette
         </Link>
-        <span className="rounded-full border border-line bg-card/55 px-3 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-muted/75">
-          {viewLabel}
-        </span>
+        <button
+          aria-controls="zette-search"
+          aria-expanded={searchOpen}
+          className={`rounded-full border px-3 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.22em] transition ${
+            searchOpen
+              ? "border-accent bg-accent text-[#f8f2e9]"
+              : "border-line bg-card/55 text-muted/75 hover:border-accent hover:text-accent"
+          }`}
+          onClick={() =>
+            setSearchOverride({ routeKey: searchRouteKey, open: !searchOpen })
+          }
+          type="button"
+        >
+          Search
+        </button>
       </header>
 
-      {isBrowse ? (
-        <main className="flex-1">
+      {showBrowseSearch ? (
+        <main id="zette-search" className="flex-1">
           <PieceSearch
             key="browse-search"
             pieces={pieces}
@@ -88,12 +117,16 @@ export function HeroView({
         </main>
       ) : (
         <>
-          <PieceSearch
-            key="compact-search"
-            pieces={pieces}
-            tags={tags}
-            selectedTags={selectedTags}
-          />
+          {searchOpen ? (
+            <div id="zette-search">
+              <PieceSearch
+                key="compact-search"
+                pieces={pieces}
+                tags={tags}
+                selectedTags={selectedTags}
+              />
+            </div>
+          ) : null}
 
           <main className="flex flex-1 flex-col items-center px-7 pb-10 pt-12 sm:px-10">
             {selectedTags.length > 0 ? (
