@@ -777,7 +777,7 @@ export function PoolaramaPrototype() {
   const r32PicksComplete = r32Matches.length > 0 && r32Matches.every((match) => Boolean(r32Picks[match.matchId]));
   const showLockedHomeNotice = preTournamentLocked && !r32Started && !identityConfirmed && !identityLockedByLink && !adminEnabled;
   const showParticipantLockedHeader = preTournamentLocked && identityConfirmed && !r32Open && !r32Locked;
-  const showPersonalR32Pick = identityConfirmed || identityLockedByLink;
+  const showPersonalR32Pick = identityLockedByLink;
   const completionHint = duplicateGroupPicks.length > 0
     ? `Fix duplicate picks in Group ${duplicateGroupPicks[0]}.`
     : missingGroupPicks.length > 0
@@ -1937,7 +1937,7 @@ export function PoolaramaPrototype() {
                             {pickers.length > 0 ? (
                               <ul>
                                 {pickers.map((person) => (
-                                  <li key={`${selectedR32Match.matchId}-${team}-${person.code}`} className={person.code === selectedParticipant.code ? "you" : ""}>
+                                  <li key={`${selectedR32Match.matchId}-${team}-${person.code}`} className={showPersonalR32Pick && person.code === selectedParticipant.code ? "you" : ""}>
                                     <span>{person.nickname}</span>
                                     <small>{person.points} pts</small>
                                   </li>
