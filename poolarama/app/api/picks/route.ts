@@ -180,6 +180,14 @@ export async function GET(request: NextRequest) {
                 submittedAt: r32Submission?.submittedAt?.toISOString() || null
               }
             : null,
+          r16Submitted: Boolean(r16Submission),
+          r16SubmittedAt: r16Submission?.submittedAt?.toISOString() || null,
+          r16Picks: r16PicksVisible && r16Picks
+            ? {
+                matchWinners: r16Picks.matchWinners || {},
+                submittedAt: r16Submission?.submittedAt?.toISOString() || null
+              }
+            : null,
           points: totalScore,
           scoring: score || knockoutScore > 0
             ? [

@@ -112,6 +112,12 @@ type PublicPickParticipant = {
     matchWinners: Record<string, string>;
     submittedAt: string | null;
   } | null;
+  r16Submitted: boolean;
+  r16SubmittedAt: string | null;
+  r16Picks: {
+    matchWinners: Record<string, string>;
+    submittedAt: string | null;
+  } | null;
   groupPickScores?: Partial<Record<GroupId, {
     winner: number;
     runnerUp: number;
@@ -184,14 +190,16 @@ type RoundOf32Response = {
 
 type RoundOf16Response = RoundOf32Response;
 
-type R32MatchSummary = R32Match & {
+type KnockoutPickKey = "r32Picks" | "r16Picks";
+
+type KnockoutMatchSummary = R32Match & {
   teamAPickers: PublicPickParticipant[];
   teamBPickers: PublicPickParticipant[];
   userPick: string;
   poolFavorite: string;
 };
 
-type R32ScenarioImpact = {
+type KnockoutScenarioImpact = {
   team: string;
   pickers: PublicPickParticipant[];
   projectedLeaders: string[];
@@ -203,7 +211,7 @@ type R32ScenarioImpact = {
   }[];
 };
 
-type R32Stakes = {
+type KnockoutStakes = {
   minoritySide: string;
   minorityCount: number;
   mostToGain: string;
@@ -419,7 +427,11 @@ function joinNames(names: string[], limit = 3) {
   return `${names.slice(0, limit).join(", ")} and ${names.length - limit} other${names.length - limit === 1 ? "" : "s"}`;
 }
 
-function buildR32ScenarioImpacts(match: R32MatchSummary, people: PublicPickParticipant[]): R32ScenarioImpact[] {
+function buildKnockoutScenarioImpacts(
+  match: KnockoutMatchSummary,
+  people: PublicPickParticipant[],
+  pointValue: number
+): KnockoutScenarioImpact[] {
   const rankedNow = getDisplayRanks([...people].sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname)));
   const currentRanks = new Map(rankedNow.map((person) => [person.code, person.displayRank]));
 
@@ -430,7 +442,7 @@ function buildR32ScenarioImpacts(match: R32MatchSummary, people: PublicPickParti
     const pickerCodes = new Set(pickers.map((person) => person.code));
     const projectedPeople = people.map((person) => ({
       ...person,
-      points: person.points + (pickerCodes.has(person.code) ? 1 : 0)
+      points: person.points + (pickerCodes.has(person.code) ? pointValue : 0)
     }));
     const projectedRanks = getDisplayRanks(projectedPeople.sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname)));
     const topScore = projectedRanks[0]?.points || 0;
@@ -463,7 +475,13 @@ function buildR32ScenarioImpacts(match: R32MatchSummary, people: PublicPickParti
   });
 }
 
-function buildR32Stakes(match: R32MatchSummary, people: PublicPickParticipant[], impacts: R32ScenarioImpact[]): R32Stakes {
+function buildKnockoutStakes(
+  match: KnockoutMatchSummary,
+  people: PublicPickParticipant[],
+  impacts: KnockoutScenarioImpact[],
+  pickKey: KnockoutPickKey,
+  pointValue: number
+): KnockoutStakes {
   const sides = [
     { team: match.teamA, pickers: match.teamAPickers },
     { team: match.teamB, pickers: match.teamBPickers }
@@ -474,7 +492,7 @@ function buildR32Stakes(match: R32MatchSummary, people: PublicPickParticipant[],
   const currentRanks = new Map(rankedNow.map((person) => [person.code, person.displayRank]));
   const topScore = rankedNow[0]?.points || 0;
   const leaderDangerNames = rankedNow
-    .filter((person) => person.points === topScore && person.r32Picks?.matchWinners[match.matchId] === minority.team)
+    .filter((person) => person.points === topScore && person[pickKey]?.matchWinners[match.matchId] === minority.team)
     .map((person) => person.nickname);
   const mostToGainNames = minority.pickers
     .map((person) => ({
@@ -491,7 +509,7 @@ function buildR32Stakes(match: R32MatchSummary, people: PublicPickParticipant[],
       people
         .map((person) => ({
           ...person,
-          points: person.points + (pickerCodes.has(person.code) ? 1 : 0)
+          points: person.points + (pickerCodes.has(person.code) ? pointValue : 0)
         }))
         .sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname))
     );
@@ -906,7 +924,7 @@ export function PoolaramaPrototype() {
   const [r16SavedAt, setR16SavedAt] = useState<string | null>(null);
   const [r16PreviewReady, setR16PreviewReady] = useState(false);
   const [r16Feedback, setR16Feedback] = useState("Round of 16 picks are not open yet.");
-  const [selectedR32MatchId, setSelectedR32MatchId] = useState<string | null>(null);
+  const [selectedKnockoutMatchId, setSelectedKnockoutMatchId] = useState<string | null>(null);
   const [goldenBootRows, setGoldenBootRows] = useState<GoldenBootRow[]>([]);
   const [goldenBootFeedback, setGoldenBootFeedback] = useState("Golden Boot table is loading.");
   const [groupTablesUpdatedAt, setGroupTablesUpdatedAt] = useState<string | null>(null);
@@ -1009,14 +1027,40 @@ export function PoolaramaPrototype() {
     () => buildDailyReview(publicPicks, groupStandingsRows, goldenBootRows, groupTablesUpdatedAt),
     [goldenBootRows, groupStandingsRows, groupTablesUpdatedAt, publicPicks]
   );
-  const r32MatchSummaries = useMemo<R32MatchSummary[]>(() => (
-    r32Matches.map((match) => {
-      const teamAPickers = publicPicks.filter((person) => person.r32Picks?.matchWinners[match.matchId] === match.teamA);
-      const teamBPickers = publicPicks.filter((person) => person.r32Picks?.matchWinners[match.matchId] === match.teamB);
+  const currentKnockoutRound = r16Started && r16Matches.length > 0
+    ? {
+        label: "Round of 16",
+        shortLabel: "R16",
+        matches: r16Matches,
+        picks: r16Picks,
+        pickKey: "r16Picks" as KnockoutPickKey,
+        locked: r16Locked,
+        open: r16Open,
+        scoredCount: r16ScoredCount,
+        totalPoints: 16,
+        pointValue: 2
+      }
+    : {
+        label: "Round of 32",
+        shortLabel: "R32",
+        matches: r32Matches,
+        picks: r32Picks,
+        pickKey: "r32Picks" as KnockoutPickKey,
+        locked: r32Locked,
+        open: r32Open,
+        scoredCount: r32ScoredCount,
+        totalPoints: 16,
+        pointValue: 1
+      };
+  const currentKnockoutStarted = currentKnockoutRound.open || currentKnockoutRound.locked;
+  const currentKnockoutMatchSummaries = useMemo<KnockoutMatchSummary[]>(() => (
+    currentKnockoutRound.matches.map((match) => {
+      const teamAPickers = publicPicks.filter((person) => person[currentKnockoutRound.pickKey]?.matchWinners[match.matchId] === match.teamA);
+      const teamBPickers = publicPicks.filter((person) => person[currentKnockoutRound.pickKey]?.matchWinners[match.matchId] === match.teamB);
       const selectedPublicPick = showPersonalR32Pick
-        ? publicPicks.find((person) => person.code === selectedParticipant.code)?.r32Picks?.matchWinners[match.matchId] || ""
+        ? publicPicks.find((person) => person.code === selectedParticipant.code)?.[currentKnockoutRound.pickKey]?.matchWinners[match.matchId] || ""
         : "";
-      const userPick = showPersonalR32Pick ? r32Picks[match.matchId] || selectedPublicPick : "";
+      const userPick = showPersonalR32Pick ? currentKnockoutRound.picks[match.matchId] || selectedPublicPick : "";
       const poolFavorite = teamAPickers.length === teamBPickers.length
         ? "Split"
         : teamAPickers.length > teamBPickers.length
@@ -1031,15 +1075,17 @@ export function PoolaramaPrototype() {
         poolFavorite
       };
     })
-  ), [publicPicks, r32Matches, r32Picks, selectedParticipant.code, showPersonalR32Pick]);
-  const selectedR32Match = r32MatchSummaries.find((match) => match.matchId === selectedR32MatchId) || r32MatchSummaries[0] || null;
-  const selectedR32Impacts = useMemo(
-    () => selectedR32Match ? buildR32ScenarioImpacts(selectedR32Match, publicPicks) : [],
-    [publicPicks, selectedR32Match]
+  ), [currentKnockoutRound.matches, currentKnockoutRound.pickKey, currentKnockoutRound.picks, publicPicks, selectedParticipant.code, showPersonalR32Pick]);
+  const selectedKnockoutMatch = currentKnockoutMatchSummaries.find((match) => match.matchId === selectedKnockoutMatchId) || currentKnockoutMatchSummaries[0] || null;
+  const selectedKnockoutImpacts = useMemo(
+    () => selectedKnockoutMatch ? buildKnockoutScenarioImpacts(selectedKnockoutMatch, publicPicks, currentKnockoutRound.pointValue) : [],
+    [currentKnockoutRound.pointValue, publicPicks, selectedKnockoutMatch]
   );
-  const selectedR32Stakes = useMemo(
-    () => selectedR32Match ? buildR32Stakes(selectedR32Match, publicPicks, selectedR32Impacts) : null,
-    [publicPicks, selectedR32Impacts, selectedR32Match]
+  const selectedKnockoutStakes = useMemo(
+    () => selectedKnockoutMatch
+      ? buildKnockoutStakes(selectedKnockoutMatch, publicPicks, selectedKnockoutImpacts, currentKnockoutRound.pickKey, currentKnockoutRound.pointValue)
+      : null,
+    [currentKnockoutRound.pickKey, currentKnockoutRound.pointValue, publicPicks, selectedKnockoutImpacts, selectedKnockoutMatch]
   );
   const adminFetchOptions = useMemo<RequestInit>(() => {
     if (!adminToken) return {};
@@ -2347,37 +2393,37 @@ export function PoolaramaPrototype() {
               <strong>{poolDataWarning}</strong>
             </div>
           )}
-          {r32Started && r32Matches.length > 0 && (
+          {currentKnockoutStarted && currentKnockoutRound.matches.length > 0 && (
             <section className="current-round-card" aria-labelledby="current-round-title">
               <div className="current-round-heading">
                 <div>
-                  <p className="eyebrow">{r32Locked ? "Current round locked" : "Current round open"}</p>
-                  <h3 id="current-round-title">Round of 32</h3>
+                  <p className="eyebrow">{currentKnockoutRound.locked ? "Current round locked" : "Current round open"}</p>
+                  <h3 id="current-round-title">{currentKnockoutRound.label}</h3>
                   <p>
-                    {r32Locked
-                      ? `${r32ScoredCount}/16 matches scored. Tap a match to compare picks.`
+                    {currentKnockoutRound.locked
+                      ? `${currentKnockoutRound.scoredCount}/${currentKnockoutRound.matches.length} matches scored. Tap a match to compare picks.`
                       : "Make your picks below. Match-by-match pool splits appear after John locks the round."}
                   </p>
                 </div>
                 <div className="round-progress-pill">
-                  <strong>{r32ScoredCount}/16</strong>
+                  <strong>{currentKnockoutRound.scoredCount}/{currentKnockoutRound.matches.length}</strong>
                   <span>scored</span>
                 </div>
               </div>
               <div className="current-match-grid">
-                {r32MatchSummaries.map((match) => {
+                {currentKnockoutMatchSummaries.map((match) => {
                   const teamA = getTeamMeta(match.teamA);
                   const teamB = getTeamMeta(match.teamB);
                   const userResult = match.winner && match.userPick
-                    ? match.userPick === match.winner ? "Right +1" : "Missed"
+                    ? match.userPick === match.winner ? `Right +${currentKnockoutRound.pointValue}` : "Missed"
                     : match.userPick ? `You: ${getTeamDisplayName(getTeamMeta(match.userPick))}` : match.poolFavorite === "Split" ? "Pool split" : `Pool likes ${getTeamDisplayName(getTeamMeta(match.poolFavorite))}`;
 
                   return (
                     <button
-                      className={`match-summary-card ${selectedR32Match?.matchId === match.matchId ? "selected" : ""} ${match.winner ? "scored" : ""}`}
+                      className={`match-summary-card ${selectedKnockoutMatch?.matchId === match.matchId ? "selected" : ""} ${match.winner ? "scored" : ""}`}
                       key={`summary-${match.matchId}`}
                       type="button"
-                      onClick={() => setSelectedR32MatchId(match.matchId)}
+                      onClick={() => setSelectedKnockoutMatchId(match.matchId)}
                     >
                       <span className="match-summary-label">{match.label}</span>
                       <span className="match-summary-teams">
@@ -2387,7 +2433,7 @@ export function PoolaramaPrototype() {
                       </span>
                       <span className="match-summary-meta">
                         <strong>{match.winner ? `Winner: ${match.winner}` : userResult}</strong>
-                        {r32Locked && (
+                        {currentKnockoutRound.locked && (
                           <small>{match.teamAPickers.length}-{match.teamBPickers.length} pool split</small>
                         )}
                       </span>
@@ -2395,57 +2441,57 @@ export function PoolaramaPrototype() {
                   );
                 })}
               </div>
-              {selectedR32Match && (
+              {selectedKnockoutMatch && (
                 <div className="match-comparison-panel" aria-live="polite">
                   <div className="match-comparison-header">
                     <div>
-                      <span>{selectedR32Match.label}</span>
+                      <span>{selectedKnockoutMatch.label}</span>
                       <h4>
-                        {getTeamMeta(selectedR32Match.teamA).flag} {selectedR32Match.teamA}
+                        {getTeamMeta(selectedKnockoutMatch.teamA).flag} {selectedKnockoutMatch.teamA}
                         <em> vs </em>
-                        {getTeamMeta(selectedR32Match.teamB).flag} {selectedR32Match.teamB}
+                        {getTeamMeta(selectedKnockoutMatch.teamB).flag} {selectedKnockoutMatch.teamB}
                       </h4>
                     </div>
                     <strong>
-                      {selectedR32Match.winner
-                        ? `Scored: ${selectedR32Match.winner}`
-                        : selectedR32Match.poolFavorite === "Split"
+                      {selectedKnockoutMatch.winner
+                        ? `Scored: ${selectedKnockoutMatch.winner}`
+                        : selectedKnockoutMatch.poolFavorite === "Split"
                           ? "Pool split"
-                          : `Pool likes ${selectedR32Match.poolFavorite}`}
+                          : `Pool likes ${selectedKnockoutMatch.poolFavorite}`}
                     </strong>
                   </div>
-                  {r32Locked ? (
+                  {currentKnockoutRound.locked ? (
                     <>
-                    {selectedR32Stakes && (
+                    {selectedKnockoutStakes && (
                       <div className="stakes-strip" aria-label="Match stakes">
                         <div>
                           <span>Minority side</span>
-                          <strong>{selectedR32Stakes.minoritySide}</strong>
-                          <em>{selectedR32Stakes.minorityCount} pick{selectedR32Stakes.minorityCount === 1 ? "" : "s"}</em>
+                          <strong>{selectedKnockoutStakes.minoritySide}</strong>
+                          <em>{selectedKnockoutStakes.minorityCount} pick{selectedKnockoutStakes.minorityCount === 1 ? "" : "s"}</em>
                         </div>
                         <div>
                           <span>Most to gain</span>
-                          <strong>{selectedR32Stakes.mostToGain}</strong>
+                          <strong>{selectedKnockoutStakes.mostToGain}</strong>
                         </div>
                         <div>
                           <span>Leader danger</span>
-                          <strong>{selectedR32Stakes.leaderDanger}</strong>
+                          <strong>{selectedKnockoutStakes.leaderDanger}</strong>
                         </div>
                         <div>
                           <span>Consensus</span>
-                          <strong>{selectedR32Stakes.consensus}</strong>
-                          <em>{selectedR32Stakes.swingSize} rank change{selectedR32Stakes.swingSize === 1 ? "" : "s"} possible</em>
+                          <strong>{selectedKnockoutStakes.consensus}</strong>
+                          <em>{selectedKnockoutStakes.swingSize} rank change{selectedKnockoutStakes.swingSize === 1 ? "" : "s"} possible</em>
                         </div>
                       </div>
                     )}
                     <div className="pick-comparison-grid">
-                      {selectedR32Impacts.map(({ team, pickers }) => {
+                      {selectedKnockoutImpacts.map(({ team, pickers }) => {
                         const teamMeta = getTeamMeta(team);
 
                         return (
                           <div
-                            className={`pick-comparison-column ${selectedR32Match.winner === team ? "winner" : ""}`}
-                            key={`compare-${selectedR32Match.matchId}-${team}`}
+                            className={`pick-comparison-column ${selectedKnockoutMatch.winner === team ? "winner" : ""}`}
+                            key={`compare-${selectedKnockoutMatch.matchId}-${team}`}
                             style={{
                               "--team-a": teamMeta.colors[0],
                               "--team-b": teamMeta.colors[1]
@@ -2458,7 +2504,7 @@ export function PoolaramaPrototype() {
                             {pickers.length > 0 ? (
                               <ul>
                                 {pickers.map((person) => (
-                                  <li key={`${selectedR32Match.matchId}-${team}-${person.code}`} className={showPersonalR32Pick && person.code === selectedParticipant.code ? "you" : ""}>
+                                  <li key={`${selectedKnockoutMatch.matchId}-${team}-${person.code}`} className={showPersonalR32Pick && person.code === selectedParticipant.code ? "you" : ""}>
                                     <span>{person.nickname}</span>
                                     <small>{person.points} pts</small>
                                   </li>
@@ -2471,27 +2517,27 @@ export function PoolaramaPrototype() {
                         );
                       })}
                     </div>
-                    {!selectedR32Match.winner && (
+                    {!selectedKnockoutMatch.winner && (
                       <div className="compararama-panel" aria-label="Compararama match impact">
                         <div>
                           <p className="eyebrow">Compararama</p>
                           <h5>What this result could change</h5>
                         </div>
                         <div className="compararama-grid">
-                          {selectedR32Impacts.map((impact) => {
+                          {selectedKnockoutImpacts.map((impact) => {
                             const teamMeta = getTeamMeta(impact.team);
 
                             return (
                               <article
                                 className="compararama-card"
-                                key={`impact-${selectedR32Match.matchId}-${impact.team}`}
+                                key={`impact-${selectedKnockoutMatch.matchId}-${impact.team}`}
                                 style={{
                                   "--team-a": teamMeta.colors[0],
                                   "--team-b": teamMeta.colors[1]
                                 } as React.CSSProperties}
                               >
                                 <strong>{teamMeta.flag} If {impact.team} wins</strong>
-                                <p>{impact.pickers.length} player{impact.pickers.length === 1 ? "" : "s"} score a point.</p>
+                                <p>{impact.pickers.length} player{impact.pickers.length === 1 ? "" : "s"} score {currentKnockoutRound.pointValue} point{currentKnockoutRound.pointValue === 1 ? "" : "s"}.</p>
                                 <ul>
                                   <li>
                                     <span>Projected leader</span>
@@ -3125,6 +3171,9 @@ export function PoolaramaPrototype() {
                     r32Submitted: participant.r32Submitted,
                     r32SubmittedAt: participant.r32SubmittedAt,
                     r32Picks: null,
+                    r16Submitted: participant.r16Submitted,
+                    r16SubmittedAt: participant.r16SubmittedAt,
+                    r16Picks: null,
                     points: 0,
                     scoring: [],
                     visible: participant.code === selectedParticipant.code,
