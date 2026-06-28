@@ -33,14 +33,30 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const [pool, participants, preTournamentSubmissions, r32Submissions, totalSubmissionCount, groupStandingCount, r32MatchCount] = await Promise.all([
+    const [
+      pool,
+      participants,
+      preTournamentSubmissions,
+      r32Submissions,
+      r16Submissions,
+      qfSubmissions,
+      totalSubmissionCount,
+      groupStandingCount,
+      r32MatchCount,
+      r16MatchCount,
+      qfMatchCount
+    ] = await Promise.all([
       getOrCreateDefaultPool(),
       ParticipantModel.find({ poolSlug: defaultPoolSlug }).lean(),
       SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "preTournament" }).lean(),
       SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "r32" }).lean(),
+      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "r16" }).lean(),
+      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "qf" }).lean(),
       SubmissionModel.countDocuments({ poolSlug: defaultPoolSlug }),
       GroupStandingModel.countDocuments({ poolSlug: defaultPoolSlug }),
-      MatchModel.countDocuments({ poolSlug: defaultPoolSlug, stage: "r32" })
+      MatchModel.countDocuments({ poolSlug: defaultPoolSlug, stage: "r32" }),
+      MatchModel.countDocuments({ poolSlug: defaultPoolSlug, stage: "r16" }),
+      MatchModel.countDocuments({ poolSlug: defaultPoolSlug, stage: "qf" })
     ]);
     const activeRoster = mergeKnownAndMongoParticipants(participants.map(participantFromMongo));
     const activeParticipantCodes = new Set(activeRoster.map((participant) => participant.code));
@@ -48,6 +64,12 @@ export async function GET(request: NextRequest) {
       activeParticipantCodes.has(submission.participantCode)
     ).length;
     const activeR32SubmissionCount = r32Submissions.filter((submission) =>
+      activeParticipantCodes.has(submission.participantCode)
+    ).length;
+    const activeR16SubmissionCount = r16Submissions.filter((submission) =>
+      activeParticipantCodes.has(submission.participantCode)
+    ).length;
+    const activeQfSubmissionCount = qfSubmissions.filter((submission) =>
       activeParticipantCodes.has(submission.participantCode)
     ).length;
 
@@ -66,9 +88,15 @@ export async function GET(request: NextRequest) {
         rawPreTournamentSubmissions: preTournamentSubmissions.length,
         r32Submissions: activeR32SubmissionCount,
         rawR32Submissions: r32Submissions.length,
+        r16Submissions: activeR16SubmissionCount,
+        rawR16Submissions: r16Submissions.length,
+        qfSubmissions: activeQfSubmissionCount,
+        rawQfSubmissions: qfSubmissions.length,
         totalSubmissions: totalSubmissionCount,
         groupStandings: groupStandingCount,
-        r32Matches: r32MatchCount
+        r32Matches: r32MatchCount,
+        r16Matches: r16MatchCount,
+        qfMatches: qfMatchCount
       }
     });
   } catch (error) {

@@ -3664,6 +3664,47 @@ export function PoolaramaPrototype() {
               </button>
             </div>
           </div>
+          <section className="admin-rollup-card round-health-card" aria-label="Round health">
+            <div className="section-title-row">
+              <div>
+                <p className="eyebrow">Round health</p>
+                <h3>Live operating check</h3>
+                <p>Quick confirmation that the active pool data and round workflow are where they should be.</p>
+              </div>
+            </div>
+            <div className="admin-sync-status">
+              <div>
+                <span>Participants</span>
+                <strong>{adminOverview.length}/{adminOverview.length}</strong>
+                <em>active roster</em>
+              </div>
+              <div>
+                <span>Group picks</span>
+                <strong>{adminSubmittedCount}/{adminOverview.length}</strong>
+                <em>{poolState.preTournament.status}</em>
+              </div>
+              <div>
+                <span>R32 picks</span>
+                <strong>{adminR32SubmittedCount}/{adminOverview.length}</strong>
+                <em>{poolState.r32.status}</em>
+              </div>
+              <div>
+                <span>R32 matches</span>
+                <strong>{r32Matches.length}/16</strong>
+                <em>{r32ScoredCount}/16 scored</em>
+              </div>
+              <div>
+                <span>R16</span>
+                <strong>{poolState.r16.status}</strong>
+                <em>{r16Matches.length}/8 matches</em>
+              </div>
+              <div>
+                <span>Quarterfinals</span>
+                <strong>{poolState.qf.status}</strong>
+                <em>{qfMatches.length}/4 matches</em>
+              </div>
+            </div>
+          </section>
           <section className="r32-admin-card" aria-labelledby="r32-admin-title">
             <div className="section-title-row">
               <div>
