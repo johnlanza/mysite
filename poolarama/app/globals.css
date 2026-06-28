@@ -2611,9 +2611,45 @@ h1 {
   .saved-pick-list,
   .knockout-match-grid,
   .r32-preview-grid,
+  .pick-comparison-grid,
   .compararama-grid,
   .group-standings-grid {
     grid-template-columns: 1fr;
+  }
+
+  .match-comparison-header {
+    grid-template-columns: 1fr;
+  }
+
+  .match-comparison-header > strong {
+    max-width: none;
+    width: 100%;
+  }
+
+  .pick-comparison-column {
+    padding: 13px;
+  }
+
+  .pick-comparison-column ul {
+    gap: 8px;
+  }
+
+  .pick-comparison-column li {
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-height: 48px;
+    padding: 9px 11px;
+  }
+
+  .pick-comparison-column li span {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    line-height: 1.08;
+  }
+
+  .pick-comparison-column li small {
+    min-width: 54px;
+    text-align: right;
   }
 
   .admin-toolbar,
