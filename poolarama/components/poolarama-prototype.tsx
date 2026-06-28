@@ -1798,26 +1798,73 @@ export function PoolaramaPrototype() {
             )}
           </section>
           )}
-          {identityConfirmed && r32Open && r32Matches.length > 0 && (
-            <section className="locked-round-card" aria-labelledby="r32-open-title">
-              <div>
-                <p className="eyebrow">Round of 32</p>
-                <h3 id="r32-open-title">Irish Eyes can test the knockout picker now</h3>
-                <p>Pick all 16 match winners, then submit the Round of 32 picks.</p>
-              </div>
-              <div className="locked-round-actions">
-                <button
-                  className="primary-action inline-action"
-                  type="button"
-                  onClick={() => document.getElementById("r32-picks-title")?.scrollIntoView({ behavior: "smooth", block: "start" })}
-                >
-                  Go to Round of 32 picks
-                </button>
-              </div>
-            </section>
-          )}
           {identityConfirmed && (
             <>
+          {r32Matches.length > 0 && (
+            <section className="knockout-card" aria-labelledby="r32-picks-title">
+              <div className="section-title-row">
+                <div>
+                  <p className="eyebrow">Round of 32</p>
+                  <h3 id="r32-picks-title">Pick the winner of each match</h3>
+                  <p>
+                    {r32Open
+                      ? `${Object.keys(r32Picks).length}/${r32Matches.length} winners picked`
+                      : r32Locked
+                        ? "Round of 32 picks are locked."
+                        : "Round of 32 picks are not open yet."}
+                  </p>
+                </div>
+                <div className="points-pill">
+                  <strong>16 pts</strong>
+                  <span>1 per match</span>
+                </div>
+              </div>
+              <div className="knockout-match-grid">
+                {r32Matches.map((match) => (
+                  <article className="knockout-match-card" key={match.matchId}>
+                    <span>{match.label}</span>
+                    <div>
+                      {[match.teamA, match.teamB].map((teamName) => {
+                        const team = teams.find((candidate) => candidate.name === teamName);
+
+                        return (
+                          <button
+                            className={r32Picks[match.matchId] === teamName ? "selected" : ""}
+                            key={`${match.matchId}-${teamName}`}
+                            type="button"
+                            disabled={!r32Open || isSaving}
+                            onClick={() => setR32Picks((current) => ({ ...current, [match.matchId]: teamName }))}
+                            style={{
+                              "--team-a": team?.colors[0] || "#0f9f6e",
+                              "--team-b": team?.colors[1] || "#ffffff"
+                            } as React.CSSProperties}
+                          >
+                            <span aria-hidden="true">{team?.flag || "⚽"}</span>
+                            <strong>{teamName}</strong>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <button
+                className="primary-action inline-action submit-action"
+                type="button"
+                onClick={handleSaveRoundOf32Picks}
+                disabled={!r32Open || isSaving}
+              >
+                {r32SavedPicks && JSON.stringify(r32SavedPicks) === JSON.stringify(r32Picks)
+                  ? "Round of 32 submitted"
+                  : r32Open
+                    ? "Submit Round of 32 picks"
+                    : r32Locked
+                      ? "Round of 32 locked"
+                      : "Round of 32 not open"}
+              </button>
+              <p className="pick-status" aria-live="polite">{r32Feedback}</p>
+            </section>
+          )}
           <section className="group-picks-card" aria-labelledby="group-picks-title">
             <div className="section-title-row">
               <div>
@@ -2161,71 +2208,6 @@ export function PoolaramaPrototype() {
                   <p className="saved-pick-note">No Round of 32 picks submitted yet.</p>
                 )}
               </div>
-            </section>
-          )}
-          {r32Matches.length > 0 && (
-            <section className="knockout-card" aria-labelledby="r32-picks-title">
-              <div className="section-title-row">
-                <div>
-                  <p className="eyebrow">Round of 32</p>
-                  <h3 id="r32-picks-title">Pick match winners</h3>
-                  <p>
-                    {r32Open
-                      ? `${Object.keys(r32Picks).length}/${r32Matches.length} winners picked`
-                      : r32Locked
-                        ? "Round of 32 picks are locked."
-                        : "Round of 32 picks are not open yet."}
-                  </p>
-                </div>
-                <div className="points-pill">
-                  <strong>16 pts</strong>
-                  <span>1 per match</span>
-                </div>
-              </div>
-              <div className="knockout-match-grid">
-                {r32Matches.map((match) => (
-                  <article className="knockout-match-card" key={match.matchId}>
-                    <span>{match.label}</span>
-                    <div>
-                      {[match.teamA, match.teamB].map((teamName) => {
-                        const team = teams.find((candidate) => candidate.name === teamName);
-
-                        return (
-                          <button
-                            className={r32Picks[match.matchId] === teamName ? "selected" : ""}
-                            key={`${match.matchId}-${teamName}`}
-                            type="button"
-                            disabled={!r32Open || isSaving}
-                            onClick={() => setR32Picks((current) => ({ ...current, [match.matchId]: teamName }))}
-                            style={{
-                              "--team-a": team?.colors[0] || "#0f9f6e",
-                              "--team-b": team?.colors[1] || "#ffffff"
-                            } as React.CSSProperties}
-                          >
-                            <span aria-hidden="true">{team?.flag || "⚽"}</span>
-                            <strong>{teamName}</strong>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </article>
-                ))}
-              </div>
-              <button
-                className="primary-action inline-action submit-action"
-                type="button"
-                onClick={handleSaveRoundOf32Picks}
-                disabled={!r32Open || isSaving}
-              >
-                {r32SavedPicks && JSON.stringify(r32SavedPicks) === JSON.stringify(r32Picks)
-                  ? "Round of 32 submitted"
-                  : r32Open
-                    ? `Submit R32 Picks: ${selectedParticipant.nickname}`
-                    : r32Locked
-                      ? "Round of 32 locked"
-                      : "Round of 32 not open"}
-              </button>
-              <p className="pick-status" aria-live="polite">{r32Feedback}</p>
             </section>
           )}
             </>
