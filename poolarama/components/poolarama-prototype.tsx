@@ -718,6 +718,7 @@ export function PoolaramaPrototype() {
   const preTournamentControlsLocked = preTournamentLocked || r32Open || r32Locked;
   const r32PicksComplete = r32Matches.length > 0 && r32Matches.every((match) => Boolean(r32Picks[match.matchId]));
   const showLockedHomeNotice = preTournamentLocked && !identityConfirmed && !identityLockedByLink && !adminEnabled;
+  const showParticipantLockedHeader = preTournamentLocked && identityConfirmed && !r32Open && !r32Locked;
   const completionHint = duplicateGroupPicks.length > 0
     ? `Fix duplicate picks in Group ${duplicateGroupPicks[0]}.`
     : missingGroupPicks.length > 0
@@ -1723,10 +1724,12 @@ export function PoolaramaPrototype() {
       {tab === "picks" && (
         <section className="screen stack" aria-labelledby="picks-title">
           <ScreenHeader
-            kicker={showLockedHomeNotice ? "Current round locked" : r32Open ? "Round of 32 picks open" : identityConfirmed ? "Picks open" : "Player access"}
-            title={showLockedHomeNotice ? "All picks are in" : r32Open ? "Make your Round of 32 picks" : identityConfirmed ? "Make your group picks" : "Open your player link"}
+            kicker={showLockedHomeNotice || showParticipantLockedHeader ? "Current round locked" : r32Open ? "Round of 32 picks open" : identityConfirmed ? "Picks open" : "Player access"}
+            title={showLockedHomeNotice ? "All picks are in" : showParticipantLockedHeader ? "Review your locked picks" : r32Open ? "Make your Round of 32 picks" : identityConfirmed ? "Make your group picks" : "Open your player link"}
             note={showLockedHomeNotice
               ? "The group-stage picks are locked and visible in the standings."
+              : showParticipantLockedHeader
+              ? "Your group-stage, champion, and Golden Boot picks are locked. Round of 32 picks will appear here when John opens them."
               : r32Open
               ? `This link is assigned to ${selectedParticipant.nickname}. Scroll to the Round of 32 card and pick every match winner.`
               : identityLockedByLink
