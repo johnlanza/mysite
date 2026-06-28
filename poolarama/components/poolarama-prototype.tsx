@@ -1479,7 +1479,7 @@ export function PoolaramaPrototype() {
       generate: "Generating private Round of 32 preview...",
       open: "Creating backup and opening Round of 32 picks...",
       lock: "Creating backup and locking Round of 32 picks...",
-      reset: "Resetting Round of 32 test data..."
+      reset: "Resetting Round of 32 data..."
     };
     const successMessages = {
       generate: "Private Round of 32 preview generated. Review the matchups, then confirm and open.",
@@ -1509,9 +1509,9 @@ export function PoolaramaPrototype() {
     }
 
     if (action === "reset") {
-      const confirmation = window.prompt("Type RESET to delete Round of 32 matchups and R32 submissions. Group-stage picks will not be changed.");
+      const confirmation = window.prompt("Type RESET R32 to delete Round of 32 matchups and R32 submissions. Group-stage picks will not be changed.");
 
-      if (confirmation !== "RESET") {
+      if (confirmation !== "RESET R32") {
         setAdminFeedback("Round of 32 reset cancelled.");
         return;
       }
@@ -1525,7 +1525,7 @@ export function PoolaramaPrototype() {
         headers: adminJsonHeaders(),
         body: JSON.stringify({
           action,
-          confirmation: action === "reset" ? "RESET" : action === "open" ? "OPEN" : undefined,
+          confirmation: action === "reset" ? "RESET R32" : action === "open" ? "OPEN" : undefined,
           previewMatches: action === "open" ? r32Matches : undefined
         })
       });
@@ -1732,9 +1732,9 @@ export function PoolaramaPrototype() {
   }
 
   async function handleClearSubmissions() {
-    const confirmation = window.prompt("Type RESET to clear pre-tournament submissions. This affects player picks.");
+    const confirmation = window.prompt("Type RESET GROUP PICKS to clear pre-tournament submissions. This affects player picks.");
 
-    if (confirmation !== "RESET") {
+    if (confirmation !== "RESET GROUP PICKS") {
       setAdminFeedback("Clear test submissions cancelled.");
       return;
     }
@@ -1745,7 +1745,7 @@ export function PoolaramaPrototype() {
       const response = await fetch(withBasePath("/api/admin/clear-submissions"), {
         method: "DELETE",
         headers: adminJsonHeaders(),
-        body: JSON.stringify({ confirmation: "RESET" })
+        body: JSON.stringify({ confirmation: "RESET GROUP PICKS" })
       });
 
       if (!response.ok) {
@@ -3190,14 +3190,6 @@ export function PoolaramaPrototype() {
                 >
                   Sync winners
                 </button>
-                <button
-                  className="admin-action compact danger"
-                  type="button"
-                  onClick={() => handleRoundOf32AdminAction("reset")}
-                  disabled={poolState.r32.status === "setup" && r32Matches.length === 0}
-                >
-                  Reset R32
-                </button>
               </div>
             </div>
             <div className="admin-sync-status" aria-label="Round of 32 status">
@@ -3247,78 +3239,93 @@ export function PoolaramaPrototype() {
               <p className="admin-empty-note">No Round of 32 preview has been generated yet.</p>
             )}
           </section>
-          <GoldenBootTable rows={goldenBootRows} feedback={goldenBootFeedback} />
-          <div className="admin-list">
-            {adminOverview.map((participant) => {
-              const isSeededParticipant = knownParticipants.some((knownParticipant) => knownParticipant.code === participant.code);
+          <details className="admin-rollup-card archived-admin-card">
+            <summary>
+              <span>Golden Boot</span>
+              <strong>Top scorers</strong>
+            </summary>
+            <GoldenBootTable rows={goldenBootRows} feedback={goldenBootFeedback} />
+          </details>
+          <details className="admin-rollup-card archived-admin-card">
+            <summary>
+              <span>Players and payments</span>
+              <strong>Participant controls</strong>
+            </summary>
+            <div className="admin-list">
+              {adminOverview.map((participant) => {
+                const isSeededParticipant = knownParticipants.some((knownParticipant) => knownParticipant.code === participant.code);
 
-              return (
-                <article className="admin-row" key={participant.code}>
-                  <div className="admin-person">
-                    <h3>{participant.nickname}</h3>
-                    <p>{participant.name}</p>
-                  </div>
-                  <div className="admin-statuses">
-                    <span className={participant.venmoPaid ? "status-pill paid" : "status-pill unpaid"}>
-                      {participant.venmoPaid ? "Paid" : "Unpaid"}
-                    </span>
-                    <span className={participant.submitted ? "status-pill submitted" : "status-pill missing"}>
-                      {participant.submitted ? "Group submitted" : "Group missing"}
-                    </span>
-                    {poolState.r32.status !== "setup" && (
-                      <span className={participant.r32Submitted ? "status-pill submitted" : "status-pill missing"}>
-                        {participant.r32Submitted ? "R32 submitted" : "R32 missing"}
+                return (
+                  <article className="admin-row" key={participant.code}>
+                    <div className="admin-person">
+                      <h3>{participant.nickname}</h3>
+                      <p>{participant.name}</p>
+                    </div>
+                    <div className="admin-statuses">
+                      <span className={participant.venmoPaid ? "status-pill paid" : "status-pill unpaid"}>
+                        {participant.venmoPaid ? "Paid" : "Unpaid"}
                       </span>
-                    )}
-                  </div>
-                  <div className="admin-pick-summary">
-                    <span>Group: {participant.submittedAt ? new Date(participant.submittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
-                    {poolState.r32.status !== "setup" && (
-                      <span>R32: {participant.r32SubmittedAt ? new Date(participant.r32SubmittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
-                    )}
-                    <strong>
-                      {participant.champion
-                        ? `${participant.champion} / ${participant.goldenBoot}`
-                        : participant.submitted
-                          ? "Picks hidden until locked"
-                          : "No picks on file"}
-                    </strong>
-                    <em>{participant.inviteCode ? "Private invite ready" : "Basic invite"}</em>
-                  </div>
-                  <div className="admin-row-actions">
-                    <button className="admin-action compact" type="button" onClick={() => handleCopyInvite(participant)}>
-                      Copy link
-                    </button>
-                    <button className="admin-action compact quiet" type="button" onClick={() => handleCopyReminder(participant)}>
-                      Copy reminder
-                    </button>
-                    <details className="advanced-row-actions">
-                      <summary>Advanced</summary>
-                      <button
-                        className={`admin-action compact payment-toggle ${participant.venmoPaid ? "quiet" : ""}`}
-                        type="button"
-                        onClick={() => handleTogglePayment(participant)}
-                      >
-                        {participant.venmoPaid ? "Mark unpaid" : "Mark paid"}
-                      </button>
-                      {!isSeededParticipant && (
-                        <button
-                          className={`admin-action compact danger ${pendingDeleteCode === participant.code ? "confirm" : ""}`}
-                          type="button"
-                          onClick={() => handleDeleteParticipant(participant)}
-                        >
-                          {pendingDeleteCode === participant.code ? "Confirm delete" : "Delete"}
-                        </button>
+                      <span className={participant.submitted ? "status-pill submitted" : "status-pill missing"}>
+                        {participant.submitted ? "Group submitted" : "Group missing"}
+                      </span>
+                      {poolState.r32.status !== "setup" && (
+                        <span className={participant.r32Submitted ? "status-pill submitted" : "status-pill missing"}>
+                          {participant.r32Submitted ? "R32 submitted" : "R32 missing"}
+                        </span>
                       )}
-                    </details>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-          <details className="advanced-admin-card">
-            <summary>Advanced admin</summary>
-            <p>Use these only when changing pool state or repairing data.</p>
+                    </div>
+                    <div className="admin-pick-summary">
+                      <span>Group: {participant.submittedAt ? new Date(participant.submittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
+                      {poolState.r32.status !== "setup" && (
+                        <span>R32: {participant.r32SubmittedAt ? new Date(participant.r32SubmittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
+                      )}
+                      <strong>
+                        {participant.champion
+                          ? `${participant.champion} / ${participant.goldenBoot}`
+                          : participant.submitted
+                            ? "Picks hidden until locked"
+                            : "No picks on file"}
+                      </strong>
+                      <em>{participant.inviteCode ? "Private invite ready" : "Basic invite"}</em>
+                    </div>
+                    <div className="admin-row-actions">
+                      <button className="admin-action compact" type="button" onClick={() => handleCopyInvite(participant)}>
+                        Copy link
+                      </button>
+                      <button className="admin-action compact quiet" type="button" onClick={() => handleCopyReminder(participant)}>
+                        Copy reminder
+                      </button>
+                      <details className="advanced-row-actions">
+                        <summary>Advanced</summary>
+                        <button
+                          className={`admin-action compact payment-toggle ${participant.venmoPaid ? "quiet" : ""}`}
+                          type="button"
+                          onClick={() => handleTogglePayment(participant)}
+                        >
+                          {participant.venmoPaid ? "Mark unpaid" : "Mark paid"}
+                        </button>
+                        {!isSeededParticipant && (
+                          <button
+                            className={`admin-action compact danger ${pendingDeleteCode === participant.code ? "confirm" : ""}`}
+                            type="button"
+                            onClick={() => handleDeleteParticipant(participant)}
+                          >
+                            {pendingDeleteCode === participant.code ? "Confirm delete" : "Delete"}
+                          </button>
+                        )}
+                      </details>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </details>
+          <details className="admin-rollup-card archived-admin-card">
+            <summary>
+              <span>Utilities</span>
+              <strong>Maintenance</strong>
+            </summary>
+            <p>Use these for refreshes and non-destructive admin upkeep.</p>
             <div className="admin-maintenance-actions">
               <button className="admin-action compact" type="button" onClick={loadAdminOverview}>
                 Refresh participants
@@ -3333,8 +3340,25 @@ export function PoolaramaPrototype() {
               <button className="admin-action compact" type="button" onClick={handleSeedParticipants}>
                 Seed participants
               </button>
-              <button className="admin-action compact quiet" type="button" onClick={handleClearSubmissions}>
-                Clear test picks
+            </div>
+          </details>
+          <details className="danger-zone-card archived-admin-card">
+            <summary>
+              <span>Danger Zone</span>
+              <strong>Reset tools</strong>
+            </summary>
+            <p>These actions can remove submitted picks or generated matchups. Each action requires a typed confirmation.</p>
+            <div className="admin-maintenance-actions">
+              <button
+                className="admin-action compact danger"
+                type="button"
+                onClick={() => handleRoundOf32AdminAction("reset")}
+                disabled={poolState.r32.status === "setup" && r32Matches.length === 0}
+              >
+                Reset R32
+              </button>
+              <button className="admin-action compact danger" type="button" onClick={handleClearSubmissions}>
+                Clear group picks
               </button>
             </div>
           </details>

@@ -128,9 +128,9 @@ export async function POST(request: NextRequest) {
     const pool = await getOrCreateDefaultPool();
 
     if (action === "reset") {
-      if (body.confirmation !== "RESET") {
+      if (body.confirmation !== "RESET R32") {
         return NextResponse.json(
-          { error: "Type RESET to confirm Round of 32 reset." },
+          { error: "Type RESET R32 to confirm Round of 32 reset." },
           { status: 400 }
         );
       }

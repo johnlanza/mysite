@@ -2308,6 +2308,37 @@ h1 {
   border: 1px solid var(--line);
 }
 
+.admin-rollup-card,
+.danger-zone-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--line);
+}
+
+.danger-zone-card {
+  background: linear-gradient(135deg, rgba(227, 60, 74, 0.08), rgba(255, 255, 255, 0.92)), #fff;
+  border-color: rgba(227, 60, 74, 0.28);
+}
+
+.danger-zone-card summary strong {
+  color: #8f1d28;
+}
+
+.danger-zone-card summary::after {
+  background: #8f1d28;
+}
+
+.danger-zone-card p,
+.admin-rollup-card p {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
 .archived-admin-card {
   overflow: hidden;
 }
@@ -2362,7 +2393,9 @@ h1 {
 .archived-admin-card[open] > .section-title-row,
 .archived-admin-card[open] > .group-standings-grid,
 .archived-admin-card[open] > div,
-.archived-admin-card[open] > form {
+.archived-admin-card[open] > form,
+.archived-admin-card[open] > section,
+.archived-admin-card[open] > p {
   margin-top: 14px;
 }
 

@@ -16,9 +16,9 @@ export async function DELETE(request: NextRequest) {
   try {
     const body = (await request.json().catch(() => ({}))) as { confirmation?: string };
 
-    if (body.confirmation !== "RESET") {
+    if (body.confirmation !== "RESET GROUP PICKS") {
       return NextResponse.json(
-        { error: "Type RESET to confirm clearing submissions." },
+        { error: "Type RESET GROUP PICKS to confirm clearing submissions." },
         { status: 400 }
       );
     }
