@@ -162,6 +162,13 @@ type RoundOf32Response = {
   };
 };
 
+type R32MatchSummary = R32Match & {
+  teamAPickers: PublicPickParticipant[];
+  teamBPickers: PublicPickParticipant[];
+  userPick: string;
+  poolFavorite: string;
+};
+
 const selectedParticipantKey = "poolarama-selected-participant";
 const confirmedParticipantKey = "poolarama-confirmed-participant";
 const goldenBootWriteInLabel = "Other / write-in";
@@ -185,6 +192,15 @@ const defaultRoundSubmissionSummary: RoundSubmissionSummary = {
 
 function getTeamDisplayName(team: { name: string; code: string }) {
   return team.name.length > 12 ? team.code : team.name;
+}
+
+function getTeamMeta(teamName: string) {
+  return teams.find((team) => team.name === teamName) || {
+    name: teamName,
+    code: teamName.slice(0, 3).toUpperCase(),
+    flag: "⚽",
+    colors: ["#0f9f6e", "#ffffff"]
+  };
 }
 
 function getRoundOf32PickRows(matchWinners: Record<string, string>, matches: R32Match[]) {
@@ -716,6 +732,7 @@ export function PoolaramaPrototype() {
   const [r32SavedAt, setR32SavedAt] = useState<string | null>(null);
   const [r32PreviewReady, setR32PreviewReady] = useState(false);
   const [r32Feedback, setR32Feedback] = useState("Round of 32 picks are not open yet.");
+  const [selectedR32MatchId, setSelectedR32MatchId] = useState<string | null>(null);
   const [goldenBootRows, setGoldenBootRows] = useState<GoldenBootRow[]>([]);
   const [goldenBootFeedback, setGoldenBootFeedback] = useState("Golden Boot table is loading.");
   const [groupTablesUpdatedAt, setGroupTablesUpdatedAt] = useState<string | null>(null);
@@ -755,6 +772,7 @@ export function PoolaramaPrototype() {
   const r32Open = poolState.r32.status === "open";
   const r32Locked = poolState.r32.status === "locked";
   const r32Started = r32Open || r32Locked;
+  const r32ScoredCount = r32Matches.filter((match) => Boolean(match.winner)).length;
   const preTournamentControlsLocked = preTournamentLocked || r32Open || r32Locked;
   const r32PicksComplete = r32Matches.length > 0 && r32Matches.every((match) => Boolean(r32Picks[match.matchId]));
   const showLockedHomeNotice = preTournamentLocked && !identityConfirmed && !identityLockedByLink && !adminEnabled;
@@ -790,6 +808,28 @@ export function PoolaramaPrototype() {
     () => buildDailyReview(publicPicks, groupStandingsRows, goldenBootRows, groupTablesUpdatedAt),
     [goldenBootRows, groupStandingsRows, groupTablesUpdatedAt, publicPicks]
   );
+  const r32MatchSummaries = useMemo<R32MatchSummary[]>(() => (
+    r32Matches.map((match) => {
+      const teamAPickers = publicPicks.filter((person) => person.r32Picks?.matchWinners[match.matchId] === match.teamA);
+      const teamBPickers = publicPicks.filter((person) => person.r32Picks?.matchWinners[match.matchId] === match.teamB);
+      const selectedPublicPick = publicPicks.find((person) => person.code === selectedParticipant.code)?.r32Picks?.matchWinners[match.matchId] || "";
+      const userPick = r32Picks[match.matchId] || selectedPublicPick;
+      const poolFavorite = teamAPickers.length === teamBPickers.length
+        ? "Split"
+        : teamAPickers.length > teamBPickers.length
+          ? match.teamA
+          : match.teamB;
+
+      return {
+        ...match,
+        teamAPickers,
+        teamBPickers,
+        userPick,
+        poolFavorite
+      };
+    })
+  ), [publicPicks, r32Matches, r32Picks, selectedParticipant.code]);
+  const selectedR32Match = r32MatchSummaries.find((match) => match.matchId === selectedR32MatchId) || r32MatchSummaries[0] || null;
   const adminFetchOptions = useMemo<RequestInit>(() => {
     if (!adminToken) return {};
 
@@ -1767,7 +1807,7 @@ export function PoolaramaPrototype() {
       </section>
 
       <nav className="tabbar" aria-label="Poolarama sections">
-        <TabButton label="Picks" tabName="picks" activeTab={tab} onSelect={setTab} />
+        <TabButton label={r32Started ? "Current" : "Picks"} tabName="picks" activeTab={tab} onSelect={setTab} />
         <TabButton label="Standings" tabName="standings" activeTab={tab} onSelect={setTab} />
         <TabButton label="Rules" tabName="rules" activeTab={tab} onSelect={setTab} />
         <TabButton label="Pay" tabName="payments" activeTab={tab} onSelect={setTab} />
@@ -1800,6 +1840,120 @@ export function PoolaramaPrototype() {
             <div className="inline-alert" role="alert">
               <strong>{poolDataWarning}</strong>
             </div>
+          )}
+          {r32Started && r32Matches.length > 0 && (
+            <section className="current-round-card" aria-labelledby="current-round-title">
+              <div className="current-round-heading">
+                <div>
+                  <p className="eyebrow">{r32Locked ? "Current round locked" : "Current round open"}</p>
+                  <h3 id="current-round-title">Round of 32</h3>
+                  <p>
+                    {r32Locked
+                      ? `${r32ScoredCount}/16 matches scored. Tap a match to compare picks.`
+                      : "Make your picks below. Match-by-match pool splits appear after John locks the round."}
+                  </p>
+                </div>
+                <div className="round-progress-pill">
+                  <strong>{r32ScoredCount}/16</strong>
+                  <span>scored</span>
+                </div>
+              </div>
+              <div className="current-match-grid">
+                {r32MatchSummaries.map((match) => {
+                  const teamA = getTeamMeta(match.teamA);
+                  const teamB = getTeamMeta(match.teamB);
+                  const userResult = match.winner && match.userPick
+                    ? match.userPick === match.winner ? "Right +1" : "Missed"
+                    : match.userPick ? `You: ${getTeamDisplayName(getTeamMeta(match.userPick))}` : "No pick";
+
+                  return (
+                    <button
+                      className={`match-summary-card ${selectedR32Match?.matchId === match.matchId ? "selected" : ""} ${match.winner ? "scored" : ""}`}
+                      key={`summary-${match.matchId}`}
+                      type="button"
+                      onClick={() => setSelectedR32MatchId(match.matchId)}
+                    >
+                      <span className="match-summary-label">{match.label}</span>
+                      <span className="match-summary-teams">
+                        <b title={match.teamA}>{teamA.flag} {getTeamDisplayName(teamA)}</b>
+                        <em>vs</em>
+                        <b title={match.teamB}>{teamB.flag} {getTeamDisplayName(teamB)}</b>
+                      </span>
+                      <span className="match-summary-meta">
+                        <strong>{match.winner ? `Winner: ${match.winner}` : userResult}</strong>
+                        {r32Locked && (
+                          <small>{match.teamAPickers.length}-{match.teamBPickers.length} pool split</small>
+                        )}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              {selectedR32Match && (
+                <div className="match-comparison-panel" aria-live="polite">
+                  <div className="match-comparison-header">
+                    <div>
+                      <span>{selectedR32Match.label}</span>
+                      <h4>
+                        {getTeamMeta(selectedR32Match.teamA).flag} {selectedR32Match.teamA}
+                        <em> vs </em>
+                        {getTeamMeta(selectedR32Match.teamB).flag} {selectedR32Match.teamB}
+                      </h4>
+                    </div>
+                    <strong>
+                      {selectedR32Match.winner
+                        ? `Scored: ${selectedR32Match.winner}`
+                        : selectedR32Match.poolFavorite === "Split"
+                          ? "Pool split"
+                          : `Pool likes ${selectedR32Match.poolFavorite}`}
+                    </strong>
+                  </div>
+                  {r32Locked ? (
+                    <div className="pick-comparison-grid">
+                      {[
+                        { team: selectedR32Match.teamA, pickers: selectedR32Match.teamAPickers },
+                        { team: selectedR32Match.teamB, pickers: selectedR32Match.teamBPickers }
+                      ].map(({ team, pickers }) => {
+                        const teamMeta = getTeamMeta(team);
+
+                        return (
+                          <div
+                            className={`pick-comparison-column ${selectedR32Match.winner === team ? "winner" : ""}`}
+                            key={`compare-${selectedR32Match.matchId}-${team}`}
+                            style={{
+                              "--team-a": teamMeta.colors[0],
+                              "--team-b": teamMeta.colors[1]
+                            } as React.CSSProperties}
+                          >
+                            <div>
+                              <strong>{teamMeta.flag} {team}</strong>
+                              <span>{pickers.length} pick{pickers.length === 1 ? "" : "s"}</span>
+                            </div>
+                            {pickers.length > 0 ? (
+                              <ul>
+                                {pickers.map((person) => (
+                                  <li key={`${selectedR32Match.matchId}-${team}-${person.code}`} className={person.code === selectedParticipant.code ? "you" : ""}>
+                                    <span>{person.nickname}</span>
+                                    <small>{person.points} pts</small>
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <p>No one took this side.</p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="round-status-note">
+                      <strong>Pick comparison unlocks after the round is locked.</strong>
+                      <p>Your pick is saved privately until then.</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </section>
           )}
           {showLockedHomeNotice && (
             <section className="locked-round-card" aria-labelledby="locked-round-title">
