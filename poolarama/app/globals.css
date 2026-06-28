@@ -2314,8 +2314,24 @@ h1 {
   gap: 14px;
   padding: 16px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.92);
+  background: linear-gradient(135deg, rgba(20, 99, 255, 0.12), rgba(15, 159, 110, 0.12)), #fff;
   border: 1px solid var(--line);
+}
+
+.next-round-rollup {
+  background: linear-gradient(135deg, rgba(20, 99, 255, 0.16), rgba(0, 168, 168, 0.14)), #fff;
+}
+
+.golden-rollup {
+  background: linear-gradient(135deg, rgba(255, 200, 61, 0.28), rgba(15, 159, 110, 0.12)), #fff;
+}
+
+.people-rollup {
+  background: linear-gradient(135deg, rgba(15, 159, 110, 0.16), rgba(255, 200, 61, 0.18)), #fff;
+}
+
+.utility-rollup {
+  background: linear-gradient(135deg, rgba(20, 99, 255, 0.1), rgba(17, 32, 51, 0.06)), #fff;
 }
 
 .danger-zone-card {
@@ -2337,6 +2353,37 @@ h1 {
   color: var(--muted);
   font-weight: 800;
   line-height: 1.35;
+}
+
+.next-round-status {
+  display: grid;
+  gap: 12px;
+}
+
+.next-round-status div {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: end;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(17, 32, 51, 0.1);
+}
+
+.next-round-status strong {
+  color: var(--navy);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 2rem;
+  line-height: 0.95;
+}
+
+.next-round-status span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 1000;
+  line-height: 1.1;
+  text-transform: uppercase;
 }
 
 .archived-admin-card {

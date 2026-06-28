@@ -3032,6 +3032,195 @@ export function PoolaramaPrototype() {
               </button>
             </div>
           </div>
+          <section className="r32-admin-card" aria-labelledby="r32-admin-title">
+            <div className="section-title-row">
+              <div>
+                <p className="eyebrow">Knockout setup</p>
+                <h3 id="r32-admin-title">Round of 32 picks</h3>
+                <p>
+                  Generate a private preview first. Open picks only after the matchups look right.
+                </p>
+              </div>
+              <div className="admin-toolbar-actions compact-actions">
+                <button
+                  className="admin-action compact"
+                  type="button"
+                  onClick={() => handleRoundOf32AdminAction("generate")}
+                  disabled={poolState.r32.status !== "setup"}
+                >
+                  Generate preview
+                </button>
+                <button
+                  className="admin-action compact"
+                  type="button"
+                  onClick={() => handleRoundOf32AdminAction("open")}
+                  disabled={poolState.r32.status !== "setup" || !r32PreviewReady || r32Matches.length !== 16}
+                >
+                  Confirm and open
+                </button>
+                <button
+                  className="admin-action compact quiet"
+                  type="button"
+                  onClick={() => handleRoundOf32AdminAction("lock")}
+                  disabled={!r32Open}
+                >
+                  Lock picks
+                </button>
+                <button
+                  className="admin-action compact"
+                  type="button"
+                  onClick={handleSyncRoundOf32Winners}
+                  disabled={!r32Locked}
+                >
+                  Sync winners
+                </button>
+              </div>
+            </div>
+            <div className="admin-sync-status" aria-label="Round of 32 status">
+              <div>
+                <span>Status</span>
+                <strong>{poolState.r32.status}</strong>
+              </div>
+              <div>
+                <span>Matchups</span>
+                <strong>{r32Matches.length}/16{r32PreviewReady ? " preview" : ""}</strong>
+              </div>
+              <div>
+                <span>Submitted</span>
+                <strong>{adminR32SubmittedCount}/{adminOverview.length}</strong>
+              </div>
+              <div>
+                <span>Opened</span>
+                <strong>{formatAdminTimestamp(poolState.r32.openedAt)}</strong>
+              </div>
+            </div>
+            {r32Matches.length > 0 ? (
+              <div className="r32-preview-grid">
+                {r32Matches.map((match) => (
+                  <div key={`admin-preview-${match.matchId}`}>
+                    <span>{match.label}</span>
+                    <strong>{match.teamA}</strong>
+                    <strong>{match.teamB}</strong>
+                    {match.winner && <em className="r32-result-winner">Winner: {match.winner}</em>}
+                    {poolState.r32.status === "locked" && (
+                      <div className="r32-result-actions">
+                        {[match.teamA, match.teamB].map((teamName) => (
+                          <button
+                            className={`admin-action compact ${match.winner === teamName ? "" : "quiet"}`}
+                            type="button"
+                            key={`${match.matchId}-${teamName}`}
+                            onClick={() => handleRoundOf32Winner(match.matchId, teamName)}
+                          >
+                            {match.winner === teamName ? "Winner" : `Set ${teamName}`}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="admin-empty-note">No Round of 32 preview has been generated yet.</p>
+            )}
+          </section>
+          <details className="admin-rollup-card next-round-rollup archived-admin-card">
+            <summary>
+              <span>Next round</span>
+              <strong>Round of 16 readiness</strong>
+            </summary>
+            <div className="next-round-status">
+              <div>
+                <strong>{r32ScoredCount}/16</strong>
+                <span>R32 winners scored</span>
+              </div>
+              <p>
+                {r32ScoredCount === 16
+                  ? "Round of 16 preview can be generated and reviewed."
+                  : "Round of 16 controls unlock after every Round of 32 winner is scored."}
+              </p>
+            </div>
+          </details>
+          <details className="admin-rollup-card golden-rollup archived-admin-card">
+            <summary>
+              <span>Golden Boot</span>
+              <strong>Top scorers</strong>
+            </summary>
+            <GoldenBootTable rows={goldenBootRows} feedback={goldenBootFeedback} />
+          </details>
+          <details className="admin-rollup-card people-rollup archived-admin-card">
+            <summary>
+              <span>Players and payments</span>
+              <strong>Participant controls</strong>
+            </summary>
+            <div className="admin-list">
+              {adminOverview.map((participant) => {
+                const isSeededParticipant = knownParticipants.some((knownParticipant) => knownParticipant.code === participant.code);
+
+                return (
+                  <article className="admin-row" key={participant.code}>
+                    <div className="admin-person">
+                      <h3>{participant.nickname}</h3>
+                      <p>{participant.name}</p>
+                    </div>
+                    <div className="admin-statuses">
+                      <span className={participant.venmoPaid ? "status-pill paid" : "status-pill unpaid"}>
+                        {participant.venmoPaid ? "Paid" : "Unpaid"}
+                      </span>
+                      <span className={participant.submitted ? "status-pill submitted" : "status-pill missing"}>
+                        {participant.submitted ? "Group submitted" : "Group missing"}
+                      </span>
+                      {poolState.r32.status !== "setup" && (
+                        <span className={participant.r32Submitted ? "status-pill submitted" : "status-pill missing"}>
+                          {participant.r32Submitted ? "R32 submitted" : "R32 missing"}
+                        </span>
+                      )}
+                    </div>
+                    <div className="admin-pick-summary">
+                      <span>Group: {participant.submittedAt ? new Date(participant.submittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
+                      {poolState.r32.status !== "setup" && (
+                        <span>R32: {participant.r32SubmittedAt ? new Date(participant.r32SubmittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
+                      )}
+                      <strong>
+                        {participant.champion
+                          ? `${participant.champion} / ${participant.goldenBoot}`
+                          : participant.submitted
+                            ? "Picks hidden until locked"
+                            : "No picks on file"}
+                      </strong>
+                      <em>{participant.inviteCode ? "Private invite ready" : "Basic invite"}</em>
+                    </div>
+                    <div className="admin-row-actions">
+                      <button className="admin-action compact" type="button" onClick={() => handleCopyInvite(participant)}>
+                        Copy link
+                      </button>
+                      <button className="admin-action compact quiet" type="button" onClick={() => handleCopyReminder(participant)}>
+                        Copy reminder
+                      </button>
+                      <details className="advanced-row-actions">
+                        <summary>Advanced</summary>
+                        <button
+                          className={`admin-action compact payment-toggle ${participant.venmoPaid ? "quiet" : ""}`}
+                          type="button"
+                          onClick={() => handleTogglePayment(participant)}
+                        >
+                          {participant.venmoPaid ? "Mark unpaid" : "Mark paid"}
+                        </button>
+                        {!isSeededParticipant && (
+                          <button
+                            className={`admin-action compact danger ${pendingDeleteCode === participant.code ? "confirm" : ""}`}
+                            type="button"
+                            onClick={() => handleDeleteParticipant(participant)}
+                          >
+                            {pendingDeleteCode === participant.code ? "Confirm delete" : "Delete"}
+                          </button>
+                        )}
+                      </details>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </details>
           <details className="daily-review-card archived-admin-card">
             <summary>
               <span>Pool analysis</span>
@@ -3052,6 +3241,28 @@ export function PoolaramaPrototype() {
               ))}
             </div>
             {dailyReview.kicker && <p className="daily-review-kicker">{dailyReview.kicker}</p>}
+          </details>
+          <details className="admin-rollup-card utility-rollup archived-admin-card">
+            <summary>
+              <span>Utilities</span>
+              <strong>Maintenance</strong>
+            </summary>
+            <p>Use these for refreshes and non-destructive admin upkeep.</p>
+            <div className="admin-maintenance-actions">
+              <button className="admin-action compact" type="button" onClick={loadAdminOverview}>
+                Refresh participants
+              </button>
+              <button
+                className={`admin-action compact ${preTournamentLocked ? "quiet" : ""}`}
+                type="button"
+                onClick={handleTogglePreTournamentLock}
+              >
+                {preTournamentLocked ? "Unlock picks" : "Lock picks"}
+              </button>
+              <button className="admin-action compact" type="button" onClick={handleSeedParticipants}>
+                Seed participants
+              </button>
+            </div>
           </details>
           <details className="invite-card archived-admin-card">
             <summary>
@@ -3146,200 +3357,6 @@ export function PoolaramaPrototype() {
                     })}
                 </article>
               ))}
-            </div>
-          </details>
-          <section className="r32-admin-card" aria-labelledby="r32-admin-title">
-            <div className="section-title-row">
-              <div>
-                <p className="eyebrow">Knockout setup</p>
-                <h3 id="r32-admin-title">Round of 32 picks</h3>
-                <p>
-                  Generate a private preview first. Open picks only after the matchups look right.
-                </p>
-              </div>
-              <div className="admin-toolbar-actions compact-actions">
-                <button
-                  className="admin-action compact"
-                  type="button"
-                  onClick={() => handleRoundOf32AdminAction("generate")}
-                  disabled={poolState.r32.status !== "setup"}
-                >
-                  Generate preview
-                </button>
-                <button
-                  className="admin-action compact"
-                  type="button"
-                  onClick={() => handleRoundOf32AdminAction("open")}
-                  disabled={poolState.r32.status !== "setup" || !r32PreviewReady || r32Matches.length !== 16}
-                >
-                  Confirm and open
-                </button>
-                <button
-                  className="admin-action compact quiet"
-                  type="button"
-                  onClick={() => handleRoundOf32AdminAction("lock")}
-                  disabled={!r32Open}
-                >
-                  Lock picks
-                </button>
-                <button
-                  className="admin-action compact"
-                  type="button"
-                  onClick={handleSyncRoundOf32Winners}
-                  disabled={!r32Locked}
-                >
-                  Sync winners
-                </button>
-              </div>
-            </div>
-            <div className="admin-sync-status" aria-label="Round of 32 status">
-              <div>
-                <span>Status</span>
-                <strong>{poolState.r32.status}</strong>
-              </div>
-              <div>
-                <span>Matchups</span>
-                <strong>{r32Matches.length}/16{r32PreviewReady ? " preview" : ""}</strong>
-              </div>
-              <div>
-                <span>Submitted</span>
-                <strong>{adminR32SubmittedCount}/{adminOverview.length}</strong>
-              </div>
-              <div>
-                <span>Opened</span>
-                <strong>{formatAdminTimestamp(poolState.r32.openedAt)}</strong>
-              </div>
-            </div>
-            {r32Matches.length > 0 ? (
-              <div className="r32-preview-grid">
-                {r32Matches.map((match) => (
-                  <div key={`admin-preview-${match.matchId}`}>
-                    <span>{match.label}</span>
-                    <strong>{match.teamA}</strong>
-                    <strong>{match.teamB}</strong>
-                    {match.winner && <em className="r32-result-winner">Winner: {match.winner}</em>}
-                    {poolState.r32.status === "locked" && (
-                      <div className="r32-result-actions">
-                        {[match.teamA, match.teamB].map((teamName) => (
-                          <button
-                            className={`admin-action compact ${match.winner === teamName ? "" : "quiet"}`}
-                            type="button"
-                            key={`${match.matchId}-${teamName}`}
-                            onClick={() => handleRoundOf32Winner(match.matchId, teamName)}
-                          >
-                            {match.winner === teamName ? "Winner" : `Set ${teamName}`}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="admin-empty-note">No Round of 32 preview has been generated yet.</p>
-            )}
-          </section>
-          <details className="admin-rollup-card archived-admin-card">
-            <summary>
-              <span>Golden Boot</span>
-              <strong>Top scorers</strong>
-            </summary>
-            <GoldenBootTable rows={goldenBootRows} feedback={goldenBootFeedback} />
-          </details>
-          <details className="admin-rollup-card archived-admin-card">
-            <summary>
-              <span>Players and payments</span>
-              <strong>Participant controls</strong>
-            </summary>
-            <div className="admin-list">
-              {adminOverview.map((participant) => {
-                const isSeededParticipant = knownParticipants.some((knownParticipant) => knownParticipant.code === participant.code);
-
-                return (
-                  <article className="admin-row" key={participant.code}>
-                    <div className="admin-person">
-                      <h3>{participant.nickname}</h3>
-                      <p>{participant.name}</p>
-                    </div>
-                    <div className="admin-statuses">
-                      <span className={participant.venmoPaid ? "status-pill paid" : "status-pill unpaid"}>
-                        {participant.venmoPaid ? "Paid" : "Unpaid"}
-                      </span>
-                      <span className={participant.submitted ? "status-pill submitted" : "status-pill missing"}>
-                        {participant.submitted ? "Group submitted" : "Group missing"}
-                      </span>
-                      {poolState.r32.status !== "setup" && (
-                        <span className={participant.r32Submitted ? "status-pill submitted" : "status-pill missing"}>
-                          {participant.r32Submitted ? "R32 submitted" : "R32 missing"}
-                        </span>
-                      )}
-                    </div>
-                    <div className="admin-pick-summary">
-                      <span>Group: {participant.submittedAt ? new Date(participant.submittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
-                      {poolState.r32.status !== "setup" && (
-                        <span>R32: {participant.r32SubmittedAt ? new Date(participant.r32SubmittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
-                      )}
-                      <strong>
-                        {participant.champion
-                          ? `${participant.champion} / ${participant.goldenBoot}`
-                          : participant.submitted
-                            ? "Picks hidden until locked"
-                            : "No picks on file"}
-                      </strong>
-                      <em>{participant.inviteCode ? "Private invite ready" : "Basic invite"}</em>
-                    </div>
-                    <div className="admin-row-actions">
-                      <button className="admin-action compact" type="button" onClick={() => handleCopyInvite(participant)}>
-                        Copy link
-                      </button>
-                      <button className="admin-action compact quiet" type="button" onClick={() => handleCopyReminder(participant)}>
-                        Copy reminder
-                      </button>
-                      <details className="advanced-row-actions">
-                        <summary>Advanced</summary>
-                        <button
-                          className={`admin-action compact payment-toggle ${participant.venmoPaid ? "quiet" : ""}`}
-                          type="button"
-                          onClick={() => handleTogglePayment(participant)}
-                        >
-                          {participant.venmoPaid ? "Mark unpaid" : "Mark paid"}
-                        </button>
-                        {!isSeededParticipant && (
-                          <button
-                            className={`admin-action compact danger ${pendingDeleteCode === participant.code ? "confirm" : ""}`}
-                            type="button"
-                            onClick={() => handleDeleteParticipant(participant)}
-                          >
-                            {pendingDeleteCode === participant.code ? "Confirm delete" : "Delete"}
-                          </button>
-                        )}
-                      </details>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          </details>
-          <details className="admin-rollup-card archived-admin-card">
-            <summary>
-              <span>Utilities</span>
-              <strong>Maintenance</strong>
-            </summary>
-            <p>Use these for refreshes and non-destructive admin upkeep.</p>
-            <div className="admin-maintenance-actions">
-              <button className="admin-action compact" type="button" onClick={loadAdminOverview}>
-                Refresh participants
-              </button>
-              <button
-                className={`admin-action compact ${preTournamentLocked ? "quiet" : ""}`}
-                type="button"
-                onClick={handleTogglePreTournamentLock}
-              >
-                {preTournamentLocked ? "Unlock picks" : "Lock picks"}
-              </button>
-              <button className="admin-action compact" type="button" onClick={handleSeedParticipants}>
-                Seed participants
-              </button>
             </div>
           </details>
           <details className="danger-zone-card archived-admin-card">
