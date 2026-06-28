@@ -23,6 +23,53 @@ export type GeneratedMatch = {
   order: number;
 };
 
+type QualifiedGroupRank = "winner" | "runnerUp" | "third";
+
+type ThirdPlaceAssignment = {
+  oneA: GroupId;
+  oneB: GroupId;
+  oneD: GroupId;
+  oneE: GroupId;
+  oneG: GroupId;
+  oneI: GroupId;
+  oneK: GroupId;
+  oneL: GroupId;
+};
+
+type MatchSlot =
+  | { matchNumber: number; sideA: [GroupId, QualifiedGroupRank]; sideB: [GroupId, QualifiedGroupRank] }
+  | { matchNumber: number; sideA: [GroupId, QualifiedGroupRank]; sideBThirdFor: keyof ThirdPlaceAssignment };
+
+const thirdPlaceAssignments: Record<string, ThirdPlaceAssignment> = {
+  "BDEF IJKL": { oneA: "E", oneB: "J", oneD: "B", oneE: "D", oneG: "I", oneI: "F", oneK: "L", oneL: "K" },
+  "BDEF GIKL": { oneA: "E", oneB: "G", oneD: "B", oneE: "D", oneG: "I", oneI: "F", oneK: "L", oneL: "K" },
+  "BDEF GIJL": { oneA: "E", oneB: "G", oneD: "B", oneE: "D", oneG: "J", oneI: "F", oneK: "L", oneL: "I" },
+  "BDEF GIJK": { oneA: "E", oneB: "G", oneD: "B", oneE: "D", oneG: "J", oneI: "F", oneK: "I", oneL: "K" },
+  "ABDE FGIL": { oneA: "E", oneB: "G", oneD: "B", oneE: "D", oneG: "A", oneI: "F", oneK: "L", oneL: "I" },
+  "ABDE FGIK": { oneA: "E", oneB: "G", oneD: "B", oneE: "D", oneG: "A", oneI: "F", oneK: "I", oneL: "K" },
+  "ABDE FGIJ": { oneA: "E", oneB: "G", oneD: "B", oneE: "D", oneG: "A", oneI: "F", oneK: "I", oneL: "J" },
+  "ABCD EFGI": { oneA: "C", oneB: "G", oneD: "B", oneE: "D", oneG: "A", oneI: "F", oneK: "E", oneL: "I" }
+};
+
+const roundOf32Slots: MatchSlot[] = [
+  { matchNumber: 73, sideA: ["A", "runnerUp"], sideB: ["B", "runnerUp"] },
+  { matchNumber: 74, sideA: ["E", "winner"], sideBThirdFor: "oneE" },
+  { matchNumber: 75, sideA: ["F", "winner"], sideB: ["C", "runnerUp"] },
+  { matchNumber: 76, sideA: ["C", "winner"], sideB: ["F", "runnerUp"] },
+  { matchNumber: 77, sideA: ["I", "winner"], sideBThirdFor: "oneI" },
+  { matchNumber: 78, sideA: ["E", "runnerUp"], sideB: ["I", "runnerUp"] },
+  { matchNumber: 79, sideA: ["A", "winner"], sideBThirdFor: "oneA" },
+  { matchNumber: 80, sideA: ["L", "winner"], sideBThirdFor: "oneL" },
+  { matchNumber: 81, sideA: ["D", "winner"], sideBThirdFor: "oneD" },
+  { matchNumber: 82, sideA: ["G", "winner"], sideBThirdFor: "oneG" },
+  { matchNumber: 83, sideA: ["K", "runnerUp"], sideB: ["L", "runnerUp"] },
+  { matchNumber: 84, sideA: ["H", "winner"], sideB: ["J", "runnerUp"] },
+  { matchNumber: 85, sideA: ["B", "winner"], sideBThirdFor: "oneB" },
+  { matchNumber: 86, sideA: ["J", "winner"], sideB: ["H", "runnerUp"] },
+  { matchNumber: 87, sideA: ["K", "winner"], sideBThirdFor: "oneK" },
+  { matchNumber: 88, sideA: ["D", "runnerUp"], sideB: ["G", "runnerUp"] }
+];
+
 function compareStandings(a: GroupStandingInput, b: GroupStandingInput) {
   return (
     b.points - a.points ||
@@ -87,26 +134,54 @@ export function rankGroupStandings(standings: GroupStandingInput[]) {
   });
 }
 
+function thirdPlaceKey(groups: GroupId[]) {
+  const sortedGroups = [...groups].sort();
+  return `${sortedGroups.slice(0, 4).join("")} ${sortedGroups.slice(4).join("")}`;
+}
+
+function getQualifiedTeam(
+  rowsByGroup: Map<GroupId, GroupStandingInput[]>,
+  group: GroupId,
+  rank: QualifiedGroupRank
+) {
+  const rankNumber = rank === "winner" ? 1 : rank === "runnerUp" ? 2 : 3;
+  const team = rowsByGroup.get(group)?.find((standing) => standing.rank === rankNumber);
+
+  if (!team) {
+    throw new Error(`Missing ${rank} from Group ${group}.`);
+  }
+
+  return team;
+}
+
 export function generateRoundOf32Matches(standings: GroupStandingInput[]): GeneratedMatch[] {
   const rankedStandings = rankGroupStandings(standings);
-  const automaticQualifiers = rankedStandings.filter((standing) => standing.rank <= 2);
   const thirdPlaceQualifiers = rankedStandings
     .filter((standing) => standing.rank === 3)
     .sort(compareStandings)
     .slice(0, 8);
-  const qualifiers = [...automaticQualifiers, ...thirdPlaceQualifiers].sort(compareStandings);
+  const thirdPlaceGroups = thirdPlaceQualifiers.map((standing) => standing.group);
+  const assignment = thirdPlaceAssignments[thirdPlaceKey(thirdPlaceGroups)];
+  const rowsByGroup = new Map(
+    groups.map((group) => [
+      group,
+      rankedStandings.filter((standing) => standing.group === group)
+    ])
+  );
 
-  if (qualifiers.length < 32) {
-    throw new Error("Need 32 qualified teams to generate Round of 32.");
+  if (!assignment) {
+    throw new Error(`Unsupported Round of 32 third-place combination: ${thirdPlaceKey(thirdPlaceGroups)}.`);
   }
 
-  return Array.from({ length: 16 }, (_, index) => {
-    const teamA = qualifiers[index];
-    const teamB = qualifiers[31 - index];
+  return roundOf32Slots.map((slot, index) => {
+    const teamA = getQualifiedTeam(rowsByGroup, slot.sideA[0], slot.sideA[1]);
+    const teamB = "sideB" in slot
+      ? getQualifiedTeam(rowsByGroup, slot.sideB[0], slot.sideB[1])
+      : getQualifiedTeam(rowsByGroup, assignment[slot.sideBThirdFor], "third");
 
     return {
       matchId: `r32-${String(index + 1).padStart(2, "0")}`,
-      label: `R32 Match ${index + 1}`,
+      label: `Match ${slot.matchNumber}`,
       teamA: teamA.team,
       teamB: teamB.team,
       order: index + 1
