@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     const [pool, participants, submissions] = await Promise.all([
       getOrCreateDefaultPool(),
       ParticipantModel.find({ poolSlug: defaultPoolSlug }).lean(),
-      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: { $in: ["preTournament", "r32"] } }).lean()
+      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: { $in: ["preTournament", "r32", "r16"] } }).lean()
     ]);
 
     if (participants.length === 0 && !allowMockFallback()) return poolDataUnavailableResponse();
@@ -42,6 +42,8 @@ export async function GET(request: NextRequest) {
         submissions.find((item) => item.participantCode === knownParticipant.code && item.stage === "preTournament") || null;
       const r32Submission =
         submissions.find((item) => item.participantCode === knownParticipant.code && item.stage === "r32") || null;
+      const r16Submission =
+        submissions.find((item) => item.participantCode === knownParticipant.code && item.stage === "r16") || null;
 
       return {
         code: knownParticipant.code,
@@ -53,6 +55,8 @@ export async function GET(request: NextRequest) {
         submittedAt: submission?.submittedAt?.toISOString() || null,
         r32Submitted: Boolean(r32Submission),
         r32SubmittedAt: r32Submission?.submittedAt?.toISOString() || null,
+        r16Submitted: Boolean(r16Submission),
+        r16SubmittedAt: r16Submission?.submittedAt?.toISOString() || null,
         champion: preTournamentLocked ? submission?.picks?.champion || null : null,
         goldenBoot: preTournamentLocked ? submission?.picks?.goldenBoot || null : null
       };

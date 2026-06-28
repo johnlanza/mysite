@@ -137,6 +137,9 @@ export async function GET(request: NextRequest) {
     const r32SubmissionCount = submissions.filter((submission) =>
       submission.stage === "r32" && activeParticipantCodes.has(submission.participantCode)
     ).length;
+    const r16SubmissionCount = submissions.filter((submission) =>
+      submission.stage === "r16" && activeParticipantCodes.has(submission.participantCode)
+    ).length;
     const groupStandings =
       groupStandingRows.length > 0
         ? reconcileGroupStandings(groupStandingRows.map(rowToStanding))
@@ -194,6 +197,10 @@ export async function GET(request: NextRequest) {
       roundSubmissions: {
         r32: {
           submitted: r32SubmissionCount,
+          total: roster.length
+        },
+        r16: {
+          submitted: r16SubmissionCount,
           total: roster.length
         }
       },

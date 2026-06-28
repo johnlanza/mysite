@@ -128,6 +128,10 @@ type RoundSubmissionSummary = {
     submitted: number;
     total: number;
   };
+  r16: {
+    submitted: number;
+    total: number;
+  };
 };
 
 type PublicPicksResponse = {
@@ -176,6 +180,8 @@ type RoundOf32Response = {
     unmatched: Array<{ teamA: string; teamB: string; winner: string }>;
   };
 };
+
+type RoundOf16Response = RoundOf32Response;
 
 type R32MatchSummary = R32Match & {
   teamAPickers: PublicPickParticipant[];
@@ -226,6 +232,10 @@ const defaultPoolState: PoolState = {
 };
 const defaultRoundSubmissionSummary: RoundSubmissionSummary = {
   r32: {
+    submitted: 0,
+    total: 0
+  },
+  r16: {
     submitted: 0,
     total: 0
   }
@@ -868,6 +878,8 @@ export function PoolaramaPrototype() {
       submittedAt: null,
       r32Submitted: false,
       r32SubmittedAt: null,
+      r16Submitted: false,
+      r16SubmittedAt: null,
       champion: null,
       goldenBoot: null
     }))
@@ -887,6 +899,8 @@ export function PoolaramaPrototype() {
   const [r32SavedAt, setR32SavedAt] = useState<string | null>(null);
   const [r32PreviewReady, setR32PreviewReady] = useState(false);
   const [r32Feedback, setR32Feedback] = useState("Round of 32 picks are not open yet.");
+  const [r16Matches, setR16Matches] = useState<R32Match[]>([]);
+  const [r16PreviewReady, setR16PreviewReady] = useState(false);
   const [selectedR32MatchId, setSelectedR32MatchId] = useState<string | null>(null);
   const [goldenBootRows, setGoldenBootRows] = useState<GoldenBootRow[]>([]);
   const [goldenBootFeedback, setGoldenBootFeedback] = useState("Golden Boot table is loading.");
@@ -928,6 +942,10 @@ export function PoolaramaPrototype() {
   const r32Locked = poolState.r32.status === "locked";
   const r32Started = r32Open || r32Locked;
   const r32ScoredCount = r32Matches.filter((match) => Boolean(match.winner)).length;
+  const r16Open = poolState.r16.status === "open";
+  const r16Locked = poolState.r16.status === "locked";
+  const r16ScoredCount = r16Matches.filter((match) => Boolean(match.winner)).length;
+  const r16CanPreview = r32ScoredCount === 16;
   const preTournamentControlsLocked = preTournamentLocked || r32Open || r32Locked;
   const r32PicksComplete = r32Matches.length > 0 && r32Matches.every((match) => Boolean(r32Picks[match.matchId]));
   const showLockedHomeNotice = preTournamentLocked && !r32Started && !identityConfirmed && !identityLockedByLink && !adminEnabled;
@@ -947,6 +965,7 @@ export function PoolaramaPrototype() {
   const submittedCount = visibleRoster.filter((participant) => participant.submitted).length;
   const adminSubmittedCount = adminOverview.filter((participant) => participant.submitted).length;
   const adminR32SubmittedCount = adminOverview.filter((participant) => participant.r32Submitted).length;
+  const adminR16SubmittedCount = adminOverview.filter((participant) => participant.r16Submitted).length;
   const heroR32SubmittedCount = adminEnabled ? adminR32SubmittedCount : roundSubmissions.r32.submitted;
   const heroR32SubmissionTotal = adminEnabled ? adminOverview.length : roundSubmissions.r32.total || totalPlayers;
   const showR32SubmissionMetric = poolState.r32.status !== "setup";
@@ -1194,6 +1213,7 @@ export function PoolaramaPrototype() {
     if (!adminEnabled || !adminToken) return;
     loadAdminOverview();
     loadRoundOf32();
+    loadRoundOf16();
   }, [adminEnabled, adminToken]);
 
   useEffect(() => {
@@ -1279,6 +1299,10 @@ export function PoolaramaPrototype() {
         r32: {
           submitted: 0,
           total: data.participants.length
+        },
+        r16: {
+          submitted: 0,
+          total: data.participants.length
         }
       });
       setPoolDataWarning(null);
@@ -1344,6 +1368,26 @@ export function PoolaramaPrototype() {
       setR32PreviewReady(Boolean(data.previewOnly));
     } catch {
       setR32Feedback("Round of 32 unavailable.");
+    }
+  }
+
+  async function loadRoundOf16() {
+    try {
+      const response = await fetch(withBasePath("/api/admin/r16"), {
+        cache: "no-store",
+        ...adminFetchOptions
+      });
+
+      if (!response.ok) {
+        throw new Error("Round of 16 failed.");
+      }
+
+      const data = (await response.json()) as RoundOf16Response;
+      setR16Matches(data.matches);
+      setPoolState(normalizePoolState(data.pool));
+      setR16PreviewReady(Boolean(data.previewOnly));
+    } catch {
+      setAdminFeedback("Round of 16 unavailable.");
     }
   }
 
@@ -1613,6 +1657,139 @@ export function PoolaramaPrototype() {
       );
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not sync Round of 32 winners.";
+      setAdminFeedback(message);
+    }
+  }
+
+  async function handleRoundOf16AdminAction(action: "generate" | "open" | "lock") {
+    const labels = {
+      generate: "Generating private Round of 16 preview...",
+      open: "Creating backup and opening Round of 16 picks...",
+      lock: "Creating backup and locking Round of 16 picks..."
+    };
+    const successMessages = {
+      generate: "Private Round of 16 preview generated. Review the matchups, then confirm and open.",
+      open: "Round of 16 picks are open.",
+      lock: "Round of 16 picks are locked."
+    };
+
+    if (action === "generate" && !r16CanPreview) {
+      setAdminFeedback("Score all 16 Round of 32 winners before generating Round of 16.");
+      return;
+    }
+
+    if (action === "open" && r16Matches.length !== 8) {
+      setAdminFeedback("Generate and verify 8 Round of 16 matches before opening picks.");
+      return;
+    }
+
+    if (action === "open" && !r16PreviewReady) {
+      setAdminFeedback("Generate a fresh private preview before opening Round of 16 picks.");
+      return;
+    }
+
+    if (action === "open" && !window.confirm("Open Round of 16 picks from this preview? A backup will be saved first.")) {
+      setAdminFeedback("Round of 16 open cancelled.");
+      return;
+    }
+
+    if (action === "lock" && !window.confirm("Lock Round of 16 picks? A backup will be saved first.")) {
+      setAdminFeedback("Round of 16 lock cancelled.");
+      return;
+    }
+
+    setAdminFeedback(labels[action]);
+
+    try {
+      const response = await fetch(withBasePath("/api/admin/r16"), {
+        method: "POST",
+        headers: adminJsonHeaders(),
+        body: JSON.stringify({
+          action,
+          confirmation: action === "open" ? "OPEN" : undefined,
+          previewMatches: action === "open" ? r16Matches : undefined
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Could not update Round of 16.");
+      }
+
+      const data = (await response.json()) as RoundOf16Response;
+      setR16Matches(data.matches);
+      setPoolState(normalizePoolState(data.pool));
+      setR16PreviewReady(Boolean(data.previewOnly));
+      await loadAdminOverview();
+      await loadPublicPicks();
+      setAdminFeedback(`${successMessages[action]}${formatBackupMessage(data)}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not update Round of 16.";
+      setAdminFeedback(message);
+    }
+  }
+
+  async function handleRoundOf16Winner(matchId: string, winner: string) {
+    setAdminFeedback("Creating backup and saving Round of 16 winner...");
+
+    try {
+      const response = await fetch(withBasePath("/api/admin/r16"), {
+        method: "POST",
+        headers: adminJsonHeaders(),
+        body: JSON.stringify({
+          action: "score",
+          matchId,
+          winner
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Could not save Round of 16 winner.");
+      }
+
+      const data = (await response.json()) as RoundOf16Response;
+      setR16Matches(data.matches);
+      setPoolState(normalizePoolState(data.pool));
+      setR16PreviewReady(false);
+      await loadPublicPicks();
+      setAdminFeedback(`Round of 16 winner saved.${formatBackupMessage(data)}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not save Round of 16 winner.";
+      setAdminFeedback(message);
+    }
+  }
+
+  async function handleSyncRoundOf16Winners() {
+    setAdminFeedback("Checking completed Round of 16 matches...");
+
+    try {
+      const response = await fetch(withBasePath("/api/admin/r16"), {
+        method: "POST",
+        headers: adminJsonHeaders(),
+        body: JSON.stringify({ action: "sync-winners" })
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Could not sync Round of 16 winners.");
+      }
+
+      const data = (await response.json()) as RoundOf16Response;
+      const updates = data.sync?.updates.length || 0;
+      const unchanged = data.sync?.unchanged.length || 0;
+      const conflicts = data.sync?.conflicts.length || 0;
+      setR16Matches(data.matches);
+      setPoolState(normalizePoolState(data.pool));
+      setR16PreviewReady(false);
+      await loadPublicPicks();
+      setAdminFeedback(
+        conflicts > 0
+          ? `Synced ${updates} R16 winner${updates === 1 ? "" : "s"}; ${conflicts} conflict${conflicts === 1 ? "" : "s"} need manual review.`
+          : `Synced ${updates} R16 winner${updates === 1 ? "" : "s"} from ${data.sync?.provider || "the provider"}. ${unchanged} already current.${formatBackupMessage(data)}`
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not sync Round of 16 winners.";
       setAdminFeedback(message);
     }
   }
@@ -2991,6 +3168,12 @@ export function PoolaramaPrototype() {
               <strong>{adminR32SubmittedCount}/{adminOverview.length}</strong>
               <span>R32 submitted</span>
             </div>
+            {poolState.r16.status !== "setup" && (
+              <div>
+                <strong>{adminR16SubmittedCount}/{adminOverview.length}</strong>
+                <span>R16 submitted</span>
+              </div>
+            )}
             <div>
               <strong>{adminOverview.length - unpaidCount}/{adminOverview.length}</strong>
               <span>paid</span>
@@ -3139,6 +3322,88 @@ export function PoolaramaPrototype() {
                   : "Round of 16 controls unlock after every Round of 32 winner is scored."}
               </p>
             </div>
+            <div className="admin-toolbar-actions compact-actions">
+              <button
+                className="admin-action compact"
+                type="button"
+                onClick={() => handleRoundOf16AdminAction("generate")}
+                disabled={poolState.r16.status !== "setup" || !r16CanPreview}
+              >
+                Generate R16 preview
+              </button>
+              <button
+                className="admin-action compact"
+                type="button"
+                onClick={() => handleRoundOf16AdminAction("open")}
+                disabled={poolState.r16.status !== "setup" || !r16PreviewReady || r16Matches.length !== 8}
+              >
+                Confirm and open
+              </button>
+              <button
+                className="admin-action compact quiet"
+                type="button"
+                onClick={() => handleRoundOf16AdminAction("lock")}
+                disabled={!r16Open}
+              >
+                Lock picks
+              </button>
+              <button
+                className="admin-action compact"
+                type="button"
+                onClick={handleSyncRoundOf16Winners}
+                disabled={!r16Locked}
+              >
+                Sync winners
+              </button>
+            </div>
+            <div className="admin-sync-status" aria-label="Round of 16 status">
+              <div>
+                <span>Status</span>
+                <strong>{poolState.r16.status}</strong>
+              </div>
+              <div>
+                <span>Matchups</span>
+                <strong>{r16Matches.length}/8{r16PreviewReady ? " preview" : ""}</strong>
+              </div>
+              <div>
+                <span>Submitted</span>
+                <strong>{adminR16SubmittedCount}/{adminOverview.length}</strong>
+              </div>
+              <div>
+                <span>Scored</span>
+                <strong>{r16ScoredCount}/8</strong>
+              </div>
+            </div>
+            {r16Matches.length > 0 ? (
+              <div className="r32-preview-grid">
+                {r16Matches.map((match) => (
+                  <div key={`admin-r16-preview-${match.matchId}`}>
+                    <span>{match.label}</span>
+                    <strong>{match.teamA}</strong>
+                    <strong>{match.teamB}</strong>
+                    {match.winner && <em className="r32-result-winner">Winner: {match.winner}</em>}
+                    {poolState.r16.status === "locked" && (
+                      <div className="r32-result-actions">
+                        {[match.teamA, match.teamB].map((teamName) => (
+                          <button
+                            className={`admin-action compact ${match.winner === teamName ? "" : "quiet"}`}
+                            type="button"
+                            key={`${match.matchId}-${teamName}`}
+                            onClick={() => handleRoundOf16Winner(match.matchId, teamName)}
+                          >
+                            {match.winner === teamName ? "Winner" : `Set ${teamName}`}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="admin-empty-note">
+                {r16CanPreview ? "No Round of 16 preview has been generated yet." : "Round of 16 preview is waiting on the remaining R32 winners."}
+              </p>
+            )}
           </details>
           <details className="admin-rollup-card golden-rollup archived-admin-card">
             <summary>
@@ -3174,11 +3439,19 @@ export function PoolaramaPrototype() {
                           {participant.r32Submitted ? "R32 submitted" : "R32 missing"}
                         </span>
                       )}
+                      {poolState.r16.status !== "setup" && (
+                        <span className={participant.r16Submitted ? "status-pill submitted" : "status-pill missing"}>
+                          {participant.r16Submitted ? "R16 submitted" : "R16 missing"}
+                        </span>
+                      )}
                     </div>
                     <div className="admin-pick-summary">
                       <span>Group: {participant.submittedAt ? new Date(participant.submittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
                       {poolState.r32.status !== "setup" && (
                         <span>R32: {participant.r32SubmittedAt ? new Date(participant.r32SubmittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
+                      )}
+                      {poolState.r16.status !== "setup" && (
+                        <span>R16: {participant.r16SubmittedAt ? new Date(participant.r16SubmittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
                       )}
                       <strong>
                         {participant.champion
