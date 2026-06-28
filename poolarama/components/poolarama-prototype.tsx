@@ -112,8 +112,16 @@ type PublicPickParticipant = {
   } | null;
 };
 
+type RoundSubmissionSummary = {
+  r32: {
+    submitted: number;
+    total: number;
+  };
+};
+
 type PublicPicksResponse = {
   participants: PublicPickParticipant[];
+  roundSubmissions?: RoundSubmissionSummary;
   pool: PoolState;
   storageMode: "mongo" | "mock";
   error?: string;
@@ -160,6 +168,12 @@ const defaultPoolState: PoolState = {
     status: "setup",
     openedAt: null,
     lockedAt: null
+  }
+};
+const defaultRoundSubmissionSummary: RoundSubmissionSummary = {
+  r32: {
+    submitted: 0,
+    total: 0
   }
 };
 
@@ -659,6 +673,8 @@ export function PoolaramaPrototype() {
       venmoPaid: participant.venmoPaid,
       submitted: false,
       submittedAt: null,
+      r32Submitted: false,
+      r32SubmittedAt: null,
       champion: null,
       goldenBoot: null
     }))
@@ -670,6 +686,7 @@ export function PoolaramaPrototype() {
   const [pendingDeleteCode, setPendingDeleteCode] = useState("");
   const [poolState, setPoolState] = useState<PoolState>(defaultPoolState);
   const [publicPicks, setPublicPicks] = useState<PublicPickParticipant[]>([]);
+  const [roundSubmissions, setRoundSubmissions] = useState<RoundSubmissionSummary>(defaultRoundSubmissionSummary);
   const [groupStandingsRows, setGroupStandingsRows] = useState<GroupStandingRow[]>(() => buildDefaultGroupStandings());
   const [r32Matches, setR32Matches] = useState<R32Match[]>([]);
   const [r32Picks, setR32Picks] = useState<Record<string, string>>({});
@@ -731,6 +748,11 @@ export function PoolaramaPrototype() {
           ? "Pre-tournament picks are locked."
           : "Ready to review.";
   const submittedCount = visibleRoster.filter((participant) => participant.submitted).length;
+  const adminSubmittedCount = adminOverview.filter((participant) => participant.submitted).length;
+  const adminR32SubmittedCount = adminOverview.filter((participant) => participant.r32Submitted).length;
+  const heroR32SubmittedCount = adminEnabled ? adminR32SubmittedCount : roundSubmissions.r32.submitted;
+  const heroR32SubmissionTotal = adminEnabled ? adminOverview.length : roundSubmissions.r32.total || totalPlayers;
+  const showR32SubmissionMetric = poolState.r32.status !== "setup";
   const leadingScore = publicPicks.reduce((maxPoints, participant) => Math.max(maxPoints, participant.points), 0);
   const leaders = leadingScore > 0
     ? publicPicks.filter((participant) => participant.points === leadingScore).map((participant) => participant.nickname)
@@ -1006,9 +1028,16 @@ export function PoolaramaPrototype() {
         setR32Feedback("Round of 32 picks are open.");
       }
       setPublicPicks(data.participants);
+      setRoundSubmissions(data.roundSubmissions || {
+        r32: {
+          submitted: 0,
+          total: data.participants.length
+        }
+      });
       setPoolDataWarning(null);
     } catch (error) {
       setPublicPicks([]);
+      setRoundSubmissions(defaultRoundSubmissionSummary);
       setPoolDataWarning("Pool data is temporarily unavailable. Please refresh in a minute.");
       if (adminEnabled) {
         const message = error instanceof Error ? error.message : "Could not load pick visibility.";
@@ -1705,6 +1734,12 @@ export function PoolaramaPrototype() {
             <strong>{leaderLabel}</strong>
             <span>leader</span>
           </div>
+          {showR32SubmissionMetric && (
+            <div>
+              <strong>{heroR32SubmittedCount}/{heroR32SubmissionTotal}</strong>
+              <span>R32 submitted</span>
+            </div>
+          )}
         </div>
       </section>
 
@@ -2444,8 +2479,12 @@ export function PoolaramaPrototype() {
           />
           <div className="admin-summary">
             <div>
-              <strong>{submittedCount}/{adminOverview.length}</strong>
-              <span>submitted</span>
+              <strong>{adminSubmittedCount}/{adminOverview.length}</strong>
+              <span>group submitted</span>
+            </div>
+            <div>
+              <strong>{adminR32SubmittedCount}/{adminOverview.length}</strong>
+              <span>R32 submitted</span>
             </div>
             <div>
               <strong>{adminOverview.length - unpaidCount}/{adminOverview.length}</strong>
@@ -2642,6 +2681,10 @@ export function PoolaramaPrototype() {
                 <strong>{r32Matches.length}/16{r32PreviewReady ? " preview" : ""}</strong>
               </div>
               <div>
+                <span>Submitted</span>
+                <strong>{adminR32SubmittedCount}/{adminOverview.length}</strong>
+              </div>
+              <div>
                 <span>Opened</span>
                 <strong>{formatAdminTimestamp(poolState.r32.openedAt)}</strong>
               </div>
@@ -2690,11 +2733,19 @@ export function PoolaramaPrototype() {
                       {participant.venmoPaid ? "Paid" : "Unpaid"}
                     </span>
                     <span className={participant.submitted ? "status-pill submitted" : "status-pill missing"}>
-                      {participant.submitted ? "Submitted" : "No picks"}
+                      {participant.submitted ? "Group submitted" : "Group missing"}
                     </span>
+                    {poolState.r32.status !== "setup" && (
+                      <span className={participant.r32Submitted ? "status-pill submitted" : "status-pill missing"}>
+                        {participant.r32Submitted ? "R32 submitted" : "R32 missing"}
+                      </span>
+                    )}
                   </div>
                   <div className="admin-pick-summary">
-                    <span>{participant.submittedAt ? new Date(participant.submittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
+                    <span>Group: {participant.submittedAt ? new Date(participant.submittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
+                    {poolState.r32.status !== "setup" && (
+                      <span>R32: {participant.r32SubmittedAt ? new Date(participant.r32SubmittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
+                    )}
                     <strong>
                       {participant.champion
                         ? `${participant.champion} / ${participant.goldenBoot}`

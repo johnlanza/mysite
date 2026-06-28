@@ -33,10 +33,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const [pool, participants, preTournamentSubmissions, totalSubmissionCount, groupStandingCount, r32MatchCount] = await Promise.all([
+    const [pool, participants, preTournamentSubmissions, r32Submissions, totalSubmissionCount, groupStandingCount, r32MatchCount] = await Promise.all([
       getOrCreateDefaultPool(),
       ParticipantModel.find({ poolSlug: defaultPoolSlug }).lean(),
       SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "preTournament" }).lean(),
+      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "r32" }).lean(),
       SubmissionModel.countDocuments({ poolSlug: defaultPoolSlug }),
       GroupStandingModel.countDocuments({ poolSlug: defaultPoolSlug }),
       MatchModel.countDocuments({ poolSlug: defaultPoolSlug, stage: "r32" })
@@ -44,6 +45,9 @@ export async function GET(request: NextRequest) {
     const activeRoster = mergeKnownAndMongoParticipants(participants.map(participantFromMongo));
     const activeParticipantCodes = new Set(activeRoster.map((participant) => participant.code));
     const activePreTournamentSubmissionCount = preTournamentSubmissions.filter((submission) =>
+      activeParticipantCodes.has(submission.participantCode)
+    ).length;
+    const activeR32SubmissionCount = r32Submissions.filter((submission) =>
       activeParticipantCodes.has(submission.participantCode)
     ).length;
 
@@ -60,6 +64,8 @@ export async function GET(request: NextRequest) {
         rawParticipants: participants.length,
         preTournamentSubmissions: activePreTournamentSubmissionCount,
         rawPreTournamentSubmissions: preTournamentSubmissions.length,
+        r32Submissions: activeR32SubmissionCount,
+        rawR32Submissions: r32Submissions.length,
         totalSubmissions: totalSubmissionCount,
         groupStandings: groupStandingCount,
         r32Matches: r32MatchCount

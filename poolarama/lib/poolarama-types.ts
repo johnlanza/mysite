@@ -54,6 +54,8 @@ export type AdminParticipantOverview = {
   venmoPaid: boolean;
   submitted: boolean;
   submittedAt: string | null;
+  r32Submitted: boolean;
+  r32SubmittedAt: string | null;
   champion: string | null;
   goldenBoot: string | null;
 };

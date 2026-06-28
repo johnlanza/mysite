@@ -90,6 +90,12 @@ export async function GET(request: NextRequest) {
           visible: false,
           picks: null
         })),
+        roundSubmissions: {
+          r32: {
+            submitted: 0,
+            total: knownParticipants.length
+          }
+        },
         pool: buildPoolState(null),
         storageMode: "mock"
       });
@@ -121,6 +127,10 @@ export async function GET(request: NextRequest) {
     const poolState = buildPoolState(pool);
     const isLocked = poolState.preTournament.status === "locked";
     const roster = mergeKnownAndMongoParticipants(participants.map(participantFromMongo));
+    const activeParticipantCodes = new Set(roster.map((participant) => participant.code));
+    const r32SubmissionCount = submissions.filter((submission) =>
+      submission.stage === "r32" && activeParticipantCodes.has(submission.participantCode)
+    ).length;
     const groupStandings =
       groupStandingRows.length > 0
         ? reconcileGroupStandings(groupStandingRows.map(rowToStanding))
@@ -162,6 +172,12 @@ export async function GET(request: NextRequest) {
           groupPickScores: visible && score ? score.groupPickScores : {}
         };
       }).sort((a, b) => b.points - a.points || Number(b.submitted) - Number(a.submitted) || a.nickname.localeCompare(b.nickname)),
+      roundSubmissions: {
+        r32: {
+          submitted: r32SubmissionCount,
+          total: roster.length
+        }
+      },
       pool: poolState,
       storageMode: "mongo"
     });

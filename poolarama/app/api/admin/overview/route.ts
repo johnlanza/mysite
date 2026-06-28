@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     const [pool, participants, submissions] = await Promise.all([
       getOrCreateDefaultPool(),
       ParticipantModel.find({ poolSlug: defaultPoolSlug }).lean(),
-      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "preTournament" }).lean()
+      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: { $in: ["preTournament", "r32"] } }).lean()
     ]);
 
     if (participants.length === 0 && !allowMockFallback()) return poolDataUnavailableResponse();
@@ -39,7 +39,9 @@ export async function GET(request: NextRequest) {
       const participant =
         participants.find((item) => item.participantCode === knownParticipant.code) || null;
       const submission =
-        submissions.find((item) => item.participantCode === knownParticipant.code) || null;
+        submissions.find((item) => item.participantCode === knownParticipant.code && item.stage === "preTournament") || null;
+      const r32Submission =
+        submissions.find((item) => item.participantCode === knownParticipant.code && item.stage === "r32") || null;
 
       return {
         code: knownParticipant.code,
@@ -49,6 +51,8 @@ export async function GET(request: NextRequest) {
         venmoPaid: participant?.venmoPaid ?? knownParticipant.venmoPaid,
         submitted: Boolean(submission),
         submittedAt: submission?.submittedAt?.toISOString() || null,
+        r32Submitted: Boolean(r32Submission),
+        r32SubmittedAt: r32Submission?.submittedAt?.toISOString() || null,
         champion: preTournamentLocked ? submission?.picks?.champion || null : null,
         goldenBoot: preTournamentLocked ? submission?.picks?.goldenBoot || null : null
       };

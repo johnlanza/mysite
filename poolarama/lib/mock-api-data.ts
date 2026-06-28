@@ -127,6 +127,8 @@ export function getMockAdminOverview(): AdminParticipantOverview[] {
       venmoPaid,
       submitted: Boolean(submission),
       submittedAt: submission?.submittedAt || null,
+      r32Submitted: false,
+      r32SubmittedAt: null,
       champion: submission?.picks.champion || null,
       goldenBoot: submission?.picks.goldenBoot || null
     };
