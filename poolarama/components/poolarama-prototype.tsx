@@ -169,6 +169,18 @@ type R32MatchSummary = R32Match & {
   poolFavorite: string;
 };
 
+type R32ScenarioImpact = {
+  team: string;
+  pickers: PublicPickParticipant[];
+  projectedLeaders: string[];
+  climbers: {
+    nickname: string;
+    fromRank: number;
+    toRank: number;
+    projectedPoints: number;
+  }[];
+};
+
 const selectedParticipantKey = "poolarama-selected-participant";
 const confirmedParticipantKey = "poolarama-confirmed-participant";
 const goldenBootWriteInLabel = "Other / write-in";
@@ -348,6 +360,50 @@ function joinNames(names: string[], limit = 3) {
   if (names.length <= limit) return names.join(", ");
 
   return `${names.slice(0, limit).join(", ")} and ${names.length - limit} other${names.length - limit === 1 ? "" : "s"}`;
+}
+
+function buildR32ScenarioImpacts(match: R32MatchSummary, people: PublicPickParticipant[]): R32ScenarioImpact[] {
+  const rankedNow = getDisplayRanks([...people].sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname)));
+  const currentRanks = new Map(rankedNow.map((person) => [person.code, person.displayRank]));
+
+  return [
+    { team: match.teamA, pickers: match.teamAPickers },
+    { team: match.teamB, pickers: match.teamBPickers }
+  ].map(({ team, pickers }) => {
+    const pickerCodes = new Set(pickers.map((person) => person.code));
+    const projectedPeople = people.map((person) => ({
+      ...person,
+      points: person.points + (pickerCodes.has(person.code) ? 1 : 0)
+    }));
+    const projectedRanks = getDisplayRanks(projectedPeople.sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname)));
+    const topScore = projectedRanks[0]?.points || 0;
+    const projectedLeaders = projectedRanks
+      .filter((person) => person.points === topScore)
+      .map((person) => person.nickname);
+    const projectedRankMap = new Map(projectedRanks.map((person) => [person.code, person.displayRank]));
+    const projectedPointsMap = new Map(projectedRanks.map((person) => [person.code, person.points]));
+    const climbers = pickers
+      .map((person) => {
+        const fromRank = currentRanks.get(person.code) || 0;
+        const toRank = projectedRankMap.get(person.code) || fromRank;
+
+        return {
+          nickname: person.nickname,
+          fromRank,
+          toRank,
+          projectedPoints: projectedPointsMap.get(person.code) || person.points
+        };
+      })
+      .filter((person) => person.fromRank > 0 && person.toRank < person.fromRank)
+      .sort((a, b) => a.toRank - b.toRank || b.projectedPoints - a.projectedPoints || a.nickname.localeCompare(b.nickname));
+
+    return {
+      team,
+      pickers,
+      projectedLeaders,
+      climbers
+    };
+  });
 }
 
 function buildDailyReview(
@@ -833,6 +889,10 @@ export function PoolaramaPrototype() {
     })
   ), [publicPicks, r32Matches, r32Picks, selectedParticipant.code, showPersonalR32Pick]);
   const selectedR32Match = r32MatchSummaries.find((match) => match.matchId === selectedR32MatchId) || r32MatchSummaries[0] || null;
+  const selectedR32Impacts = useMemo(
+    () => selectedR32Match ? buildR32ScenarioImpacts(selectedR32Match, publicPicks) : [],
+    [publicPicks, selectedR32Match]
+  );
   const adminFetchOptions = useMemo<RequestInit>(() => {
     if (!adminToken) return {};
 
@@ -1914,11 +1974,9 @@ export function PoolaramaPrototype() {
                     </strong>
                   </div>
                   {r32Locked ? (
+                    <>
                     <div className="pick-comparison-grid">
-                      {[
-                        { team: selectedR32Match.teamA, pickers: selectedR32Match.teamAPickers },
-                        { team: selectedR32Match.teamB, pickers: selectedR32Match.teamBPickers }
-                      ].map(({ team, pickers }) => {
+                      {selectedR32Impacts.map(({ team, pickers }) => {
                         const teamMeta = getTeamMeta(team);
 
                         return (
@@ -1950,6 +2008,48 @@ export function PoolaramaPrototype() {
                         );
                       })}
                     </div>
+                    {!selectedR32Match.winner && (
+                      <div className="compararama-panel" aria-label="Compararama match impact">
+                        <div>
+                          <p className="eyebrow">Compararama</p>
+                          <h5>What this result could change</h5>
+                        </div>
+                        <div className="compararama-grid">
+                          {selectedR32Impacts.map((impact) => {
+                            const teamMeta = getTeamMeta(impact.team);
+
+                            return (
+                              <article
+                                className="compararama-card"
+                                key={`impact-${selectedR32Match.matchId}-${impact.team}`}
+                                style={{
+                                  "--team-a": teamMeta.colors[0],
+                                  "--team-b": teamMeta.colors[1]
+                                } as React.CSSProperties}
+                              >
+                                <strong>{teamMeta.flag} If {impact.team} wins</strong>
+                                <p>{impact.pickers.length} player{impact.pickers.length === 1 ? "" : "s"} score a point.</p>
+                                <ul>
+                                  <li>
+                                    <span>Projected leader</span>
+                                    <b>{joinNames(impact.projectedLeaders, 2)}</b>
+                                  </li>
+                                  <li>
+                                    <span>Possible climbers</span>
+                                    <b>
+                                      {impact.climbers.length > 0
+                                        ? joinNames(impact.climbers.slice(0, 3).map((person) => `${person.nickname} to ${getOrdinal(person.toRank)}`), 2)
+                                        : "No rank changes"}
+                                    </b>
+                                  </li>
+                                </ul>
+                              </article>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    </>
                   ) : (
                     <div className="round-status-note">
                       <strong>Pick comparison unlocks after the round is locked.</strong>

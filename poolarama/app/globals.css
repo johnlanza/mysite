@@ -990,6 +990,83 @@ h1 {
   font-weight: 800;
 }
 
+.compararama-panel {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255, 200, 61, 0.2), rgba(20, 99, 255, 0.08)), rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(17, 32, 51, 0.12);
+}
+
+.compararama-panel h5 {
+  margin: 2px 0 0;
+  color: var(--navy);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.compararama-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.compararama-card {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+  padding: 12px;
+  border-radius: 15px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--team-a) 20%, white), color-mix(in srgb, var(--team-b) 10%, white)),
+    #fff;
+  border: 2px solid rgba(17, 32, 51, 0.1);
+}
+
+.compararama-card > strong {
+  color: var(--navy);
+  font-size: 1rem;
+  line-height: 1.08;
+}
+
+.compararama-card p {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.compararama-card ul {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.compararama-card li {
+  display: grid;
+  gap: 2px;
+  padding: 8px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.compararama-card span {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.compararama-card b {
+  color: var(--navy);
+  font-size: 0.9rem;
+  line-height: 1.12;
+}
+
 .golden-boot-table-card p {
   margin: 4px 0 0;
   color: var(--muted);
@@ -2534,6 +2611,7 @@ h1 {
   .saved-pick-list,
   .knockout-match-grid,
   .r32-preview-grid,
+  .compararama-grid,
   .group-standings-grid {
     grid-template-columns: 1fr;
   }
