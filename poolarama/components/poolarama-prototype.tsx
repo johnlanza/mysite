@@ -164,6 +164,16 @@ type RoundOf32Response = {
     backupId: string;
     backupCreatedAt: string;
     backupReason: string;
+  } | null;
+  sync?: {
+    provider: string;
+    syncedAt: string;
+    completedGameCount: number;
+    winnerCount: number;
+    updates: Array<{ matchId: string; label: string; winner: string; score: string }>;
+    unchanged: Array<{ matchId: string; label: string; winner: string }>;
+    conflicts: Array<{ matchId: string; label: string; storedWinner: string; providerWinner: string }>;
+    unmatched: Array<{ teamA: string; teamB: string; winner: string }>;
   };
 };
 
@@ -1569,6 +1579,40 @@ export function PoolaramaPrototype() {
       setAdminFeedback(`Round of 32 winner saved.${formatBackupMessage(data)}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not save Round of 32 winner.";
+      setAdminFeedback(message);
+    }
+  }
+
+  async function handleSyncRoundOf32Winners() {
+    setAdminFeedback("Checking completed Round of 32 matches...");
+
+    try {
+      const response = await fetch(withBasePath("/api/admin/r32"), {
+        method: "POST",
+        headers: adminJsonHeaders(),
+        body: JSON.stringify({ action: "sync-winners" })
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Could not sync Round of 32 winners.");
+      }
+
+      const data = (await response.json()) as RoundOf32Response;
+      const updates = data.sync?.updates.length || 0;
+      const unchanged = data.sync?.unchanged.length || 0;
+      const conflicts = data.sync?.conflicts.length || 0;
+      setR32Matches(data.matches);
+      setPoolState(normalizePoolState(data.pool));
+      setR32PreviewReady(false);
+      await loadPublicPicks();
+      setAdminFeedback(
+        conflicts > 0
+          ? `Synced ${updates} R32 winner${updates === 1 ? "" : "s"}; ${conflicts} conflict${conflicts === 1 ? "" : "s"} need manual review.`
+          : `Synced ${updates} R32 winner${updates === 1 ? "" : "s"} from ${data.sync?.provider || "the provider"}. ${unchanged} already current.${formatBackupMessage(data)}`
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not sync Round of 32 winners.";
       setAdminFeedback(message);
     }
   }
@@ -3137,6 +3181,14 @@ export function PoolaramaPrototype() {
                   disabled={!r32Open}
                 >
                   Lock picks
+                </button>
+                <button
+                  className="admin-action compact"
+                  type="button"
+                  onClick={handleSyncRoundOf32Winners}
+                  disabled={!r32Locked}
+                >
+                  Sync winners
                 </button>
                 <button
                   className="admin-action compact danger"

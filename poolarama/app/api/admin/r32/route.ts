@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { requireAdminRequest } from "@/lib/admin-auth";
 import { connectToPoolaramaDatabase } from "@/lib/db";
 import { generateRoundOf32Matches, getDefaultGroupStandings, reconcileGroupStandings, type GeneratedMatch, type GroupStandingInput } from "@/lib/bracket";
+import { fetchSyncedKnockoutWinners, planKnockoutWinnerUpdates } from "@/lib/knockout-winner-sync";
 import { defaultPoolSlug } from "@/lib/mock-api-data";
 import { createPoolaramaBackup } from "@/lib/poolarama-backup";
 import { buildPoolState, getOrCreateDefaultPool } from "@/lib/pool-state";
@@ -290,6 +291,45 @@ export async function POST(request: NextRequest) {
         pool: buildPoolState(pool),
         storageMode: "mongo",
         backup
+      });
+    }
+
+    if (action === "sync-winners") {
+      if (pool.r32Status !== "locked") {
+        return NextResponse.json(
+          { error: "Round of 32 picks must be locked before winners can be synced." },
+          { status: 409 }
+        );
+      }
+
+      const matches = await loadMatches();
+      const syncResult = await fetchSyncedKnockoutWinners("r32");
+      const plan = planKnockoutWinnerUpdates(matches, syncResult.winners);
+      const backup = plan.updates.length > 0 ? await createPoolaramaBackup("r32-sync") : null;
+
+      if (plan.updates.length > 0) {
+        await Promise.all(
+          plan.updates.map((update) =>
+            MatchModel.updateOne(
+              { poolSlug: defaultPoolSlug, stage: "r32", matchId: update.matchId },
+              { $set: { winner: update.winner } }
+            )
+          )
+        );
+      }
+
+      return NextResponse.json({
+        matches: await loadMatches(),
+        pool: buildPoolState(pool),
+        storageMode: "mongo",
+        backup,
+        sync: {
+          ...syncResult,
+          updates: plan.updates,
+          unchanged: plan.unchanged,
+          conflicts: plan.conflicts,
+          unmatched: plan.unmatched
+        }
       });
     }
 
