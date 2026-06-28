@@ -775,8 +775,9 @@ export function PoolaramaPrototype() {
   const r32ScoredCount = r32Matches.filter((match) => Boolean(match.winner)).length;
   const preTournamentControlsLocked = preTournamentLocked || r32Open || r32Locked;
   const r32PicksComplete = r32Matches.length > 0 && r32Matches.every((match) => Boolean(r32Picks[match.matchId]));
-  const showLockedHomeNotice = preTournamentLocked && !identityConfirmed && !identityLockedByLink && !adminEnabled;
+  const showLockedHomeNotice = preTournamentLocked && !r32Started && !identityConfirmed && !identityLockedByLink && !adminEnabled;
   const showParticipantLockedHeader = preTournamentLocked && identityConfirmed && !r32Open && !r32Locked;
+  const showPersonalR32Pick = identityConfirmed || identityLockedByLink;
   const completionHint = duplicateGroupPicks.length > 0
     ? `Fix duplicate picks in Group ${duplicateGroupPicks[0]}.`
     : missingGroupPicks.length > 0
@@ -812,8 +813,10 @@ export function PoolaramaPrototype() {
     r32Matches.map((match) => {
       const teamAPickers = publicPicks.filter((person) => person.r32Picks?.matchWinners[match.matchId] === match.teamA);
       const teamBPickers = publicPicks.filter((person) => person.r32Picks?.matchWinners[match.matchId] === match.teamB);
-      const selectedPublicPick = publicPicks.find((person) => person.code === selectedParticipant.code)?.r32Picks?.matchWinners[match.matchId] || "";
-      const userPick = r32Picks[match.matchId] || selectedPublicPick;
+      const selectedPublicPick = showPersonalR32Pick
+        ? publicPicks.find((person) => person.code === selectedParticipant.code)?.r32Picks?.matchWinners[match.matchId] || ""
+        : "";
+      const userPick = showPersonalR32Pick ? r32Picks[match.matchId] || selectedPublicPick : "";
       const poolFavorite = teamAPickers.length === teamBPickers.length
         ? "Split"
         : teamAPickers.length > teamBPickers.length
@@ -828,7 +831,7 @@ export function PoolaramaPrototype() {
         poolFavorite
       };
     })
-  ), [publicPicks, r32Matches, r32Picks, selectedParticipant.code]);
+  ), [publicPicks, r32Matches, r32Picks, selectedParticipant.code, showPersonalR32Pick]);
   const selectedR32Match = r32MatchSummaries.find((match) => match.matchId === selectedR32MatchId) || r32MatchSummaries[0] || null;
   const adminFetchOptions = useMemo<RequestInit>(() => {
     if (!adminToken) return {};
@@ -1823,9 +1826,11 @@ export function PoolaramaPrototype() {
         <section className="screen stack" aria-labelledby="picks-title">
           <ScreenHeader
             kicker={showLockedHomeNotice || showParticipantLockedHeader ? "Current round locked" : r32Open ? "Round of 32 picks open" : identityConfirmed ? "Picks open" : "Player access"}
-            title={showLockedHomeNotice ? "All picks are in" : showParticipantLockedHeader ? "Review your locked picks" : r32Open ? "Make your Round of 32 picks" : identityConfirmed ? "Make your group picks" : "Open your player link"}
+            title={r32Locked ? "Round of 32 is locked" : showLockedHomeNotice ? "All picks are in" : showParticipantLockedHeader ? "Review your locked picks" : r32Open ? "Make your Round of 32 picks" : identityConfirmed ? "Make your group picks" : "Open your player link"}
             note={showLockedHomeNotice
               ? "The group-stage picks are locked and visible in the standings."
+              : r32Locked
+              ? "Tap any match below to see how the pool split."
               : showParticipantLockedHeader
               ? "Your group-stage, champion, and Golden Boot picks are locked. Round of 32 picks will appear here when John opens them."
               : r32Open
@@ -1864,7 +1869,7 @@ export function PoolaramaPrototype() {
                   const teamB = getTeamMeta(match.teamB);
                   const userResult = match.winner && match.userPick
                     ? match.userPick === match.winner ? "Right +1" : "Missed"
-                    : match.userPick ? `You: ${getTeamDisplayName(getTeamMeta(match.userPick))}` : "No pick";
+                    : match.userPick ? `You: ${getTeamDisplayName(getTeamMeta(match.userPick))}` : match.poolFavorite === "Split" ? "Pool split" : `Pool likes ${getTeamDisplayName(getTeamMeta(match.poolFavorite))}`;
 
                   return (
                     <button
