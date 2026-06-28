@@ -35,6 +35,7 @@ type ApiSubmissionResponse = {
   submissions?: {
     preTournament: ApiSubmissionResponse["submission"];
     r32: ApiSubmissionResponse["submission"];
+    r16: ApiSubmissionResponse["submission"];
   };
   participant?: {
     code: string;
@@ -900,7 +901,11 @@ export function PoolaramaPrototype() {
   const [r32PreviewReady, setR32PreviewReady] = useState(false);
   const [r32Feedback, setR32Feedback] = useState("Round of 32 picks are not open yet.");
   const [r16Matches, setR16Matches] = useState<R32Match[]>([]);
+  const [r16Picks, setR16Picks] = useState<Record<string, string>>({});
+  const [r16SavedPicks, setR16SavedPicks] = useState<Record<string, string> | null>(null);
+  const [r16SavedAt, setR16SavedAt] = useState<string | null>(null);
   const [r16PreviewReady, setR16PreviewReady] = useState(false);
+  const [r16Feedback, setR16Feedback] = useState("Round of 16 picks are not open yet.");
   const [selectedR32MatchId, setSelectedR32MatchId] = useState<string | null>(null);
   const [goldenBootRows, setGoldenBootRows] = useState<GoldenBootRow[]>([]);
   const [goldenBootFeedback, setGoldenBootFeedback] = useState("Golden Boot table is loading.");
@@ -944,10 +949,12 @@ export function PoolaramaPrototype() {
   const r32ScoredCount = r32Matches.filter((match) => Boolean(match.winner)).length;
   const r16Open = poolState.r16.status === "open";
   const r16Locked = poolState.r16.status === "locked";
+  const r16Started = r16Open || r16Locked;
   const r16ScoredCount = r16Matches.filter((match) => Boolean(match.winner)).length;
   const r16CanPreview = r32ScoredCount === 16;
   const preTournamentControlsLocked = preTournamentLocked || r32Open || r32Locked;
   const r32PicksComplete = r32Matches.length > 0 && r32Matches.every((match) => Boolean(r32Picks[match.matchId]));
+  const r16PicksComplete = r16Matches.length > 0 && r16Matches.every((match) => Boolean(r16Picks[match.matchId]));
   const showLockedHomeNotice = preTournamentLocked && !r32Started && !identityConfirmed && !identityLockedByLink && !adminEnabled;
   const showParticipantLockedHeader = preTournamentLocked && identityConfirmed && !r32Open && !r32Locked;
   const showPersonalR32Pick = identityLockedByLink;
@@ -969,6 +976,7 @@ export function PoolaramaPrototype() {
   const heroR32SubmittedCount = adminEnabled ? adminR32SubmittedCount : roundSubmissions.r32.submitted;
   const heroR32SubmissionTotal = adminEnabled ? adminOverview.length : roundSubmissions.r32.total || totalPlayers;
   const showR32SubmissionMetric = poolState.r32.status !== "setup";
+  const activeKnockoutRoundLabel = r16Started ? "Round of 16" : "Round of 32";
   const adminCurrentRound = poolState.r16.status !== "setup"
     ? { label: "Round of 16", status: poolState.r16.status, openedAt: poolState.r16.openedAt, lockedAt: poolState.r16.lockedAt }
     : poolState.r32.status !== "setup"
@@ -1188,7 +1196,14 @@ export function PoolaramaPrototype() {
             setR32Feedback("Restored Round of 32 picks.");
           }
 
-          if (data.submission || data.submissions?.r32) {
+          if (data.submissions?.r16?.picks.matchWinners) {
+            setR16Picks(data.submissions.r16.picks.matchWinners);
+            setR16SavedPicks(data.submissions.r16.picks.matchWinners);
+            setR16SavedAt(data.submissions.r16.submittedAt);
+            setR16Feedback("Restored Round of 16 picks.");
+          }
+
+          if (data.submission || data.submissions?.r32 || data.submissions?.r16) {
             return;
           }
         } else if (urlParticipantCode) {
@@ -1236,6 +1251,17 @@ export function PoolaramaPrototype() {
 
     setR32Matches([]);
   }, [adminEnabled, poolState.r32.status]);
+
+  useEffect(() => {
+    if (adminEnabled) return;
+
+    if (poolState.r16.status === "open" || poolState.r16.status === "locked") {
+      loadPublicRoundOf16();
+      return;
+    }
+
+    setR16Matches([]);
+  }, [adminEnabled, poolState.r16.status]);
 
   async function loadAdminOverview() {
     try {
@@ -1414,6 +1440,32 @@ export function PoolaramaPrototype() {
       setR32Matches([]);
       setR32PreviewReady(false);
       setR32Feedback("Round of 32 unavailable.");
+    }
+  }
+
+  async function loadPublicRoundOf16() {
+    try {
+      const response = await fetch(withBasePath("/api/r16"), { cache: "no-store" });
+
+      if (!response.ok) {
+        throw new Error("Round of 16 failed.");
+      }
+
+      const data = (await response.json()) as RoundOf16Response;
+      setR16Matches(data.matches);
+      setPoolState(normalizePoolState(data.pool));
+      setR16PreviewReady(false);
+      setR16Feedback(
+        data.pool.r16.status === "open"
+          ? "Round of 16 picks are open."
+          : data.pool.r16.status === "locked"
+            ? "Round of 16 picks are locked."
+            : "Round of 16 picks are not open yet."
+      );
+    } catch {
+      setR16Matches([]);
+      setR16PreviewReady(false);
+      setR16Feedback("Round of 16 unavailable.");
     }
   }
 
@@ -2034,6 +2086,12 @@ export function PoolaramaPrototype() {
         setR32SavedPicks(data.submissions.r32.picks.matchWinners);
         setR32SavedAt(data.submissions.r32.submittedAt);
       }
+
+      if (data.submissions?.r16?.picks.matchWinners) {
+        setR16Picks(data.submissions.r16.picks.matchWinners);
+        setR16SavedPicks(data.submissions.r16.picks.matchWinners);
+        setR16SavedAt(data.submissions.r16.submittedAt);
+      }
     } catch {
       setSaveFeedback(`Ready for ${participant.nickname}. API lookup unavailable.`);
     }
@@ -2167,6 +2225,53 @@ export function PoolaramaPrototype() {
     }
   }
 
+  async function handleSaveRoundOf16Picks() {
+    if (!r16PicksComplete) {
+      setR16Feedback("Pick every Round of 16 winner before submitting.");
+      return;
+    }
+
+    if (!r16Open) {
+      setR16Feedback(r16Locked ? "Round of 16 picks are locked." : "Round of 16 picks are not open yet.");
+      return;
+    }
+
+    setIsSaving(true);
+    setR16Feedback("Submitting Round of 16 picks...");
+
+    try {
+      const response = await fetch(withBasePath("/api/submissions"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          stage: "r16",
+          participantCode: selectedParticipant.code,
+          picks: {
+            matchWinners: r16Picks
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Could not submit Round of 16 picks.");
+      }
+
+      const data = (await response.json()) as ApiSubmissionResponse;
+      setR16SavedPicks(r16Picks);
+      setR16SavedAt(data.submission?.submittedAt || new Date().toISOString());
+      await loadPublicPicks();
+      setR16Feedback("Round of 16 picks submitted.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not submit Round of 16 picks.";
+      setR16Feedback(message);
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
   return (
     <main className="app-shell">
       <section className="hero" aria-labelledby="poolarama-title">
@@ -2217,14 +2322,18 @@ export function PoolaramaPrototype() {
       {tab === "picks" && (
         <section className="screen stack" aria-labelledby="picks-title">
           <ScreenHeader
-            kicker={r32Locked || showLockedHomeNotice || showParticipantLockedHeader ? "Current round locked" : r32Open ? "Round of 32 picks open" : identityConfirmed ? "Picks open" : "Player access"}
-            title={r32Locked ? "Round of 32 is locked" : showLockedHomeNotice ? "All picks are in" : showParticipantLockedHeader ? "Review your locked picks" : r32Open ? "Make your Round of 32 picks" : identityConfirmed ? "Make your group picks" : "Open your player link"}
+            kicker={r16Locked || r32Locked || showLockedHomeNotice || showParticipantLockedHeader ? "Current round locked" : r16Open ? "Round of 16 picks open" : r32Open ? "Round of 32 picks open" : identityConfirmed ? "Picks open" : "Player access"}
+            title={r16Locked ? "Round of 16 is locked" : r32Locked ? "Round of 32 is locked" : showLockedHomeNotice ? "All picks are in" : showParticipantLockedHeader ? "Review your locked picks" : r16Open ? "Make your Round of 16 picks" : r32Open ? "Make your Round of 32 picks" : identityConfirmed ? "Make your group picks" : "Open your player link"}
             note={showLockedHomeNotice
               ? "The group-stage picks are locked and visible in the standings."
+              : r16Locked
+              ? "Round of 16 picks are locked."
               : r32Locked
               ? "Tap any match below to see how the pool split."
               : showParticipantLockedHeader
-              ? "Your group-stage, champion, and Golden Boot picks are locked. Round of 32 picks will appear here when John opens them."
+              ? "Your group-stage, champion, and Golden Boot picks are locked. Knockout picks will appear here when John opens them."
+              : r16Open
+              ? `This link is assigned to ${selectedParticipant.nickname}. Scroll to the Round of 16 card and pick every match winner.`
               : r32Open
               ? `This link is assigned to ${selectedParticipant.nickname}. Scroll to the Round of 32 card and pick every match winner.`
               : identityLockedByLink
@@ -2471,6 +2580,71 @@ export function PoolaramaPrototype() {
           )}
           {identityConfirmed && (
             <>
+          {r16Matches.length > 0 && (
+            <section className="knockout-card" aria-labelledby="r16-picks-title">
+              <div className="section-title-row">
+                <div>
+                  <p className="eyebrow">Round of 16</p>
+                  <h3 id="r16-picks-title">Pick the winner of each match</h3>
+                  <p>
+                    {r16Open
+                      ? `${Object.keys(r16Picks).length}/${r16Matches.length} winners picked`
+                      : r16Locked
+                        ? "Round of 16 picks are locked."
+                        : "Round of 16 picks are not open yet."}
+                  </p>
+                </div>
+                <div className="points-pill">
+                  <strong>16 pts</strong>
+                  <span>2 per match</span>
+                </div>
+              </div>
+              <div className="knockout-match-grid">
+                {r16Matches.map((match) => (
+                  <article className="knockout-match-card" key={match.matchId}>
+                    <span>{match.label}</span>
+                    <div>
+                      {[match.teamA, match.teamB].map((teamName) => {
+                        const team = teams.find((candidate) => candidate.name === teamName);
+
+                        return (
+                          <button
+                            className={r16Picks[match.matchId] === teamName ? "selected" : ""}
+                            key={`${match.matchId}-${teamName}`}
+                            type="button"
+                            disabled={!r16Open || isSaving}
+                            onClick={() => setR16Picks((current) => ({ ...current, [match.matchId]: teamName }))}
+                            style={{
+                              "--team-a": team?.colors[0] || "#0f9f6e",
+                              "--team-b": team?.colors[1] || "#ffffff"
+                            } as React.CSSProperties}
+                          >
+                            <span aria-hidden="true">{team?.flag || "⚽"}</span>
+                            <strong>{teamName}</strong>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <button
+                className="primary-action inline-action submit-action"
+                type="button"
+                onClick={handleSaveRoundOf16Picks}
+                disabled={!r16Open || isSaving}
+              >
+                {r16SavedPicks && JSON.stringify(r16SavedPicks) === JSON.stringify(r16Picks)
+                  ? "Round of 16 submitted"
+                  : r16Open
+                    ? "Submit Round of 16 picks"
+                    : r16Locked
+                      ? "Round of 16 locked"
+                      : "Round of 16 not open"}
+              </button>
+              <p className="pick-status" aria-live="polite">{r16Feedback}</p>
+            </section>
+          )}
           {r32Matches.length > 0 && (
             <section className="knockout-card" aria-labelledby="r32-picks-title">
               <div className="section-title-row">
@@ -2877,6 +3051,37 @@ export function PoolaramaPrototype() {
                   </>
                 ) : (
                   <p className="saved-pick-note">No Round of 32 picks submitted yet.</p>
+                )}
+              </div>
+              <div className="saved-pick-section">
+                <h4>Round of 16</h4>
+                {r16SavedPicks && Object.keys(r16SavedPicks).length > 0 ? (
+                  <>
+                    <div className="saved-pick-list">
+                      {(r16Matches.length > 0
+                        ? r16Matches.map((match) => ({
+                            id: match.matchId,
+                            label: match.label,
+                            winner: r16SavedPicks[match.matchId]
+                          }))
+                        : Object.entries(r16SavedPicks).map(([id, winner]) => ({
+                            id,
+                            label: id.toUpperCase(),
+                            winner
+                          }))
+                      ).map((pick) => (
+                        <div key={`saved-r16-${pick.id}`}>
+                          <span>{pick.label}</span>
+                          <strong>{pick.winner || "No pick"}</strong>
+                        </div>
+                      ))}
+                    </div>
+                    {r16SavedAt && (
+                      <p className="saved-pick-note">Round of 16 submitted {new Date(r16SavedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.</p>
+                    )}
+                  </>
+                ) : (
+                  <p className="saved-pick-note">No Round of 16 picks submitted yet.</p>
                 )}
               </div>
             </section>
