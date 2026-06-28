@@ -1825,7 +1825,7 @@ export function PoolaramaPrototype() {
       {tab === "picks" && (
         <section className="screen stack" aria-labelledby="picks-title">
           <ScreenHeader
-            kicker={showLockedHomeNotice || showParticipantLockedHeader ? "Current round locked" : r32Open ? "Round of 32 picks open" : identityConfirmed ? "Picks open" : "Player access"}
+            kicker={r32Locked || showLockedHomeNotice || showParticipantLockedHeader ? "Current round locked" : r32Open ? "Round of 32 picks open" : identityConfirmed ? "Picks open" : "Player access"}
             title={r32Locked ? "Round of 32 is locked" : showLockedHomeNotice ? "All picks are in" : showParticipantLockedHeader ? "Review your locked picks" : r32Open ? "Make your Round of 32 picks" : identityConfirmed ? "Make your group picks" : "Open your player link"}
             note={showLockedHomeNotice
               ? "The group-stage picks are locked and visible in the standings."
@@ -1977,7 +1977,7 @@ export function PoolaramaPrototype() {
               </div>
             </section>
           )}
-          {!showLockedHomeNotice && (
+          {!showLockedHomeNotice && (!r32Locked || identityConfirmed || identityLockedByLink) && (
           <section className="identity-card" aria-labelledby="identity-title">
             <div>
               <p className="eyebrow">Step 1 of 5</p>
