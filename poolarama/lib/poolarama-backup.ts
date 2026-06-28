@@ -17,7 +17,11 @@ export type PoolaramaBackupReason =
   | "r16-open"
   | "r16-lock"
   | "r16-score"
-  | "r16-sync";
+  | "r16-sync"
+  | "qf-open"
+  | "qf-lock"
+  | "qf-score"
+  | "qf-sync";
 
 export async function buildPoolaramaBackupSnapshot(reason: PoolaramaBackupReason = "manual") {
   const [pool, participants, submissions, groupStandings, matches] = await Promise.all([

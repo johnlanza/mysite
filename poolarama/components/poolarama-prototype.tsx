@@ -67,6 +67,11 @@ type PoolState = {
     openedAt: string | null;
     lockedAt: string | null;
   };
+  qf: {
+    status: "setup" | "open" | "locked";
+    openedAt: string | null;
+    lockedAt: string | null;
+  };
 };
 
 type GroupStandingRow = {
@@ -237,6 +242,11 @@ const defaultPoolState: PoolState = {
     status: "setup",
     openedAt: null,
     lockedAt: null
+  },
+  qf: {
+    status: "setup",
+    openedAt: null,
+    lockedAt: null
   }
 };
 const defaultRoundSubmissionSummary: RoundSubmissionSummary = {
@@ -263,6 +273,10 @@ function normalizePoolState(pool: Partial<PoolState> | null | undefined): PoolSt
     r16: {
       ...defaultPoolState.r16,
       ...(pool?.r16 || {})
+    },
+    qf: {
+      ...defaultPoolState.qf,
+      ...(pool?.qf || {})
     }
   };
 }
@@ -924,6 +938,8 @@ export function PoolaramaPrototype() {
   const [r16SavedAt, setR16SavedAt] = useState<string | null>(null);
   const [r16PreviewReady, setR16PreviewReady] = useState(false);
   const [r16Feedback, setR16Feedback] = useState("Round of 16 picks are not open yet.");
+  const [qfMatches, setQfMatches] = useState<R32Match[]>([]);
+  const [qfPreviewReady, setQfPreviewReady] = useState(false);
   const [selectedKnockoutMatchId, setSelectedKnockoutMatchId] = useState<string | null>(null);
   const [goldenBootRows, setGoldenBootRows] = useState<GoldenBootRow[]>([]);
   const [goldenBootFeedback, setGoldenBootFeedback] = useState("Golden Boot table is loading.");
@@ -970,6 +986,11 @@ export function PoolaramaPrototype() {
   const r16Started = r16Open || r16Locked;
   const r16ScoredCount = r16Matches.filter((match) => Boolean(match.winner)).length;
   const r16CanPreview = r32ScoredCount === 16;
+  const qfOpen = poolState.qf.status === "open";
+  const qfLocked = poolState.qf.status === "locked";
+  const qfStarted = qfOpen || qfLocked;
+  const qfScoredCount = qfMatches.filter((match) => Boolean(match.winner)).length;
+  const qfCanPreview = r16ScoredCount === 8;
   const preTournamentControlsLocked = preTournamentLocked || r32Open || r32Locked;
   const r32PicksComplete = r32Matches.length > 0 && r32Matches.every((match) => Boolean(r32Picks[match.matchId]));
   const r16PicksComplete = r16Matches.length > 0 && r16Matches.every((match) => Boolean(r16Picks[match.matchId]));
@@ -994,8 +1015,10 @@ export function PoolaramaPrototype() {
   const heroR32SubmittedCount = adminEnabled ? adminR32SubmittedCount : roundSubmissions.r32.submitted;
   const heroR32SubmissionTotal = adminEnabled ? adminOverview.length : roundSubmissions.r32.total || totalPlayers;
   const showR32SubmissionMetric = poolState.r32.status !== "setup";
-  const activeKnockoutRoundLabel = r16Started ? "Round of 16" : "Round of 32";
-  const adminCurrentRound = poolState.r16.status !== "setup"
+  const activeKnockoutRoundLabel = qfStarted ? "Quarterfinals" : r16Started ? "Round of 16" : "Round of 32";
+  const adminCurrentRound = poolState.qf.status !== "setup"
+    ? { label: "Quarterfinals", status: poolState.qf.status, openedAt: poolState.qf.openedAt, lockedAt: poolState.qf.lockedAt }
+    : poolState.r16.status !== "setup"
     ? { label: "Round of 16", status: poolState.r16.status, openedAt: poolState.r16.openedAt, lockedAt: poolState.r16.lockedAt }
     : poolState.r32.status !== "setup"
       ? { label: "Round of 32", status: poolState.r32.status, openedAt: poolState.r32.openedAt, lockedAt: poolState.r32.lockedAt }
@@ -1008,10 +1031,16 @@ export function PoolaramaPrototype() {
         : "Generate and open R32 picks."
     : adminCurrentRound.label === "Round of 16"
       ? poolState.r16.status === "locked"
-        ? "Score R16 winners as matches finish."
+        ? "Score R16 winners as matches finish. Quarterfinal preview unlocks after all 8 winners are scored."
         : poolState.r16.status === "open"
           ? "Collect R16 picks, then lock them before scoring."
           : "Generate and open R16 picks."
+      : adminCurrentRound.label === "Quarterfinals"
+        ? poolState.qf.status === "locked"
+          ? "Score Quarterfinal winners as matches finish."
+          : poolState.qf.status === "open"
+            ? "Collect Quarterfinal picks, then lock them before scoring."
+            : "Generate and open Quarterfinal picks."
       : "Pre-tournament picks are locked; knockout rounds are the active workflow.";
   const leadingScore = publicPicks.reduce((maxPoints, participant) => Math.max(maxPoints, participant.points), 0);
   const leaders = leadingScore > 0
@@ -1275,6 +1304,7 @@ export function PoolaramaPrototype() {
     loadAdminOverview();
     loadRoundOf32();
     loadRoundOf16();
+    loadQuarterfinals();
   }, [adminEnabled, adminToken]);
 
   useEffect(() => {
@@ -1460,6 +1490,26 @@ export function PoolaramaPrototype() {
       setR16PreviewReady(Boolean(data.previewOnly));
     } catch {
       setAdminFeedback("Round of 16 unavailable.");
+    }
+  }
+
+  async function loadQuarterfinals() {
+    try {
+      const response = await fetch(withBasePath("/api/admin/qf"), {
+        cache: "no-store",
+        ...adminFetchOptions
+      });
+
+      if (!response.ok) {
+        throw new Error("Quarterfinals failed.");
+      }
+
+      const data = (await response.json()) as RoundOf16Response;
+      setQfMatches(data.matches);
+      setPoolState(normalizePoolState(data.pool));
+      setQfPreviewReady(Boolean(data.previewOnly));
+    } catch {
+      setAdminFeedback("Quarterfinals unavailable.");
     }
   }
 
@@ -1888,6 +1938,139 @@ export function PoolaramaPrototype() {
       );
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not sync Round of 16 winners.";
+      setAdminFeedback(message);
+    }
+  }
+
+  async function handleQuarterfinalAdminAction(action: "generate" | "open" | "lock") {
+    const labels = {
+      generate: "Generating private Quarterfinal preview...",
+      open: "Creating backup and opening Quarterfinal picks...",
+      lock: "Creating backup and locking Quarterfinal picks..."
+    };
+    const successMessages = {
+      generate: "Private Quarterfinal preview generated. Review the matchups, then confirm and open.",
+      open: "Quarterfinal picks are open.",
+      lock: "Quarterfinal picks are locked."
+    };
+
+    if (action === "generate" && !qfCanPreview) {
+      setAdminFeedback("Score all 8 Round of 16 winners before generating Quarterfinals.");
+      return;
+    }
+
+    if (action === "open" && qfMatches.length !== 4) {
+      setAdminFeedback("Generate and verify 4 Quarterfinal matches before opening picks.");
+      return;
+    }
+
+    if (action === "open" && !qfPreviewReady) {
+      setAdminFeedback("Generate a fresh private preview before opening Quarterfinal picks.");
+      return;
+    }
+
+    if (action === "open" && !window.confirm("Open Quarterfinal picks from this preview? A backup will be saved first.")) {
+      setAdminFeedback("Quarterfinal open cancelled.");
+      return;
+    }
+
+    if (action === "lock" && !window.confirm("Lock Quarterfinal picks? A backup will be saved first.")) {
+      setAdminFeedback("Quarterfinal lock cancelled.");
+      return;
+    }
+
+    setAdminFeedback(labels[action]);
+
+    try {
+      const response = await fetch(withBasePath("/api/admin/qf"), {
+        method: "POST",
+        headers: adminJsonHeaders(),
+        body: JSON.stringify({
+          action,
+          confirmation: action === "open" ? "OPEN" : undefined,
+          previewMatches: action === "open" ? qfMatches : undefined
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Could not update Quarterfinals.");
+      }
+
+      const data = (await response.json()) as RoundOf16Response;
+      setQfMatches(data.matches);
+      setPoolState(normalizePoolState(data.pool));
+      setQfPreviewReady(Boolean(data.previewOnly));
+      await loadAdminOverview();
+      await loadPublicPicks();
+      setAdminFeedback(`${successMessages[action]}${formatBackupMessage(data)}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not update Quarterfinals.";
+      setAdminFeedback(message);
+    }
+  }
+
+  async function handleQuarterfinalWinner(matchId: string, winner: string) {
+    setAdminFeedback("Creating backup and saving Quarterfinal winner...");
+
+    try {
+      const response = await fetch(withBasePath("/api/admin/qf"), {
+        method: "POST",
+        headers: adminJsonHeaders(),
+        body: JSON.stringify({
+          action: "score",
+          matchId,
+          winner
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Could not save Quarterfinal winner.");
+      }
+
+      const data = (await response.json()) as RoundOf16Response;
+      setQfMatches(data.matches);
+      setPoolState(normalizePoolState(data.pool));
+      setQfPreviewReady(false);
+      await loadPublicPicks();
+      setAdminFeedback(`Quarterfinal winner saved.${formatBackupMessage(data)}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not save Quarterfinal winner.";
+      setAdminFeedback(message);
+    }
+  }
+
+  async function handleSyncQuarterfinalWinners() {
+    setAdminFeedback("Checking completed Quarterfinal matches...");
+
+    try {
+      const response = await fetch(withBasePath("/api/admin/qf"), {
+        method: "POST",
+        headers: adminJsonHeaders(),
+        body: JSON.stringify({ action: "sync-winners" })
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Could not sync Quarterfinal winners.");
+      }
+
+      const data = (await response.json()) as RoundOf16Response;
+      const updates = data.sync?.updates.length || 0;
+      const unchanged = data.sync?.unchanged.length || 0;
+      const conflicts = data.sync?.conflicts.length || 0;
+      setQfMatches(data.matches);
+      setPoolState(normalizePoolState(data.pool));
+      setQfPreviewReady(false);
+      await loadPublicPicks();
+      setAdminFeedback(
+        conflicts > 0
+          ? `Synced ${updates} QF winner${updates === 1 ? "" : "s"}; ${conflicts} conflict${conflicts === 1 ? "" : "s"} need manual review.`
+          : `Synced ${updates} QF winner${updates === 1 ? "" : "s"} from ${data.sync?.provider || "the provider"}. ${unchanged} already current.${formatBackupMessage(data)}`
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not sync Quarterfinal winners.";
       setAdminFeedback(message);
     }
   }
@@ -3440,6 +3623,18 @@ export function PoolaramaPrototype() {
               <strong>{r32Matches.filter((match) => Boolean(match.winner)).length}/16</strong>
               <span>R32 scored</span>
             </div>
+            {poolState.r16.status !== "setup" && (
+              <div>
+                <strong>{r16ScoredCount}/8</strong>
+                <span>R16 scored</span>
+              </div>
+            )}
+            {poolState.qf.status !== "setup" && (
+              <div>
+                <strong>{qfScoredCount}/4</strong>
+                <span>QF scored</span>
+              </div>
+            )}
           </div>
           <section className="admin-sync-status" aria-label="Live data status">
             <div>
@@ -3656,6 +3851,105 @@ export function PoolaramaPrototype() {
             ) : (
               <p className="admin-empty-note">
                 {r16CanPreview ? "No Round of 16 preview has been generated yet." : "Round of 16 preview is waiting on the remaining R32 winners."}
+              </p>
+            )}
+          </details>
+          <details className="admin-rollup-card next-round-rollup archived-admin-card">
+            <summary>
+              <span>Upcoming round</span>
+              <strong>Quarterfinal readiness</strong>
+            </summary>
+            <div className="next-round-status">
+              <div>
+                <strong>{r16ScoredCount}/8</strong>
+                <span>R16 winners scored</span>
+              </div>
+              <p>
+                {qfCanPreview
+                  ? "Quarterfinal preview can be generated and reviewed."
+                  : "Quarterfinal controls unlock after every Round of 16 winner is scored."}
+              </p>
+            </div>
+            <div className="admin-toolbar-actions compact-actions">
+              <button
+                className="admin-action compact"
+                type="button"
+                onClick={() => handleQuarterfinalAdminAction("generate")}
+                disabled={poolState.qf.status !== "setup" || !qfCanPreview}
+              >
+                Generate QF preview
+              </button>
+              <button
+                className="admin-action compact"
+                type="button"
+                onClick={() => handleQuarterfinalAdminAction("open")}
+                disabled={poolState.qf.status !== "setup" || !qfPreviewReady || qfMatches.length !== 4}
+              >
+                Confirm and open
+              </button>
+              <button
+                className="admin-action compact quiet"
+                type="button"
+                onClick={() => handleQuarterfinalAdminAction("lock")}
+                disabled={!qfOpen}
+              >
+                Lock picks
+              </button>
+              <button
+                className="admin-action compact"
+                type="button"
+                onClick={handleSyncQuarterfinalWinners}
+                disabled={!qfLocked}
+              >
+                Sync winners
+              </button>
+            </div>
+            <div className="admin-sync-status" aria-label="Quarterfinal status">
+              <div>
+                <span>Status</span>
+                <strong>{poolState.qf.status}</strong>
+              </div>
+              <div>
+                <span>Matchups</span>
+                <strong>{qfMatches.length}/4{qfPreviewReady ? " preview" : ""}</strong>
+              </div>
+              <div>
+                <span>Scored</span>
+                <strong>{qfScoredCount}/4</strong>
+              </div>
+              <div>
+                <span>Opened</span>
+                <strong>{formatAdminTimestamp(poolState.qf.openedAt)}</strong>
+              </div>
+            </div>
+            {qfMatches.length > 0 ? (
+              <div className="r32-preview-grid">
+                {qfMatches.map((match) => (
+                  <div key={`admin-qf-preview-${match.matchId}`}>
+                    <span>{match.label}</span>
+                    <strong>{match.teamA}</strong>
+                    <strong>{match.teamB}</strong>
+                    {match.winner && <em className="r32-result-winner">Winner: {match.winner}</em>}
+                    {poolState.qf.status === "locked" && (
+                      <div className="r32-result-actions">
+                        {[match.teamA, match.teamB].map((teamName) => (
+                          <button
+                            className={`admin-action compact ${match.winner === teamName ? "" : "quiet"}`}
+                            type="button"
+                            key={`${match.matchId}-${teamName}`}
+                            onClick={() => handleQuarterfinalWinner(match.matchId, teamName)}
+                          >
+                            {match.winner === teamName ? "Winner" : `Set ${teamName}`}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="admin-empty-note">
+                {qfCanPreview ? "No Quarterfinal preview has been generated yet." : "Quarterfinal preview is waiting on the remaining R16 winners."}
               </p>
             )}
           </details>

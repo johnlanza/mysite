@@ -224,3 +224,30 @@ export function generateRoundOf16Matches(roundOf32Matches: KnockoutSourceMatch[]
     };
   });
 }
+
+export function generateQuarterfinalMatches(roundOf16Matches: KnockoutSourceMatch[]): GeneratedMatch[] {
+  const orderedMatches = [...roundOf16Matches].sort((a, b) => a.order - b.order);
+
+  if (orderedMatches.length !== 8) {
+    throw new Error(`Quarterfinal preview requires 8 Round of 16 matches, found ${orderedMatches.length}.`);
+  }
+
+  const missingWinner = orderedMatches.find((match) => !match.winner);
+
+  if (missingWinner) {
+    throw new Error(`Quarterfinal preview requires every Round of 16 winner. Missing ${missingWinner.label || missingWinner.matchId}.`);
+  }
+
+  return Array.from({ length: 4 }, (_, index) => {
+    const firstMatch = orderedMatches[index * 2];
+    const secondMatch = orderedMatches[index * 2 + 1];
+
+    return {
+      matchId: `qf-${String(index + 1).padStart(2, "0")}`,
+      label: `Match ${97 + index}`,
+      teamA: firstMatch.winner || "",
+      teamB: secondMatch.winner || "",
+      order: index + 1
+    };
+  });
+}
