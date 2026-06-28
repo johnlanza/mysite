@@ -2988,7 +2988,11 @@ export function PoolaramaPrototype() {
               </button>
             </div>
           </div>
-          <section className="daily-review-card" aria-labelledby="daily-review-title">
+          <details className="daily-review-card archived-admin-card">
+            <summary>
+              <span>Pool analysis</span>
+              <strong>Admin insights</strong>
+            </summary>
             <div className="daily-review-heading">
               <div>
                 <p className="eyebrow">Admin insights</p>
@@ -3004,7 +3008,7 @@ export function PoolaramaPrototype() {
               ))}
             </div>
             {dailyReview.kicker && <p className="daily-review-kicker">{dailyReview.kicker}</p>}
-          </section>
+          </details>
           <details className="invite-card archived-admin-card">
             <summary>
               <span>Roster tools</span>
@@ -3100,7 +3104,6 @@ export function PoolaramaPrototype() {
               ))}
             </div>
           </details>
-          <GoldenBootTable rows={goldenBootRows} feedback={goldenBootFeedback} />
           <section className="r32-admin-card" aria-labelledby="r32-admin-title">
             <div className="section-title-row">
               <div>
@@ -3192,6 +3195,7 @@ export function PoolaramaPrototype() {
               <p className="admin-empty-note">No Round of 32 preview has been generated yet.</p>
             )}
           </section>
+          <GoldenBootTable rows={goldenBootRows} feedback={goldenBootFeedback} />
           <div className="admin-list">
             {adminOverview.map((participant) => {
               const isSeededParticipant = knownParticipants.some((knownParticipant) => knownParticipant.code === participant.code);
