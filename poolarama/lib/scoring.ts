@@ -1,6 +1,6 @@
 import { groups, type GroupId } from "@/lib/tournament-data";
 import { rankGroupStandings, type GroupStandingInput } from "@/lib/bracket";
-import type { PoolSubmissionPicks } from "@/lib/poolarama-types";
+import type { PoolStage, PoolSubmissionPicks } from "@/lib/poolarama-types";
 
 export type ScoredMatchInput = {
   matchId: string;
@@ -164,12 +164,21 @@ export function scoreRoundOf32Picks(
   matches: ScoredMatchInput[],
   rules: Partial<ScoringRules> = {}
 ) {
+  return scoreKnockoutPicks(picks, matches, "r32", rules);
+}
+
+export function scoreKnockoutPicks(
+  picks: PoolSubmissionPicks | null,
+  matches: ScoredMatchInput[],
+  stage: Extract<PoolStage, "r32" | "r16" | "qf" | "sf" | "final">,
+  rules: Partial<ScoringRules> = {}
+) {
   if (!picks?.matchWinners) return 0;
 
   const scoringRules = { ...defaultScoringRules, ...rules };
 
   return matches.reduce((total, match) => {
     if (!match.winner) return total;
-    return picks.matchWinners?.[match.matchId] === match.winner ? total + scoringRules.r32 : total;
+    return picks.matchWinners?.[match.matchId] === match.winner ? total + scoringRules[stage] : total;
   }, 0);
 }

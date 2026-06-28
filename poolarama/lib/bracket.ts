@@ -23,6 +23,15 @@ export type GeneratedMatch = {
   order: number;
 };
 
+export type KnockoutSourceMatch = {
+  matchId: string;
+  label?: string;
+  teamA: string;
+  teamB: string;
+  winner?: string | null;
+  order: number;
+};
+
 type QualifiedGroupRank = "winner" | "runnerUp" | "third";
 
 type ThirdPlaceAssignment = {
@@ -184,6 +193,33 @@ export function generateRoundOf32Matches(standings: GroupStandingInput[]): Gener
       label: `Match ${slot.matchNumber}`,
       teamA: teamA.team,
       teamB: teamB.team,
+      order: index + 1
+    };
+  });
+}
+
+export function generateRoundOf16Matches(roundOf32Matches: KnockoutSourceMatch[]): GeneratedMatch[] {
+  const orderedMatches = [...roundOf32Matches].sort((a, b) => a.order - b.order);
+
+  if (orderedMatches.length !== 16) {
+    throw new Error(`Round of 16 preview requires 16 Round of 32 matches, found ${orderedMatches.length}.`);
+  }
+
+  const missingWinner = orderedMatches.find((match) => !match.winner);
+
+  if (missingWinner) {
+    throw new Error(`Round of 16 preview requires every Round of 32 winner. Missing ${missingWinner.label || missingWinner.matchId}.`);
+  }
+
+  return Array.from({ length: 8 }, (_, index) => {
+    const firstMatch = orderedMatches[index * 2];
+    const secondMatch = orderedMatches[index * 2 + 1];
+
+    return {
+      matchId: `r16-${String(index + 1).padStart(2, "0")}`,
+      label: `Match ${89 + index}`,
+      teamA: firstMatch.winner || "",
+      teamB: secondMatch.winner || "",
       order: index + 1
     };
   });

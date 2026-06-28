@@ -12,7 +12,10 @@ export type PoolaramaBackupReason =
   | "r32-open"
   | "r32-lock"
   | "r32-score"
-  | "r32-reset";
+  | "r32-reset"
+  | "r16-open"
+  | "r16-lock"
+  | "r16-score";
 
 export async function buildPoolaramaBackupSnapshot(reason: PoolaramaBackupReason = "manual") {
   const [pool, participants, submissions, groupStandings, matches] = await Promise.all([

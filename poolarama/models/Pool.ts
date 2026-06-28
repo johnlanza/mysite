@@ -28,6 +28,13 @@ const PoolSchema = new Schema(
     },
     r32OpenedAt: { type: Date, default: null },
     r32LockedAt: { type: Date, default: null },
+    r16Status: {
+      type: String,
+      enum: ["setup", "open", "locked"],
+      default: "setup"
+    },
+    r16OpenedAt: { type: Date, default: null },
+    r16LockedAt: { type: Date, default: null },
     scoringRules: {
       champion: { type: Number, default: 6 },
       groupWinner: { type: Number, default: 2 },

@@ -7,7 +7,7 @@ import SubmissionModel from "@/models/Submission";
 import GroupStandingModel from "@/models/GroupStanding";
 import { mergeKnownAndMongoParticipants, participantFromMongo } from "@/lib/participant-utils";
 import { getOrCreateDefaultPool } from "@/lib/pool-state";
-import { scorePreTournamentPicks, scoreRoundOf32Picks } from "@/lib/scoring";
+import { scoreKnockoutPicks, scorePreTournamentPicks, scoreRoundOf32Picks } from "@/lib/scoring";
 import type { PoolSubmissionPicks } from "@/lib/poolarama-types";
 import { type GroupId } from "@/lib/tournament-data";
 import { allowMockFallback, poolDataUnavailableResponse } from "@/lib/runtime-safety";
@@ -76,12 +76,13 @@ export async function GET() {
       return NextResponse.json({ standings: mockStandings, storageMode: "mock" });
     }
 
-    const [pool, participants, submissions, groupStandingRows, r32Matches] = await Promise.all([
+    const [pool, participants, submissions, groupStandingRows, r32Matches, r16Matches] = await Promise.all([
       getOrCreateDefaultPool(),
       ParticipantModel.find({ poolSlug: defaultPoolSlug }).lean(),
-      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: { $in: ["preTournament", "r32"] } }).lean(),
+      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: { $in: ["preTournament", "r32", "r16"] } }).lean(),
       GroupStandingModel.find({ poolSlug: defaultPoolSlug }).lean(),
-      MatchModel.find({ poolSlug: defaultPoolSlug, stage: "r32" }).lean()
+      MatchModel.find({ poolSlug: defaultPoolSlug, stage: "r32" }).lean(),
+      MatchModel.find({ poolSlug: defaultPoolSlug, stage: "r16" }).lean()
     ]);
 
     if (participants.length === 0 && !allowMockFallback()) return poolDataUnavailableResponse();
@@ -105,10 +106,15 @@ export async function GET() {
           submissions.find((item) => item.participantCode === knownParticipant.code && item.stage === "preTournament") || null;
         const r32Submission =
           submissions.find((item) => item.participantCode === knownParticipant.code && item.stage === "r32") || null;
+        const r16Submission =
+          submissions.find((item) => item.participantCode === knownParticipant.code && item.stage === "r16") || null;
         const picks = preTournamentSubmission ? normalizePicks(preTournamentSubmission.picks) : null;
         const r32Picks = r32Submission ? normalizePicks(r32Submission.picks) : null;
+        const r16Picks = r16Submission ? normalizePicks(r16Submission.picks) : null;
         const score = picks ? scorePreTournamentPicks(picks, groupStandings, pool.scoringRules || {}) : null;
-        const knockoutScore = scoreRoundOf32Picks(r32Picks, r32Matches, pool.scoringRules || {});
+        const knockoutScore =
+          scoreRoundOf32Picks(r32Picks, r32Matches, pool.scoringRules || {}) +
+          (pool.r16Status === "locked" ? scoreKnockoutPicks(r16Picks, r16Matches, "r16", pool.scoringRules || {}) : 0);
         const totalScore = (score?.total || 0) + knockoutScore;
 
         return {

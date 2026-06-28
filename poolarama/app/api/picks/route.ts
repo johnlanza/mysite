@@ -5,7 +5,7 @@ import { defaultPoolSlug } from "@/lib/mock-api-data";
 import { mergeKnownAndMongoParticipants, participantFromMongo } from "@/lib/participant-utils";
 import { buildPoolState, getOrCreateDefaultPool } from "@/lib/pool-state";
 import { getDefaultGroupStandings, reconcileGroupStandings, type GroupStandingInput } from "@/lib/bracket";
-import { scorePreTournamentPicks, scoreRoundOf32Picks } from "@/lib/scoring";
+import { scoreKnockoutPicks, scorePreTournamentPicks, scoreRoundOf32Picks } from "@/lib/scoring";
 import type { PoolSubmissionPicks } from "@/lib/poolarama-types";
 import { type GroupId } from "@/lib/tournament-data";
 import GroupStandingModel from "@/models/GroupStanding";
@@ -104,12 +104,13 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const [pool, participants, submissions, groupStandingRows, r32Matches] = await Promise.all([
+    const [pool, participants, submissions, groupStandingRows, r32Matches, r16Matches] = await Promise.all([
       getOrCreateDefaultPool(),
       ParticipantModel.find({ poolSlug: defaultPoolSlug }).lean(),
-      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: { $in: ["preTournament", "r32"] } }).lean(),
+      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: { $in: ["preTournament", "r32", "r16"] } }).lean(),
       GroupStandingModel.find({ poolSlug: defaultPoolSlug }).lean(),
-      MatchModel.find({ poolSlug: defaultPoolSlug, stage: "r32" }).lean()
+      MatchModel.find({ poolSlug: defaultPoolSlug, stage: "r32" }).lean(),
+      MatchModel.find({ poolSlug: defaultPoolSlug, stage: "r16" }).lean()
     ]);
 
     if (participants.length === 0 && !allowMockFallback()) return poolDataUnavailableResponse();
@@ -130,6 +131,7 @@ export async function GET(request: NextRequest) {
     const poolState = buildPoolState(pool);
     const isLocked = poolState.preTournament.status === "locked";
     const r32PicksVisible = poolState.r32.status === "locked";
+    const r16PicksVisible = poolState.r16.status === "locked";
     const roster = mergeKnownAndMongoParticipants(participants.map(participantFromMongo));
     const activeParticipantCodes = new Set(roster.map((participant) => participant.code));
     const r32SubmissionCount = submissions.filter((submission) =>
@@ -148,11 +150,16 @@ export async function GET(request: NextRequest) {
           submissions.find((item) => item.participantCode === knownParticipant.code && item.stage === "preTournament") || null;
         const r32Submission =
           submissions.find((item) => item.participantCode === knownParticipant.code && item.stage === "r32") || null;
+        const r16Submission =
+          submissions.find((item) => item.participantCode === knownParticipant.code && item.stage === "r16") || null;
         const visible = isLocked || knownParticipant.code === viewer?.code;
         const picks = submission ? normalizePicks(submission.picks) : null;
         const r32Picks = r32Submission ? normalizePicks(r32Submission.picks) : null;
+        const r16Picks = r16Submission ? normalizePicks(r16Submission.picks) : null;
         const score = picks ? scorePreTournamentPicks(picks, groupStandings, pool.scoringRules || {}) : null;
-        const knockoutScore = r32PicksVisible ? scoreRoundOf32Picks(r32Picks, r32Matches, pool.scoringRules || {}) : 0;
+        const knockoutScore =
+          (r32PicksVisible ? scoreRoundOf32Picks(r32Picks, r32Matches, pool.scoringRules || {}) : 0) +
+          (r16PicksVisible ? scoreKnockoutPicks(r16Picks, r16Matches, "r16", pool.scoringRules || {}) : 0);
         const totalScore = (score?.total || 0) + knockoutScore;
 
         return {

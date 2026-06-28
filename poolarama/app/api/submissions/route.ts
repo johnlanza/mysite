@@ -24,11 +24,11 @@ function parsePicks(body: Record<string, unknown>, stage: PoolStage): PoolSubmis
   const champion = picks.champion;
   const goldenBoot = picks.goldenBoot;
 
-  if (stage === "r32") {
+  if (stage === "r32" || stage === "r16") {
     const matchWinners = picks.matchWinners || {};
 
     if (Object.keys(matchWinners).length === 0) {
-      throw new Error("Round of 32 picks are required.");
+      throw new Error(`${stage === "r32" ? "Round of 32" : "Round of 16"} picks are required.`);
     }
 
     return {
@@ -126,22 +126,25 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    if (stage === "r32") {
+    if (stage === "r32" || stage === "r16") {
       const pool = await getOrCreateDefaultPool();
+      const roundLabel = stage === "r32" ? "Round of 32" : "Round of 16";
+      const expectedMatches = stage === "r32" ? 16 : 8;
+      const roundStatus = stage === "r32" ? pool.r32Status : pool.r16Status;
 
-      if (pool.r32Status !== "open") {
+      if (roundStatus !== "open") {
         return NextResponse.json(
-          { error: "Round of 32 picks are not open." },
+          { error: `${roundLabel} picks are not open.` },
           { status: 423 }
         );
       }
 
-      const matches = await MatchModel.find({ poolSlug: defaultPoolSlug, stage: "r32" }).lean();
+      const matches = await MatchModel.find({ poolSlug: defaultPoolSlug, stage }).lean();
       const matchWinners = picks.matchWinners || {};
 
-      if (matches.length !== 16 || Object.keys(matchWinners).length !== matches.length) {
+      if (matches.length !== expectedMatches || Object.keys(matchWinners).length !== matches.length) {
         return NextResponse.json(
-          { error: "Pick every Round of 32 winner before submitting." },
+          { error: `Pick every ${roundLabel} winner before submitting.` },
           { status: 400 }
         );
       }
@@ -153,7 +156,7 @@ export async function POST(request: NextRequest) {
 
       if (invalidPick) {
         return NextResponse.json(
-          { error: "Round of 32 picks include an invalid matchup winner." },
+          { error: `${roundLabel} picks include an invalid matchup winner.` },
           { status: 400 }
         );
       }
