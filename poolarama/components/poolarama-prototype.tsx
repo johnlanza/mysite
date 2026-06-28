@@ -91,6 +91,7 @@ type PublicPickParticipant = {
   code: string;
   name: string;
   nickname: string;
+  venmoPaid: boolean;
   submitted: boolean;
   submittedAt: string | null;
   points: number;
@@ -682,9 +683,10 @@ export function PoolaramaPrototype() {
   const [goldenBootUpdatedAt, setGoldenBootUpdatedAt] = useState<string | null>(null);
   const [goldenBootProvider, setGoldenBootProvider] = useState("ESPN scoreboard");
 
-  const paidCount = adminOverview.filter((person) => person.venmoPaid).length;
+  const visibleRoster = publicPicks.length > 0 ? publicPicks : adminOverview;
+  const paidCount = visibleRoster.filter((person) => person.venmoPaid).length;
   const potTotal = paidCount * 10;
-  const totalPlayers = publicPicks.length || adminOverview.length;
+  const totalPlayers = visibleRoster.length;
   const championCandidates = useMemo(() => {
     const candidateNames = groups.flatMap((group) => [groupWinners[group], groupRunnersUp[group]]);
 
@@ -727,7 +729,7 @@ export function PoolaramaPrototype() {
         : preTournamentControlsLocked
           ? "Pre-tournament picks are locked."
           : "Ready to review.";
-  const submittedCount = adminOverview.filter((participant) => participant.submitted).length;
+  const submittedCount = visibleRoster.filter((participant) => participant.submitted).length;
   const leadingScore = publicPicks.reduce((maxPoints, participant) => Math.max(maxPoints, participant.points), 0);
   const leaders = leadingScore > 0
     ? publicPicks.filter((participant) => participant.points === leadingScore).map((participant) => participant.nickname)
@@ -2248,6 +2250,7 @@ export function PoolaramaPrototype() {
                     code: participant.code,
                     name: participant.name,
                     nickname: participant.nickname,
+                    venmoPaid: participant.venmoPaid,
                     submitted: participant.submitted,
                     submittedAt: participant.submittedAt,
                     points: 0,
@@ -2392,7 +2395,7 @@ export function PoolaramaPrototype() {
             </div>
           </div>
           <div className="payment-list">
-            {adminOverview.map((person) => (
+            {visibleRoster.map((person) => (
               <article className="payment-row" key={person.code}>
                 <div>
                   <h3>{person.nickname}</h3>
