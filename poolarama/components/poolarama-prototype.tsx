@@ -100,6 +100,12 @@ type PublicPickParticipant = {
     value: number;
   }[];
   visible: boolean;
+  r32Submitted: boolean;
+  r32SubmittedAt: string | null;
+  r32Picks: {
+    matchWinners: Record<string, string>;
+    submittedAt: string | null;
+  } | null;
   groupPickScores?: Partial<Record<GroupId, {
     winner: number;
     runnerUp: number;
@@ -179,6 +185,22 @@ const defaultRoundSubmissionSummary: RoundSubmissionSummary = {
 
 function getTeamDisplayName(team: { name: string; code: string }) {
   return team.name.length > 12 ? team.code : team.name;
+}
+
+function getRoundOf32PickRows(matchWinners: Record<string, string>, matches: R32Match[]) {
+  if (matches.length > 0) {
+    return matches.map((match) => ({
+      id: match.matchId,
+      label: match.label,
+      winner: matchWinners[match.matchId] || ""
+    }));
+  }
+
+  return Object.entries(matchWinners).map(([id, winner]) => ({
+    id,
+    label: id.toUpperCase(),
+    winner
+  }));
 }
 
 const compactTableTeamNames: Record<string, string> = {
@@ -732,6 +754,7 @@ export function PoolaramaPrototype() {
   const preTournamentLocked = poolState.preTournament.status === "locked";
   const r32Open = poolState.r32.status === "open";
   const r32Locked = poolState.r32.status === "locked";
+  const r32Started = r32Open || r32Locked;
   const preTournamentControlsLocked = preTournamentLocked || r32Open || r32Locked;
   const r32PicksComplete = r32Matches.length > 0 && r32Matches.every((match) => Boolean(r32Picks[match.matchId]));
   const showLockedHomeNotice = preTournamentLocked && !identityConfirmed && !identityLockedByLink && !adminEnabled;
@@ -2255,7 +2278,15 @@ export function PoolaramaPrototype() {
           <ScreenHeader
             kicker="Live board"
             title="Standings"
-            note={preTournamentLocked ? "Pre-tournament picks are locked and visible." : "Picks stay hidden until John locks the round."}
+            note={
+              r32Locked
+                ? "Group-stage and Round of 32 picks are locked and visible."
+                : r32Open
+                  ? "Group-stage picks are visible. Round of 32 picks stay hidden until John locks this round."
+                  : preTournamentLocked
+                    ? "Pre-tournament picks are locked and visible."
+                    : "Picks stay hidden until John locks the round."
+            }
           />
           {poolDataWarning && (
             <div className="inline-alert" role="alert">
@@ -2273,6 +2304,9 @@ export function PoolaramaPrototype() {
                     venmoPaid: participant.venmoPaid,
                     submitted: participant.submitted,
                     submittedAt: participant.submittedAt,
+                    r32Submitted: participant.r32Submitted,
+                    r32SubmittedAt: participant.r32SubmittedAt,
+                    r32Picks: null,
                     points: 0,
                     scoring: [],
                     visible: participant.code === selectedParticipant.code,
@@ -2295,7 +2329,7 @@ export function PoolaramaPrototype() {
                       <div>
                         <h3>{person.nickname}</h3>
                         <p>
-                          {person.name} · {person.submitted ? "Submitted" : "No picks yet"}
+                          {person.name}
                           {person.code === selectedParticipant.code ? " · you" : ""}
                         </p>
                       </div>
@@ -2313,41 +2347,72 @@ export function PoolaramaPrototype() {
                     )}
                     <details className="pick-details">
                       <summary>View {person.nickname}&apos;s picks</summary>
-                      {person.visible && person.picks ? (
-                        <div className="pick-sheet">
-                          <p><strong>Champion:</strong> {person.picks.champion}</p>
-                          <p>
-                            <strong>Golden Boot:</strong> {person.picks.goldenBoot}
-                            <span className="golden-boot-status">
-                              ({getGoldenBootStatus(person.picks.goldenBoot, goldenBootRows)})
-                            </span>
-                          </p>
-                          <div className="review-groups">
-                            {groups.map((group) => (
-                              <div key={`${person.code}-${group}`}>
-                                <span>Group {group}</span>
-                                <strong className="group-pick-score-line">
-                                  <span className="pick-country">{person.picks?.groupWinners?.[group] || "No winner"}</span>
-                                  <span className="pick-score">({person.groupPickScores?.[group]?.winner ?? 0})</span>
-                                  <span className="pick-label">winner</span>
-                                </strong>
-                                <strong className="group-pick-score-line">
-                                  <span className="pick-country">{person.picks?.groupRunnersUp?.[group] || "No runner-up"}</span>
-                                  <span className="pick-score">({person.groupPickScores?.[group]?.runnerUp ?? 0})</span>
-                                  <span className="pick-label">runner-up</span>
-                                </strong>
-                              </div>
-                            ))}
+                      <div className="pick-sheet">
+                        {person.visible && person.picks ? (
+                          <>
+                            <p><strong>Champion:</strong> {person.picks.champion}</p>
+                            <p>
+                              <strong>Golden Boot:</strong> {person.picks.goldenBoot}
+                              <span className="golden-boot-status">
+                                ({getGoldenBootStatus(person.picks.goldenBoot, goldenBootRows)})
+                              </span>
+                            </p>
+                            <div className="review-groups">
+                              {groups.map((group) => (
+                                <div key={`${person.code}-${group}`}>
+                                  <span>Group {group}</span>
+                                  <strong className="group-pick-score-line">
+                                    <span className="pick-country">{person.picks?.groupWinners?.[group] || "No winner"}</span>
+                                    <span className="pick-score">({person.groupPickScores?.[group]?.winner ?? 0})</span>
+                                    <span className="pick-label">winner</span>
+                                  </strong>
+                                  <strong className="group-pick-score-line">
+                                    <span className="pick-country">{person.picks?.groupRunnersUp?.[group] || "No runner-up"}</span>
+                                    <span className="pick-score">({person.groupPickScores?.[group]?.runnerUp ?? 0})</span>
+                                    <span className="pick-label">runner-up</span>
+                                  </strong>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        ) : (
+                          <div className="round-status-note">
+                            <strong>{person.submitted ? "Pre-tournament picks hidden." : "No pre-tournament picks submitted."}</strong>
+                            <p>{person.submitted ? "They will appear here after John locks that round." : "Nothing to show yet."}</p>
                           </div>
-                        </div>
-                      ) : (
-                        <div className="pick-sheet">
-                          <p>
-                            <strong>{person.submitted ? "Picks hidden." : "No picks submitted."}</strong>
-                          </p>
-                          <p>{person.submitted ? "They will appear here after this round locks." : "Nothing to show yet."}</p>
-                        </div>
-                      )}
+                        )}
+                        {r32Started && (
+                          <div className="round-pick-section">
+                            <h4>Round of 32</h4>
+                            {person.r32Picks ? (
+                              <>
+                                <div className="saved-pick-list">
+                                  {getRoundOf32PickRows(person.r32Picks.matchWinners, r32Matches).map((pick) => (
+                                    <div key={`${person.code}-public-r32-${pick.id}`}>
+                                      <span>{pick.label}</span>
+                                      <strong>{pick.winner || "No pick"}</strong>
+                                    </div>
+                                  ))}
+                                </div>
+                                {person.r32Picks.submittedAt && (
+                                  <p className="saved-pick-note">
+                                    Round of 32 submitted {new Date(person.r32Picks.submittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.
+                                  </p>
+                                )}
+                              </>
+                            ) : (
+                              <div className="round-status-note">
+                                <strong>{person.r32Submitted ? "Round of 32 picks submitted." : "No Round of 32 picks submitted yet."}</strong>
+                                <p>
+                                  {person.r32Submitted
+                                    ? "They will appear here after John locks this round."
+                                    : "Nothing to show for this round yet."}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </details>
                   </article>
                 );

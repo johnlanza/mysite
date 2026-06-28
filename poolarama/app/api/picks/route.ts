@@ -85,6 +85,9 @@ export async function GET(request: NextRequest) {
           venmoPaid: participant.venmoPaid,
           submitted: false,
           submittedAt: null,
+          r32Submitted: false,
+          r32SubmittedAt: null,
+          r32Picks: null,
           points: 0,
           scoring: [],
           visible: false,
@@ -126,6 +129,7 @@ export async function GET(request: NextRequest) {
 
     const poolState = buildPoolState(pool);
     const isLocked = poolState.preTournament.status === "locked";
+    const r32PicksVisible = poolState.r32.status === "locked";
     const roster = mergeKnownAndMongoParticipants(participants.map(participantFromMongo));
     const activeParticipantCodes = new Set(roster.map((participant) => participant.code));
     const r32SubmissionCount = submissions.filter((submission) =>
@@ -148,7 +152,7 @@ export async function GET(request: NextRequest) {
         const picks = submission ? normalizePicks(submission.picks) : null;
         const r32Picks = r32Submission ? normalizePicks(r32Submission.picks) : null;
         const score = picks ? scorePreTournamentPicks(picks, groupStandings, pool.scoringRules || {}) : null;
-        const knockoutScore = scoreRoundOf32Picks(r32Picks, r32Matches, pool.scoringRules || {});
+        const knockoutScore = r32PicksVisible ? scoreRoundOf32Picks(r32Picks, r32Matches, pool.scoringRules || {}) : 0;
         const totalScore = (score?.total || 0) + knockoutScore;
 
         return {
@@ -158,6 +162,14 @@ export async function GET(request: NextRequest) {
           venmoPaid: participant?.venmoPaid ?? knownParticipant.venmoPaid,
           submitted: Boolean(submission),
           submittedAt: submission?.submittedAt?.toISOString() || null,
+          r32Submitted: Boolean(r32Submission),
+          r32SubmittedAt: r32Submission?.submittedAt?.toISOString() || null,
+          r32Picks: r32PicksVisible && r32Picks
+            ? {
+                matchWinners: r32Picks.matchWinners || {},
+                submittedAt: r32Submission?.submittedAt?.toISOString() || null
+              }
+            : null,
           points: totalScore,
           scoring: score || knockoutScore > 0
             ? [
