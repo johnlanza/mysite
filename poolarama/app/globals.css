@@ -2090,12 +2090,24 @@ h1 {
   border: 1px solid var(--line);
 }
 
+.admin-summary .admin-current-round-summary {
+  color: #fff;
+  background: linear-gradient(135deg, var(--navy), var(--blue));
+  border-color: rgba(20, 99, 255, 0.45);
+  box-shadow: 0 14px 28px rgba(17, 32, 51, 0.14);
+}
+
 .admin-summary strong {
   display: block;
   color: var(--navy);
   font-family: var(--font-display), system-ui, sans-serif;
   font-size: 1.8rem;
   line-height: 1;
+}
+
+.admin-summary .admin-current-round-summary strong,
+.admin-summary .admin-current-round-summary span {
+  color: #fff;
 }
 
 .admin-summary span {
@@ -2294,6 +2306,64 @@ h1 {
   border-radius: 20px;
   background: linear-gradient(135deg, rgba(255, 200, 61, 0.24), rgba(15, 159, 110, 0.14)), #fff;
   border: 1px solid var(--line);
+}
+
+.archived-admin-card {
+  overflow: hidden;
+}
+
+.archived-admin-card summary {
+  display: grid;
+  gap: 4px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.archived-admin-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.archived-admin-card summary span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 1000;
+  text-transform: uppercase;
+}
+
+.archived-admin-card summary strong {
+  color: var(--navy);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.archived-admin-card summary::after {
+  content: "Tap to open";
+  justify-self: start;
+  margin-top: 5px;
+  padding: 7px 9px;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--navy);
+  font-size: 0.72rem;
+  font-weight: 1000;
+  text-transform: uppercase;
+}
+
+.archived-admin-card[open] summary {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.archived-admin-card[open] summary::after {
+  content: "Hide";
+}
+
+.archived-admin-card[open] > .section-title-row,
+.archived-admin-card[open] > .group-standings-grid,
+.archived-admin-card[open] > div,
+.archived-admin-card[open] > form {
+  margin-top: 14px;
 }
 
 .invite-card h3 {

@@ -61,6 +61,11 @@ type PoolState = {
     openedAt: string | null;
     lockedAt: string | null;
   };
+  r16: {
+    status: "setup" | "open" | "locked";
+    openedAt: string | null;
+    lockedAt: string | null;
+  };
 };
 
 type GroupStandingRow = {
@@ -202,6 +207,11 @@ const defaultPoolState: PoolState = {
     status: "setup",
     openedAt: null,
     lockedAt: null
+  },
+  r16: {
+    status: "setup",
+    openedAt: null,
+    lockedAt: null
   }
 };
 const defaultRoundSubmissionSummary: RoundSubmissionSummary = {
@@ -210,6 +220,23 @@ const defaultRoundSubmissionSummary: RoundSubmissionSummary = {
     total: 0
   }
 };
+
+function normalizePoolState(pool: Partial<PoolState> | null | undefined): PoolState {
+  return {
+    preTournament: {
+      ...defaultPoolState.preTournament,
+      ...(pool?.preTournament || {})
+    },
+    r32: {
+      ...defaultPoolState.r32,
+      ...(pool?.r32 || {})
+    },
+    r16: {
+      ...defaultPoolState.r16,
+      ...(pool?.r16 || {})
+    }
+  };
+}
 
 function getTeamDisplayName(team: { name: string; code: string }) {
   return team.name.length > 12 ? team.code : team.name;
@@ -913,6 +940,24 @@ export function PoolaramaPrototype() {
   const heroR32SubmittedCount = adminEnabled ? adminR32SubmittedCount : roundSubmissions.r32.submitted;
   const heroR32SubmissionTotal = adminEnabled ? adminOverview.length : roundSubmissions.r32.total || totalPlayers;
   const showR32SubmissionMetric = poolState.r32.status !== "setup";
+  const adminCurrentRound = poolState.r16.status !== "setup"
+    ? { label: "Round of 16", status: poolState.r16.status, openedAt: poolState.r16.openedAt, lockedAt: poolState.r16.lockedAt }
+    : poolState.r32.status !== "setup"
+      ? { label: "Round of 32", status: poolState.r32.status, openedAt: poolState.r32.openedAt, lockedAt: poolState.r32.lockedAt }
+      : { label: "Pre-tournament", status: poolState.preTournament.status, openedAt: null, lockedAt: poolState.preTournament.lockedAt };
+  const adminCurrentRoundAction = adminCurrentRound.label === "Round of 32"
+    ? poolState.r32.status === "locked"
+      ? "Score R32 winners as matches finish. R16 preview unlocks after all 16 winners are scored."
+      : poolState.r32.status === "open"
+        ? "Collect R32 picks, then lock them before scoring."
+        : "Generate and open R32 picks."
+    : adminCurrentRound.label === "Round of 16"
+      ? poolState.r16.status === "locked"
+        ? "Score R16 winners as matches finish."
+        : poolState.r16.status === "open"
+          ? "Collect R16 picks, then lock them before scoring."
+          : "Generate and open R16 picks."
+      : "Pre-tournament picks are locked; knockout rounds are the active workflow.";
   const leadingScore = publicPicks.reduce((maxPoints, participant) => Math.max(maxPoints, participant.points), 0);
   const leaders = leadingScore > 0
     ? publicPicks.filter((participant) => participant.points === leadingScore).map((participant) => participant.nickname)
@@ -1197,10 +1242,10 @@ export function PoolaramaPrototype() {
       }
 
       const data = (await response.json()) as { pool: PoolState };
-      setPoolState(data.pool);
+      setPoolState(normalizePoolState(data.pool));
       setPoolDataWarning(null);
     } catch {
-      setPoolState(defaultPoolState);
+      setPoolState(normalizePoolState(null));
       setPoolDataWarning("Pool data is temporarily unavailable. Please refresh in a minute.");
     }
   }
@@ -1215,7 +1260,7 @@ export function PoolaramaPrototype() {
       }
 
       const data = (await response.json()) as PublicPicksResponse;
-      setPoolState(data.pool);
+      setPoolState(normalizePoolState(data.pool));
       if (data.pool.r32.status === "open") {
         setR32Feedback("Round of 32 picks are open.");
       }
@@ -1285,7 +1330,7 @@ export function PoolaramaPrototype() {
 
       const data = (await response.json()) as RoundOf32Response;
       setR32Matches(data.matches);
-      setPoolState(data.pool);
+      setPoolState(normalizePoolState(data.pool));
       setR32PreviewReady(Boolean(data.previewOnly));
     } catch {
       setR32Feedback("Round of 32 unavailable.");
@@ -1302,7 +1347,7 @@ export function PoolaramaPrototype() {
 
       const data = (await response.json()) as RoundOf32Response;
       setR32Matches(data.matches);
-      setPoolState(data.pool);
+      setPoolState(normalizePoolState(data.pool));
       setR32PreviewReady(false);
       setR32Feedback(
         data.pool.r32.status === "open"
@@ -1407,7 +1452,7 @@ export function PoolaramaPrototype() {
       }
 
       const data = (await response.json()) as { pool: PoolState };
-      setPoolState(data.pool);
+      setPoolState(normalizePoolState(data.pool));
       await loadPublicPicks();
       setAdminFeedback(`Pre-tournament picks are ${nextStatus}.`);
     } catch {
@@ -1482,7 +1527,7 @@ export function PoolaramaPrototype() {
 
       const data = (await response.json()) as RoundOf32Response;
       setR32Matches(data.matches);
-      setPoolState(data.pool);
+      setPoolState(normalizePoolState(data.pool));
       setR32PreviewReady(Boolean(data.previewOnly));
       if (action === "reset") {
         setR32Picks({});
@@ -1518,7 +1563,7 @@ export function PoolaramaPrototype() {
 
       const data = (await response.json()) as RoundOf32Response;
       setR32Matches(data.matches);
-      setPoolState(data.pool);
+      setPoolState(normalizePoolState(data.pool));
       setR32PreviewReady(false);
       await loadPublicPicks();
       setAdminFeedback(`Round of 32 winner saved.${formatBackupMessage(data)}`);
@@ -2886,10 +2931,14 @@ export function PoolaramaPrototype() {
         <section className="screen stack" aria-labelledby="admin-title">
           <ScreenHeader
             kicker="Admin dashboard"
-            title="Track the pool"
-            note="See who has paid, who has submitted, and who needs a reminder."
+            title={`${adminCurrentRound.label} control room`}
+            note={adminCurrentRoundAction}
           />
           <div className="admin-summary">
+            <div className="admin-current-round-summary">
+              <strong>{adminCurrentRound.status}</strong>
+              <span>{adminCurrentRound.label}</span>
+            </div>
             <div>
               <strong>{adminSubmittedCount}/{adminOverview.length}</strong>
               <span>group submitted</span>
@@ -2907,14 +2956,15 @@ export function PoolaramaPrototype() {
               <span>unpaid</span>
             </div>
             <div>
-              <strong>{preTournamentLocked ? "Locked" : "Open"}</strong>
-              <span>pre-tournament</span>
+              <strong>{r32Matches.filter((match) => Boolean(match.winner)).length}/16</strong>
+              <span>R32 scored</span>
             </div>
           </div>
           <section className="admin-sync-status" aria-label="Live data status">
             <div>
-              <span>Group tables</span>
-              <strong>{formatAdminTimestamp(groupTablesUpdatedAt)}</strong>
+              <span>Current round</span>
+              <strong>{adminCurrentRound.label}</strong>
+              <em>{adminCurrentRound.status}</em>
             </div>
             <div>
               <span>Golden Boot</span>
@@ -2922,8 +2972,12 @@ export function PoolaramaPrototype() {
               <em>{goldenBootProvider}</em>
             </div>
             <div>
-              <span>Round of 32</span>
-              <strong>{poolState.r32.status}</strong>
+              <span>Last opened</span>
+              <strong>{formatAdminTimestamp(adminCurrentRound.openedAt)}</strong>
+            </div>
+            <div>
+              <span>Last locked</span>
+              <strong>{formatAdminTimestamp(adminCurrentRound.lockedAt)}</strong>
             </div>
           </section>
           <div className="admin-toolbar">
@@ -2951,7 +3005,11 @@ export function PoolaramaPrototype() {
             </div>
             {dailyReview.kicker && <p className="daily-review-kicker">{dailyReview.kicker}</p>}
           </section>
-          <section className="invite-card" aria-labelledby="invite-title">
+          <details className="invite-card archived-admin-card">
+            <summary>
+              <span>Roster tools</span>
+              <strong>Add a player</strong>
+            </summary>
             <div>
               <p className="eyebrow">Invites</p>
               <h3 id="invite-title">Add a player</h3>
@@ -2982,8 +3040,12 @@ export function PoolaramaPrototype() {
                 Add player
               </button>
             </form>
-          </section>
-          <section className="group-standings-admin" aria-labelledby="group-standings-admin-title">
+          </details>
+          <details className="group-standings-admin archived-admin-card">
+            <summary>
+              <span>Group-stage archive</span>
+              <strong>Live group tables</strong>
+            </summary>
             <div className="section-title-row">
               <div>
                 <p className="eyebrow">Live group tables</p>
@@ -3037,7 +3099,7 @@ export function PoolaramaPrototype() {
                 </article>
               ))}
             </div>
-          </section>
+          </details>
           <GoldenBootTable rows={goldenBootRows} feedback={goldenBootFeedback} />
           <section className="r32-admin-card" aria-labelledby="r32-admin-title">
             <div className="section-title-row">
