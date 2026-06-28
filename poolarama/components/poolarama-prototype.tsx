@@ -181,6 +181,15 @@ type R32ScenarioImpact = {
   }[];
 };
 
+type R32Stakes = {
+  minoritySide: string;
+  minorityCount: number;
+  mostToGain: string;
+  leaderDanger: string;
+  consensus: string;
+  swingSize: number;
+};
+
 const selectedParticipantKey = "poolarama-selected-participant";
 const confirmedParticipantKey = "poolarama-confirmed-participant";
 const goldenBootWriteInLabel = "Other / write-in";
@@ -404,6 +413,59 @@ function buildR32ScenarioImpacts(match: R32MatchSummary, people: PublicPickParti
       climbers
     };
   });
+}
+
+function buildR32Stakes(match: R32MatchSummary, people: PublicPickParticipant[], impacts: R32ScenarioImpact[]): R32Stakes {
+  const sides = [
+    { team: match.teamA, pickers: match.teamAPickers },
+    { team: match.teamB, pickers: match.teamBPickers }
+  ].sort((a, b) => a.pickers.length - b.pickers.length || a.team.localeCompare(b.team));
+  const minority = sides[0];
+  const majority = sides[1];
+  const rankedNow = getDisplayRanks([...people].sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname)));
+  const currentRanks = new Map(rankedNow.map((person) => [person.code, person.displayRank]));
+  const topScore = rankedNow[0]?.points || 0;
+  const leaderDangerNames = rankedNow
+    .filter((person) => person.points === topScore && person.r32Picks?.matchWinners[match.matchId] === minority.team)
+    .map((person) => person.nickname);
+  const mostToGainNames = minority.pickers
+    .map((person) => ({
+      nickname: person.nickname,
+      rank: currentRanks.get(person.code) || 99,
+      points: person.points
+    }))
+    .sort((a, b) => a.rank - b.rank || b.points - a.points || a.nickname.localeCompare(b.nickname))
+    .slice(0, 2)
+    .map((person) => person.nickname);
+  const swingSize = impacts.reduce((maxSwing, impact) => {
+    const pickerCodes = new Set(impact.pickers.map((person) => person.code));
+    const projectedRanks = getDisplayRanks(
+      people
+        .map((person) => ({
+          ...person,
+          points: person.points + (pickerCodes.has(person.code) ? 1 : 0)
+        }))
+        .sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname))
+    );
+    const changedCount = projectedRanks.filter((person) => (currentRanks.get(person.code) || 0) !== person.displayRank).length;
+
+    return Math.max(maxSwing, changedCount);
+  }, 0);
+  const spread = Math.abs(majority.pickers.length - minority.pickers.length);
+  const consensus = spread <= 3
+    ? "Split"
+    : majority.pickers.length >= Math.ceil(people.length * 0.75)
+      ? `Heavy ${majority.team}`
+      : `Leans ${majority.team}`;
+
+  return {
+    minoritySide: minority.team,
+    minorityCount: minority.pickers.length,
+    mostToGain: mostToGainNames.length > 0 ? joinNames(mostToGainNames, 2) : "No one",
+    leaderDanger: leaderDangerNames.length > 0 ? `${joinNames(leaderDangerNames, 2)} on ${minority.team}` : "Leaders avoid minority side",
+    consensus,
+    swingSize
+  };
 }
 
 function buildDailyReview(
@@ -892,6 +954,10 @@ export function PoolaramaPrototype() {
   const selectedR32Impacts = useMemo(
     () => selectedR32Match ? buildR32ScenarioImpacts(selectedR32Match, publicPicks) : [],
     [publicPicks, selectedR32Match]
+  );
+  const selectedR32Stakes = useMemo(
+    () => selectedR32Match ? buildR32Stakes(selectedR32Match, publicPicks, selectedR32Impacts) : null,
+    [publicPicks, selectedR32Impacts, selectedR32Match]
   );
   const adminFetchOptions = useMemo<RequestInit>(() => {
     if (!adminToken) return {};
@@ -1975,6 +2041,28 @@ export function PoolaramaPrototype() {
                   </div>
                   {r32Locked ? (
                     <>
+                    {selectedR32Stakes && (
+                      <div className="stakes-strip" aria-label="Match stakes">
+                        <div>
+                          <span>Minority side</span>
+                          <strong>{selectedR32Stakes.minoritySide}</strong>
+                          <em>{selectedR32Stakes.minorityCount} pick{selectedR32Stakes.minorityCount === 1 ? "" : "s"}</em>
+                        </div>
+                        <div>
+                          <span>Most to gain</span>
+                          <strong>{selectedR32Stakes.mostToGain}</strong>
+                        </div>
+                        <div>
+                          <span>Leader danger</span>
+                          <strong>{selectedR32Stakes.leaderDanger}</strong>
+                        </div>
+                        <div>
+                          <span>Consensus</span>
+                          <strong>{selectedR32Stakes.consensus}</strong>
+                          <em>{selectedR32Stakes.swingSize} rank change{selectedR32Stakes.swingSize === 1 ? "" : "s"} possible</em>
+                        </div>
+                      </div>
+                    )}
                     <div className="pick-comparison-grid">
                       {selectedR32Impacts.map(({ team, pickers }) => {
                         const teamMeta = getTeamMeta(team);

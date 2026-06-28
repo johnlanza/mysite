@@ -906,6 +906,45 @@ h1 {
   text-align: center;
 }
 
+.stakes-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 10px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(17, 32, 51, 0.12);
+}
+
+.stakes-strip div {
+  min-width: 0;
+  padding: 10px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, rgba(20, 99, 255, 0.08), rgba(255, 200, 61, 0.12)), #fff;
+  border: 1px solid rgba(17, 32, 51, 0.08);
+}
+
+.stakes-strip span,
+.stakes-strip em {
+  display: block;
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.stakes-strip strong {
+  display: block;
+  margin: 4px 0;
+  overflow: hidden;
+  color: var(--navy);
+  font-size: 0.92rem;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+}
+
 .pick-comparison-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2650,6 +2689,15 @@ h1 {
   .pick-comparison-column li small {
     min-width: 54px;
     text-align: right;
+  }
+
+  .stakes-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .stakes-strip strong {
+    overflow: visible;
+    text-overflow: clip;
   }
 
   .admin-toolbar,
