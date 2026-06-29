@@ -1025,22 +1025,22 @@ export function PoolaramaPrototype() {
       : { label: "Pre-tournament", status: poolState.preTournament.status, openedAt: null, lockedAt: poolState.preTournament.lockedAt };
   const adminCurrentRoundAction = adminCurrentRound.label === "Round of 32"
     ? poolState.r32.status === "locked"
-      ? "Score R32 winners as matches finish. R16 preview unlocks after all 16 winners are scored."
+      ? "Active task: score R32 winners as matches finish. R16 preview unlocks only after all 16 winners are scored."
       : poolState.r32.status === "open"
-        ? "Collect R32 picks, then lock them before scoring."
-        : "Generate and open R32 picks."
+        ? "Active task: collect R32 picks, then lock them before any scoring."
+        : "Setup task: generate and open R32 picks."
     : adminCurrentRound.label === "Round of 16"
       ? poolState.r16.status === "locked"
-        ? "Score R16 winners as matches finish. Quarterfinal preview unlocks after all 8 winners are scored."
+        ? "Active task: score R16 winners as matches finish. Quarterfinal preview unlocks only after all 8 winners are scored."
         : poolState.r16.status === "open"
-          ? "Collect R16 picks, then lock them before scoring."
-          : "Generate and open R16 picks."
+          ? "Active task: collect R16 picks, then lock them before any scoring."
+          : "Setup task: generate and open R16 picks."
       : adminCurrentRound.label === "Quarterfinals"
         ? poolState.qf.status === "locked"
-          ? "Score Quarterfinal winners as matches finish."
+          ? "Active task: score Quarterfinal winners as matches finish."
           : poolState.qf.status === "open"
-            ? "Collect Quarterfinal picks, then lock them before scoring."
-            : "Generate and open Quarterfinal picks."
+            ? "Active task: collect Quarterfinal picks, then lock them before any scoring."
+            : "Setup task: generate and open Quarterfinal picks."
       : "Pre-tournament picks are locked; knockout rounds are the active workflow.";
   const leadingScore = publicPicks.reduce((maxPoints, participant) => Math.max(maxPoints, participant.points), 0);
   const leaders = leadingScore > 0
@@ -1105,6 +1105,17 @@ export function PoolaramaPrototype() {
       };
     })
   ), [currentKnockoutRound.matches, currentKnockoutRound.pickKey, currentKnockoutRound.picks, publicPicks, selectedParticipant.code, showPersonalR32Pick]);
+  const closestKnockoutMatches = useMemo(
+    () => [...currentKnockoutMatchSummaries]
+      .filter((match) => match.teamAPickers.length + match.teamBPickers.length > 0)
+      .sort((a, b) => (
+        Math.abs(a.teamAPickers.length - a.teamBPickers.length) - Math.abs(b.teamAPickers.length - b.teamBPickers.length) ||
+        b.teamAPickers.length + b.teamBPickers.length - (a.teamAPickers.length + a.teamBPickers.length) ||
+        a.order - b.order
+      ))
+      .slice(0, 3),
+    [currentKnockoutMatchSummaries]
+  );
   const selectedKnockoutMatch = currentKnockoutMatchSummaries.find((match) => match.matchId === selectedKnockoutMatchId) || currentKnockoutMatchSummaries[0] || null;
   const selectedKnockoutImpacts = useMemo(
     () => selectedKnockoutMatch ? buildKnockoutScenarioImpacts(selectedKnockoutMatch, publicPicks, currentKnockoutRound.pointValue) : [],
@@ -2556,9 +2567,9 @@ export function PoolaramaPrototype() {
             note={showLockedHomeNotice
               ? "The group-stage picks are locked and visible in the standings."
               : r16Locked
-              ? "Round of 16 picks are locked."
+              ? "Round of 16 picks are locked and visible. Scoring updates as winners are entered."
               : r32Locked
-              ? "Tap any match below to see how the pool split."
+              ? "Round of 32 picks are locked and visible. Scoring updates as winners are entered."
               : showParticipantLockedHeader
               ? "Your group-stage, champion, and Golden Boot picks are locked. Knockout picks will appear here when John opens them."
               : r16Open
@@ -2577,6 +2588,23 @@ export function PoolaramaPrototype() {
             </div>
           )}
           {currentKnockoutStarted && currentKnockoutRound.matches.length > 0 && (
+            <section className="round-clarity-card" aria-label="Current round status">
+              <div>
+                <span>Current round</span>
+                <strong>{currentKnockoutRound.label}</strong>
+              </div>
+              <div>
+                <span>Picks</span>
+                <strong>{currentKnockoutRound.locked ? "Locked and visible" : "Open now"}</strong>
+              </div>
+              <div>
+                <span>Scoring</span>
+                <strong>{currentKnockoutRound.scoredCount}/{currentKnockoutRound.matches.length} entered</strong>
+              </div>
+              <p>{currentKnockoutRound.locked ? "Everyone can compare picks for this round. Point totals update after winners are entered." : "Picks stay private until John locks the round."}</p>
+            </section>
+          )}
+          {currentKnockoutStarted && currentKnockoutRound.matches.length > 0 && (
             <section className="current-round-card" aria-labelledby="current-round-title">
               <div className="current-round-heading">
                 <div>
@@ -2584,7 +2612,7 @@ export function PoolaramaPrototype() {
                   <h3 id="current-round-title">{currentKnockoutRound.label}</h3>
                   <p>
                     {currentKnockoutRound.locked
-                      ? `${currentKnockoutRound.scoredCount}/${currentKnockoutRound.matches.length} matches scored. Tap a match to compare picks.`
+                      ? `${currentKnockoutRound.scoredCount}/${currentKnockoutRound.matches.length} matches scored. Tap a match to compare picks and spot the swing games.`
                       : "Make your picks below. Match-by-match pool splits appear after John locks the round."}
                   </p>
                 </div>
@@ -2624,6 +2652,22 @@ export function PoolaramaPrototype() {
                   );
                 })}
               </div>
+              {currentKnockoutRound.locked && closestKnockoutMatches.length > 0 && (
+                <div className="close-call-strip" aria-label="Closest pool splits">
+                  <span>Closest calls</span>
+                  {closestKnockoutMatches.map((match) => (
+                    <button
+                      type="button"
+                      key={`close-call-${match.matchId}`}
+                      className={selectedKnockoutMatch?.matchId === match.matchId ? "selected" : ""}
+                      onClick={() => setSelectedKnockoutMatchId(match.matchId)}
+                    >
+                      <strong>{getTeamMeta(match.teamA).flag} {getTeamDisplayName(getTeamMeta(match.teamA))} vs {getTeamMeta(match.teamB).flag} {getTeamDisplayName(getTeamMeta(match.teamB))}</strong>
+                      <em>{match.teamAPickers.length}-{match.teamBPickers.length}</em>
+                    </button>
+                  ))}
+                </div>
+              )}
               {selectedKnockoutMatch && (
                 <div className="match-comparison-panel" aria-live="polite">
                   <div className="match-comparison-header">
@@ -3327,7 +3371,7 @@ export function PoolaramaPrototype() {
             title="Standings"
             note={
               r32Locked
-                ? "Group-stage and Round of 32 picks are locked and visible."
+                ? `${activeKnockoutRoundLabel} picks are locked and visible. Scoring updates as winners are entered.`
                 : r32Open
                   ? "Group-stage picks are visible. Round of 32 picks stay hidden until John locks this round."
                   : preTournamentLocked
@@ -3339,6 +3383,23 @@ export function PoolaramaPrototype() {
             <div className="inline-alert" role="alert">
               <strong>{poolDataWarning}</strong>
             </div>
+          )}
+          {currentKnockoutStarted && currentKnockoutRound.matches.length > 0 && (
+            <section className="round-clarity-card compact" aria-label="Standings round status">
+              <div>
+                <span>Current round</span>
+                <strong>{currentKnockoutRound.label}</strong>
+              </div>
+              <div>
+                <span>Picks</span>
+                <strong>{currentKnockoutRound.locked ? "Visible" : "Hidden until locked"}</strong>
+              </div>
+              <div>
+                <span>Scoring</span>
+                <strong>{currentKnockoutRound.scoredCount}/{currentKnockoutRound.matches.length}</strong>
+              </div>
+              <p>{currentKnockoutRound.locked ? "Round points are included here after each winner is entered." : "This round is not included in standings yet."}</p>
+            </section>
           )}
           <div className="standings-list">
             {(() => {
@@ -3708,10 +3769,10 @@ export function PoolaramaPrototype() {
           <section className="r32-admin-card" aria-labelledby="r32-admin-title">
             <div className="section-title-row">
               <div>
-                <p className="eyebrow">Knockout setup</p>
-                <h3 id="r32-admin-title">Round of 32 picks</h3>
+                <p className="eyebrow">Current scoring round</p>
+                <h3 id="r32-admin-title">Score Round of 32 winners</h3>
                 <p>
-                  Generate a private preview first. Open picks only after the matchups look right.
+                  R32 picks are locked. Use these controls only to sync or set winners for completed R32 matches.
                 </p>
               </div>
               <div className="admin-toolbar-actions compact-actions">
@@ -3721,7 +3782,7 @@ export function PoolaramaPrototype() {
                   onClick={() => handleRoundOf32AdminAction("generate")}
                   disabled={poolState.r32.status !== "setup"}
                 >
-                  Generate preview
+                  Generate R32 preview
                 </button>
                 <button
                   className="admin-action compact"
@@ -3729,7 +3790,7 @@ export function PoolaramaPrototype() {
                   onClick={() => handleRoundOf32AdminAction("open")}
                   disabled={poolState.r32.status !== "setup" || !r32PreviewReady || r32Matches.length !== 16}
                 >
-                  Confirm and open
+                  Confirm and open R32
                 </button>
                 <button
                   className="admin-action compact quiet"
@@ -3737,7 +3798,7 @@ export function PoolaramaPrototype() {
                   onClick={() => handleRoundOf32AdminAction("lock")}
                   disabled={!r32Open}
                 >
-                  Lock picks
+                  Lock R32 picks
                 </button>
                 <button
                   className="admin-action compact"
@@ -3745,7 +3806,7 @@ export function PoolaramaPrototype() {
                   onClick={handleSyncRoundOf32Winners}
                   disabled={!r32Locked}
                 >
-                  Sync winners
+                  Sync completed R32 winners
                 </button>
               </div>
             </div>
@@ -3784,7 +3845,7 @@ export function PoolaramaPrototype() {
                             key={`${match.matchId}-${teamName}`}
                             onClick={() => handleRoundOf32Winner(match.matchId, teamName)}
                           >
-                            {match.winner === teamName ? "Winner" : `Set ${teamName}`}
+                            {match.winner === teamName ? "Winner" : `Set R32 winner: ${teamName}`}
                           </button>
                         ))}
                       </div>
@@ -3798,7 +3859,7 @@ export function PoolaramaPrototype() {
           </section>
           <details className="admin-rollup-card next-round-rollup archived-admin-card">
             <summary>
-              <span>Next round</span>
+              <span>Future round - no action yet</span>
               <strong>Round of 16 readiness</strong>
             </summary>
             <div className="next-round-status">
@@ -3809,7 +3870,7 @@ export function PoolaramaPrototype() {
               <p>
                 {r32ScoredCount === 16
                   ? "Round of 16 preview can be generated and reviewed."
-                  : "Round of 16 controls unlock after every Round of 32 winner is scored."}
+                  : "Round of 16 controls stay disabled until every Round of 32 winner is scored."}
               </p>
             </div>
             <div className="admin-toolbar-actions compact-actions">
@@ -3827,7 +3888,7 @@ export function PoolaramaPrototype() {
                 onClick={() => handleRoundOf16AdminAction("open")}
                 disabled={poolState.r16.status !== "setup" || !r16PreviewReady || r16Matches.length !== 8}
               >
-                Confirm and open
+                Confirm and open R16
               </button>
               <button
                 className="admin-action compact quiet"
@@ -3835,7 +3896,7 @@ export function PoolaramaPrototype() {
                 onClick={() => handleRoundOf16AdminAction("lock")}
                 disabled={!r16Open}
               >
-                Lock picks
+                Lock R16 picks
               </button>
               <button
                 className="admin-action compact"
@@ -3843,7 +3904,7 @@ export function PoolaramaPrototype() {
                 onClick={handleSyncRoundOf16Winners}
                 disabled={!r16Locked}
               >
-                Sync winners
+                Sync completed R16 winners
               </button>
             </div>
             <div className="admin-sync-status" aria-label="Round of 16 status">
@@ -3881,7 +3942,7 @@ export function PoolaramaPrototype() {
                             key={`${match.matchId}-${teamName}`}
                             onClick={() => handleRoundOf16Winner(match.matchId, teamName)}
                           >
-                            {match.winner === teamName ? "Winner" : `Set ${teamName}`}
+                            {match.winner === teamName ? "Winner" : `Set R16 winner: ${teamName}`}
                           </button>
                         ))}
                       </div>
@@ -3897,7 +3958,7 @@ export function PoolaramaPrototype() {
           </details>
           <details className="admin-rollup-card next-round-rollup archived-admin-card">
             <summary>
-              <span>Upcoming round</span>
+              <span>Future round - no action yet</span>
               <strong>Quarterfinal readiness</strong>
             </summary>
             <div className="next-round-status">
@@ -3908,7 +3969,7 @@ export function PoolaramaPrototype() {
               <p>
                 {qfCanPreview
                   ? "Quarterfinal preview can be generated and reviewed."
-                  : "Quarterfinal controls unlock after every Round of 16 winner is scored."}
+                  : "Quarterfinal controls stay disabled until every Round of 16 winner is scored."}
               </p>
             </div>
             <div className="admin-toolbar-actions compact-actions">
@@ -3926,7 +3987,7 @@ export function PoolaramaPrototype() {
                 onClick={() => handleQuarterfinalAdminAction("open")}
                 disabled={poolState.qf.status !== "setup" || !qfPreviewReady || qfMatches.length !== 4}
               >
-                Confirm and open
+                Confirm and open QF
               </button>
               <button
                 className="admin-action compact quiet"
@@ -3934,7 +3995,7 @@ export function PoolaramaPrototype() {
                 onClick={() => handleQuarterfinalAdminAction("lock")}
                 disabled={!qfOpen}
               >
-                Lock picks
+                Lock QF picks
               </button>
               <button
                 className="admin-action compact"
@@ -3942,7 +4003,7 @@ export function PoolaramaPrototype() {
                 onClick={handleSyncQuarterfinalWinners}
                 disabled={!qfLocked}
               >
-                Sync winners
+                Sync completed QF winners
               </button>
             </div>
             <div className="admin-sync-status" aria-label="Quarterfinal status">
@@ -3980,7 +4041,7 @@ export function PoolaramaPrototype() {
                             key={`${match.matchId}-${teamName}`}
                             onClick={() => handleQuarterfinalWinner(match.matchId, teamName)}
                           >
-                            {match.winner === teamName ? "Winner" : `Set ${teamName}`}
+                            {match.winner === teamName ? "Winner" : `Set QF winner: ${teamName}`}
                           </button>
                         ))}
                       </div>
