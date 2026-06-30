@@ -1625,6 +1625,44 @@ h1 {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.group-stage-rollup {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.group-stage-rollup div {
+  min-width: 0;
+  padding: 10px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, rgba(255, 200, 61, 0.18), rgba(15, 159, 110, 0.1)), #fff;
+  border: 1px solid rgba(17, 32, 51, 0.1);
+}
+
+.group-stage-rollup span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.group-stage-rollup strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--navy);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 1.18rem;
+  line-height: 1;
+}
+
+.pick-section-title {
+  margin: 12px 0 7px;
+  color: var(--navy);
+  font-size: 0.95rem;
+}
+
 .review-groups {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -1874,6 +1912,48 @@ h1 {
   color: var(--navy);
   font-size: 0.95rem;
   line-height: 1.16;
+}
+
+.round-result-list {
+  grid-template-columns: 1fr;
+}
+
+.round-result-row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.2fr);
+  align-items: start;
+  gap: 3px 10px;
+}
+
+.round-result-row strong {
+  margin-top: 0;
+}
+
+.round-result-row em {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.round-result-row.result-won {
+  border-color: rgba(15, 159, 110, 0.35);
+  background: linear-gradient(135deg, rgba(15, 159, 110, 0.14), rgba(255, 255, 255, 0.9)), #fff;
+}
+
+.round-result-row.result-won em {
+  color: var(--green);
+}
+
+.round-result-row.result-lost {
+  border-color: rgba(227, 60, 74, 0.26);
+  background: linear-gradient(135deg, rgba(227, 60, 74, 0.1), rgba(255, 255, 255, 0.92)), #fff;
+}
+
+.round-result-row.result-lost em {
+  color: var(--red);
 }
 
 .saved-pick-note {
@@ -2887,6 +2967,7 @@ h1 {
   .group-picks-grid,
   .candidate-grid,
   .review-grid,
+  .group-stage-rollup,
   .review-groups,
   .test-controls,
   .test-summary,

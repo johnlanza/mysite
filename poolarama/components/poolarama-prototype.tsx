@@ -294,19 +294,30 @@ function getTeamMeta(teamName: string) {
   };
 }
 
-function getRoundOf32PickRows(matchWinners: Record<string, string>, matches: R32Match[]) {
+function getRoundOf32PickRows(matchWinners: Record<string, string>, matches: R32Match[], pointValue = 1) {
   if (matches.length > 0) {
-    return matches.map((match) => ({
-      id: match.matchId,
-      label: match.label,
-      winner: matchWinners[match.matchId] || ""
-    }));
+    return matches.map((match) => {
+      const pick = matchWinners[match.matchId] || "";
+      const result = !match.winner ? "pending" : pick === match.winner ? "won" : "lost";
+
+      return {
+        id: match.matchId,
+        label: match.label,
+        winner: pick,
+        actualWinner: match.winner || "",
+        result,
+        points: result === "won" ? pointValue : 0
+      };
+    });
   }
 
   return Object.entries(matchWinners).map(([id, winner]) => ({
     id,
     label: id.toUpperCase(),
-    winner
+    winner,
+    actualWinner: "",
+    result: "pending",
+    points: 0
   }));
 }
 
@@ -3432,6 +3443,16 @@ export function PoolaramaPrototype() {
                   displayRank += 1;
                   previousPoints = person.points;
                 }
+                const groupAdvancerPoints = getPickScoreValue(person, "Advancers");
+                const groupWinnerBonusPoints = getPickScoreValue(person, "Winner bonus");
+                const groupStagePoints = groupAdvancerPoints + groupWinnerBonusPoints;
+                const scoredGroupPickCount = groups.reduce((total, group) => {
+                  const groupScore = person.groupPickScores?.[group];
+
+                  return total +
+                    (groupScore?.winner !== undefined ? 1 : 0) +
+                    (groupScore?.runnerUp !== undefined ? 1 : 0);
+                }, 0);
 
                 return (
                   <article className={`standing-row standing-${displayRank}`} key={person.code}>
@@ -3468,6 +3489,25 @@ export function PoolaramaPrototype() {
                                 ({getGoldenBootStatus(person.picks.goldenBoot, goldenBootRows)})
                               </span>
                             </p>
+                            <div className="group-stage-rollup" aria-label={`${person.nickname} group stage rollup`}>
+                              <div>
+                                <span>Group stage</span>
+                                <strong>{groupStagePoints} pts</strong>
+                              </div>
+                              <div>
+                                <span>Advancers</span>
+                                <strong>{groupAdvancerPoints}</strong>
+                              </div>
+                              <div>
+                                <span>Winner bonus</span>
+                                <strong>{groupWinnerBonusPoints}</strong>
+                              </div>
+                              <div>
+                                <span>Picks shown</span>
+                                <strong>{scoredGroupPickCount}/24</strong>
+                              </div>
+                            </div>
+                            <h4 className="pick-section-title">All group-stage picks</h4>
                             <div className="review-groups">
                               {groups.map((group) => (
                                 <div key={`${person.code}-${group}`}>
@@ -3497,11 +3537,21 @@ export function PoolaramaPrototype() {
                             <h4>Round of 32</h4>
                             {person.r32Picks ? (
                               <>
-                                <div className="saved-pick-list">
-                                  {getRoundOf32PickRows(person.r32Picks.matchWinners, r32Matches).map((pick) => (
-                                    <div key={`${person.code}-public-r32-${pick.id}`}>
+                                <div className="saved-pick-list round-result-list">
+                                  {getRoundOf32PickRows(person.r32Picks.matchWinners, r32Matches, 1).map((pick) => (
+                                    <div
+                                      className={`round-result-row result-${pick.result}`}
+                                      key={`${person.code}-public-r32-${pick.id}`}
+                                    >
                                       <span>{pick.label}</span>
                                       <strong>{pick.winner || "No pick"}</strong>
+                                      <em>
+                                        {pick.result === "pending"
+                                          ? "Result pending"
+                                          : pick.result === "won"
+                                            ? `Won +${pick.points} point`
+                                            : `Lost 0 points${pick.actualWinner ? ` · winner: ${pick.actualWinner}` : ""}`}
+                                      </em>
                                     </div>
                                   ))}
                                 </div>
