@@ -3489,42 +3489,44 @@ export function PoolaramaPrototype() {
                                 ({getGoldenBootStatus(person.picks.goldenBoot, goldenBootRows)})
                               </span>
                             </p>
-                            <div className="group-stage-rollup" aria-label={`${person.nickname} group stage rollup`}>
-                              <div>
+                            <details className="group-stage-details">
+                              <summary>
                                 <span>Group stage</span>
                                 <strong>{groupStagePoints} pts</strong>
-                              </div>
-                              <div>
-                                <span>Advancers</span>
-                                <strong>{groupAdvancerPoints}</strong>
-                              </div>
-                              <div>
-                                <span>Winner bonus</span>
-                                <strong>{groupWinnerBonusPoints}</strong>
-                              </div>
-                              <div>
-                                <span>Picks shown</span>
-                                <strong>{scoredGroupPickCount}/24</strong>
-                              </div>
-                            </div>
-                            <h4 className="pick-section-title">All group-stage picks</h4>
-                            <div className="review-groups">
-                              {groups.map((group) => (
-                                <div key={`${person.code}-${group}`}>
-                                  <span>Group {group}</span>
-                                  <strong className="group-pick-score-line">
-                                    <span className="pick-country">{person.picks?.groupWinners?.[group] || "No winner"}</span>
-                                    <span className="pick-score">({person.groupPickScores?.[group]?.winner ?? 0})</span>
-                                    <span className="pick-label">winner</span>
-                                  </strong>
-                                  <strong className="group-pick-score-line">
-                                    <span className="pick-country">{person.picks?.groupRunnersUp?.[group] || "No runner-up"}</span>
-                                    <span className="pick-score">({person.groupPickScores?.[group]?.runnerUp ?? 0})</span>
-                                    <span className="pick-label">runner-up</span>
-                                  </strong>
+                              </summary>
+                              <div className="group-stage-rollup" aria-label={`${person.nickname} group stage rollup`}>
+                                <div>
+                                  <span>Advancers</span>
+                                  <strong>{groupAdvancerPoints}</strong>
                                 </div>
-                              ))}
-                            </div>
+                                <div>
+                                  <span>Winner bonus</span>
+                                  <strong>{groupWinnerBonusPoints}</strong>
+                                </div>
+                                <div>
+                                  <span>Picks shown</span>
+                                  <strong>{scoredGroupPickCount}/24</strong>
+                                </div>
+                              </div>
+                              <h4 className="pick-section-title">All group-stage picks</h4>
+                              <div className="review-groups">
+                                {groups.map((group) => (
+                                  <div key={`${person.code}-${group}`}>
+                                    <span>Group {group}</span>
+                                    <strong className="group-pick-score-line">
+                                      <span className="pick-country">{person.picks?.groupWinners?.[group] || "No winner"}</span>
+                                      <span className="pick-score">({person.groupPickScores?.[group]?.winner ?? 0})</span>
+                                      <span className="pick-label">winner</span>
+                                    </strong>
+                                    <strong className="group-pick-score-line">
+                                      <span className="pick-country">{person.picks?.groupRunnersUp?.[group] || "No runner-up"}</span>
+                                      <span className="pick-score">({person.groupPickScores?.[group]?.runnerUp ?? 0})</span>
+                                      <span className="pick-label">runner-up</span>
+                                    </strong>
+                                  </div>
+                                ))}
+                              </div>
+                            </details>
                           </>
                         ) : (
                           <div className="round-status-note">

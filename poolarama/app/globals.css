@@ -1627,9 +1627,76 @@ h1 {
 
 .group-stage-rollup {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   margin: 12px 0;
+}
+
+.group-stage-details {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 4px;
+  padding: 0;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255, 200, 61, 0.18), rgba(15, 159, 110, 0.1)), #fff;
+  border: 1px solid rgba(17, 32, 51, 0.1);
+  overflow: hidden;
+}
+
+.group-stage-details summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  color: var(--navy);
+  cursor: pointer;
+  list-style: none;
+}
+
+.group-stage-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.group-stage-details summary::after {
+  content: "+";
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--navy);
+  font-weight: 950;
+}
+
+.group-stage-details[open] summary::after {
+  content: "-";
+}
+
+.group-stage-details summary span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.group-stage-details summary strong {
+  color: var(--navy);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.group-stage-details[open] {
+  padding-bottom: 12px;
+}
+
+.group-stage-details .group-stage-rollup,
+.group-stage-details .pick-section-title,
+.group-stage-details .review-groups {
+  margin-left: 12px;
+  margin-right: 12px;
 }
 
 .group-stage-rollup div {
