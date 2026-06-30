@@ -225,6 +225,17 @@ type KnockoutStakes = {
   swingSize: number;
 };
 
+type KnockoutOutcomeInsight = {
+  winner: string;
+  winnerPickers: PublicPickParticipant[];
+  losingPickers: PublicPickParticipant[];
+  scoringNames: string;
+  missNames: string;
+  topScorersHelped: string;
+  topScorersHurt: string;
+  rareHit: string;
+};
+
 const selectedParticipantKey = "poolarama-selected-participant";
 const confirmedParticipantKey = "poolarama-confirmed-participant";
 const goldenBootWriteInLabel = "Other / write-in";
@@ -559,14 +570,121 @@ function buildKnockoutStakes(
   };
 }
 
+function buildKnockoutOutcomeInsight(
+  match: KnockoutMatchSummary,
+  people: PublicPickParticipant[],
+  pickKey: KnockoutPickKey
+): KnockoutOutcomeInsight | null {
+  if (!match.winner) return null;
+
+  const winnerPickers = match.winner === match.teamA ? match.teamAPickers : match.teamBPickers;
+  const losingPickers = people.filter((person) => {
+    const pick = person[pickKey]?.matchWinners[match.matchId];
+    return pick && pick !== match.winner;
+  });
+  const rankedNow = getDisplayRanks([...people].sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname)));
+  const rankByCode = new Map(rankedNow.map((person) => [person.code, person.displayRank]));
+  const byCurrentRank = (a: PublicPickParticipant, b: PublicPickParticipant) =>
+    (rankByCode.get(a.code) || 99) - (rankByCode.get(b.code) || 99) ||
+    b.points - a.points ||
+    a.nickname.localeCompare(b.nickname);
+  const rankedWinners = [...winnerPickers].sort(byCurrentRank);
+  const rankedMisses = [...losingPickers].sort(byCurrentRank);
+  const topScorersHelped = rankedWinners.filter((person) => (rankByCode.get(person.code) || 99) <= 5);
+  const topScorersHurt = rankedMisses.filter((person) => (rankByCode.get(person.code) || 99) <= 5);
+  const rareThreshold = Math.max(2, Math.floor(people.length * 0.25));
+  const rareHit = winnerPickers.length > 0 && winnerPickers.length <= rareThreshold
+    ? `${match.winner} was a leverage hit for ${joinNames(rankedWinners.map((person) => person.nickname), 3)}.`
+    : winnerPickers.length === 0
+      ? `Nobody had ${match.winner}, so this result mostly erased chances rather than creating separation.`
+      : `${match.winner} was broadly covered, so the result protected more people than it separated.`;
+
+  return {
+    winner: match.winner,
+    winnerPickers,
+    losingPickers,
+    scoringNames: rankedWinners.length > 0 ? joinNames(rankedWinners.map((person) => person.nickname), 3) : "No one",
+    missNames: rankedMisses.length > 0 ? joinNames(rankedMisses.map((person) => person.nickname), 3) : "No one",
+    topScorersHelped: topScorersHelped.length > 0 ? joinNames(topScorersHelped.map((person) => person.nickname), 3) : "No top-five player",
+    topScorersHurt: topScorersHurt.length > 0 ? joinNames(topScorersHurt.map((person) => person.nickname), 3) : "No top-five player",
+    rareHit
+  };
+}
+
+function buildKnockoutReviewBullets(
+  people: PublicPickParticipant[],
+  matches: KnockoutMatchSummary[],
+  pickKey: KnockoutPickKey,
+  pointValue: number,
+  label: string
+) {
+  const completed = matches.filter((match) => match.winner);
+  const pending = matches.filter((match) => !match.winner);
+  const bullets: string[] = [];
+
+  if (completed.length > 0) {
+    const roundRuns = people
+      .map((person) => {
+        const hits = completed.filter((match) => person[pickKey]?.matchWinners[match.matchId] === match.winner).length;
+        return { person, hits };
+      })
+      .filter((item) => item.hits > 0)
+      .sort((a, b) => b.hits - a.hits || b.person.points - a.person.points || a.person.nickname.localeCompare(b.person.nickname));
+    const bestHitCount = roundRuns[0]?.hits || 0;
+    const bestRuns = roundRuns.filter((item) => item.hits === bestHitCount);
+
+    if (bestRuns.length > 0) {
+      bullets.push(`${label} form: ${joinNames(bestRuns.map((item) => item.person.nickname), 3)} ${bestRuns.length === 1 ? "has" : "have"} hit ${bestHitCount}/${completed.length} completed match${completed.length === 1 ? "" : "es"} so far.`);
+    }
+
+    const leverageHit = completed
+      .map((match) => {
+        const winnerPickers = match.winner === match.teamA ? match.teamAPickers : match.teamBPickers;
+        return { match, winnerPickers };
+      })
+      .filter((item) => item.winnerPickers.length > 0)
+      .sort((a, b) => a.winnerPickers.length - b.winnerPickers.length || a.match.order - b.match.order)[0];
+
+    if (leverageHit) {
+      bullets.push(`Knockout leverage: ${leverageHit.match.winner} over ${leverageHit.match.winner === leverageHit.match.teamA ? leverageHit.match.teamB : leverageHit.match.teamA} paid ${pointValue} point${pointValue === 1 ? "" : "s"} to only ${leverageHit.winnerPickers.length} player${leverageHit.winnerPickers.length === 1 ? "" : "s"}: ${joinNames(leverageHit.winnerPickers.map((person) => person.nickname), 3)}.`);
+    }
+  }
+
+  if (pending.length > 0) {
+    const closestPending = [...pending]
+      .filter((match) => match.teamAPickers.length + match.teamBPickers.length > 0)
+      .sort((a, b) =>
+        Math.abs(a.teamAPickers.length - a.teamBPickers.length) - Math.abs(b.teamAPickers.length - b.teamBPickers.length) ||
+        b.teamAPickers.length + b.teamBPickers.length - (a.teamAPickers.length + a.teamBPickers.length) ||
+        a.order - b.order
+      )[0];
+
+    if (closestPending) {
+      bullets.push(`Next swing: ${closestPending.teamA} vs ${closestPending.teamB} is split ${closestPending.teamAPickers.length}-${closestPending.teamBPickers.length}, so that match could move the board more than the obvious chalk games.`);
+    }
+  }
+
+  return bullets;
+}
+
 function buildDailyReview(
   people: PublicPickParticipant[],
   groupRows: GroupStandingRow[],
   goldenBootRows: GoldenBootRow[],
-  updatedAt: string | null
+  updatedAt: string | null,
+  knockoutContext?: {
+    label: string;
+    matches: KnockoutMatchSummary[];
+    pickKey: KnockoutPickKey;
+    pointValue: number;
+    locked: boolean;
+  }
 ) {
   const rankedPeople = getDisplayRanks([...people].sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname)));
   const submittedPeople = rankedPeople.filter((person) => person.submitted);
+  const knockoutBullets = knockoutContext?.locked
+    ? buildKnockoutReviewBullets(submittedPeople, knockoutContext.matches, knockoutContext.pickKey, knockoutContext.pointValue, knockoutContext.label)
+    : [];
   const leaderScore = submittedPeople[0]?.points || 0;
   const contenders = submittedPeople.filter((person) => leaderScore - person.points <= 3);
   const fragilityPool = contenders.length > 1 ? contenders : submittedPeople.slice(0, 5);
@@ -749,6 +867,7 @@ function buildDailyReview(
     headline: `${formatDailyReviewDate()} pool insights`,
     dek: "",
     bullets: [
+      ...knockoutBullets,
       `Scoring pattern: ${splitLine}`,
       `Fragility: ${fragilityLine}`,
       `Leverage: ${hiddenUpsideLine}`,
@@ -1063,10 +1182,6 @@ export function PoolaramaPrototype() {
       ? `${leaders.slice(0, 2).join(", ")}${leaders.length > 2 ? " +" : ""}`
       : "Scoring not started";
   const unpaidCount = adminOverview.filter((participant) => !participant.venmoPaid).length;
-  const dailyReview = useMemo(
-    () => buildDailyReview(publicPicks, groupStandingsRows, goldenBootRows, groupTablesUpdatedAt),
-    [goldenBootRows, groupStandingsRows, groupTablesUpdatedAt, publicPicks]
-  );
   const currentKnockoutRound = r16Started && r16Matches.length > 0
     ? {
         label: "Round of 16",
@@ -1137,6 +1252,32 @@ export function PoolaramaPrototype() {
       ? buildKnockoutStakes(selectedKnockoutMatch, publicPicks, selectedKnockoutImpacts, currentKnockoutRound.pickKey, currentKnockoutRound.pointValue)
       : null,
     [currentKnockoutRound.pickKey, currentKnockoutRound.pointValue, publicPicks, selectedKnockoutImpacts, selectedKnockoutMatch]
+  );
+  const selectedKnockoutOutcome = useMemo(
+    () => selectedKnockoutMatch
+      ? buildKnockoutOutcomeInsight(selectedKnockoutMatch, publicPicks, currentKnockoutRound.pickKey)
+      : null,
+    [currentKnockoutRound.pickKey, publicPicks, selectedKnockoutMatch]
+  );
+  const dailyReview = useMemo(
+    () => buildDailyReview(publicPicks, groupStandingsRows, goldenBootRows, groupTablesUpdatedAt, {
+      label: currentKnockoutRound.shortLabel,
+      matches: currentKnockoutMatchSummaries,
+      pickKey: currentKnockoutRound.pickKey,
+      pointValue: currentKnockoutRound.pointValue,
+      locked: currentKnockoutRound.locked
+    }),
+    [
+      currentKnockoutMatchSummaries,
+      currentKnockoutRound.locked,
+      currentKnockoutRound.pickKey,
+      currentKnockoutRound.pointValue,
+      currentKnockoutRound.shortLabel,
+      goldenBootRows,
+      groupStandingsRows,
+      groupTablesUpdatedAt,
+      publicPicks
+    ]
   );
   const adminFetchOptions = useMemo<RequestInit>(() => {
     if (!adminToken) return {};
@@ -2700,7 +2841,28 @@ export function PoolaramaPrototype() {
                   </div>
                   {currentKnockoutRound.locked ? (
                     <>
-                    {selectedKnockoutStakes && (
+                    {selectedKnockoutOutcome ? (
+                      <div className="stakes-strip outcome-strip" aria-label="Match result impact">
+                        <div>
+                          <span>Result</span>
+                          <strong>{selectedKnockoutOutcome.winner}</strong>
+                          <em>{selectedKnockoutOutcome.winnerPickers.length} got it right</em>
+                        </div>
+                        <div>
+                          <span>Point earners</span>
+                          <strong>{selectedKnockoutOutcome.scoringNames}</strong>
+                        </div>
+                        <div>
+                          <span>Missed chance</span>
+                          <strong>{selectedKnockoutOutcome.missNames}</strong>
+                        </div>
+                        <div>
+                          <span>Top-board effect</span>
+                          <strong>{selectedKnockoutOutcome.topScorersHelped}</strong>
+                          <em>helped near the lead</em>
+                        </div>
+                      </div>
+                    ) : selectedKnockoutStakes && (
                       <div className="stakes-strip" aria-label="Match stakes">
                         <div>
                           <span>Minority side</span>
@@ -2755,7 +2917,44 @@ export function PoolaramaPrototype() {
                         );
                       })}
                     </div>
-                    {!selectedKnockoutMatch.winner && (
+                    {selectedKnockoutOutcome ? (
+                      <div className="compararama-panel outcome-panel" aria-label="Compararama result impact">
+                        <div>
+                          <p className="eyebrow">Compararama</p>
+                          <h5>What this result did</h5>
+                        </div>
+                        <div className="compararama-grid">
+                          <article className="compararama-card">
+                            <strong>{selectedKnockoutOutcome.winner} paid off</strong>
+                            <p>{selectedKnockoutOutcome.winnerPickers.length} player{selectedKnockoutOutcome.winnerPickers.length === 1 ? "" : "s"} earned {currentKnockoutRound.pointValue} point{currentKnockoutRound.pointValue === 1 ? "" : "s"} here.</p>
+                            <ul>
+                              <li>
+                                <span>Best positioned</span>
+                                <b>{selectedKnockoutOutcome.topScorersHelped}</b>
+                              </li>
+                              <li>
+                                <span>Read</span>
+                                <b>{selectedKnockoutOutcome.rareHit}</b>
+                              </li>
+                            </ul>
+                          </article>
+                          <article className="compararama-card">
+                            <strong>Who got clipped</strong>
+                            <p>{selectedKnockoutOutcome.losingPickers.length} player{selectedKnockoutOutcome.losingPickers.length === 1 ? "" : "s"} missed the point on this game.</p>
+                            <ul>
+                              <li>
+                                <span>Top-board misses</span>
+                                <b>{selectedKnockoutOutcome.topScorersHurt}</b>
+                              </li>
+                              <li>
+                                <span>Miss list</span>
+                                <b>{selectedKnockoutOutcome.missNames}</b>
+                              </li>
+                            </ul>
+                          </article>
+                        </div>
+                      </div>
+                    ) : (
                       <div className="compararama-panel" aria-label="Compararama match impact">
                         <div>
                           <p className="eyebrow">Compararama</p>
