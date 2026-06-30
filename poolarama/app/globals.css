@@ -793,6 +793,62 @@ h1 {
   line-height: 1.35;
 }
 
+.pool-pulse-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 20px;
+  background:
+    linear-gradient(135deg, rgba(20, 99, 255, 0.12), rgba(255, 200, 61, 0.18), rgba(15, 159, 110, 0.12)),
+    #fff;
+  border: 1px solid rgba(17, 32, 51, 0.12);
+  box-shadow: 0 14px 30px rgba(17, 32, 51, 0.08);
+}
+
+.pool-pulse-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.pool-pulse-heading h3 {
+  margin: 0;
+  color: var(--navy);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(1.45rem, 6vw, 2.1rem);
+  line-height: 1;
+}
+
+.pool-pulse-heading > span {
+  max-width: 142px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--navy);
+  font-size: 0.68rem;
+  font-weight: 1000;
+  line-height: 1.05;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.pool-pulse-list {
+  display: grid;
+  gap: 8px;
+}
+
+.pool-pulse-list p {
+  margin: 0;
+  padding: 11px 12px;
+  border-radius: 14px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(17, 32, 51, 0.1);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
 .current-round-heading,
 .match-comparison-header {
   display: grid;

@@ -2770,6 +2770,22 @@ export function PoolaramaPrototype() {
               <p>{currentKnockoutRound.locked ? "Everyone can compare picks for this round. Point totals update after winners are entered." : "Picks stay private until John locks the round."}</p>
             </section>
           )}
+          {currentKnockoutStarted && currentKnockoutRound.locked && dailyReview.bullets.length > 0 && (
+            <section className="pool-pulse-card" aria-labelledby="pool-pulse-title">
+              <div className="pool-pulse-heading">
+                <div>
+                  <p className="eyebrow">Pool Pulse</p>
+                  <h3 id="pool-pulse-title">What matters now</h3>
+                </div>
+                <span>Powered by Compararama</span>
+              </div>
+              <div className="pool-pulse-list">
+                {dailyReview.bullets.map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
+              </div>
+            </section>
+          )}
           {currentKnockoutStarted && currentKnockoutRound.matches.length > 0 && (
             <section className="current-round-card" aria-labelledby="current-round-title">
               <div className="current-round-heading">
