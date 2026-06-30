@@ -2537,6 +2537,43 @@ h1 {
   line-height: 1.35;
 }
 
+.insight-archive {
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.48);
+  border: 1px solid rgba(17, 32, 51, 0.1);
+}
+
+.insight-archive summary {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.insight-archive summary span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 1000;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.insight-archive summary strong {
+  color: var(--navy);
+  font-weight: 1000;
+}
+
+.insight-archive[open] summary {
+  margin-bottom: 10px;
+}
+
+.archive-list p {
+  background: rgba(255, 255, 255, 0.58);
+  color: var(--muted);
+}
+
 .daily-review-kicker {
   margin: 0;
   padding-top: 2px;

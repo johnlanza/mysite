@@ -236,6 +236,15 @@ type KnockoutOutcomeInsight = {
   rareHit: string;
 };
 
+type DailyReview = {
+  headline: string;
+  dek: string;
+  bullets: string[];
+  archiveBullets: string[];
+  kicker: string;
+  updatedLabel: string;
+};
+
 const selectedParticipantKey = "poolarama-selected-participant";
 const confirmedParticipantKey = "poolarama-confirmed-participant";
 const goldenBootWriteInLabel = "Other / write-in";
@@ -679,7 +688,7 @@ function buildDailyReview(
     pointValue: number;
     locked: boolean;
   }
-) {
+): DailyReview {
   const rankedPeople = getDisplayRanks([...people].sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname)));
   const submittedPeople = rankedPeople.filter((person) => person.submitted);
   const knockoutBullets = knockoutContext?.locked
@@ -829,6 +838,7 @@ function buildDailyReview(
       headline: "Pool insights",
       dek: "",
       bullets: ["No submitted picks are on the board yet. Once scoring begins, this section will summarize the most relevant leaderboard, pick, champion, and Golden Boot notes."],
+      archiveBullets: [],
       kicker: "",
       updatedLabel: updatedAt ? `Tables updated ${formatAdminTimestamp(updatedAt)}.` : "Tables have not been updated yet."
     };
@@ -862,17 +872,21 @@ function buildDailyReview(
   const fragilityLine = secondPlaceExposure.length > 0
     ? `Among current contenders, ${secondPlaceExposure[0].person.nickname} has the most points sitting on 2nd-place teams in unfinished groups: ${secondPlaceExposure[0].points} points tied to ${joinNames(secondPlaceExposure[0].exposedTeams, 4)}. That might make ${secondPlaceExposure[0].person.nickname}'s score more exposed to one group-table swing.`
     : "Among current contenders, no one has meaningful points tied to 2nd-place teams in unfinished groups.";
+  const archiveBullets = [
+    `Group-stage scoring pattern: ${splitLine}`,
+    `Group-stage fragility: ${fragilityLine}`,
+    `Longer-tail leverage: ${hiddenUpsideLine}`,
+    `Golden Boot/champion watch: ${goldenBootLeverageLine} ${goldenBootZeroLine}`
+  ];
+  const currentBullets = knockoutBullets.length > 0
+    ? knockoutBullets
+    : ["No knockout results are scored yet. Once match winners come in, this section will focus on current-round form, leverage hits, and the next swing games."];
 
   return {
     headline: `${formatDailyReviewDate()} pool insights`,
     dek: "",
-    bullets: [
-      ...knockoutBullets,
-      `Scoring pattern: ${splitLine}`,
-      `Fragility: ${fragilityLine}`,
-      `Leverage: ${hiddenUpsideLine}`,
-      `Golden Boot: ${goldenBootLeverageLine} ${goldenBootZeroLine}`
-    ],
+    bullets: currentBullets,
+    archiveBullets,
     kicker: "",
     updatedLabel: updatedAt ? `Tables updated ${formatAdminTimestamp(updatedAt)}.` : "Tables have not been updated yet."
   };
@@ -4397,12 +4411,12 @@ export function PoolaramaPrototype() {
           </details>
           <details className="daily-review-card archived-admin-card">
             <summary>
-              <span>Pool analysis</span>
-              <strong>Admin insights</strong>
+              <span>Current round</span>
+              <strong>Pool analysis</strong>
             </summary>
             <div className="daily-review-heading">
               <div>
-                <p className="eyebrow">Admin insights</p>
+                <p className="eyebrow">Current pool analysis</p>
                 <h3 id="daily-review-title">{dailyReview.headline}</h3>
                 <p>{dailyReview.updatedLabel}</p>
               </div>
@@ -4414,6 +4428,19 @@ export function PoolaramaPrototype() {
                 <p key={line}>{line}</p>
               ))}
             </div>
+            {dailyReview.archiveBullets.length > 0 && (
+              <details className="insight-archive">
+                <summary>
+                  <span>Historical context</span>
+                  <strong>Group stage recap</strong>
+                </summary>
+                <div className="daily-review-list archive-list">
+                  {dailyReview.archiveBullets.map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
+                </div>
+              </details>
+            )}
             {dailyReview.kicker && <p className="daily-review-kicker">{dailyReview.kicker}</p>}
           </details>
           <details className="admin-rollup-card utility-rollup archived-admin-card">
