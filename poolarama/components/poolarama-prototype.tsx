@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { withBasePath } from "@/lib/base-path";
 import { normalizeGoldenBootName, type GoldenBootRow } from "@/lib/golden-boot";
 import { defaultParticipant, knownParticipants, type KnownParticipant } from "@/lib/known-participants";
+import { formatKnockoutSchedule } from "@/lib/knockout-schedule";
 import type { AdminParticipantOverview } from "@/lib/poolarama-types";
 import { goldenBootCandidates, groups, teams, type GroupId } from "@/lib/tournament-data";
 
@@ -323,6 +324,7 @@ function getRoundOf32PickRows(matchWinners: Record<string, string>, matches: R32
       return {
         id: match.matchId,
         label: match.label,
+        schedule: formatKnockoutSchedule(match.label),
         winner: pick,
         actualWinner: match.winner || "",
         result,
@@ -334,6 +336,7 @@ function getRoundOf32PickRows(matchWinners: Record<string, string>, matches: R32
   return Object.entries(matchWinners).map(([id, winner]) => ({
     id,
     label: id.toUpperCase(),
+    schedule: "",
     winner,
     actualWinner: "",
     result: "pending",
@@ -2807,6 +2810,7 @@ export function PoolaramaPrototype() {
                 {currentKnockoutMatchSummaries.map((match) => {
                   const teamA = getTeamMeta(match.teamA);
                   const teamB = getTeamMeta(match.teamB);
+                  const scheduleLabel = formatKnockoutSchedule(match.label);
                   const userResult = match.winner && match.userPick
                     ? match.userPick === match.winner ? `Right +${currentKnockoutRound.pointValue}` : "Missed"
                     : match.userPick ? `You: ${getTeamDisplayName(getTeamMeta(match.userPick))}` : match.poolFavorite === "Split" ? "Pool split" : `Pool likes ${getTeamDisplayName(getTeamMeta(match.poolFavorite))}`;
@@ -2819,6 +2823,7 @@ export function PoolaramaPrototype() {
                       onClick={() => setSelectedKnockoutMatchId(match.matchId)}
                     >
                       <span className="match-summary-label">{match.label}</span>
+                      {scheduleLabel && <span className="match-schedule">{scheduleLabel}</span>}
                       <span className="match-summary-teams">
                         <b title={match.teamA}>{teamA.flag} {getTeamDisplayName(teamA)}</b>
                         <em>vs</em>
@@ -2845,6 +2850,7 @@ export function PoolaramaPrototype() {
                       onClick={() => setSelectedKnockoutMatchId(match.matchId)}
                     >
                       <strong>{getTeamMeta(match.teamA).flag} {getTeamDisplayName(getTeamMeta(match.teamA))} vs {getTeamMeta(match.teamB).flag} {getTeamDisplayName(getTeamMeta(match.teamB))}</strong>
+                      <small>{formatKnockoutSchedule(match.label)}</small>
                       <em>{match.teamAPickers.length}-{match.teamBPickers.length}</em>
                     </button>
                   ))}
@@ -2855,6 +2861,9 @@ export function PoolaramaPrototype() {
                   <div className="match-comparison-header">
                     <div>
                       <span>{selectedKnockoutMatch.label}</span>
+                      {formatKnockoutSchedule(selectedKnockoutMatch.label) && (
+                        <p className="match-detail-schedule">{formatKnockoutSchedule(selectedKnockoutMatch.label)}</p>
+                      )}
                       <h4>
                         {getTeamMeta(selectedKnockoutMatch.teamA).flag} {selectedKnockoutMatch.teamA}
                         <em> vs </em>
@@ -3116,6 +3125,9 @@ export function PoolaramaPrototype() {
                 {r16Matches.map((match) => (
                   <article className="knockout-match-card" key={match.matchId}>
                     <span>{match.label}</span>
+                    {formatKnockoutSchedule(match.label) && (
+                      <small className="match-schedule">{formatKnockoutSchedule(match.label)}</small>
+                    )}
                     <div>
                       {[match.teamA, match.teamB].map((teamName) => {
                         const team = teams.find((candidate) => candidate.name === teamName);
@@ -3181,6 +3193,9 @@ export function PoolaramaPrototype() {
                 {r32Matches.map((match) => (
                   <article className="knockout-match-card" key={match.matchId}>
                     <span>{match.label}</span>
+                    {formatKnockoutSchedule(match.label) && (
+                      <small className="match-schedule">{formatKnockoutSchedule(match.label)}</small>
+                    )}
                     <div>
                       {[match.teamA, match.teamB].map((teamName) => {
                         const team = teams.find((candidate) => candidate.name === teamName);
@@ -3544,16 +3559,18 @@ export function PoolaramaPrototype() {
                         ? r32Matches.map((match) => ({
                             id: match.matchId,
                             label: match.label,
+                            schedule: formatKnockoutSchedule(match.label),
                             winner: r32SavedPicks[match.matchId]
                           }))
                         : Object.entries(r32SavedPicks).map(([id, winner]) => ({
                             id,
                             label: id.toUpperCase(),
+                            schedule: "",
                             winner
                           }))
                       ).map((pick) => (
                         <div key={`saved-r32-${pick.id}`}>
-                          <span>{pick.label}</span>
+                          <span>{pick.label}{pick.schedule ? ` - ${pick.schedule}` : ""}</span>
                           <strong>{pick.winner || "No pick"}</strong>
                         </div>
                       ))}
@@ -3575,16 +3592,18 @@ export function PoolaramaPrototype() {
                         ? r16Matches.map((match) => ({
                             id: match.matchId,
                             label: match.label,
+                            schedule: formatKnockoutSchedule(match.label),
                             winner: r16SavedPicks[match.matchId]
                           }))
                         : Object.entries(r16SavedPicks).map(([id, winner]) => ({
                             id,
                             label: id.toUpperCase(),
+                            schedule: "",
                             winner
                           }))
                       ).map((pick) => (
                         <div key={`saved-r16-${pick.id}`}>
-                          <span>{pick.label}</span>
+                          <span>{pick.label}{pick.schedule ? ` - ${pick.schedule}` : ""}</span>
                           <strong>{pick.winner || "No pick"}</strong>
                         </div>
                       ))}
@@ -3774,7 +3793,7 @@ export function PoolaramaPrototype() {
                                       className={`round-result-row result-${pick.result}`}
                                       key={`${person.code}-public-r32-${pick.id}`}
                                     >
-                                      <span>{pick.label}</span>
+                                      <span>{pick.label}{pick.schedule ? ` - ${pick.schedule}` : ""}</span>
                                       <strong>{pick.winner || "No pick"}</strong>
                                       <em>
                                         {pick.result === "pending"
@@ -4114,6 +4133,9 @@ export function PoolaramaPrototype() {
                 {r32Matches.map((match) => (
                   <div key={`admin-preview-${match.matchId}`}>
                     <span>{match.label}</span>
+                    {formatKnockoutSchedule(match.label) && (
+                      <em className="admin-match-schedule">{formatKnockoutSchedule(match.label)}</em>
+                    )}
                     <strong>{match.teamA}</strong>
                     <strong>{match.teamB}</strong>
                     {match.winner && <em className="r32-result-winner">Winner: {match.winner}</em>}
@@ -4211,6 +4233,9 @@ export function PoolaramaPrototype() {
                 {r16Matches.map((match) => (
                   <div key={`admin-r16-preview-${match.matchId}`}>
                     <span>{match.label}</span>
+                    {formatKnockoutSchedule(match.label) && (
+                      <em className="admin-match-schedule">{formatKnockoutSchedule(match.label)}</em>
+                    )}
                     <strong>{match.teamA}</strong>
                     <strong>{match.teamB}</strong>
                     {match.winner && <em className="r32-result-winner">Winner: {match.winner}</em>}
@@ -4310,6 +4335,9 @@ export function PoolaramaPrototype() {
                 {qfMatches.map((match) => (
                   <div key={`admin-qf-preview-${match.matchId}`}>
                     <span>{match.label}</span>
+                    {formatKnockoutSchedule(match.label) && (
+                      <em className="admin-match-schedule">{formatKnockoutSchedule(match.label)}</em>
+                    )}
                     <strong>{match.teamA}</strong>
                     <strong>{match.teamB}</strong>
                     {match.winner && <em className="r32-result-winner">Winner: {match.winner}</em>}

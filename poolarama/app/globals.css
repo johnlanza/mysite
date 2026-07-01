@@ -924,6 +924,16 @@ h1 {
   text-transform: uppercase;
 }
 
+.match-schedule,
+.match-detail-schedule,
+.admin-match-schedule {
+  color: var(--blue);
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 950;
+  line-height: 1.15;
+}
+
 .match-summary-teams {
   display: grid;
   gap: 4px;
@@ -1010,6 +1020,13 @@ h1 {
   line-height: 1.08;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.close-call-strip small {
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 900;
+  line-height: 1.1;
 }
 
 .close-call-strip em {
@@ -1290,6 +1307,10 @@ h1 {
   font-size: 0.78rem;
   font-weight: 900;
   text-transform: uppercase;
+}
+
+.knockout-match-card .match-schedule {
+  margin-top: -3px;
 }
 
 .r32-result-winner {
