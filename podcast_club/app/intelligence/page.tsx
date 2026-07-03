@@ -1,7 +1,3 @@
-import IntelligenceClient from './IntelligenceClient';
+'use client';
 
-export const dynamic = 'force-dynamic';
-
-export default function IntelligencePage() {
-  return <IntelligenceClient />;
-}
+export { default } from './IntelligenceClient';

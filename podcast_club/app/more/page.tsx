@@ -98,7 +98,7 @@ export default function MorePage() {
         <div className="more-menu-section">
           <p className="section-kicker">Club</p>
           <div className="mobile-menu-list">
-            <Link href="/intelligence" className="mobile-menu-row">
+            <Link href="/episode-discovery" className="mobile-menu-row">
               <span className="more-row-icon">
                 <MoreIcon name="intelligence" />
               </span>

@@ -107,7 +107,7 @@ export function Nav() {
         const active =
           currentPath === link.href ||
           (link.href === '/podcasts' && currentPath.startsWith('/podcasts')) ||
-          (link.href === '/more' && currentPath.startsWith('/intelligence'));
+          (link.href === '/more' && (currentPath.startsWith('/intelligence') || currentPath.startsWith('/episode-discovery')));
         return (
           <Link
             key={link.href}
@@ -143,7 +143,7 @@ export function MobileNav() {
         const active =
           currentPath === link.href ||
           (link.href === '/podcasts' && currentPath.startsWith('/podcasts')) ||
-          (link.href === '/more' && currentPath.startsWith('/intelligence'));
+          (link.href === '/more' && (currentPath.startsWith('/intelligence') || currentPath.startsWith('/episode-discovery')));
         return (
           <Link
             key={link.href}
