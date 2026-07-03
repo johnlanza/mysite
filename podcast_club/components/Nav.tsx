@@ -98,7 +98,6 @@ export function Nav() {
 
   const desktopLinks = links
     .filter((link) => link.href !== '/login')
-    .filter((link) => link.href !== '/more')
     .filter((link) => (link.href === '/imports' ? member.isAdmin : true));
 
   return (
