@@ -110,7 +110,7 @@ export default function IntelligencePage() {
           <span className="badge">Beta</span>
         </div>
 
-        {loadingReport ? <p className="muted-line">Finding new candidates from the club archive...</p> : null}
+        {loadingReport ? <p className="muted-line">Finding new episode candidates from the club archive...</p> : null}
         {error ? <p className="warning-banner">{error}</p> : null}
 
         {report ? (
@@ -154,14 +154,14 @@ export default function IntelligencePage() {
 
             <section className="intelligence-section">
               <div className="section-title-row">
-                <h3>New Podcast Discoveries</h3>
+                <h3>New Episode Discoveries</h3>
                 <span className="badge">{report.podcasts.length}</span>
               </div>
               <p className="muted-line">{report.sourceStatus.podcasts}</p>
               <div className="intelligence-card-list">
                 {report.podcasts.length === 0 ? (
                   <div className="empty-state">
-                    <h3>No new podcast discoveries yet</h3>
+                    <h3>No new episode discoveries yet</h3>
                     <p>Add discussed podcasts and meeting notes, or try again when Apple Podcasts Search is available.</p>
                   </div>
                 ) : (

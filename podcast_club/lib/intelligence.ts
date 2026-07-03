@@ -13,13 +13,20 @@ type WeightedText = {
 type ApplePodcastResult = {
   collectionId?: number;
   collectionName?: string;
+  trackId?: number;
+  trackName?: string;
   artistName?: string;
   collectionViewUrl?: string;
+  trackViewUrl?: string;
+  episodeUrl?: string;
   feedUrl?: string;
   primaryGenreName?: string;
   genres?: string[];
   trackCount?: number;
+  trackTimeMillis?: number;
   releaseDate?: string;
+  shortDescription?: string;
+  description?: string;
 };
 
 export type IntelligencePodcastInput = {
@@ -185,6 +192,8 @@ const THEME_RULES: ThemeRule[] = [
 
 const APPLE_SEARCH_LIMIT = 12;
 const MAX_DISCOVERY_QUERIES = 7;
+const EMPTY_TERM_SET = new Set<string>();
+const LOW_SIGNAL_GENRES = new Set(['society & culture', 'society and culture']);
 
 function compactText(parts: Array<string | undefined | null>) {
   return parts
@@ -193,8 +202,10 @@ function compactText(parts: Array<string | undefined | null>) {
     .join(' ');
 }
 
-function tokenize(text: string) {
-  return (text.toLowerCase().match(/[a-z][a-z0-9']{2,}/g) || []).filter((token) => !STOP_WORDS.has(token));
+function tokenize(text: string, ignoredTerms: Set<string> = EMPTY_TERM_SET) {
+  return (text.toLowerCase().match(/[a-z][a-z0-9']{2,}/g) || []).filter(
+    (token) => !STOP_WORDS.has(token) && !ignoredTerms.has(token)
+  );
 }
 
 function normalizeKey(value: string) {
@@ -206,11 +217,11 @@ function normalizeKey(value: string) {
     .trim();
 }
 
-function getWeightedTopTerms(items: WeightedText[], limit: number) {
+function getWeightedTopTerms(items: WeightedText[], limit: number, ignoredTerms: Set<string> = EMPTY_TERM_SET) {
   const counts = new Map<string, number>();
 
   items.forEach((item) => {
-    tokenize(item.text).forEach((token) => {
+    tokenize(item.text, ignoredTerms).forEach((token) => {
       counts.set(token, (counts.get(token) || 0) + item.weight);
     });
   });
@@ -224,8 +235,8 @@ function getWeightedTopTerms(items: WeightedText[], limit: number) {
     .map(([term]) => term);
 }
 
-function getTopTerms(text: string, limit: number) {
-  return getWeightedTopTerms([{ text, weight: 1 }], limit);
+function getTopTerms(text: string, limit: number, ignoredTerms: Set<string> = EMPTY_TERM_SET) {
+  return getWeightedTopTerms([{ text, weight: 1 }], limit, ignoredTerms);
 }
 
 function getThemeScores(text: string) {
@@ -258,8 +269,8 @@ function truncateText(text: string, maxLength = 190) {
   return `${normalized.slice(0, maxLength - 1).trim()}...`;
 }
 
-function getTermOverlap(text: string, profileTerms: string[]) {
-  const tokens = new Set(tokenize(text));
+function getTermOverlap(text: string, profileTerms: string[], ignoredTerms: Set<string> = EMPTY_TERM_SET) {
+  const tokens = new Set(tokenize(text, ignoredTerms));
   return profileTerms.filter((term) => tokens.has(term));
 }
 
@@ -285,15 +296,51 @@ function getPodcastText(podcast: IntelligencePodcastInput) {
   return compactText([podcast.title, podcast.host, podcast.episodeNames, podcast.notes, ...(podcast.meetingNotes || [])]);
 }
 
+function getEpisodeSignalText(podcast: IntelligencePodcastInput) {
+  return compactText([podcast.episodeNames, podcast.notes, ...(podcast.meetingNotes || [])]);
+}
+
+function getRepeatedSourceTerms(podcasts: IntelligencePodcastInput[]) {
+  const sourceCounts = new Map<string, { count: number; label: string }>();
+  const minimumRepeatCount = podcasts.length >= 5 ? 3 : 2;
+
+  podcasts.forEach((podcast) => {
+    [podcast.title, podcast.host]
+      .map((value) => String(value || '').trim())
+      .filter(Boolean)
+      .forEach((label) => {
+        const key = normalizeKey(label);
+        const current = sourceCounts.get(key);
+        sourceCounts.set(key, { count: (current?.count || 0) + 1, label });
+      });
+  });
+
+  const ignoredTerms = new Set<string>();
+  sourceCounts.forEach(({ count, label }) => {
+    if (count >= minimumRepeatCount) {
+      tokenize(label).forEach((token) => ignoredTerms.add(token));
+    }
+  });
+
+  return ignoredTerms;
+}
+
 function getSourceTexts(podcasts: IntelligencePodcastInput[]) {
-  return podcasts
-    .map((podcast) => ({
-      text: getPodcastText(podcast),
-      title: podcast.title,
-      status: podcast.status,
-      weight: getPodcastSignalWeight(podcast)
-    }))
-    .filter((item) => item.text && item.weight > 0);
+  return podcasts.flatMap((podcast) => {
+    const weight = getPodcastSignalWeight(podcast);
+    if (weight <= 0) return [];
+
+    const episodeSignal = getEpisodeSignalText(podcast);
+    const sourceSignal = compactText([podcast.title, podcast.host]);
+    const sourceWeight = episodeSignal ? weight * 0.15 : weight * 0.35;
+
+    const weightedTexts: Array<WeightedText | null> = [
+      episodeSignal ? { text: episodeSignal, title: podcast.title, status: podcast.status, weight: weight * 1.35 } : null,
+      sourceSignal ? { text: sourceSignal, title: podcast.title, status: podcast.status, weight: sourceWeight } : null
+    ];
+
+    return weightedTexts.filter((item): item is WeightedText => Boolean(item?.text));
+  });
 }
 
 function getProfileThemes(sourceTexts: WeightedText[]) {
@@ -306,7 +353,7 @@ function getProfileThemes(sourceTexts: WeightedText[]) {
     .map((theme) => theme.label);
 }
 
-function buildDiscoveryQueries(podcasts: IntelligencePodcastInput[], topTerms: string[], topThemes: string[]) {
+function buildDiscoveryQueries(podcasts: IntelligencePodcastInput[], topTerms: string[], ignoredTerms: Set<string>) {
   const queries = new Set<string>();
   const addQuery = (query: string) => {
     const normalized = query.replace(/\s+/g, ' ').trim();
@@ -315,18 +362,14 @@ function buildDiscoveryQueries(podcasts: IntelligencePodcastInput[], topTerms: s
 
   if (topTerms.length >= 2) addQuery(topTerms.slice(0, 2).join(' '));
   if (topTerms.length >= 4) addQuery(topTerms.slice(2, 4).join(' '));
-  topThemes.slice(0, 3).forEach((theme) => addQuery(theme));
 
   podcasts
     .filter((podcast) => podcast.status === 'discussed')
     .sort((a, b) => getPodcastSignalWeight(b) - getPodcastSignalWeight(a))
     .slice(0, 4)
     .forEach((podcast) => {
-      const terms = getTopTerms(getPodcastText(podcast), 3);
+      const terms = getTopTerms(getEpisodeSignalText(podcast), 3, ignoredTerms);
       if (terms.length >= 2) addQuery(terms.slice(0, 2).join(' '));
-      if (podcast.host && !normalizeKey(podcast.title).includes(normalizeKey(podcast.host))) {
-        addQuery(podcast.host);
-      }
     });
 
   return [...queries].slice(0, MAX_DISCOVERY_QUERIES);
@@ -336,7 +379,7 @@ function getExistingPodcastKeys(podcasts: IntelligencePodcastInput[]) {
   const keys = new Set<string>();
 
   podcasts.forEach((podcast) => {
-    [podcast.title, podcast.host, podcast.link].forEach((value) => {
+    [podcast.title, podcast.episodeNames, podcast.link].forEach((value) => {
       if (!value) return;
       keys.add(normalizeKey(value));
     });
@@ -346,7 +389,7 @@ function getExistingPodcastKeys(podcasts: IntelligencePodcastInput[]) {
 }
 
 function isExistingPodcast(result: ApplePodcastResult, existingKeys: Set<string>) {
-  const candidateKeys = [result.collectionName, result.artistName, result.collectionViewUrl, result.feedUrl]
+  const candidateKeys = [result.trackName, result.trackViewUrl, result.episodeUrl]
     .filter((value): value is string => Boolean(value))
     .map(normalizeKey);
 
@@ -358,7 +401,7 @@ async function fetchApplePodcastResults(query: string) {
     term: query,
     country: 'US',
     media: 'podcast',
-    entity: 'podcast',
+    entity: 'podcastEpisode',
     limit: String(APPLE_SEARCH_LIMIT)
   });
   const controller = new AbortController();
@@ -380,17 +423,22 @@ async function fetchApplePodcastResults(query: string) {
   }
 }
 
-function getClosestDiscussedSource(candidateText: string, podcasts: IntelligencePodcastInput[], profileTerms: string[]) {
-  const candidateTokens = new Set(tokenize(candidateText));
+function getClosestDiscussedSource(
+  candidateText: string,
+  podcasts: IntelligencePodcastInput[],
+  profileTerms: string[],
+  ignoredTerms: Set<string>
+) {
+  const candidateTokens = new Set(tokenize(candidateText, ignoredTerms));
 
   return podcasts
     .filter((podcast) => podcast.status === 'discussed')
     .map((podcast) => {
-      const podcastText = getPodcastText(podcast);
-      const podcastTokens = new Set(tokenize(podcastText));
+      const podcastText = getEpisodeSignalText(podcast) || getPodcastText(podcast);
+      const podcastTokens = new Set(tokenize(podcastText, ignoredTerms));
       const overlap = [...candidateTokens].filter((token) => podcastTokens.has(token) || profileTerms.includes(token)).length;
       return {
-        title: podcast.title,
+        title: podcast.episodeNames || podcast.title,
         overlap,
         weight: getPodcastSignalWeight(podcast)
       };
@@ -408,58 +456,75 @@ function buildAppleRecommendation({
   result,
   query,
   podcasts,
-  profileTerms
+  profileTerms,
+  ignoredTerms
 }: {
   result: ApplePodcastResult;
   query: string;
   podcasts: IntelligencePodcastInput[];
   profileTerms: string[];
+  ignoredTerms: Set<string>;
 }): IntelligenceRecommendation | null {
-  if (!result.collectionName) return null;
+  if (!result.trackName) return null;
 
-  const genreText = compactText([result.primaryGenreName, ...(result.genres || [])]);
-  const candidateText = compactText([result.collectionName, result.artistName, genreText]);
-  const overlap = getTermOverlap(candidateText, profileTerms);
+  const genre = result.primaryGenreName || '';
+  const isLowSignalGenre = LOW_SIGNAL_GENRES.has(genre.toLowerCase());
+  const candidateText = compactText([result.trackName, result.shortDescription, result.description]);
+  const overlap = getTermOverlap(candidateText, profileTerms, ignoredTerms);
   const themeScores = getThemeScores(candidateText);
   const themes = themeScores.slice(0, 2).map((theme) => theme.label);
-  const closestSource = getClosestDiscussedSource(candidateText, podcasts, profileTerms);
-  const queryTerms = tokenize(query);
+  const closestSource = getClosestDiscussedSource(candidateText, podcasts, profileTerms, ignoredTerms);
+  const queryTerms = tokenize(query, ignoredTerms);
   const queryHits = queryTerms.filter((term) => candidateText.toLowerCase().includes(term)).length;
+  const durationMinutes = result.trackTimeMillis ? Math.round(result.trackTimeMillis / 60000) : 0;
+  const durationScore = durationMinutes > 0 && durationMinutes <= 90 ? 5 : 0;
+  const descriptionScore = result.shortDescription || result.description ? 5 : 0;
   const score = Math.round(
-    38 +
-      overlap.length * 10 +
+    34 +
+      overlap.length * 12 +
       themeScores.reduce((total, theme) => total + theme.score, 0) * 6 +
-      queryHits * 5 +
+      queryHits * 6 +
+      durationScore +
+      descriptionScore +
       (closestSource ? Math.min(18, closestSource.overlap * 4 + closestSource.weight / 2) : 0)
   );
   const reasons = [
-    overlap.length > 0 ? `Matches weighted club terms from discussed picks: ${overlap.slice(0, 4).join(', ')}.` : '',
+    overlap.length > 0 ? `Episode-level match on weighted club terms: ${overlap.slice(0, 4).join(', ')}.` : '',
     closestSource ? `Closest archive signal is ${closestSource.title}, which the club already chose to discuss.` : '',
-    `Discovered from the weighted query "${query}".`,
-    result.primaryGenreName ? `Apple categorizes it under ${result.primaryGenreName}.` : ''
+    `Discovered from the weighted episode query "${query}".`,
+    durationMinutes > 0 && durationMinutes <= 90 ? `The episode length is manageable at about ${durationMinutes} minutes.` : ''
+  ].filter(Boolean);
+  const badges = [
+    'Episode candidate',
+    `Signal ${Math.max(0, score)}`,
+    durationMinutes > 0 ? `${durationMinutes} min` : '',
+    genre && !isLowSignalGenre ? genre : ''
   ].filter(Boolean);
 
   return {
-    id: result.collectionId ? String(result.collectionId) : normalizeKey(result.collectionName),
-    title: result.collectionName,
-    subtitle: compactText([result.artistName, result.primaryGenreName]) || 'Apple Podcasts result',
-    href: result.collectionViewUrl,
+    id: result.trackId ? String(result.trackId) : normalizeKey(`${result.trackName} ${result.collectionName || ''}`),
+    title: result.trackName,
+    subtitle: compactText([result.collectionName, result.artistName]) || 'Apple Podcasts episode',
+    href: result.trackViewUrl || result.collectionViewUrl || result.episodeUrl,
     score,
     confidence: getConfidence(score),
-    badges: ['New candidate', `Signal ${Math.max(0, score)}`, result.primaryGenreName || '', result.trackCount ? formatCount(result.trackCount, 'episode') : ''].filter(Boolean),
+    badges,
     themes,
-    reasons: reasons.slice(0, 3)
+    reasons: reasons.slice(0, 3),
+    notesPreview: result.shortDescription || result.description ? truncateText(result.shortDescription || result.description || '') : undefined
   };
 }
 
 async function buildPodcastDiscoveries({
   podcasts,
   profileTerms,
-  discoveryQueries
+  discoveryQueries,
+  ignoredTerms
 }: {
   podcasts: IntelligencePodcastInput[];
   profileTerms: string[];
   discoveryQueries: string[];
+  ignoredTerms: Set<string>;
 }) {
   const existingKeys = getExistingPodcastKeys(podcasts);
   const resultsById = new Map<string, IntelligenceRecommendation>();
@@ -469,7 +534,7 @@ async function buildPodcastDiscoveries({
       const results = await fetchApplePodcastResults(query);
       results.forEach((result) => {
         if (isExistingPodcast(result, existingKeys)) return;
-        const recommendation = buildAppleRecommendation({ result, query, podcasts, profileTerms });
+        const recommendation = buildAppleRecommendation({ result, query, podcasts, profileTerms, ignoredTerms });
         if (!recommendation) return;
 
         const existing = resultsById.get(recommendation.id);
@@ -532,13 +597,14 @@ export async function buildClubIntelligenceReport({
   podcasts: IntelligencePodcastInput[];
   carveOuts: IntelligenceCarveOutInput[];
 }): Promise<IntelligenceReport> {
+  const ignoredTerms = getRepeatedSourceTerms(podcasts);
   const sourceTexts = getSourceTexts(podcasts);
-  const topTerms = getWeightedTopTerms(sourceTexts, 10);
+  const topTerms = getWeightedTopTerms(sourceTexts, 10, ignoredTerms);
   const topThemes = getProfileThemes(sourceTexts);
-  const discoveryQueries = buildDiscoveryQueries(podcasts, topTerms, topThemes);
+  const discoveryQueries = buildDiscoveryQueries(podcasts, topTerms, ignoredTerms);
   const podcastDiscoveries =
     discoveryQueries.length > 0
-      ? await buildPodcastDiscoveries({ podcasts, profileTerms: topTerms, discoveryQueries })
+      ? await buildPodcastDiscoveries({ podcasts, profileTerms: topTerms, discoveryQueries, ignoredTerms })
       : [];
   const carveOutPrompts = buildCarveOutDiscoveryPrompts(carveOuts, topTerms);
 
@@ -547,8 +613,8 @@ export async function buildClubIntelligenceReport({
     sourceStatus: {
       podcasts:
         podcastDiscoveries.length > 0
-          ? 'New candidates from Apple Podcasts Search, ranked against the club archive.'
-          : 'No new podcast candidates found from the current weighted profile.',
+          ? 'New episode candidates from Apple Podcasts Search, ranked against discussed episodes and notes.'
+          : 'No new episode candidates found from the current weighted profile.',
       carveOuts: 'Lightweight prompts from fist-bumped carve outs; lower priority than podcast discovery.'
     },
     stats: {

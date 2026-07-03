@@ -104,7 +104,7 @@ export default function MorePage() {
               </span>
               <span className="more-row-copy">
                 <strong>Club Intelligence</strong>
-                <small>Podcast and carve out recommendations from club signals.</small>
+                <small>Episode and carve out discovery from club signals.</small>
               </span>
               <span className="mobile-menu-arrow" aria-hidden="true">
                 &gt;
