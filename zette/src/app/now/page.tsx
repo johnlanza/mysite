@@ -3,12 +3,18 @@ import { notFound } from "next/navigation";
 import { HeroView } from "@/components/hero-view";
 import { findEchoes } from "@/lib/echoes";
 import { readEmbeddings } from "@/lib/embeddings";
-import { findPieceById, pickDailySeed, readAllPieces } from "@/lib/pieces";
+import {
+  findPieceById,
+  getDailyCardTimeZone,
+  getDailySeedKey,
+  pickDailySeedForDateKey,
+  readAllPieces,
+} from "@/lib/pieces";
 
 export const dynamic = "force-dynamic";
 
 type NowPageProps = {
-  searchParams: Promise<{ p?: string; e?: string; tags?: string }>;
+  searchParams: Promise<{ p?: string; e?: string; tags?: string; day?: string }>;
 };
 
 export default async function NowPage({ searchParams }: NowPageProps) {
@@ -27,9 +33,15 @@ export default async function NowPage({ searchParams }: NowPageProps) {
     .split(",")
     .map((tag) => tag.trim())
     .filter((tag) => tags.includes(tag));
-  const requested = params.p ? findPieceById(pieces, params.p) : null;
-  const current = requested ?? pickDailySeed(pieces);
-  const isSeed = !params.p;
+  const dailySeedTimeZone = getDailyCardTimeZone();
+  const dailySeedKey = getDailySeedKey(new Date(), dailySeedTimeZone);
+  const drawDayKey = params.day?.trim() || null;
+  const hasStaleDraw =
+    Boolean(params.p) && Boolean(drawDayKey) && drawDayKey !== dailySeedKey;
+  const requested =
+    params.p && !hasStaleDraw ? findPieceById(pieces, params.p) : null;
+  const current = requested ?? pickDailySeedForDateKey(pieces, dailySeedKey);
+  const isSeed = !requested;
   const echoesOpen = params.e === "1";
   const echoes = findEchoes(current, pieces, embeddings, 3);
 
@@ -42,6 +54,11 @@ export default async function NowPage({ searchParams }: NowPageProps) {
       selectedTags={selectedTags}
       isSeed={isSeed}
       echoesOpen={echoesOpen}
+      dailySeedKey={dailySeedKey}
+      dailySeedTimeZone={dailySeedTimeZone}
+      drawDayKey={requested && drawDayKey === dailySeedKey ? drawDayKey : null}
+      shouldResetMainCardUrl={hasStaleDraw}
+      dailyPath="/now"
     />
   );
 }

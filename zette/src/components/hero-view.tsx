@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { PieceNoteBox } from "@/components/piece-note-box";
 import { PieceSearch } from "@/components/piece-search";
+import { getDailyCardDateKey } from "@/lib/daily-card";
 import { getLogseqUrl } from "@/lib/logseq";
 import type { Piece } from "@/lib/pieces";
 
@@ -16,6 +18,11 @@ type HeroViewProps = {
   selectedTags: string[];
   isSeed: boolean;
   echoesOpen: boolean;
+  dailySeedKey: string;
+  dailySeedTimeZone: string;
+  drawDayKey: string | null;
+  shouldResetMainCardUrl: boolean;
+  dailyPath: string;
 };
 
 type SearchOverride = {
@@ -35,17 +42,30 @@ function combinedLength(piece: Piece): number {
 }
 
 function buildNowHref(
+  dailyPath: string,
   piece: Piece,
   isSeed: boolean,
   echoesOpen: boolean,
   selectedTags: string[],
+  drawDayKey: string | null,
 ): string {
   const params = new URLSearchParams();
   if (selectedTags.length > 0) params.set("tags", selectedTags.join(","));
-  if (!isSeed) params.set("p", piece.id);
+  if (!isSeed) {
+    params.set("p", piece.id);
+    if (drawDayKey) params.set("day", drawDayKey);
+  }
   if (echoesOpen) params.set("e", "1");
   const qs = params.toString();
-  return qs ? `/?${qs}` : "/";
+  return qs ? `${dailyPath}?${qs}` : dailyPath;
+}
+
+function buildDailyHref(dailyPath: string, selectedTags: string[]): string {
+  if (selectedTags.length === 0) return dailyPath;
+
+  return `${dailyPath}?${new URLSearchParams({
+    tags: selectedTags.join(","),
+  }).toString()}`;
 }
 
 export function HeroView({
@@ -56,7 +76,13 @@ export function HeroView({
   selectedTags,
   isSeed,
   echoesOpen,
+  dailySeedKey,
+  dailySeedTimeZone,
+  drawDayKey,
+  shouldResetMainCardUrl,
+  dailyPath,
 }: HeroViewProps) {
+  const router = useRouter();
   const attribution = piece.attribution?.trim();
   const context = piece.context?.trim();
   const showContext =
@@ -65,7 +91,16 @@ export function HeroView({
     context.toLowerCase() !== (attribution ?? "").toLowerCase();
 
   const toggleHref =
-    buildNowHref(piece, isSeed, !echoesOpen, selectedTags) + "#echoes";
+    buildNowHref(
+      dailyPath,
+      piece,
+      isSeed,
+      !echoesOpen,
+      selectedTags,
+      drawDayKey,
+    ) +
+    "#echoes";
+  const dailyHref = buildDailyHref(dailyPath, selectedTags);
   const logseqUrl = getLogseqUrl(piece.originType, piece.originFile, piece.blockId);
   const isBrowse = selectedTags.length > 0 && isSeed;
   const selectedTagsKey = selectedTags.join("\u001f");
@@ -76,6 +111,56 @@ export function HeroView({
   const searchOpen =
     searchOverride?.routeKey === searchRouteKey ? searchOverride.open : isBrowse;
   const showBrowseSearch = isBrowse && searchOpen;
+  const drawParams = new URLSearchParams({
+    ...(selectedTags.length > 0 ? { tags: selectedTags.join(",") } : {}),
+    from: piece.id,
+  });
+  if (dailyPath !== "/") drawParams.set("path", dailyPath);
+
+  useEffect(() => {
+    const resetMainCard = () => {
+      if (shouldResetMainCardUrl) {
+        router.replace(dailyHref);
+        return;
+      }
+
+      if (getDailyCardDateKey(new Date(), dailySeedTimeZone) === dailySeedKey) {
+        return;
+      }
+
+      if (drawDayKey) {
+        router.replace(dailyHref);
+        return;
+      }
+
+      if (isSeed) {
+        router.refresh();
+      }
+    };
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") resetMainCard();
+    };
+
+    resetMainCard();
+
+    const timer = window.setInterval(resetMainCard, 60_000);
+    window.addEventListener("focus", resetMainCard);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", resetMainCard);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [
+    dailyHref,
+    dailySeedKey,
+    dailySeedTimeZone,
+    drawDayKey,
+    isSeed,
+    router,
+    shouldResetMainCardUrl,
+  ]);
 
   return (
     <div className="flex min-h-[100dvh] w-full flex-col">
@@ -131,7 +216,7 @@ export function HeroView({
           <main className="flex flex-1 flex-col items-center px-7 pb-10 pt-12 sm:px-10">
             {selectedTags.length > 0 && !isSeed ? (
               <Link
-                href={`/?tags=${encodeURIComponent(selectedTags.join(","))}`}
+                href={buildDailyHref(dailyPath, selectedTags)}
                 className="mb-8 inline-flex rounded-full border border-line bg-card/70 px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted transition hover:border-accent hover:text-accent"
               >
                 Back to Tags
@@ -196,7 +281,7 @@ export function HeroView({
                   {piece.tags.map((tag) => (
                     <li key={tag}>
                       <Link
-                        href={`/?tags=${encodeURIComponent(tag)}`}
+                        href={buildDailyHref(dailyPath, [tag])}
                         className="block rounded-full border border-line bg-card/55 px-3 py-1 text-[0.68rem] font-medium uppercase tracking-[0.18em] text-muted transition hover:border-accent hover:text-accent"
                       >
                         {tag}
@@ -220,7 +305,7 @@ export function HeroView({
                   {echoes.map((echo) => (
                     <li key={echo.id}>
                       <PieceNoteBox
-                        href={`/?${new URLSearchParams({
+                        href={`${dailyPath}?${new URLSearchParams({
                           ...(selectedTags.length > 0
                             ? { tags: selectedTags.join(",") }
                             : {}),
@@ -262,12 +347,7 @@ export function HeroView({
               )}
 
               <Link
-                href={`/random?${new URLSearchParams({
-                  ...(selectedTags.length > 0
-                    ? { tags: selectedTags.join(",") }
-                    : {}),
-                  from: piece.id,
-                }).toString()}`}
+                href={`/random?${drawParams.toString()}`}
                 prefetch={false}
                 aria-label="Draw another piece"
                 className="flex flex-1 items-center justify-center gap-2 rounded-full border border-line bg-card/88 px-5 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-muted shadow-[0_10px_28px_rgba(89,64,34,0.08)] transition active:scale-[0.98]"
