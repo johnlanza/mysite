@@ -33,6 +33,13 @@ function RecommendationCard({ item }: { item: IntelligenceRecommendation }) {
         )}
       </ul>
 
+      {item.credibility ? (
+        <section className="intelligence-note">
+          <span>Credibility screen</span>
+          <p>{item.credibility.reasons.join(' ')}</p>
+        </section>
+      ) : null}
+
       {item.notesPreview ? (
         <section className="intelligence-note">
           <span>Notes signal</span>
@@ -110,7 +117,7 @@ export default function IntelligenceClient() {
           <span className="badge">Beta</span>
         </div>
 
-        {loadingReport ? <p className="muted-line">Finding new episode candidates from the club archive...</p> : null}
+        {loadingReport ? <p className="muted-line">Finding episode candidates and screening for credibility...</p> : null}
         {error ? <p className="warning-banner">{error}</p> : null}
 
         {report ? (

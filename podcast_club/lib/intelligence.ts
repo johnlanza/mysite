@@ -3,6 +3,14 @@ type ThemeRule = {
   terms: string[];
 };
 
+type CredibilityRule = {
+  label: string;
+  terms: string[];
+  weight: number;
+};
+
+type CredibilityLevel = 'Strong' | 'Adequate' | 'Watchlist';
+
 type WeightedText = {
   text: string;
   weight: number;
@@ -71,6 +79,11 @@ export type IntelligenceRecommendation = {
   themes: string[];
   reasons: string[];
   notesPreview?: string;
+  credibility?: {
+    level: CredibilityLevel;
+    score: number;
+    reasons: string[];
+  };
 };
 
 export type IntelligenceReport = {
@@ -194,6 +207,108 @@ const APPLE_SEARCH_LIMIT = 12;
 const MAX_DISCOVERY_QUERIES = 7;
 const EMPTY_TERM_SET = new Set<string>();
 const LOW_SIGNAL_GENRES = new Set(['society & culture', 'society and culture']);
+const CREDIBILITY_BASELINE = 58;
+
+const CREDIBILITY_GRAVITAS_RULES: CredibilityRule[] = [
+  {
+    label: 'research or evidence',
+    terms: [
+      'academic',
+      'data',
+      'evidence',
+      'experiment',
+      'peer reviewed',
+      'professor',
+      'research',
+      'researcher',
+      'science',
+      'scientist',
+      'study',
+      'studies'
+    ],
+    weight: 7
+  },
+  {
+    label: 'historical grounding',
+    terms: ['archive', 'archives', 'biography', 'historian', 'historical', 'history', 'oral history', 'primary source', 'records'],
+    weight: 6
+  },
+  {
+    label: 'reported or documentary framing',
+    terms: ['documentary', 'documents', 'interview', 'investigation', 'investigative', 'journalist', 'longform', 'reported', 'reporting'],
+    weight: 5
+  },
+  {
+    label: 'skeptical review',
+    terms: ['debunk', 'debunked', 'fact check', 'fact-check', 'misinformation', 'myth', 'scrutiny', 'skeptical', 'verification'],
+    weight: 8
+  }
+];
+
+const CREDIBILITY_RISK_RULES: CredibilityRule[] = [
+  {
+    label: 'miracle or health-cure claims',
+    terms: [
+      'anti aging',
+      'biohack cure',
+      'cure cancer',
+      'cures cancer',
+      'detox',
+      'frequency healing',
+      'miracle cure',
+      'quantum healing',
+      'secret cure'
+    ],
+    weight: 22
+  },
+  {
+    label: 'unsupported pseudo-history or pseudo-science',
+    terms: [
+      'ancient aliens',
+      'free energy',
+      'lost civilization proves',
+      'moon landing hoax',
+      'proof of aliens',
+      'rewrite history',
+      'suppressed archaeology'
+    ],
+    weight: 18
+  },
+  {
+    label: 'conspiratorial framing',
+    terms: [
+      'cabal',
+      'deep state',
+      'false flag',
+      'globalists',
+      'illuminati',
+      'mainstream media won t tell you',
+      'plandemic',
+      'they don t want you to know'
+    ],
+    weight: 18
+  },
+  {
+    label: 'guru-style certainty',
+    terms: [
+      'forbidden truth',
+      'get rich',
+      'guaranteed wealth',
+      'law of attraction',
+      'manifest anything',
+      'red pill',
+      'secret system',
+      'secret truth',
+      'truth bomb'
+    ],
+    weight: 14
+  },
+  {
+    label: 'overheated claim language',
+    terms: ['banned', 'cover up', 'cover-up', 'exposed', 'exposes', 'hidden truth', 'hoax', 'shocking truth', 'suppressed', 'truth about', 'wake up'],
+    weight: 8
+  }
+];
 
 function compactText(parts: Array<string | undefined | null>) {
   return parts
@@ -257,6 +372,72 @@ function getConfidence(score: number): IntelligenceRecommendation['confidence'] 
   if (score >= 82) return 'High';
   if (score >= 58) return 'Medium';
   return 'Exploratory';
+}
+
+function normalizeCredibilityText(text: string) {
+  return ` ${text
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9']+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\bwon't\b/g, 'won t')
+    .replace(/\bdon't\b/g, 'don t')} `;
+}
+
+function getCredibilityRuleHits(text: string, rules: CredibilityRule[]) {
+  const normalizedText = normalizeCredibilityText(text);
+
+  return rules
+    .map((rule) => {
+      const matchedTerms = rule.terms.filter((term) => {
+        const normalizedTerm = normalizeCredibilityText(term).trim();
+        return normalizedTerm.length > 0 && normalizedText.includes(` ${normalizedTerm} `);
+      });
+
+      return matchedTerms.length > 0
+        ? {
+            label: rule.label,
+            weight: rule.weight,
+            matchedTerms
+          }
+        : null;
+    })
+    .filter((hit): hit is { label: string; weight: number; matchedTerms: string[] } => Boolean(hit));
+}
+
+function getCredibilityAssessment(text: string) {
+  const gravitasHits = getCredibilityRuleHits(text, CREDIBILITY_GRAVITAS_RULES);
+  const riskHits = getCredibilityRuleHits(text, CREDIBILITY_RISK_RULES);
+  const gravitasScore = Math.min(36, gravitasHits.reduce((total, hit) => total + hit.weight, 0));
+  const riskScore = Math.min(60, riskHits.reduce((total, hit) => total + hit.weight, 0));
+  const hasSkepticalContext = gravitasHits.some((hit) => hit.label === 'skeptical review');
+  const score = Math.max(0, Math.min(100, CREDIBILITY_BASELINE + gravitasScore + (hasSkepticalContext ? 8 : 0) - riskScore));
+  const unsupportedMajorClaim = riskHits.some((hit) => hit.weight >= 18) && gravitasScore < 8 && !hasSkepticalContext;
+  const unsupportedStackedRisk = riskScore >= 22 && gravitasScore < 12 && !hasSkepticalContext;
+  const level: CredibilityLevel = score >= 78 ? 'Strong' : score >= 56 ? 'Adequate' : 'Watchlist';
+  const reasons = [
+    gravitasHits.length > 0
+      ? `Gravitas signals: ${gravitasHits
+          .slice(0, 2)
+          .map((hit) => hit.label)
+          .join(', ')}.`
+      : 'No explicit research or reporting signal in the public episode metadata.',
+    riskHits.length > 0
+      ? `Claim-risk language detected: ${riskHits
+          .slice(0, 2)
+          .map((hit) => hit.label)
+          .join(', ')}.`
+      : 'No obvious unsupported-claim language in the public episode metadata.'
+  ];
+
+  return {
+    level,
+    score,
+    scoreAdjustment: Math.max(-28, Math.min(16, Math.round((score - CREDIBILITY_BASELINE) / 2))),
+    shouldFilter: unsupportedMajorClaim || unsupportedStackedRisk || score < 38,
+    reasons
+  };
 }
 
 function formatCount(count: number, singular: string, plural = `${singular}s`) {
@@ -470,6 +651,9 @@ function buildAppleRecommendation({
   const genre = result.primaryGenreName || '';
   const isLowSignalGenre = LOW_SIGNAL_GENRES.has(genre.toLowerCase());
   const candidateText = compactText([result.trackName, result.shortDescription, result.description]);
+  const credibility = getCredibilityAssessment(compactText([candidateText, result.collectionName, result.artistName]));
+  if (credibility.shouldFilter) return null;
+
   const overlap = getTermOverlap(candidateText, profileTerms, ignoredTerms);
   const themeScores = getThemeScores(candidateText);
   const themes = themeScores.slice(0, 2).map((theme) => theme.label);
@@ -486,17 +670,20 @@ function buildAppleRecommendation({
       queryHits * 6 +
       durationScore +
       descriptionScore +
-      (closestSource ? Math.min(18, closestSource.overlap * 4 + closestSource.weight / 2) : 0)
+      (closestSource ? Math.min(18, closestSource.overlap * 4 + closestSource.weight / 2) : 0) +
+      credibility.scoreAdjustment
   );
   const reasons = [
     overlap.length > 0 ? `Episode-level match on weighted club terms: ${overlap.slice(0, 4).join(', ')}.` : '',
     closestSource ? `Closest archive signal is ${closestSource.title}, which the club already chose to discuss.` : '',
+    `Credibility screen: ${credibility.reasons[0]}`,
     `Discovered from the weighted episode query "${query}".`,
     durationMinutes > 0 && durationMinutes <= 90 ? `The episode length is manageable at about ${durationMinutes} minutes.` : ''
   ].filter(Boolean);
   const badges = [
     'Episode candidate',
     `Signal ${Math.max(0, score)}`,
+    `Credibility ${credibility.level}`,
     durationMinutes > 0 ? `${durationMinutes} min` : '',
     genre && !isLowSignalGenre ? genre : ''
   ].filter(Boolean);
@@ -511,7 +698,12 @@ function buildAppleRecommendation({
     badges,
     themes,
     reasons: reasons.slice(0, 3),
-    notesPreview: result.shortDescription || result.description ? truncateText(result.shortDescription || result.description || '') : undefined
+    notesPreview: result.shortDescription || result.description ? truncateText(result.shortDescription || result.description || '') : undefined,
+    credibility: {
+      level: credibility.level,
+      score: credibility.score,
+      reasons: credibility.reasons
+    }
   };
 }
 
@@ -613,7 +805,7 @@ export async function buildClubIntelligenceReport({
     sourceStatus: {
       podcasts:
         podcastDiscoveries.length > 0
-          ? 'New episode candidates from Apple Podcasts Search, ranked against discussed episodes and notes.'
+          ? 'New episode candidates from Apple Podcasts Search, ranked against discussed episodes and notes, with unsupported-claim screening.'
           : 'No new episode candidates found from the current weighted profile.',
       carveOuts: 'Lightweight prompts from fist-bumped carve outs; lower priority than podcast discovery.'
     },
