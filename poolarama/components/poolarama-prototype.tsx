@@ -461,6 +461,86 @@ function getPickScoreValue(person: PublicPickParticipant, label: string) {
   return person.scoring.find((item) => item.label === label)?.value || 0;
 }
 
+function isGroupWinnerSeparated(winner: GroupStandingRow | null, runnerUp: GroupStandingRow | null) {
+  if (winner?.tiebreaker === "overall" || winner?.tiebreaker === "headToHead") return true;
+
+  return Boolean(
+    winner &&
+      runnerUp &&
+      (winner.points !== runnerUp.points ||
+        winner.goalDifference !== runnerUp.goalDifference ||
+        winner.goalsFor !== runnerUp.goalsFor)
+  );
+}
+
+function hasEnteredGroupResults(rows: GroupStandingRow[]) {
+  return rows.some((row) =>
+    row.played > 0 ||
+    row.wins > 0 ||
+    row.draws > 0 ||
+    row.losses > 0 ||
+    row.goalsFor > 0 ||
+    row.goalsAgainst > 0 ||
+    row.goalDifference !== 0 ||
+    row.points > 0
+  );
+}
+
+function getGroupPotentialToDate(rows: GroupStandingRow[]) {
+  return groups.reduce((totals, group) => {
+    const groupRows = rows
+      .filter((row) => row.group === group)
+      .sort((a, b) => a.rank - b.rank);
+
+    if (!hasEnteredGroupResults(groupRows)) return totals;
+
+    const pointTotals = new Set(groupRows.map((row) => row.points));
+    if (pointTotals.size === 1) return totals;
+
+    const winner = groupRows.find((row) => row.rank === 1 && row.points > 0) || null;
+    const runnerUp = groupRows.find((row) => row.rank === 2 && row.points > 0) || null;
+    const secondPlaceRow = groupRows.find((row) => row.rank === 2) || null;
+
+    if (winner || runnerUp) {
+      totals.advancers += 2;
+    }
+
+    if (winner && isGroupWinnerSeparated(winner, secondPlaceRow)) {
+      totals.winnerBonus += 1;
+    }
+
+    return totals;
+  }, { advancers: 0, winnerBonus: 0 });
+}
+
+function getKnockoutPotentialToDate(r32Matches: R32Match[], r16Matches: R32Match[]) {
+  const r32Potential = r32Matches.filter((match) => match.winner).length;
+  const r16Potential = r16Matches.filter((match) => match.winner).length * 2;
+
+  return r32Potential + r16Potential;
+}
+
+function formatScoreProgress(points: number, potential: number) {
+  if (potential <= 0) return "0 possible so far";
+
+  return `${points}/${potential} possible`;
+}
+
+function formatCorrectPercent(points: number, potential: number) {
+  if (potential <= 0) return "n/a";
+
+  return `${Math.round((points / potential) * 100)}% correct`;
+}
+
+function isChampionEliminated(champion: string, knockoutMatches: R32Match[]) {
+  if (!champion || knockoutMatches.length === 0) return false;
+
+  const championMatches = knockoutMatches.filter((match) => match.teamA === champion || match.teamB === champion);
+  if (championMatches.length === 0) return true;
+
+  return championMatches.some((match) => match.winner && match.winner !== champion);
+}
+
 function countByValue(values: string[]) {
   return values.reduce((counts, value) => {
     if (!value) return counts;
@@ -1138,6 +1218,18 @@ export function PoolaramaPrototype() {
   const qfStarted = qfOpen || qfLocked;
   const qfScoredCount = qfMatches.filter((match) => Boolean(match.winner)).length;
   const qfCanPreview = r16ScoredCount === 8;
+  const groupPotentialToDate = useMemo(
+    () => getGroupPotentialToDate(groupStandingsRows),
+    [groupStandingsRows]
+  );
+  const knockoutPotentialToDate = useMemo(
+    () => getKnockoutPotentialToDate(r32Matches, r16Matches),
+    [r16Matches, r32Matches]
+  );
+  const championStatusMatches = useMemo(
+    () => [...r32Matches, ...r16Matches, ...qfMatches],
+    [qfMatches, r16Matches, r32Matches]
+  );
   const preTournamentControlsLocked = preTournamentLocked || r32Open || r32Locked;
   const r32PicksComplete = r32Matches.length > 0 && r32Matches.every((match) => Boolean(r32Picks[match.matchId]));
   const r16PicksComplete = r16Matches.length > 0 && r16Matches.every((match) => Boolean(r16Picks[match.matchId]));
@@ -3694,6 +3786,8 @@ export function PoolaramaPrototype() {
                 const groupAdvancerPoints = getPickScoreValue(person, "Advancers");
                 const groupWinnerBonusPoints = getPickScoreValue(person, "Winner bonus");
                 const groupStagePoints = groupAdvancerPoints + groupWinnerBonusPoints;
+                const championPick = person.picks?.champion || "";
+                const championEliminated = isChampionEliminated(championPick, championStatusMatches);
                 const scoredGroupPickCount = groups.reduce((total, group) => {
                   const groupScore = person.groupPickScores?.[group];
 
@@ -3717,12 +3811,37 @@ export function PoolaramaPrototype() {
                     </div>
                     {person.submitted && person.scoring.length > 0 && (
                       <div className="score-breakdown" aria-label={`${person.nickname} score breakdown`}>
-                        {person.scoring.map((item) => (
-                          <div key={`${person.code}-${item.label}`}>
-                            <span>{item.label}</span>
-                            <strong>{item.value}</strong>
-                          </div>
-                        ))}
+                        {person.scoring.map((item) => {
+                          const potential = item.label === "Advancers"
+                            ? groupPotentialToDate.advancers
+                            : item.label === "Winner bonus"
+                              ? groupPotentialToDate.winnerBonus
+                              : item.label === "Knockout"
+                                ? knockoutPotentialToDate
+                                : 0;
+                          const showProgress = item.label === "Advancers" || item.label === "Winner bonus" || item.label === "Knockout";
+
+                          return (
+                            <div key={`${person.code}-${item.label}`}>
+                              <span>{item.label}</span>
+                              <strong>{item.label === "Champion" ? "TBD" : item.value}</strong>
+                              {showProgress && (
+                                <small>
+                                  {formatScoreProgress(item.value, potential)}
+                                  <br />
+                                  {formatCorrectPercent(item.value, potential)}
+                                </small>
+                              )}
+                              {item.label === "Champion" && (
+                                <small>
+                                  <span className={championEliminated ? "champion-pick eliminated" : "champion-pick"}>
+                                    {championPick || "No champion pick"}
+                                  </span>
+                                </small>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                     <details className="pick-details">
@@ -3730,7 +3849,12 @@ export function PoolaramaPrototype() {
                       <div className="pick-sheet">
                         {person.visible && person.picks ? (
                           <>
-                            <p><strong>Champion:</strong> {person.picks.champion}</p>
+                            <p>
+                              <strong>Champion:</strong>{" "}
+                              <span className={championEliminated ? "champion-pick eliminated" : "champion-pick"}>
+                                {person.picks.champion}
+                              </span>
+                            </p>
                             <p>
                               <strong>Golden Boot:</strong> {person.picks.goldenBoot}
                               <span className="golden-boot-status">
