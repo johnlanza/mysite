@@ -701,6 +701,116 @@ body {
   color: var(--ink-soft);
 }
 
+.intelligence-panel,
+.intelligence-section,
+.intelligence-card-list {
+  display: grid;
+  min-width: 0;
+  gap: 0.85rem;
+}
+
+.intelligence-source-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.intelligence-source-grid div,
+.intelligence-profile-card,
+.intelligence-card,
+.intelligence-note {
+  min-width: 0;
+  border: 1px solid rgb(var(--more-rgb) / 0.28);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.intelligence-source-grid div {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.75rem;
+}
+
+.intelligence-source-grid span,
+.intelligence-note span {
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.intelligence-source-grid strong {
+  color: var(--ink);
+  font-size: 1.25rem;
+}
+
+.intelligence-profile-card,
+.intelligence-card {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.85rem;
+}
+
+.intelligence-profile-card h3,
+.intelligence-card h3,
+.intelligence-section h3 {
+  margin: 0;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 1.05rem;
+}
+
+.intelligence-profile-card p,
+.intelligence-card p,
+.intelligence-note p {
+  margin: 0;
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.intelligence-card-head {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.intelligence-card-head > div {
+  min-width: 0;
+}
+
+.intelligence-card-head a {
+  color: inherit;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.14em;
+}
+
+.intelligence-card-head p {
+  margin-top: 0.3rem;
+}
+
+.intelligence-reasons {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding-left: 1.15rem;
+  color: var(--ink);
+}
+
+.intelligence-reasons li {
+  padding-left: 0.1rem;
+  line-height: 1.4;
+}
+
+.intelligence-note {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  background: var(--surface-subtle);
+}
+
 .public-home,
 .public-library-panel,
 .public-library-card {
@@ -3049,6 +3159,10 @@ button:disabled {
 .carveouts-page .carveout-form-section,
 .members-page .card,
 .members-page .item,
+.more-page .intelligence-source-grid div,
+.more-page .intelligence-profile-card,
+.more-page .intelligence-card,
+.more-page .intelligence-note,
 .members-page .form,
 .members-page .form label,
 .imports-page .card,
@@ -4013,6 +4127,10 @@ body {
 .carveout-notes-card,
 .carveout-link-row,
 .public-copy-section,
+.intelligence-source-grid div,
+.intelligence-profile-card,
+.intelligence-card,
+.intelligence-note,
 .card,
 .item {
   background: #fff !important;

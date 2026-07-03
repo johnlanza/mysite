@@ -1,0 +1,571 @@
+type ThemeRule = {
+  label: string;
+  terms: string[];
+};
+
+type WeightedText = {
+  text: string;
+  weight: number;
+  title?: string;
+  status?: 'pending' | 'discussed';
+};
+
+type ApplePodcastResult = {
+  collectionId?: number;
+  collectionName?: string;
+  artistName?: string;
+  collectionViewUrl?: string;
+  feedUrl?: string;
+  primaryGenreName?: string;
+  genres?: string[];
+  trackCount?: number;
+  releaseDate?: string;
+};
+
+export type IntelligencePodcastInput = {
+  _id: string;
+  title: string;
+  host?: string;
+  episodeNames?: string;
+  notes?: string;
+  status: 'pending' | 'discussed';
+  link?: string;
+  totalTimeMinutes?: number;
+  rankingScore?: number;
+  missingVoters?: string[];
+  ratings?: { value: string; points: number }[];
+  submittedBy?: { name: string };
+  createdAt?: string;
+  discussedMeetingDate?: string | null;
+  meetingNotes?: string[];
+};
+
+export type IntelligenceCarveOutInput = {
+  _id: string;
+  title: string;
+  type: string;
+  service?: string;
+  url?: string;
+  notes?: string;
+  member?: { name: string };
+  meeting?: { date: string };
+  fistBumps?: { member: { name: string } }[];
+  createdAt?: string;
+};
+
+export type IntelligenceRecommendation = {
+  id: string;
+  title: string;
+  subtitle: string;
+  href?: string;
+  score: number;
+  confidence: 'High' | 'Medium' | 'Exploratory';
+  badges: string[];
+  themes: string[];
+  reasons: string[];
+  notesPreview?: string;
+};
+
+export type IntelligenceReport = {
+  generatedAt: string;
+  sourceStatus: {
+    podcasts: string;
+    carveOuts: string;
+  };
+  stats: {
+    podcastsReviewed: number;
+    discussedPodcastsWeighted: number;
+    pendingPodcastsWeighted: number;
+    podcastNotesReviewed: number;
+    meetingNotesReviewed: number;
+    carveOutsReviewed: number;
+    fistBumpedCarveOutsWeighted: number;
+  };
+  profile: {
+    topThemes: string[];
+    topTerms: string[];
+    discoveryQueries: string[];
+  };
+  podcasts: IntelligenceRecommendation[];
+  carveOuts: IntelligenceRecommendation[];
+};
+
+const STOP_WORDS = new Set([
+  'about',
+  'after',
+  'again',
+  'also',
+  'and',
+  'are',
+  'because',
+  'been',
+  'but',
+  'can',
+  'could',
+  'did',
+  'does',
+  'episode',
+  'episodes',
+  'for',
+  'from',
+  'had',
+  'has',
+  'have',
+  'his',
+  'how',
+  'into',
+  'its',
+  'just',
+  'like',
+  'more',
+  'not',
+  'now',
+  'one',
+  'our',
+  'out',
+  'over',
+  'podcast',
+  'podcasts',
+  'show',
+  'shows',
+  'she',
+  'that',
+  'the',
+  'their',
+  'them',
+  'then',
+  'there',
+  'this',
+  'through',
+  'was',
+  'what',
+  'when',
+  'where',
+  'who',
+  'why',
+  'with',
+  'you',
+  'your'
+]);
+
+const THEME_RULES: ThemeRule[] = [
+  {
+    label: 'Human behavior',
+    terms: ['behavior', 'brain', 'family', 'habit', 'habits', 'human', 'mind', 'psychology', 'relationship', 'relationships']
+  },
+  {
+    label: 'Story and culture',
+    terms: ['art', 'book', 'culture', 'film', 'interview', 'media', 'music', 'narrative', 'story', 'stories', 'writer']
+  },
+  {
+    label: 'Business and work',
+    terms: ['brand', 'business', 'company', 'creative', 'founder', 'leadership', 'marketing', 'startup', 'work']
+  },
+  {
+    label: 'Science and technology',
+    terms: ['ai', 'climate', 'data', 'internet', 'medicine', 'science', 'space', 'technology', 'tech']
+  },
+  {
+    label: 'History and power',
+    terms: ['america', 'government', 'history', 'historical', 'justice', 'politics', 'power', 'war']
+  },
+  {
+    label: 'Money and economics',
+    terms: ['economics', 'economy', 'finance', 'investing', 'market', 'money', 'wealth']
+  },
+  {
+    label: 'Mystery and investigation',
+    terms: ['crime', 'detective', 'investigation', 'mystery', 'scandal', 'secret', 'true crime']
+  },
+  {
+    label: 'Comedy and offbeat',
+    terms: ['comedy', 'funny', 'humor', 'odd', 'strange', 'weird']
+  }
+];
+
+const APPLE_SEARCH_LIMIT = 12;
+const MAX_DISCOVERY_QUERIES = 7;
+
+function compactText(parts: Array<string | undefined | null>) {
+  return parts
+    .map((part) => String(part || '').trim())
+    .filter(Boolean)
+    .join(' ');
+}
+
+function tokenize(text: string) {
+  return (text.toLowerCase().match(/[a-z][a-z0-9']{2,}/g) || []).filter((token) => !STOP_WORDS.has(token));
+}
+
+function normalizeKey(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function getWeightedTopTerms(items: WeightedText[], limit: number) {
+  const counts = new Map<string, number>();
+
+  items.forEach((item) => {
+    tokenize(item.text).forEach((token) => {
+      counts.set(token, (counts.get(token) || 0) + item.weight);
+    });
+  });
+
+  return [...counts.entries()]
+    .sort((a, b) => {
+      if (b[1] !== a[1]) return b[1] - a[1];
+      return a[0].localeCompare(b[0]);
+    })
+    .slice(0, limit)
+    .map(([term]) => term);
+}
+
+function getTopTerms(text: string, limit: number) {
+  return getWeightedTopTerms([{ text, weight: 1 }], limit);
+}
+
+function getThemeScores(text: string) {
+  const normalized = text.toLowerCase();
+
+  return THEME_RULES.map((theme) => ({
+    label: theme.label,
+    score: theme.terms.reduce((total, term) => (normalized.includes(term) ? total + 1 : total), 0)
+  }))
+    .filter((theme) => theme.score > 0)
+    .sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.label.localeCompare(b.label);
+    });
+}
+
+function getConfidence(score: number): IntelligenceRecommendation['confidence'] {
+  if (score >= 82) return 'High';
+  if (score >= 58) return 'Medium';
+  return 'Exploratory';
+}
+
+function formatCount(count: number, singular: string, plural = `${singular}s`) {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
+function truncateText(text: string, maxLength = 190) {
+  const normalized = text.replace(/\s+/g, ' ').trim();
+  if (normalized.length <= maxLength) return normalized;
+  return `${normalized.slice(0, maxLength - 1).trim()}...`;
+}
+
+function getTermOverlap(text: string, profileTerms: string[]) {
+  const tokens = new Set(tokenize(text));
+  return profileTerms.filter((term) => tokens.has(term));
+}
+
+function getPodcastSignalWeight(podcast: IntelligencePodcastInput) {
+  const positiveRatings = (podcast.ratings || []).filter((rating) => rating.points > 0);
+  const loveCount = (podcast.ratings || []).filter((rating) => rating.value === 'I like it a lot.').length;
+  const ratingScore = Math.max(0, podcast.rankingScore || 0);
+
+  if (podcast.status === 'discussed') {
+    const hasRatingEraSignal = (podcast.ratings || []).length > 0 || ratingScore > 0;
+    const chosenByRoomWeight = hasRatingEraSignal ? 8 : 12;
+    return chosenByRoomWeight + ratingScore * 2 + positiveRatings.length * 2 + loveCount;
+  }
+
+  if (ratingScore > 0 || positiveRatings.length > 0) {
+    return 2 + ratingScore + positiveRatings.length;
+  }
+
+  return 0.5;
+}
+
+function getPodcastText(podcast: IntelligencePodcastInput) {
+  return compactText([podcast.title, podcast.host, podcast.episodeNames, podcast.notes, ...(podcast.meetingNotes || [])]);
+}
+
+function getSourceTexts(podcasts: IntelligencePodcastInput[]) {
+  return podcasts
+    .map((podcast) => ({
+      text: getPodcastText(podcast),
+      title: podcast.title,
+      status: podcast.status,
+      weight: getPodcastSignalWeight(podcast)
+    }))
+    .filter((item) => item.text && item.weight > 0);
+}
+
+function getProfileThemes(sourceTexts: WeightedText[]) {
+  const repeatedThemeText = sourceTexts
+    .map((item) => Array.from({ length: Math.max(1, Math.round(item.weight)) }, () => item.text).join(' '))
+    .join(' ');
+
+  return getThemeScores(repeatedThemeText)
+    .slice(0, 4)
+    .map((theme) => theme.label);
+}
+
+function buildDiscoveryQueries(podcasts: IntelligencePodcastInput[], topTerms: string[], topThemes: string[]) {
+  const queries = new Set<string>();
+  const addQuery = (query: string) => {
+    const normalized = query.replace(/\s+/g, ' ').trim();
+    if (normalized.length >= 3) queries.add(normalized);
+  };
+
+  if (topTerms.length >= 2) addQuery(topTerms.slice(0, 2).join(' '));
+  if (topTerms.length >= 4) addQuery(topTerms.slice(2, 4).join(' '));
+  topThemes.slice(0, 3).forEach((theme) => addQuery(theme));
+
+  podcasts
+    .filter((podcast) => podcast.status === 'discussed')
+    .sort((a, b) => getPodcastSignalWeight(b) - getPodcastSignalWeight(a))
+    .slice(0, 4)
+    .forEach((podcast) => {
+      const terms = getTopTerms(getPodcastText(podcast), 3);
+      if (terms.length >= 2) addQuery(terms.slice(0, 2).join(' '));
+      if (podcast.host && !normalizeKey(podcast.title).includes(normalizeKey(podcast.host))) {
+        addQuery(podcast.host);
+      }
+    });
+
+  return [...queries].slice(0, MAX_DISCOVERY_QUERIES);
+}
+
+function getExistingPodcastKeys(podcasts: IntelligencePodcastInput[]) {
+  const keys = new Set<string>();
+
+  podcasts.forEach((podcast) => {
+    [podcast.title, podcast.host, podcast.link].forEach((value) => {
+      if (!value) return;
+      keys.add(normalizeKey(value));
+    });
+  });
+
+  return keys;
+}
+
+function isExistingPodcast(result: ApplePodcastResult, existingKeys: Set<string>) {
+  const candidateKeys = [result.collectionName, result.artistName, result.collectionViewUrl, result.feedUrl]
+    .filter((value): value is string => Boolean(value))
+    .map(normalizeKey);
+
+  return candidateKeys.some((key) => key && existingKeys.has(key));
+}
+
+async function fetchApplePodcastResults(query: string) {
+  const params = new URLSearchParams({
+    term: query,
+    country: 'US',
+    media: 'podcast',
+    entity: 'podcast',
+    limit: String(APPLE_SEARCH_LIMIT)
+  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 6000);
+
+  try {
+    const response = await fetch(`https://itunes.apple.com/search?${params.toString()}`, {
+      headers: { Accept: 'application/json' },
+      signal: controller.signal
+    });
+
+    if (!response.ok) return [];
+    const payload = (await response.json()) as { results?: ApplePodcastResult[] };
+    return Array.isArray(payload.results) ? payload.results : [];
+  } catch {
+    return [];
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function getClosestDiscussedSource(candidateText: string, podcasts: IntelligencePodcastInput[], profileTerms: string[]) {
+  const candidateTokens = new Set(tokenize(candidateText));
+
+  return podcasts
+    .filter((podcast) => podcast.status === 'discussed')
+    .map((podcast) => {
+      const podcastText = getPodcastText(podcast);
+      const podcastTokens = new Set(tokenize(podcastText));
+      const overlap = [...candidateTokens].filter((token) => podcastTokens.has(token) || profileTerms.includes(token)).length;
+      return {
+        title: podcast.title,
+        overlap,
+        weight: getPodcastSignalWeight(podcast)
+      };
+    })
+    .filter((source) => source.overlap > 0)
+    .sort((a, b) => {
+      const aScore = a.overlap * a.weight;
+      const bScore = b.overlap * b.weight;
+      if (bScore !== aScore) return bScore - aScore;
+      return a.title.localeCompare(b.title);
+    })[0];
+}
+
+function buildAppleRecommendation({
+  result,
+  query,
+  podcasts,
+  profileTerms
+}: {
+  result: ApplePodcastResult;
+  query: string;
+  podcasts: IntelligencePodcastInput[];
+  profileTerms: string[];
+}): IntelligenceRecommendation | null {
+  if (!result.collectionName) return null;
+
+  const genreText = compactText([result.primaryGenreName, ...(result.genres || [])]);
+  const candidateText = compactText([result.collectionName, result.artistName, genreText]);
+  const overlap = getTermOverlap(candidateText, profileTerms);
+  const themeScores = getThemeScores(candidateText);
+  const themes = themeScores.slice(0, 2).map((theme) => theme.label);
+  const closestSource = getClosestDiscussedSource(candidateText, podcasts, profileTerms);
+  const queryTerms = tokenize(query);
+  const queryHits = queryTerms.filter((term) => candidateText.toLowerCase().includes(term)).length;
+  const score = Math.round(
+    38 +
+      overlap.length * 10 +
+      themeScores.reduce((total, theme) => total + theme.score, 0) * 6 +
+      queryHits * 5 +
+      (closestSource ? Math.min(18, closestSource.overlap * 4 + closestSource.weight / 2) : 0)
+  );
+  const reasons = [
+    overlap.length > 0 ? `Matches weighted club terms from discussed picks: ${overlap.slice(0, 4).join(', ')}.` : '',
+    closestSource ? `Closest archive signal is ${closestSource.title}, which the club already chose to discuss.` : '',
+    `Discovered from the weighted query "${query}".`,
+    result.primaryGenreName ? `Apple categorizes it under ${result.primaryGenreName}.` : ''
+  ].filter(Boolean);
+
+  return {
+    id: result.collectionId ? String(result.collectionId) : normalizeKey(result.collectionName),
+    title: result.collectionName,
+    subtitle: compactText([result.artistName, result.primaryGenreName]) || 'Apple Podcasts result',
+    href: result.collectionViewUrl,
+    score,
+    confidence: getConfidence(score),
+    badges: ['New candidate', `Signal ${Math.max(0, score)}`, result.primaryGenreName || '', result.trackCount ? formatCount(result.trackCount, 'episode') : ''].filter(Boolean),
+    themes,
+    reasons: reasons.slice(0, 3)
+  };
+}
+
+async function buildPodcastDiscoveries({
+  podcasts,
+  profileTerms,
+  discoveryQueries
+}: {
+  podcasts: IntelligencePodcastInput[];
+  profileTerms: string[];
+  discoveryQueries: string[];
+}) {
+  const existingKeys = getExistingPodcastKeys(podcasts);
+  const resultsById = new Map<string, IntelligenceRecommendation>();
+
+  await Promise.all(
+    discoveryQueries.map(async (query) => {
+      const results = await fetchApplePodcastResults(query);
+      results.forEach((result) => {
+        if (isExistingPodcast(result, existingKeys)) return;
+        const recommendation = buildAppleRecommendation({ result, query, podcasts, profileTerms });
+        if (!recommendation) return;
+
+        const existing = resultsById.get(recommendation.id);
+        if (!existing || recommendation.score > existing.score) {
+          resultsById.set(recommendation.id, recommendation);
+        }
+      });
+    })
+  );
+
+  return [...resultsById.values()]
+    .sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.title.localeCompare(b.title);
+    })
+    .slice(0, 8);
+}
+
+function buildCarveOutDiscoveryPrompts(
+  carveOuts: IntelligenceCarveOutInput[],
+  profileTerms: string[]
+): IntelligenceRecommendation[] {
+  return carveOuts
+    .filter((carveOut) => (carveOut.fistBumps?.length || 0) > 0)
+    .map((carveOut) => {
+      const fistBumpCount = carveOut.fistBumps?.length || 0;
+      const text = compactText([carveOut.title, carveOut.type, carveOut.service, carveOut.notes]);
+      const overlap = getTermOverlap(text, profileTerms);
+      const themeScores = getThemeScores(text);
+      const themes = themeScores.slice(0, 2).map((theme) => theme.label);
+      const score = Math.round(36 + fistBumpCount * 18 + overlap.length * 5 + themeScores.length * 4);
+
+      return {
+        id: carveOut._id,
+        title: `Find more like ${carveOut.title}`,
+        subtitle: compactText([carveOut.type, carveOut.service, carveOut.member?.name ? `seeded by ${carveOut.member.name}` : '']) || 'Carve out seed',
+        score,
+        confidence: getConfidence(score),
+        badges: ['Fist-bumped seed', `Signal ${Math.max(0, score)}`, formatCount(fistBumpCount, 'fist bump'), carveOut.type].filter(Boolean),
+        themes,
+        reasons: [
+          `The seed carve out drew ${formatCount(fistBumpCount, 'fist bump')}.`,
+          overlap.length > 0 ? `Use ${overlap.slice(0, 4).join(', ')} as follow-up search language.` : '',
+          carveOut.notes ? 'The original notes give useful context for finding an adjacent article, book, video, or movie.' : ''
+        ].filter(Boolean),
+        notesPreview: carveOut.notes ? truncateText(carveOut.notes) : undefined
+      };
+    })
+    .sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.title.localeCompare(b.title);
+    })
+    .slice(0, 5);
+}
+
+export async function buildClubIntelligenceReport({
+  podcasts,
+  carveOuts
+}: {
+  podcasts: IntelligencePodcastInput[];
+  carveOuts: IntelligenceCarveOutInput[];
+}): Promise<IntelligenceReport> {
+  const sourceTexts = getSourceTexts(podcasts);
+  const topTerms = getWeightedTopTerms(sourceTexts, 10);
+  const topThemes = getProfileThemes(sourceTexts);
+  const discoveryQueries = buildDiscoveryQueries(podcasts, topTerms, topThemes);
+  const podcastDiscoveries =
+    discoveryQueries.length > 0
+      ? await buildPodcastDiscoveries({ podcasts, profileTerms: topTerms, discoveryQueries })
+      : [];
+  const carveOutPrompts = buildCarveOutDiscoveryPrompts(carveOuts, topTerms);
+
+  return {
+    generatedAt: new Date().toISOString(),
+    sourceStatus: {
+      podcasts:
+        podcastDiscoveries.length > 0
+          ? 'New candidates from Apple Podcasts Search, ranked against the club archive.'
+          : 'No new podcast candidates found from the current weighted profile.',
+      carveOuts: 'Lightweight prompts from fist-bumped carve outs; lower priority than podcast discovery.'
+    },
+    stats: {
+      podcastsReviewed: podcasts.length,
+      discussedPodcastsWeighted: podcasts.filter((podcast) => podcast.status === 'discussed').length,
+      pendingPodcastsWeighted: podcasts.filter((podcast) => podcast.status === 'pending' && (podcast.rankingScore || 0) > 0).length,
+      podcastNotesReviewed: podcasts.filter((podcast) => podcast.notes?.trim()).length,
+      meetingNotesReviewed: podcasts.reduce((total, podcast) => total + (podcast.meetingNotes || []).filter(Boolean).length, 0),
+      carveOutsReviewed: carveOuts.length,
+      fistBumpedCarveOutsWeighted: carveOuts.filter((carveOut) => (carveOut.fistBumps?.length || 0) > 0).length
+    },
+    profile: {
+      topThemes,
+      topTerms,
+      discoveryQueries
+    },
+    podcasts: podcastDiscoveries,
+    carveOuts: carveOutPrompts
+  };
+}

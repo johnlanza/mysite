@@ -104,7 +104,10 @@ export function Nav() {
   return (
     <nav className="nav nav-desktop" aria-label="Primary">
       {desktopLinks.map((link) => {
-        const active = currentPath === link.href || (link.href === '/podcasts' && currentPath.startsWith('/podcasts'));
+        const active =
+          currentPath === link.href ||
+          (link.href === '/podcasts' && currentPath.startsWith('/podcasts')) ||
+          (link.href === '/more' && currentPath.startsWith('/intelligence'));
         return (
           <Link
             key={link.href}
@@ -137,7 +140,10 @@ export function MobileNav() {
   return (
     <nav className="mobile-bottom-nav" aria-label="Primary">
       {visibleLinks.map((link) => {
-        const active = currentPath === link.href || (link.href === '/podcasts' && currentPath.startsWith('/podcasts'));
+        const active =
+          currentPath === link.href ||
+          (link.href === '/podcasts' && currentPath.startsWith('/podcasts')) ||
+          (link.href === '/more' && currentPath.startsWith('/intelligence'));
         return (
           <Link
             key={link.href}

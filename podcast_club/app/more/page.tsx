@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useSession } from '@/lib/use-session';
 
-function MoreIcon({ name }: { name: 'members' | 'imports' }) {
+function MoreIcon({ name }: { name: 'members' | 'imports' | 'intelligence' }) {
   const iconProps = {
     width: 20,
     height: 20,
@@ -23,6 +23,22 @@ function MoreIcon({ name }: { name: 'members' | 'imports' }) {
         <path d="m8.5 10.5 3.5 3.5 3.5-3.5" />
         <path d="M5 16.5V19a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2.5" />
         <path d="M7 5h10" />
+      </svg>
+    );
+  }
+
+  if (name === 'intelligence') {
+    return (
+      <svg {...iconProps}>
+        <path d="M12 3.5v3" />
+        <path d="M12 17.5v3" />
+        <path d="M4.5 12h3" />
+        <path d="M16.5 12h3" />
+        <path d="m6.6 6.6 2.1 2.1" />
+        <path d="m15.3 15.3 2.1 2.1" />
+        <path d="m17.4 6.6-2.1 2.1" />
+        <path d="m8.7 15.3-2.1 2.1" />
+        <circle cx="12" cy="12" r="3.4" />
       </svg>
     );
   }
@@ -82,6 +98,18 @@ export default function MorePage() {
         <div className="more-menu-section">
           <p className="section-kicker">Club</p>
           <div className="mobile-menu-list">
+            <Link href="/intelligence" className="mobile-menu-row">
+              <span className="more-row-icon">
+                <MoreIcon name="intelligence" />
+              </span>
+              <span className="more-row-copy">
+                <strong>Club Intelligence</strong>
+                <small>Podcast and carve out recommendations from club signals.</small>
+              </span>
+              <span className="mobile-menu-arrow" aria-hidden="true">
+                &gt;
+              </span>
+            </Link>
             <Link href="/members" className="mobile-menu-row">
               <span className="more-row-icon">
                 <MoreIcon name="members" />
