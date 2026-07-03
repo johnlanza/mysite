@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-20T23:41:28.378Z",
+  "generatedAt": "2026-07-03T12:56:25.369Z",
   "sourceDirectories": [
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/journals",
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages"
@@ -46,10 +46,10 @@
     "writing"
   ],
   "stats": {
-    "totalQuotes": 315,
-    "taggedQuotes": 138,
-    "suspiciousQuotes": 115,
-    "newQuotes": 1
+    "totalQuotes": 324,
+    "taggedQuotes": 144,
+    "suspiciousQuotes": 116,
+    "newQuotes": 7
   },
   "quotes": [
     {
@@ -1359,6 +1359,26 @@
       }
     },
     {
+      "id": "pages:Finite and Infinte Games %7C James Carse — Progressive Summarization Test.md:2",
+      "text": "For an infinite player there is no such thing as an hour of time. There can be an hour of love, or a day of grieving, or a season of learning, or a period of labor. Note:I like this",
+      "author": "James Carse — Progressive Summarization Test",
+      "source": null,
+      "sourcePageTitle": "Finite and Infinte Games | James Carse — Progressive Summarization Test",
+      "sourceDisplay": "Finite and Infinte Games | James Carse — Progressive Summarization Test",
+      "note": null,
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "profound"
+      ],
+      "originType": "pages",
+      "originFile": "Finite and Infinte Games %7C James Carse — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
       "id": "pages:The Psychology of Money%3A Timeless lessons on wealth, greed, and happiness %7C Morgan Housel.md:6",
       "text": "For reasons I have never understood, people like to hear that the world is going to hell",
       "author": "Historian Deirdre McCloskey",
@@ -2315,7 +2335,7 @@
       "originType": "journals",
       "originFile": "2026_06_10.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "journal-date-fallback"
         ]
@@ -3449,6 +3469,26 @@
       }
     },
     {
+      "id": "journals:2026_07_01.md:0",
+      "text": "Names proliferate and understanding decreases",
+      "author": "JWL",
+      "source": null,
+      "sourcePageTitle": "2026_07_01",
+      "sourceDisplay": "2026_07_01",
+      "note": null,
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2026_07_01.md",
+      "review": {
+        "isNew": true,
+        "flags": [
+          "journal-date-fallback"
+        ]
+      }
+    },
+    {
       "id": "pages:Tao Te Ching %7C Lao Tzu %7C Ursula K. LeGuin.md:1",
       "text": "Need little, want less",
       "author": "Ursula K. LeGuin",
@@ -4007,6 +4047,46 @@
         "flags": [
           "journal-date-fallback"
         ]
+      }
+    },
+    {
+      "id": "pages:Finite and Infinte Games %7C James Carse — Progressive Summarization Test.md:4",
+      "text": "reading-note:697 To be prepared against surprise is to be trained. To be prepared for surprise is to be educated",
+      "author": "James Carse — Progressive Summarization Test",
+      "source": null,
+      "sourcePageTitle": "Finite and Infinte Games | James Carse — Progressive Summarization Test",
+      "sourceDisplay": "Finite and Infinte Games | James Carse — Progressive Summarization Test",
+      "note": null,
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "profound"
+      ],
+      "originType": "pages",
+      "originFile": "Finite and Infinte Games %7C James Carse — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Finite and Infinte Games %7C James Carse — Progressive Summarization Test.md:5",
+      "text": "reading-note:797 For an infinite player there is no such thing as an hour of time. There can be an hour of love, or a day of grieving, or a season of learning, or a period of labor. Note:I like this",
+      "author": "James Carse — Progressive Summarization Test",
+      "source": null,
+      "sourcePageTitle": "Finite and Infinte Games | James Carse — Progressive Summarization Test",
+      "sourceDisplay": "Finite and Infinte Games | James Carse — Progressive Summarization Test",
+      "note": null,
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "profound"
+      ],
+      "originType": "pages",
+      "originFile": "Finite and Infinte Games %7C James Carse — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
       }
     },
     {
@@ -5066,6 +5146,24 @@
       }
     },
     {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:0",
+      "text": "There is no magic number of days. Why? Because the formation time of a habit depends on three things: The person doing the habit The habit itself (the action) The context",
+      "author": "BJ Fogg — Progressive Summarization Test",
+      "source": null,
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "note": null,
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
       "id": "journals:2024_07_28.md:0",
       "text": "There is no safe investment. To love at all is to be vulnerable. Love anything, and your heart will certainly be wrung and possibly be broken. If you want to make sure of keeping it intact, you must give your heart to no one, not even to an animal. Wrap it carefully round with hobbies and little luxuries; avoid all entanglements; lock it up safe in the casket or coffin of your selfishness. But in that casket—safe, dark, motionless, airless—it will change. It will not be broken; it will become unbreakable, impenetrable, irredeemable. The alternative to tragedy, or at least to the risk of tragedy, is damnation.",
       "author": "C. S. Lewis",
@@ -5309,6 +5407,26 @@
         "flags": [
           "journal-date-fallback"
         ]
+      }
+    },
+    {
+      "id": "pages:Finite and Infinte Games %7C James Carse — Progressive Summarization Test.md:0",
+      "text": "To be prepared against surprise is to be trained. To be prepared for surprise is to be educated",
+      "author": "James Carse — Progressive Summarization Test",
+      "source": null,
+      "sourcePageTitle": "Finite and Infinte Games | James Carse — Progressive Summarization Test",
+      "sourceDisplay": "Finite and Infinte Games | James Carse — Progressive Summarization Test",
+      "note": null,
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "profound"
+      ],
+      "originType": "pages",
+      "originFile": "Finite and Infinte Games %7C James Carse — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
       }
     },
     {
@@ -5608,6 +5726,24 @@
       }
     },
     {
+      "id": "pages:Tiny Habits %7C BJ Fogg.md:0",
+      "text": "We guide. We don't prescribe",
+      "author": "John Lanza",
+      "source": null,
+      "sourcePageTitle": "Tiny Habits | BJ Fogg",
+      "sourceDisplay": "Tiny Habits | BJ Fogg",
+      "note": null,
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
       "id": "journals:2022_07_15.md:0",
       "text": "We judge ourselves on intentions, but others on actions",
       "author": "David Perell",
@@ -5723,6 +5859,26 @@
         "flags": [
           "journal-date-fallback"
         ]
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:2",
+      "text": "Weight loss happens mostly through changing how we eat. Although exercise is beneficial in many ways, it is not the key to weight loss",
+      "author": "BJ Fogg — Progressive Summarization Test",
+      "source": null,
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "note": null,
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
       }
     },
     {
@@ -6113,6 +6269,26 @@
       "tags": [],
       "originType": "journals",
       "originFile": "2024_10_07.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg.md:1",
+      "text": "You can't outrun a crappy diet",
+      "author": "John Lanza",
+      "source": null,
+      "sourcePageTitle": "Tiny Habits | BJ Fogg",
+      "sourceDisplay": "Tiny Habits | BJ Fogg",
+      "note": "\"You can't outrun a crappy diet.\" —John Lanza",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg.md",
       "review": {
         "isNew": false,
         "flags": []

@@ -33,7 +33,119 @@ function tokenize(text: string): Set<string> {
   return new Set(tokens);
 }
 
-type ScoredPiece = { piece: Piece; score: number };
+type ConnectionSignals = {
+  sharesSource: boolean;
+  sharesAttribution: boolean;
+  sourceKey: string;
+  tokenOverlap: number;
+  tokenSignal: number;
+  tagSignal: number;
+};
+
+type ScoredPiece = {
+  piece: Piece;
+  score: number;
+  sharesSource: boolean;
+  sourceKey: string;
+};
+
+function normalizeKey(value: string | null | undefined): string {
+  return (value ?? "")
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim();
+}
+
+function getSourceKey(piece: Piece): string {
+  return (
+    normalizeKey(piece.context) ||
+    normalizeKey(piece.sourceDisplay) ||
+    normalizeKey(piece.originFile)
+  );
+}
+
+function getOriginFileKey(piece: Piece): string {
+  return normalizeKey(piece.originFile);
+}
+
+function getAttributionKey(piece: Piece): string {
+  return normalizeKey(piece.attribution);
+}
+
+function getContentTokens(piece: Piece): Set<string> {
+  return tokenize([piece.text, piece.note, piece.tags.join(" ")]
+    .filter(Boolean)
+    .join(" "));
+}
+
+function getTagTokens(piece: Piece): Set<string> {
+  return new Set(piece.tags.map(normalizeKey).filter(Boolean));
+}
+
+function overlapCount(a: Set<string>, b: Set<string>): number {
+  let count = 0;
+  for (const token of a) {
+    if (b.has(token)) count += 1;
+  }
+  return count;
+}
+
+function overlapSignal(
+  overlap: number,
+  a: Set<string>,
+  b: Set<string>,
+): number {
+  if (overlap === 0 || a.size === 0 || b.size === 0) return 0;
+  return overlap / Math.min(a.size, b.size);
+}
+
+function comparePieces(source: Piece, piece: Piece): ConnectionSignals {
+  const sourceKey = getSourceKey(source);
+  const pieceSourceKey = getSourceKey(piece);
+  const sourceOriginKey = getOriginFileKey(source);
+  const pieceOriginKey = getOriginFileKey(piece);
+  const sourceAttributionKey = getAttributionKey(source);
+  const pieceAttributionKey = getAttributionKey(piece);
+  const sourceTokens = getContentTokens(source);
+  const pieceTokens = getContentTokens(piece);
+  const sourceTags = getTagTokens(source);
+  const pieceTags = getTagTokens(piece);
+  const tokenOverlap = overlapCount(sourceTokens, pieceTokens);
+  const tagOverlap = overlapCount(sourceTags, pieceTags);
+
+  return {
+    sharesSource:
+      Boolean(sourceKey && pieceSourceKey && sourceKey === pieceSourceKey) ||
+      Boolean(sourceOriginKey && pieceOriginKey && sourceOriginKey === pieceOriginKey),
+    sharesAttribution: Boolean(
+      sourceAttributionKey &&
+        pieceAttributionKey &&
+        sourceAttributionKey === pieceAttributionKey,
+    ),
+    sourceKey: pieceSourceKey || pieceOriginKey,
+    tokenOverlap,
+    tokenSignal: overlapSignal(tokenOverlap, sourceTokens, pieceTokens),
+    tagSignal: overlapSignal(tagOverlap, sourceTags, pieceTags),
+  };
+}
+
+function scoreWithSignals(baseScore: number, signals: ConnectionSignals): number {
+  let score = baseScore;
+  score += signals.tokenSignal * 0.08;
+  score += signals.tagSignal * 0.07;
+
+  if (signals.sharesSource) {
+    score -= 0.1;
+  } else {
+    score += 0.04;
+  }
+
+  if (signals.sharesAttribution) {
+    score -= 0.025;
+  }
+
+  return score;
+}
 
 function rankByEmbeddings(
   source: Piece,
@@ -48,45 +160,99 @@ function rankByEmbeddings(
     const vec = embeddings.byId.get(piece.id);
     if (!vec) continue;
     const sim = cosineSimilarity(sourceVec, vec);
-    if (sim > 0.35) scored.push({ piece, score: sim });
+    if (sim < 0.3) continue;
+
+    const signals = comparePieces(source, piece);
+    scored.push({
+      piece,
+      score: scoreWithSignals(sim, signals),
+      sharesSource: signals.sharesSource,
+      sourceKey: signals.sourceKey,
+    });
   }
   scored.sort((a, b) => b.score - a.score);
   return scored;
 }
 
 function rankByKeywords(source: Piece, candidates: Piece[]): ScoredPiece[] {
-  const sourceTokens = tokenize(source.text);
-  const sourceTags = new Set(source.tags.map((t) => t.toLowerCase()));
-  const sourceAttribution = source.attribution?.toLowerCase().trim() ?? "";
-
   const scored = candidates
     .map((piece) => {
-      const pieceTokens = tokenize(piece.text);
-      let tokenOverlap = 0;
-      for (const t of pieceTokens) {
-        if (sourceTokens.has(t)) tokenOverlap += 1;
-      }
-
-      let tagOverlap = 0;
-      for (const t of piece.tags) {
-        if (sourceTags.has(t.toLowerCase())) tagOverlap += 1;
-      }
-
-      let attributionBoost = 0;
-      if (
-        sourceAttribution &&
-        piece.attribution?.toLowerCase().trim() === sourceAttribution
-      ) {
-        attributionBoost = 2;
-      }
-
-      const score = tokenOverlap + tagOverlap * 4 + attributionBoost;
-      return { piece, score };
+      const signals = comparePieces(source, piece);
+      const baseScore = signals.tokenSignal + signals.tagSignal * 0.7;
+      return {
+        piece,
+        score: scoreWithSignals(baseScore, signals),
+        sharesSource: signals.sharesSource,
+        sourceKey: signals.sourceKey,
+        tokenOverlap: signals.tokenOverlap,
+      };
     })
-    .filter((x) => x.score >= 3);
+    .filter((x) => x.tokenOverlap >= 2 || x.score >= 0.22)
+    .map(({ piece, score, sharesSource, sourceKey }) => ({
+      piece,
+      score,
+      sharesSource,
+      sourceKey,
+    }));
 
   scored.sort((a, b) => b.score - a.score);
   return scored;
+}
+
+function selectDiverseEchoes(
+  source: Piece,
+  ranked: ScoredPiece[],
+  limit: number,
+): Piece[] {
+  const selected: ScoredPiece[] = [];
+  const selectedIds = new Set<string>();
+  const selectedSourceKeys = new Set<string>();
+  const bestSameSource = ranked.find((candidate) => candidate.sharesSource);
+  const bestCrossSource = ranked.find((candidate) => !candidate.sharesSource);
+
+  const add = (candidate: ScoredPiece, allowSourceRepeat = false): boolean => {
+    if (selectedIds.has(candidate.piece.id)) return false;
+    if (
+      !allowSourceRepeat &&
+      candidate.sourceKey &&
+      selectedSourceKeys.has(candidate.sourceKey)
+    ) {
+      return false;
+    }
+
+    selected.push(candidate);
+    selectedIds.add(candidate.piece.id);
+    if (candidate.sourceKey) selectedSourceKeys.add(candidate.sourceKey);
+    return true;
+  };
+
+  if (
+    bestSameSource &&
+    (!bestCrossSource || bestSameSource.score >= bestCrossSource.score + 0.08)
+  ) {
+    add(bestSameSource);
+  }
+
+  for (const candidate of ranked) {
+    if (selected.length >= limit) break;
+    if (candidate.sharesSource) continue;
+    add(candidate);
+  }
+
+  for (const candidate of ranked) {
+    if (selected.length >= limit) break;
+    add(candidate);
+  }
+
+  for (const candidate of ranked) {
+    if (selected.length >= limit) break;
+    add(candidate, true);
+  }
+
+  return selected
+    .filter((candidate) => candidate.piece.id !== source.id)
+    .slice(0, limit)
+    .map((candidate) => candidate.piece);
 }
 
 export function findEchoes(
@@ -104,5 +270,5 @@ export function findEchoes(
       ? rankByEmbeddings(source, candidates, embeddings)
       : rankByKeywords(source, candidates);
 
-  return ranked.slice(0, limit).map((x) => x.piece);
+  return selectDiverseEchoes(source, ranked, limit);
 }

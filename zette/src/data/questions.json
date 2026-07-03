@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-20T23:41:28.385Z",
+  "generatedAt": "2026-07-03T12:56:27.688Z",
   "sourceDirectories": [
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/journals",
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages"
@@ -12,7 +12,7 @@
     "profound"
   ],
   "stats": {
-    "totalQuestions": 66,
+    "totalQuestions": 68,
     "taggedQuestions": 26,
     "newQuestions": 1
   },
@@ -406,7 +406,7 @@
       "originType": "pages",
       "originFile": "My Questions.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -565,6 +565,36 @@
       ],
       "originType": "pages",
       "originFile": "My Questions.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:23",
+      "text": "What do you think would be a good reminder for you tomorrow?",
+      "sourceDisplay": "Tiny Habits",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg.md:20",
+      "text": "What do you think would be a good reminder for you tomorrow?",
+      "sourceDisplay": "Tiny Habits",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg.md",
       "review": {
         "isNew": false,
         "flags": []

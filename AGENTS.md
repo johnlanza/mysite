@@ -36,3 +36,10 @@ When working on Podcast Club:
 - Assume Render deploys from the `mysite` service.
 
 `/Users/johnlanza/Dev/podcast_club` should resolve to `podcast_club/`; do not create or deploy from a separate standalone copy.
+
+Zette is maintained in this repo at `zette/`.
+
+When working on Zette:
+- Treat it like Poolarama for deployment flow: after scoped verification, commit and push Zette changes to `johnlanza/mysite` `main` for the live site instead of stopping at local-server review.
+- Use `npm run sync:questions` as the one-command content publish path. Despite the legacy name, it rebuilds quotes, book notes, questions, and embeddings, then builds, commits, and pushes.
+- Keep Echoes embeddings current with source datasets; do not publish new Zette review material without refreshing `zette/src/data/embeddings.json`.

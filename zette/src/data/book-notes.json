@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-20T23:41:27.991Z",
+  "generatedAt": "2026-07-03T12:56:26.447Z",
   "sourceDirectories": [
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages"
   ],
@@ -57,11 +57,11 @@
     "writing"
   ],
   "stats": {
-    "totalNotes": 1029,
-    "taggedNotes": 1029,
-    "books": 80,
-    "suspiciousNotes": 138,
-    "newNotes": 40
+    "totalNotes": 1044,
+    "taggedNotes": 1044,
+    "books": 82,
+    "suspiciousNotes": 142,
+    "newNotes": 1
   },
   "notes": [
     {
@@ -466,6 +466,26 @@
       ],
       "originType": "pages",
       "originFile": "The Talent Code%3A Unlocking the Secret of Skill in Sports, Art, Music, Math, and Just About Everything Else %7C Daniel Coyle.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg.md:20",
+      "text": "“No. I just thought I’d remember. But I forgot.” So you design a prompt for the next day by asking, “What do you think would be a good reminder for you tomorrow?” And she says that she is putting a to-do note on her phone. Guess what? She hands you the poster board with a smile the next day.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "my questions"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg.md",
       "review": {
         "isNew": false,
         "flags": []
@@ -954,7 +974,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -1016,7 +1036,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1385,7 +1405,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -1406,7 +1426,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2759,7 +2779,7 @@
       "originType": "pages",
       "originFile": "The English and Their History %7C Robert Tombs.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -2801,7 +2821,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3027,7 +3047,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3564,6 +3584,28 @@
       ],
       "originType": "pages",
       "originFile": "On Bullshit %7C Harry G. Frankfurt.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg.md:61",
+      "text": "Businesses that help customers create habits will have a huge advantage over those that don’t.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "business",
+        "idea",
+        "profound"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg.md",
       "review": {
         "isNew": false,
         "flags": []
@@ -4514,6 +4556,26 @@
       }
     },
     {
+      "id": "pages:Tiny Habits %7C BJ Fogg.md:160",
+      "text": "Creating demotivators is easy. That’s probably why it’s such a popular technique. But if this was a winning plan, then very few people would have bad habits.",
+      "note": "talk — if this worked, none of us would have bad habits",
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
       "id": "pages:Keep Going%3A 10 Ways to Stay Creative in Good Times and Bad %7C Austin Kleon.md:14",
       "text": "Creative work is hard. Life is short and art is long.",
       "note": null,
@@ -5415,7 +5477,7 @@
       "originType": "pages",
       "originFile": "The Prince %7C Niccolò Machiavelli.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5618,7 +5680,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5940,7 +6002,7 @@
       "originType": "pages",
       "originFile": "The Prince %7C Niccolò Machiavelli.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6100,7 +6162,7 @@
       "originType": "pages",
       "originFile": "The Prince %7C Niccolò Machiavelli.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6510,7 +6572,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -7007,6 +7069,27 @@
       }
     },
     {
+      "id": "pages:Tiny Habits %7C BJ Fogg.md:126",
+      "text": "I didn’t want to take on the role of a therapist or a medical doctor. I knew that Tiny Habits is not the answer to serious addictions. But for people with bad habits that are not serious addictions, I have good news: Tiny Habits can be game changing. untangling your unwanted habits",
+      "note": "better term than breaking",
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "idea",
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
       "id": "pages:Amusing Ourselves to Death %7C Neil Postman.md:58",
       "text": "I do not mean that things like fires, wars, murders and love affairs did not, ever and always, happen in places all over the world. I mean that lacking a technology to advertise them, people could not attend to them, could not include them in their daily business.",
       "note": null,
@@ -7239,6 +7322,26 @@
       }
     },
     {
+      "id": "pages:Tiny Habits %7C BJ Fogg.md:87",
+      "text": "I now understand why my Tiny Habits data showed so many breakthroughs. When people feel successful, even with small things, their overall level of motivation goes up dramatically, and with higher levels of motivation, people can do harder behaviors.",
+      "note": "Really the goal of my talk is for one person to come away with a habit that will last.",
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
       "id": "pages:Thinking Fast and Slow %7C Daniel Kahneman.md:569",
       "text": "I often cringe when my work with Amos is credited with demonstrating that human choices are irrational, when in fact our research only showed that Humans are not well described by the rational-agent model.",
       "note": "Our choices, however irrational to others, are rational to ourselves.",
@@ -7341,8 +7444,8 @@
     },
     {
       "id": "pages:Bird by Bird%3A Some Instructions on Writing and Life %7C Anne Lamott.md:102",
-      "text": "I think that if you have the kind of mind that retains important and creative thoughts—that is, if your mind still works—you’re very lucky and you should not be surprised if the rest of us do not want to be around you. MW: This is how I feel sometimes. I don't want to go to wine tastings. I want to write. To play games. To create.",
-      "note": null,
+      "text": "I think that if you have the kind of mind that retains important and creative thoughts—that is, if your mind still works—you’re very lucky and you should not be surprised if the rest of us do not want to be around you.",
+      "note": "This is how I feel sometimes. I don't want to go to wine tastings. I want to write. To play games. To create.",
       "bookTitle": "Bird by Bird",
       "bookAuthor": "Anne Lamott",
       "sourcePageTitle": "Bird by Bird: Some Instructions on Writing and Life | Anne Lamott",
@@ -7351,6 +7454,7 @@
       "blockId": null,
       "tags": [
         "funny",
+        "mw",
         "profound"
       ],
       "originType": "pages",
@@ -7543,7 +7647,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -7864,6 +7968,26 @@
       ],
       "originType": "pages",
       "originFile": "Thinking Fast and Slow %7C Daniel Kahneman.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg.md:140",
+      "text": "If you focus only on the General Habit, you probably won’t make much progress, just like if you focus on the entire knot at once, you can’t untangle it. You need to focus on specific tangles in order to make progress.",
+      "note": "This or a similar analogy might be useful for good habits too. Maybe call them add habits or something along those lines. Rather than judging the habits.",
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg.md",
       "review": {
         "isNew": false,
         "flags": []
@@ -8692,7 +8816,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -9530,7 +9654,7 @@
       "originType": "pages",
       "originFile": "The English and Their History %7C Robert Tombs.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -9593,6 +9717,28 @@
       "review": {
         "isNew": false,
         "flags": []
+      }
+    },
+    {
+      "id": "pages:Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md:499",
+      "text": "It’s a common misconception that mental faculties tire and need to be recharged. This is only partially true. What our mind really wants is for us to change things up. So having active leisure time will not negatively affect the next day’s performance at work. It will boost our performance. When absorbed in a completely different challenge, your mind can fully unleash the subconscious on a previously encountered problem (the process of incubation), without being distracted by new inputs from the conscious mind.",
+      "note": null,
+      "bookTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "bookAuthor": "John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourcePageTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress | John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourceDisplay": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "profound"
+      ],
+      "originType": "pages",
+      "originFile": "Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": [
+          "long-note"
+        ]
       }
     },
     {
@@ -10067,7 +10213,7 @@
       "originType": "pages",
       "originFile": "The English and Their History %7C Robert Tombs.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10151,7 +10297,7 @@
       "originType": "pages",
       "originFile": "The English and Their History %7C Robert Tombs.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -10826,7 +10972,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -11343,6 +11489,51 @@
       }
     },
     {
+      "id": "pages:Tiny Habits %7C BJ Fogg.md:65",
+      "text": "Note | Page: 133 Add celebration to my talk",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "idea"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg.md",
+      "review": {
+        "isNew": false,
+        "flags": [
+          "meta-left-in-note"
+        ]
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg.md:34",
+      "text": "Note | Page: 70 Program the focus map.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "business",
+        "idea"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg.md",
+      "review": {
+        "isNew": false,
+        "flags": [
+          "meta-left-in-note"
+        ]
+      }
+    },
+    {
       "id": "pages:Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md:153",
       "text": "Note that although the resulting behavior is different, nice or nasty, the rule of thumb remains the same. An explanation of the tit-for-tat player’s behavior in terms of traits or attitudes would miss this crucial difference between process (tit for tat) and resulting behavior (cooperate or not).",
       "note": "Understand process to understand behavior mw Observing vs perceiving eye analogy. Observing vs perceiving eye analogy.",
@@ -11378,7 +11569,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12879,7 +13070,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -12980,6 +13171,26 @@
       ],
       "originType": "pages",
       "originFile": "The Daily Stoic %7C Ryan Holiday & Stephen Hanselman.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg.md:147",
+      "text": "Removing the prompt is the simplest option for stopping an unwanted habit. And the best way to remove a prompt is to redesign your environment.",
+      "note": "my talk. Focus on what we know works best. No minutiae.",
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg.md",
       "review": {
         "isNew": false,
         "flags": []
@@ -13169,7 +13380,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13762,7 +13973,7 @@
       "originType": "pages",
       "originFile": "The English and Their History %7C Robert Tombs.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13802,7 +14013,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -13881,6 +14092,26 @@
       ],
       "originType": "pages",
       "originFile": "The Lessons of History %7C Will and Ariel Durant.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg.md:31",
+      "text": "Step 7: Look in the upper right-hand corner. Those are your Golden Behaviors. (If nothing is in this corner, go back.",
+      "note": "Focus map above.",
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg.md",
       "review": {
         "isNew": false,
         "flags": []
@@ -14193,7 +14424,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14503,7 +14734,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14563,7 +14794,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -14953,7 +15184,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -15521,7 +15752,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -15669,7 +15900,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16036,7 +16267,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16264,7 +16495,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -16487,7 +16718,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17046,6 +17277,29 @@
       }
     },
     {
+      "id": "pages:Tiny Habits %7C BJ Fogg.md:24",
+      "text": "Then we went to work. I focused our session on finding specific behaviors their customers could do in order to create an emergency fund, and these are a few of the ones we came up with. Call your cable company and scale back your service to the lowest level Empty your pocket change into an emergency-fund jar every evening Announce a garage sale, then put all the revenue into an emergency fund In the end, we came up with more than thirty different specific behaviors.",
+      "note": "Adolescents",
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "idea",
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg.md",
+      "review": {
+        "isNew": false,
+        "flags": [
+          "long-note"
+        ]
+      }
+    },
+    {
       "id": "pages:Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md:34",
       "text": "Then you’ve got the third type, which is the worst: when you do something good so that you won’t get a bad feeling. It doesn’t give you a good feeling to do it; it gives you a bad feeling to do it. You hate it. You’re making loving sacrifices but you’re grumbling. Ha! How little you know of yourself if you think you don’t do things this way.",
       "note": "This feels a bit like what we're going through with Q.",
@@ -17373,7 +17627,7 @@
       "originType": "pages",
       "originFile": "The English and Their History %7C Robert Tombs.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17494,7 +17748,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17699,7 +17953,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -17820,6 +18074,26 @@
       ],
       "originType": "pages",
       "originFile": "Scale%3A The Universal Laws of Life, Growth, and Death in Organisms, Cities, and Companies %7C Geoffrey West.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg.md:117",
+      "text": "This phrase—I’m the kind of person who— kept coming up, so I decided to bake it into the Tiny Habits evaluation process by asking people at the end of my free five-day program to complete this phrase: ”After doing Tiny Habits, I now see myself as the kind of person who . . .”",
+      "note": "I can have people repeat. It’s like an AA meeting. Hello, I’m X. And I see myself as then kind of person who…",
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg.md",
       "review": {
         "isNew": false,
         "flags": []
@@ -18232,7 +18506,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -19323,7 +19597,7 @@
       "originType": "pages",
       "originFile": "The English and Their History %7C Robert Tombs.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -19505,7 +19779,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -19928,6 +20202,27 @@
       }
     },
     {
+      "id": "pages:Tiny Habits %7C BJ Fogg.md:72",
+      "text": "When I teach people about human behavior, I boil it down to three words to make the point crystal clear: Emotions create habits. Not repetition. Not frequency. Not fairy dust. Emotions.",
+      "note": "This totally aligns with how money attitudes are imprinted.",
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw",
+        "profound"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
       "id": "pages:On Writing %7C Stephen King.md:41",
       "text": "When I’m asked why I decided to write the sort of thing I do write, I always think the question is more revealing than any answer I could possibly give. Wrapped within it, like the chewy stuff in the center of a Tootsie Pop, is the assumption that the writer controls the material instead of the other way around.",
       "note": "This might be my answer to \"Why do I run?\" It's not for fun. It's certainly at least in part that I can. But do I really know. I don't think so. Perhaps it is because I like to push myself. Life is a process of asking better questions about oneself.",
@@ -20271,7 +20566,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -20354,7 +20649,7 @@
       "originType": "pages",
       "originFile": "Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -20825,6 +21120,26 @@
       ],
       "originType": "pages",
       "originFile": "The Simple Path to Wealth %7C JL Collins.md",
+      "review": {
+        "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg.md:84",
+      "text": "You might ask: In the early days, how did Sukumar know when to plank for more than five seconds? Good question. We’ll dive into that more deeply soon, but for now, the short answer is: He did more when he wanted to do more.",
+      "note": "Moving from tiny to sustained, more powerful habits. Just focus becoming the person who does tiny habit X. That’s it. Then, when you feel like it, expand.",
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg.md",
       "review": {
         "isNew": false,
         "flags": []

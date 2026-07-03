@@ -22,12 +22,10 @@ function hashText(text) {
 }
 
 function buildEmbeddingInput(piece) {
+  // Keep embeddings focused on the idea itself; source metadata is handled
+  // separately during Echoes ranking so one book does not dominate matches.
   const parts = [piece.text];
   if (piece.note) parts.push(`my note: ${piece.note}`);
-  if (piece.attribution) parts.push(`— ${piece.attribution}`);
-  if (piece.context && piece.context !== piece.attribution) {
-    parts.push(`from ${piece.context}`);
-  }
   if (piece.tags && piece.tags.length > 0) {
     parts.push(`tags: ${piece.tags.join(", ")}`);
   }
