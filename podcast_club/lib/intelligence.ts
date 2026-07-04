@@ -10,12 +10,14 @@ type CredibilityRule = {
 };
 
 type CredibilityLevel = 'Strong' | 'Adequate' | 'Watchlist';
+type VettingLevel = 'Strong' | 'Adequate' | 'Thin';
 
 type WeightedText = {
   text: string;
   weight: number;
   title?: string;
   status?: 'pending' | 'discussed';
+  sourceKey?: string;
 };
 
 type ApplePodcastResult = {
@@ -35,6 +37,7 @@ type ApplePodcastResult = {
   releaseDate?: string;
   shortDescription?: string;
   description?: string;
+  searchRank?: number;
 };
 
 export type IntelligencePodcastInput = {
@@ -81,6 +84,11 @@ export type IntelligenceRecommendation = {
   notesPreview?: string;
   credibility?: {
     level: CredibilityLevel;
+    score: number;
+    reasons: string[];
+  };
+  vetting?: {
+    level: VettingLevel;
     score: number;
     reasons: string[];
   };
@@ -205,6 +213,9 @@ const THEME_RULES: ThemeRule[] = [
 
 const APPLE_SEARCH_LIMIT = 12;
 const MAX_DISCOVERY_QUERIES = 7;
+const MIN_DISCUSSION_DURATION_MINUTES = 50;
+const IDEAL_MAX_DISCUSSION_DURATION_MINUTES = 130;
+const MAX_PROFILE_SOURCE_WEIGHT = 22;
 const EMPTY_TERM_SET = new Set<string>();
 const LOW_SIGNAL_GENRES = new Set(['society & culture', 'society and culture']);
 const CREDIBILITY_BASELINE = 58;
@@ -350,6 +361,50 @@ function getWeightedTopTerms(items: WeightedText[], limit: number, ignoredTerms:
     .map(([term]) => term);
 }
 
+function getDiversifiedTopTerms(items: WeightedText[], limit: number, ignoredTerms: Set<string> = EMPTY_TERM_SET) {
+  const stats = new Map<string, { score: number; sourceKeys: Set<string> }>();
+  const sourceKeys = new Set(items.map((item, index) => item.sourceKey || item.title || `source-${index}`));
+
+  items.forEach((item, index) => {
+    const sourceKey = item.sourceKey || item.title || `source-${index}`;
+    tokenize(item.text, ignoredTerms).forEach((token) => {
+      const current = stats.get(token) || { score: 0, sourceKeys: new Set<string>() };
+      current.score += item.weight;
+      current.sourceKeys.add(sourceKey);
+      stats.set(token, current);
+    });
+  });
+
+  const entries = [...stats.entries()];
+  const multiSourceEntries = entries.filter(([, stat]) => stat.sourceKeys.size > 1);
+  const preferMultiSource = sourceKeys.size >= 3 && multiSourceEntries.length >= Math.min(5, limit);
+
+  const rankedEntries = entries
+    .map(([term, stat]) => {
+      const sourceCount = stat.sourceKeys.size;
+      const diversityBoost = 1 + Math.min(4, sourceCount) * 0.22;
+      const singleSourcePenalty = sourceCount > 1 || !preferMultiSource ? 1 : 0.28;
+      return {
+        term,
+        sourceCount,
+        adjustedScore: stat.score * diversityBoost * singleSourcePenalty
+      };
+    })
+    .sort((a, b) => {
+      if (b.adjustedScore !== a.adjustedScore) return b.adjustedScore - a.adjustedScore;
+      if (b.sourceCount !== a.sourceCount) return b.sourceCount - a.sourceCount;
+      return a.term.localeCompare(b.term);
+    });
+  const preferredEntries = preferMultiSource ? rankedEntries.filter((entry) => entry.sourceCount > 1) : rankedEntries;
+  const fallbackEntries = preferMultiSource ? rankedEntries.filter((entry) => entry.sourceCount === 1) : [];
+  const selectedEntries =
+    preferMultiSource && preferredEntries.length >= Math.min(5, limit) ? preferredEntries : [...preferredEntries, ...fallbackEntries];
+
+  return selectedEntries
+    .slice(0, limit)
+    .map((entry) => entry.term);
+}
+
 function getTopTerms(text: string, limit: number, ignoredTerms: Set<string> = EMPTY_TERM_SET) {
   return getWeightedTopTerms([{ text, weight: 1 }], limit, ignoredTerms);
 }
@@ -440,6 +495,75 @@ function getCredibilityAssessment(text: string) {
   };
 }
 
+function getDurationMinutes(result: ApplePodcastResult) {
+  return result.trackTimeMillis ? Math.round(result.trackTimeMillis / 60000) : 0;
+}
+
+function getVettingAssessment(result: ApplePodcastResult, durationMinutes: number, credibility: ReturnType<typeof getCredibilityAssessment>) {
+  const reasons: string[] = [];
+  let score = 0;
+
+  if (durationMinutes > 0) {
+    if (durationMinutes < MIN_DISCUSSION_DURATION_MINUTES) {
+      reasons.push(`Known duration is ${durationMinutes} minutes, below the club's ${MIN_DISCUSSION_DURATION_MINUTES}-minute discussion floor.`);
+    } else if (durationMinutes <= IDEAL_MAX_DISCUSSION_DURATION_MINUTES) {
+      score += 14;
+      reasons.push(`Length is discussion-ready at about ${durationMinutes} minutes.`);
+    } else {
+      score += 8;
+      reasons.push(`Length clears the discussion floor at about ${durationMinutes} minutes.`);
+    }
+  } else {
+    score -= 4;
+    reasons.push('Apple did not expose a duration, so length is not fully vetted.');
+  }
+
+  if (result.searchRank && result.searchRank <= 4) {
+    score += 9;
+    reasons.push(`Apple returned it in the top ${result.searchRank} for a club-profile query.`);
+  } else if (result.searchRank && result.searchRank <= 8) {
+    score += 5;
+    reasons.push(`Apple returned it in the top ${result.searchRank} for a club-profile query.`);
+  } else if (result.searchRank) {
+    score += 2;
+    reasons.push(`Apple returned it at rank ${result.searchRank} for a club-profile query.`);
+  }
+
+  if ((result.trackCount || 0) >= 100) {
+    score += 8;
+    reasons.push('The parent show has a deep catalog on Apple Podcasts.');
+  } else if ((result.trackCount || 0) >= 40) {
+    score += 5;
+    reasons.push('The parent show has a substantial catalog on Apple Podcasts.');
+  } else if ((result.trackCount || 0) >= 15) {
+    score += 2;
+    reasons.push('The parent show has some Apple Podcasts catalog depth.');
+  }
+
+  const descriptionLength = compactText([result.shortDescription, result.description]).length;
+  if (descriptionLength >= 260) {
+    score += 4;
+    reasons.push('The public description has enough detail to vet the premise.');
+  } else if (descriptionLength >= 120) {
+    score += 2;
+    reasons.push('The public description gives some premise detail.');
+  }
+
+  if (credibility.level === 'Strong') score += 7;
+  if (credibility.level === 'Adequate') score += 4;
+  if (credibility.level === 'Watchlist') score -= 8;
+
+  const level: VettingLevel = score >= 26 ? 'Strong' : score >= 16 ? 'Adequate' : 'Thin';
+
+  return {
+    level,
+    score,
+    scoreAdjustment: Math.max(-18, Math.min(18, score - 16)),
+    shouldFilter: (durationMinutes > 0 && durationMinutes < MIN_DISCUSSION_DURATION_MINUTES) || (level === 'Thin' && credibility.level !== 'Strong'),
+    reasons: reasons.slice(0, 3)
+  };
+}
+
 function formatCount(count: number, singular: string, plural = `${singular}s`) {
   return `${count} ${count === 1 ? singular : plural}`;
 }
@@ -508,16 +632,17 @@ function getRepeatedSourceTerms(podcasts: IntelligencePodcastInput[]) {
 
 function getSourceTexts(podcasts: IntelligencePodcastInput[]) {
   return podcasts.flatMap((podcast) => {
-    const weight = getPodcastSignalWeight(podcast);
+    const weight = Math.min(MAX_PROFILE_SOURCE_WEIGHT, getPodcastSignalWeight(podcast));
     if (weight <= 0) return [];
 
     const episodeSignal = getEpisodeSignalText(podcast);
     const sourceSignal = compactText([podcast.title, podcast.host]);
     const sourceWeight = episodeSignal ? weight * 0.15 : weight * 0.35;
+    const sourceKey = podcast._id || normalizeKey(podcast.title);
 
     const weightedTexts: Array<WeightedText | null> = [
-      episodeSignal ? { text: episodeSignal, title: podcast.title, status: podcast.status, weight: weight * 1.35 } : null,
-      sourceSignal ? { text: sourceSignal, title: podcast.title, status: podcast.status, weight: sourceWeight } : null
+      episodeSignal ? { text: episodeSignal, title: podcast.title, status: podcast.status, sourceKey, weight: weight * 1.35 } : null,
+      sourceSignal ? { text: sourceSignal, title: podcast.title, status: podcast.status, sourceKey, weight: sourceWeight } : null
     ];
 
     return weightedTexts.filter((item): item is WeightedText => Boolean(item?.text));
@@ -536,6 +661,7 @@ function getProfileThemes(sourceTexts: WeightedText[]) {
 
 function buildDiscoveryQueries(podcasts: IntelligencePodcastInput[], topTerms: string[], ignoredTerms: Set<string>) {
   const queries = new Set<string>();
+  const profileTermSet = new Set(topTerms);
   const addQuery = (query: string) => {
     const normalized = query.replace(/\s+/g, ' ').trim();
     if (normalized.length >= 3) queries.add(normalized);
@@ -549,7 +675,7 @@ function buildDiscoveryQueries(podcasts: IntelligencePodcastInput[], topTerms: s
     .sort((a, b) => getPodcastSignalWeight(b) - getPodcastSignalWeight(a))
     .slice(0, 4)
     .forEach((podcast) => {
-      const terms = getTopTerms(getEpisodeSignalText(podcast), 3, ignoredTerms);
+      const terms = getTopTerms(getEpisodeSignalText(podcast), 5, ignoredTerms).filter((term) => profileTermSet.has(term));
       if (terms.length >= 2) addQuery(terms.slice(0, 2).join(' '));
     });
 
@@ -596,7 +722,7 @@ async function fetchApplePodcastResults(query: string) {
 
     if (!response.ok) return [];
     const payload = (await response.json()) as { results?: ApplePodcastResult[] };
-    return Array.isArray(payload.results) ? payload.results : [];
+    return Array.isArray(payload.results) ? payload.results.map((result, index) => ({ ...result, searchRank: index + 1 })) : [];
   } catch {
     return [];
   } finally {
@@ -604,10 +730,9 @@ async function fetchApplePodcastResults(query: string) {
   }
 }
 
-function getClosestDiscussedSource(
+function getDiscussedSourceMatches(
   candidateText: string,
   podcasts: IntelligencePodcastInput[],
-  profileTerms: string[],
   ignoredTerms: Set<string>
 ) {
   const candidateTokens = new Set(tokenize(candidateText, ignoredTerms));
@@ -617,11 +742,11 @@ function getClosestDiscussedSource(
     .map((podcast) => {
       const podcastText = getEpisodeSignalText(podcast) || getPodcastText(podcast);
       const podcastTokens = new Set(tokenize(podcastText, ignoredTerms));
-      const overlap = [...candidateTokens].filter((token) => podcastTokens.has(token) || profileTerms.includes(token)).length;
+      const overlap = [...candidateTokens].filter((token) => podcastTokens.has(token)).length;
       return {
         title: podcast.episodeNames || podcast.title,
         overlap,
-        weight: getPodcastSignalWeight(podcast)
+        weight: Math.min(MAX_PROFILE_SOURCE_WEIGHT, getPodcastSignalWeight(podcast))
       };
     })
     .filter((source) => source.overlap > 0)
@@ -630,7 +755,7 @@ function getClosestDiscussedSource(
       const bScore = b.overlap * b.weight;
       if (bScore !== aScore) return bScore - aScore;
       return a.title.localeCompare(b.title);
-    })[0];
+    });
 }
 
 function buildAppleRecommendation({
@@ -654,35 +779,45 @@ function buildAppleRecommendation({
   const credibility = getCredibilityAssessment(compactText([candidateText, result.collectionName, result.artistName]));
   if (credibility.shouldFilter) return null;
 
+  const durationMinutes = getDurationMinutes(result);
+  const vetting = getVettingAssessment(result, durationMinutes, credibility);
+  if (vetting.shouldFilter) return null;
+
   const overlap = getTermOverlap(candidateText, profileTerms, ignoredTerms);
   const themeScores = getThemeScores(candidateText);
   const themes = themeScores.slice(0, 2).map((theme) => theme.label);
-  const closestSource = getClosestDiscussedSource(candidateText, podcasts, profileTerms, ignoredTerms);
+  const sourceMatches = getDiscussedSourceMatches(candidateText, podcasts, ignoredTerms);
+  const closestSource = sourceMatches[0];
   const queryTerms = tokenize(query, ignoredTerms);
   const queryHits = queryTerms.filter((term) => candidateText.toLowerCase().includes(term)).length;
-  const durationMinutes = result.trackTimeMillis ? Math.round(result.trackTimeMillis / 60000) : 0;
-  const durationScore = durationMinutes > 0 && durationMinutes <= 90 ? 5 : 0;
   const descriptionScore = result.shortDescription || result.description ? 5 : 0;
+  const sourceDiversityScore = Math.min(12, Math.max(0, sourceMatches.length - 1) * 5);
   const score = Math.round(
-    34 +
-      overlap.length * 12 +
-      themeScores.reduce((total, theme) => total + theme.score, 0) * 6 +
-      queryHits * 6 +
-      durationScore +
+    28 +
+      overlap.length * 10 +
+      themeScores.reduce((total, theme) => total + theme.score, 0) * 5 +
+      queryHits * 4 +
       descriptionScore +
-      (closestSource ? Math.min(18, closestSource.overlap * 4 + closestSource.weight / 2) : 0) +
-      credibility.scoreAdjustment
+      sourceDiversityScore +
+      (closestSource ? Math.min(10, closestSource.overlap * 2 + closestSource.weight / 4) : 0) +
+      credibility.scoreAdjustment +
+      vetting.scoreAdjustment
   );
   const reasons = [
     overlap.length > 0 ? `Episode-level match on weighted club terms: ${overlap.slice(0, 4).join(', ')}.` : '',
-    closestSource ? `Closest archive signal is ${closestSource.title}, which the club already chose to discuss.` : '',
+    sourceMatches.length > 1
+      ? `Matches ${formatCount(sourceMatches.length, 'distinct archive discussion')} instead of leaning on one prior episode.`
+      : closestSource
+        ? `Closest archive signal is ${closestSource.title}, with single-source influence capped.`
+        : '',
+    `Vetting screen: ${vetting.reasons[0]}`,
     `Credibility screen: ${credibility.reasons[0]}`,
     `Discovered from the weighted episode query "${query}".`,
-    durationMinutes > 0 && durationMinutes <= 90 ? `The episode length is manageable at about ${durationMinutes} minutes.` : ''
   ].filter(Boolean);
   const badges = [
     'Episode candidate',
     `Signal ${Math.max(0, score)}`,
+    `Vetted ${vetting.level}`,
     `Credibility ${credibility.level}`,
     durationMinutes > 0 ? `${durationMinutes} min` : '',
     genre && !isLowSignalGenre ? genre : ''
@@ -697,12 +832,17 @@ function buildAppleRecommendation({
     confidence: getConfidence(score),
     badges,
     themes,
-    reasons: reasons.slice(0, 3),
+    reasons: reasons.slice(0, 4),
     notesPreview: result.shortDescription || result.description ? truncateText(result.shortDescription || result.description || '') : undefined,
     credibility: {
       level: credibility.level,
       score: credibility.score,
       reasons: credibility.reasons
+    },
+    vetting: {
+      level: vetting.level,
+      score: vetting.score,
+      reasons: vetting.reasons
     }
   };
 }
@@ -791,7 +931,7 @@ export async function buildClubIntelligenceReport({
 }): Promise<IntelligenceReport> {
   const ignoredTerms = getRepeatedSourceTerms(podcasts);
   const sourceTexts = getSourceTexts(podcasts);
-  const topTerms = getWeightedTopTerms(sourceTexts, 10, ignoredTerms);
+  const topTerms = getDiversifiedTopTerms(sourceTexts, 10, ignoredTerms);
   const topThemes = getProfileThemes(sourceTexts);
   const discoveryQueries = buildDiscoveryQueries(podcasts, topTerms, ignoredTerms);
   const podcastDiscoveries =
@@ -805,7 +945,7 @@ export async function buildClubIntelligenceReport({
     sourceStatus: {
       podcasts:
         podcastDiscoveries.length > 0
-          ? 'New episode candidates from Apple Podcasts Search, ranked against discussed episodes and notes, with unsupported-claim screening.'
+          ? 'New episode candidates from Apple Podcasts Search, ranked against diversified club signals, minimum discussion length, and vetting proxies.'
           : 'No new episode candidates found from the current weighted profile.',
       carveOuts: 'Lightweight prompts from fist-bumped carve outs; lower priority than podcast discovery.'
     },

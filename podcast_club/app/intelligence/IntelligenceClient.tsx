@@ -40,6 +40,13 @@ function RecommendationCard({ item }: { item: IntelligenceRecommendation }) {
         </section>
       ) : null}
 
+      {item.vetting ? (
+        <section className="intelligence-note">
+          <span>Vetting screen</span>
+          <p>{item.vetting.reasons.join(' ')}</p>
+        </section>
+      ) : null}
+
       {item.notesPreview ? (
         <section className="intelligence-note">
           <span>Notes signal</span>
@@ -117,7 +124,7 @@ export default function IntelligenceClient() {
           <span className="badge">Beta</span>
         </div>
 
-        {loadingReport ? <p className="muted-line">Finding episode candidates and screening for credibility...</p> : null}
+        {loadingReport ? <p className="muted-line">Finding longer, vetted episode candidates from the club archive...</p> : null}
         {error ? <p className="warning-banner">{error}</p> : null}
 
         {report ? (
