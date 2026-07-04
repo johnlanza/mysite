@@ -198,6 +198,29 @@ type RoundOf16Response = RoundOf32Response;
 
 type KnockoutPickKey = "r32Picks" | "r16Picks";
 
+type KnockoutRoundStage = "r32" | "r16";
+
+type KnockoutRoundDisplay = {
+  stage: KnockoutRoundStage;
+  label: string;
+  shortLabel: string;
+  titleId: string;
+  matches: R32Match[];
+  picks: Record<string, string>;
+  savedPicks: Record<string, string> | null;
+  savedAt: string | null;
+  submitted: boolean;
+  submittedAt: string | null;
+  open: boolean;
+  locked: boolean;
+  started: boolean;
+  pointValue: number;
+  totalPoints: number;
+  feedback: string;
+  onPick: (matchId: string, teamName: string) => void;
+  onSave: () => void;
+};
+
 type KnockoutMatchSummary = R32Match & {
   teamAPickers: PublicPickParticipant[];
   teamBPickers: PublicPickParticipant[];
@@ -1317,6 +1340,55 @@ export function PoolaramaPrototype() {
         pointValue: 1
       };
   const currentKnockoutStarted = currentKnockoutRound.open || currentKnockoutRound.locked;
+  const knockoutRoundDisplays: KnockoutRoundDisplay[] = [
+    {
+      stage: "r16" as const,
+      label: "Round of 16",
+      shortLabel: "R16",
+      titleId: "r16-picks-title",
+      matches: r16Matches,
+      picks: r16Picks,
+      savedPicks: r16SavedPicks,
+      savedAt: r16SavedAt,
+      submitted: Boolean(r16SavedPicks),
+      submittedAt: r16SavedAt,
+      open: r16Open,
+      locked: r16Locked,
+      started: r16Started,
+      pointValue: 2,
+      totalPoints: 16,
+      feedback: r16Feedback,
+      onPick: (matchId: string, teamName: string) => setR16Picks((current) => ({ ...current, [matchId]: teamName })),
+      onSave: handleSaveRoundOf16Picks
+    },
+    {
+      stage: "r32" as const,
+      label: "Round of 32",
+      shortLabel: "R32",
+      titleId: "r32-picks-title",
+      matches: r32Matches,
+      picks: r32Picks,
+      savedPicks: r32SavedPicks,
+      savedAt: r32SavedAt,
+      submitted: Boolean(r32SavedPicks),
+      submittedAt: r32SavedAt,
+      open: r32Open,
+      locked: r32Locked,
+      started: r32Started,
+      pointValue: 1,
+      totalPoints: 16,
+      feedback: r32Feedback,
+      onPick: (matchId: string, teamName: string) => setR32Picks((current) => ({ ...current, [matchId]: teamName })),
+      onSave: handleSaveRoundOf32Picks
+    }
+  ].filter((round) => round.matches.length > 0)
+    .sort((a, b) => {
+      const currentLabel = currentKnockoutRound.shortLabel;
+      if (a.shortLabel === currentLabel && b.shortLabel !== currentLabel) return -1;
+      if (b.shortLabel === currentLabel && a.shortLabel !== currentLabel) return 1;
+
+      return b.pointValue - a.pointValue;
+    });
   const currentKnockoutMatchSummaries = useMemo<KnockoutMatchSummary[]>(() => (
     currentKnockoutRound.matches.map((match) => {
       const teamAPickers = publicPicks.filter((person) => person[currentKnockoutRound.pickKey]?.matchWinners[match.matchId] === match.teamA);
@@ -3194,142 +3266,113 @@ export function PoolaramaPrototype() {
           )}
           {identityConfirmed && (
             <>
-          {r16Matches.length > 0 && (
-            <section className="knockout-card" aria-labelledby="r16-picks-title">
-              <div className="section-title-row">
-                <div>
-                  <p className="eyebrow">Round of 16</p>
-                  <h3 id="r16-picks-title">Pick the winner of each match</h3>
-                  <p>
-                    {r16Open
-                      ? `${Object.keys(r16Picks).length}/${r16Matches.length} winners picked`
-                      : r16Locked
-                        ? "Round of 16 picks are locked."
-                        : "Round of 16 picks are not open yet."}
-                  </p>
-                </div>
-                <div className="points-pill">
-                  <strong>16 pts</strong>
-                  <span>2 per match</span>
-                </div>
-              </div>
-              <div className="knockout-match-grid">
-                {r16Matches.map((match) => (
-                  <article className="knockout-match-card" key={match.matchId}>
-                    <span>{match.label}</span>
-                    {formatKnockoutSchedule(match.label) && (
-                      <small className="match-schedule">{formatKnockoutSchedule(match.label)}</small>
-                    )}
-                    <div>
-                      {[match.teamA, match.teamB].map((teamName) => {
-                        const team = teams.find((candidate) => candidate.name === teamName);
+          {knockoutRoundDisplays.map((round, index) => {
+            const isCurrentRound = index === 0;
+            const savedRoundPicks = round.savedPicks || round.picks;
 
-                        return (
-                          <button
-                            className={r16Picks[match.matchId] === teamName ? "selected" : ""}
-                            key={`${match.matchId}-${teamName}`}
-                            type="button"
-                            disabled={!r16Open || isSaving}
-                            onClick={() => setR16Picks((current) => ({ ...current, [match.matchId]: teamName }))}
-                            style={{
-                              "--team-a": team?.colors[0] || "#0f9f6e",
-                              "--team-b": team?.colors[1] || "#ffffff"
-                            } as React.CSSProperties}
-                          >
-                            <span aria-hidden="true">{team?.flag || "⚽"}</span>
-                            <strong>{teamName}</strong>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </article>
-                ))}
-              </div>
-              <button
-                className="primary-action inline-action submit-action"
-                type="button"
-                onClick={handleSaveRoundOf16Picks}
-                disabled={!r16Open || isSaving}
-              >
-                {r16SavedPicks && JSON.stringify(r16SavedPicks) === JSON.stringify(r16Picks)
-                  ? "Round of 16 submitted"
-                  : r16Open
-                    ? "Submit Round of 16 picks"
-                    : r16Locked
-                      ? "Round of 16 locked"
-                      : "Round of 16 not open"}
-              </button>
-              <p className="pick-status" aria-live="polite">{r16Feedback}</p>
-            </section>
-          )}
-          {r32Matches.length > 0 && (
-            <section className="knockout-card" aria-labelledby="r32-picks-title">
-              <div className="section-title-row">
-                <div>
-                  <p className="eyebrow">Round of 32</p>
-                  <h3 id="r32-picks-title">Pick the winner of each match</h3>
-                  <p>
-                    {r32Open
-                      ? `${Object.keys(r32Picks).length}/${r32Matches.length} winners picked`
-                      : r32Locked
-                        ? "Round of 32 picks are locked."
-                        : "Round of 32 picks are not open yet."}
-                  </p>
-                </div>
-                <div className="points-pill">
-                  <strong>16 pts</strong>
-                  <span>1 per match</span>
-                </div>
-              </div>
-              <div className="knockout-match-grid">
-                {r32Matches.map((match) => (
-                  <article className="knockout-match-card" key={match.matchId}>
-                    <span>{match.label}</span>
-                    {formatKnockoutSchedule(match.label) && (
-                      <small className="match-schedule">{formatKnockoutSchedule(match.label)}</small>
-                    )}
-                    <div>
-                      {[match.teamA, match.teamB].map((teamName) => {
-                        const team = teams.find((candidate) => candidate.name === teamName);
+            if (!isCurrentRound && round.started) {
+              return (
+                <details className="group-stage-details round-history-details" key={`current-history-${round.stage}`}>
+                  <summary>
+                    <span>{round.label}</span>
+                    <strong>{round.locked ? "Locked" : round.open ? "Open" : "Saved"}</strong>
+                  </summary>
+                  <div className="saved-pick-list round-result-list">
+                    {getRoundOf32PickRows(savedRoundPicks, round.matches, round.pointValue).map((pick) => (
+                      <div
+                        className={`round-result-row result-${pick.result}`}
+                        key={`current-history-${round.stage}-${pick.id}`}
+                      >
+                        <span>{pick.label}{pick.schedule ? ` - ${pick.schedule}` : ""}</span>
+                        <strong>{pick.winner || "No pick"}</strong>
+                        <em>
+                          {pick.result === "pending"
+                            ? "Result pending"
+                            : pick.result === "won"
+                              ? `Won +${pick.points} point${pick.points === 1 ? "" : "s"}`
+                              : `Lost 0 points${pick.actualWinner ? ` · winner: ${pick.actualWinner}` : ""}`}
+                        </em>
+                      </div>
+                    ))}
+                  </div>
+                  {round.savedAt && (
+                    <p className="saved-pick-note">
+                      {round.label} submitted {new Date(round.savedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.
+                    </p>
+                  )}
+                </details>
+              );
+            }
 
-                        return (
-                          <button
-                            className={r32Picks[match.matchId] === teamName ? "selected" : ""}
-                            key={`${match.matchId}-${teamName}`}
-                            type="button"
-                            disabled={!r32Open || isSaving}
-                            onClick={() => setR32Picks((current) => ({ ...current, [match.matchId]: teamName }))}
-                            style={{
-                              "--team-a": team?.colors[0] || "#0f9f6e",
-                              "--team-b": team?.colors[1] || "#ffffff"
-                            } as React.CSSProperties}
-                          >
-                            <span aria-hidden="true">{team?.flag || "⚽"}</span>
-                            <strong>{teamName}</strong>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </article>
-                ))}
-              </div>
-              <button
-                className="primary-action inline-action submit-action"
-                type="button"
-                onClick={handleSaveRoundOf32Picks}
-                disabled={!r32Open || isSaving}
-              >
-                {r32SavedPicks && JSON.stringify(r32SavedPicks) === JSON.stringify(r32Picks)
-                  ? "Round of 32 submitted"
-                  : r32Open
-                    ? "Submit Round of 32 picks"
-                    : r32Locked
-                      ? "Round of 32 locked"
-                      : "Round of 32 not open"}
-              </button>
-              <p className="pick-status" aria-live="polite">{r32Feedback}</p>
-            </section>
-          )}
+            return (
+              <section className="knockout-card" aria-labelledby={round.titleId} key={`current-${round.stage}`}>
+                <div className="section-title-row">
+                  <div>
+                    <p className="eyebrow">{round.label}</p>
+                    <h3 id={round.titleId}>Pick the winner of each match</h3>
+                    <p>
+                      {round.open
+                        ? `${Object.keys(round.picks).length}/${round.matches.length} winners picked`
+                        : round.locked
+                          ? `${round.label} picks are locked.`
+                          : `${round.label} picks are not open yet.`}
+                    </p>
+                  </div>
+                  <div className="points-pill">
+                    <strong>{round.totalPoints} pts</strong>
+                    <span>{round.pointValue} per match</span>
+                  </div>
+                </div>
+                <div className="knockout-match-grid">
+                  {round.matches.map((match) => (
+                    <article className="knockout-match-card" key={match.matchId}>
+                      <span>{match.label}</span>
+                      {formatKnockoutSchedule(match.label) && (
+                        <small className="match-schedule">{formatKnockoutSchedule(match.label)}</small>
+                      )}
+                      <div>
+                        {[match.teamA, match.teamB].map((teamName) => {
+                          const team = teams.find((candidate) => candidate.name === teamName);
+
+                          return (
+                            <button
+                              className={round.picks[match.matchId] === teamName ? "selected" : ""}
+                              key={`${round.stage}-${match.matchId}-${teamName}`}
+                              type="button"
+                              disabled={!round.open || isSaving}
+                              onClick={() => round.onPick(match.matchId, teamName)}
+                              style={{
+                                "--team-a": team?.colors[0] || "#0f9f6e",
+                                "--team-b": team?.colors[1] || "#ffffff"
+                              } as React.CSSProperties}
+                            >
+                              <span aria-hidden="true">{team?.flag || "⚽"}</span>
+                              <strong>{teamName}</strong>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+                <button
+                  className="primary-action inline-action submit-action"
+                  type="button"
+                  onClick={round.onSave}
+                  disabled={!round.open || isSaving}
+                >
+                  {round.savedPicks && JSON.stringify(round.savedPicks) === JSON.stringify(round.picks)
+                    ? `${round.label} submitted`
+                    : round.open
+                      ? `Submit ${round.label} picks`
+                      : round.locked
+                        ? `${round.label} locked`
+                        : `${round.label} not open`}
+                </button>
+                <p className="pick-status" aria-live="polite">{round.feedback}</p>
+              </section>
+            );
+          })}
           <section className="group-picks-card" aria-labelledby="group-picks-title">
             <div className="section-title-row">
               <div>
@@ -3795,6 +3838,35 @@ export function PoolaramaPrototype() {
                     (groupScore?.winner !== undefined ? 1 : 0) +
                     (groupScore?.runnerUp !== undefined ? 1 : 0);
                 }, 0);
+                const personKnockoutRounds = [
+                  {
+                    stage: "r16",
+                    label: "Round of 16",
+                    shortLabel: "R16",
+                    started: r16Started,
+                    submitted: person.r16Submitted,
+                    picks: person.r16Picks,
+                    matches: r16Matches,
+                    pointValue: 2
+                  },
+                  {
+                    stage: "r32",
+                    label: "Round of 32",
+                    shortLabel: "R32",
+                    started: r32Started,
+                    submitted: person.r32Submitted,
+                    picks: person.r32Picks,
+                    matches: r32Matches,
+                    pointValue: 1
+                  }
+                ].filter((round) => round.started)
+                  .sort((a, b) => {
+                    const currentLabel = currentKnockoutRound.shortLabel;
+                    if (a.shortLabel === currentLabel && b.shortLabel !== currentLabel) return -1;
+                    if (b.shortLabel === currentLabel && a.shortLabel !== currentLabel) return 1;
+
+                    return b.pointValue - a.pointValue;
+                  });
 
                 return (
                   <article className={`standing-row standing-${displayRank}`} key={person.code}>
@@ -3906,47 +3978,63 @@ export function PoolaramaPrototype() {
                             <p>{person.submitted ? "They will appear here after John locks that round." : "Nothing to show yet."}</p>
                           </div>
                         )}
-                        {r32Started && (
-                          <div className="round-pick-section">
-                            <h4>Round of 32</h4>
-                            {person.r32Picks ? (
-                              <>
-                                <div className="saved-pick-list round-result-list">
-                                  {getRoundOf32PickRows(person.r32Picks.matchWinners, r32Matches, 1).map((pick) => (
-                                    <div
-                                      className={`round-result-row result-${pick.result}`}
-                                      key={`${person.code}-public-r32-${pick.id}`}
-                                    >
-                                      <span>{pick.label}{pick.schedule ? ` - ${pick.schedule}` : ""}</span>
-                                      <strong>{pick.winner || "No pick"}</strong>
-                                      <em>
-                                        {pick.result === "pending"
-                                          ? "Result pending"
-                                          : pick.result === "won"
-                                            ? `Won +${pick.points} point`
-                                            : `Lost 0 points${pick.actualWinner ? ` · winner: ${pick.actualWinner}` : ""}`}
-                                      </em>
-                                    </div>
-                                  ))}
-                                </div>
-                                {person.r32Picks.submittedAt && (
-                                  <p className="saved-pick-note">
-                                    Round of 32 submitted {new Date(person.r32Picks.submittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.
-                                  </p>
-                                )}
-                              </>
-                            ) : (
-                              <div className="round-status-note">
-                                <strong>{person.r32Submitted ? "Round of 32 picks submitted." : "No Round of 32 picks submitted yet."}</strong>
-                                <p>
-                                  {person.r32Submitted
-                                    ? "They will appear here after John locks this round."
-                                    : "Nothing to show for this round yet."}
-                                </p>
+                        {personKnockoutRounds.map((round, roundIndex) => {
+                          const roundContent = round.picks ? (
+                            <>
+                              <div className="saved-pick-list round-result-list">
+                                {getRoundOf32PickRows(round.picks.matchWinners, round.matches, round.pointValue).map((pick) => (
+                                  <div
+                                    className={`round-result-row result-${pick.result}`}
+                                    key={`${person.code}-public-${round.stage}-${pick.id}`}
+                                  >
+                                    <span>{pick.label}{pick.schedule ? ` - ${pick.schedule}` : ""}</span>
+                                    <strong>{pick.winner || "No pick"}</strong>
+                                    <em>
+                                      {pick.result === "pending"
+                                        ? "Result pending"
+                                        : pick.result === "won"
+                                          ? `Won +${pick.points} point${pick.points === 1 ? "" : "s"}`
+                                          : `Lost 0 points${pick.actualWinner ? ` · winner: ${pick.actualWinner}` : ""}`}
+                                    </em>
+                                  </div>
+                                ))}
                               </div>
-                            )}
-                          </div>
-                        )}
+                              {round.picks.submittedAt && (
+                                <p className="saved-pick-note">
+                                  {round.label} submitted {new Date(round.picks.submittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.
+                                </p>
+                              )}
+                            </>
+                          ) : (
+                            <div className="round-status-note">
+                              <strong>{round.submitted ? `${round.label} picks submitted.` : `No ${round.label} picks submitted yet.`}</strong>
+                              <p>
+                                {round.submitted
+                                  ? "They will appear here after John locks this round."
+                                  : "Nothing to show for this round yet."}
+                              </p>
+                            </div>
+                          );
+
+                          if (roundIndex > 0) {
+                            return (
+                              <details className="group-stage-details round-history-details" key={`${person.code}-public-${round.stage}`}>
+                                <summary>
+                                  <span>{round.label}</span>
+                                  <strong>{round.picks ? "View picks" : round.submitted ? "Submitted" : "No picks"}</strong>
+                                </summary>
+                                {roundContent}
+                              </details>
+                            );
+                          }
+
+                          return (
+                            <div className="round-pick-section" key={`${person.code}-public-${round.stage}`}>
+                              <h4>{round.label}</h4>
+                              {roundContent}
+                            </div>
+                          );
+                        })}
                       </div>
                     </details>
                   </article>
@@ -4149,7 +4237,7 @@ export function PoolaramaPrototype() {
               </button>
             </div>
           </div>
-          <section className="admin-rollup-card round-health-card" aria-label="Round health">
+          <section className="admin-rollup-card round-health-card admin-support-card" aria-label="Round health">
             <div className="section-title-row">
               <div>
                 <p className="eyebrow">Round health</p>
@@ -4190,10 +4278,10 @@ export function PoolaramaPrototype() {
               </div>
             </div>
           </section>
-          <section className="r32-admin-card" aria-labelledby="r32-admin-title">
+          <section className={`r32-admin-card ${r16CanPreview || r16Started ? "admin-round-archive" : "admin-round-current"}`} aria-labelledby="r32-admin-title">
             <div className="section-title-row">
               <div>
-                <p className="eyebrow">Current scoring round</p>
+                <p className="eyebrow">{r16CanPreview || r16Started ? "Previous round" : "Current scoring round"}</p>
                 <h3 id="r32-admin-title">Score Round of 32 winners</h3>
                 <p>
                   R32 picks are locked. Use these controls only to sync or set winners for completed R32 matches.
@@ -4284,10 +4372,13 @@ export function PoolaramaPrototype() {
               <p className="admin-empty-note">No Round of 32 preview has been generated yet.</p>
             )}
           </section>
-          <details className="admin-rollup-card next-round-rollup archived-admin-card">
+          <details
+            className={`admin-rollup-card next-round-rollup archived-admin-card ${r16CanPreview || r16Started ? "admin-round-current" : "admin-round-next"}`}
+            open={r16CanPreview || r16Started}
+          >
             <summary>
-              <span>Future round - no action yet</span>
-              <strong>Round of 16 readiness</strong>
+              <span>{r16CanPreview || r16Started ? "Current round" : "Future round - no action yet"}</span>
+              <strong>{r16Started ? "Round of 16 controls" : "Round of 16 readiness"}</strong>
             </summary>
             <div className="next-round-status">
               <div>
@@ -4386,10 +4477,13 @@ export function PoolaramaPrototype() {
               </p>
             )}
           </details>
-          <details className="admin-rollup-card next-round-rollup archived-admin-card">
+          <details
+            className={`admin-rollup-card next-round-rollup archived-admin-card ${qfCanPreview || qfStarted ? "admin-round-current" : "admin-round-next"}`}
+            open={qfCanPreview || qfStarted}
+          >
             <summary>
-              <span>Future round - no action yet</span>
-              <strong>Quarterfinal readiness</strong>
+              <span>{qfCanPreview || qfStarted ? "Current round" : "Future round - no action yet"}</span>
+              <strong>{qfStarted ? "Quarterfinal controls" : "Quarterfinal readiness"}</strong>
             </summary>
             <div className="next-round-status">
               <div>

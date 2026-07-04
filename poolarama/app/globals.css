@@ -2300,6 +2300,15 @@ h1 {
   font-size: 1rem;
 }
 
+.round-history-details {
+  margin-top: 14px;
+}
+
+.round-history-details .saved-pick-list,
+.round-history-details .saved-pick-note {
+  margin-top: 10px;
+}
+
 .round-status-note {
   padding: 10px;
   border-radius: 13px;
@@ -2700,6 +2709,22 @@ h1 {
 
 .next-round-rollup {
   background: linear-gradient(135deg, rgba(20, 99, 255, 0.16), rgba(0, 168, 168, 0.14)), #fff;
+}
+
+.admin-round-current {
+  order: 1;
+}
+
+.admin-round-next {
+  order: 2;
+}
+
+.admin-support-card {
+  order: 3;
+}
+
+.admin-round-archive {
+  order: 4;
 }
 
 .golden-rollup {
