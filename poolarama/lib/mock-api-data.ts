@@ -131,6 +131,8 @@ export function getMockAdminOverview(): AdminParticipantOverview[] {
       r32SubmittedAt: null,
       r16Submitted: false,
       r16SubmittedAt: null,
+      qfSubmitted: false,
+      qfSubmittedAt: null,
       champion: submission?.picks.champion || null,
       goldenBoot: submission?.picks.goldenBoot || null
     };

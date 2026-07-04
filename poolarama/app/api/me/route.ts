@@ -75,6 +75,7 @@ export async function GET(request: NextRequest) {
     const preTournamentSubmission = submissions.find((submission) => submission.stage === "preTournament") || null;
     const r32Submission = submissions.find((submission) => submission.stage === "r32") || null;
     const r16Submission = submissions.find((submission) => submission.stage === "r16") || null;
+    const qfSubmission = submissions.find((submission) => submission.stage === "qf") || null;
     const toResponseSubmission = (submission: typeof preTournamentSubmission): SavedSubmission | null => submission
       ? {
           poolSlug: submission.poolSlug,
@@ -101,7 +102,8 @@ export async function GET(request: NextRequest) {
       submissions: {
         preTournament: responseSubmission,
         r32: toResponseSubmission(r32Submission),
-        r16: toResponseSubmission(r16Submission)
+        r16: toResponseSubmission(r16Submission),
+        qf: toResponseSubmission(qfSubmission)
       }
     });
   } catch (error) {

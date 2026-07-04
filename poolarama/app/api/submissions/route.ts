@@ -24,11 +24,11 @@ function parsePicks(body: Record<string, unknown>, stage: PoolStage): PoolSubmis
   const champion = picks.champion;
   const goldenBoot = picks.goldenBoot;
 
-  if (stage === "r32" || stage === "r16") {
+  if (stage === "r32" || stage === "r16" || stage === "qf") {
     const matchWinners = picks.matchWinners || {};
 
     if (Object.keys(matchWinners).length === 0) {
-      throw new Error(`${stage === "r32" ? "Round of 32" : "Round of 16"} picks are required.`);
+      throw new Error(`${stage === "r32" ? "Round of 32" : stage === "r16" ? "Round of 16" : "Quarterfinal"} picks are required.`);
     }
 
     return {
@@ -126,11 +126,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    if (stage === "r32" || stage === "r16") {
+    if (stage === "r32" || stage === "r16" || stage === "qf") {
       const pool = await getOrCreateDefaultPool();
-      const roundLabel = stage === "r32" ? "Round of 32" : "Round of 16";
-      const expectedMatches = stage === "r32" ? 16 : 8;
-      const roundStatus = stage === "r32" ? pool.r32Status : pool.r16Status;
+      const roundLabel = stage === "r32" ? "Round of 32" : stage === "r16" ? "Round of 16" : "Quarterfinal";
+      const expectedMatches = stage === "r32" ? 16 : stage === "r16" ? 8 : 4;
+      const roundStatus = stage === "r32" ? pool.r32Status : stage === "r16" ? pool.r16Status : pool.qfStatus;
 
       if (roundStatus !== "open") {
         return NextResponse.json(

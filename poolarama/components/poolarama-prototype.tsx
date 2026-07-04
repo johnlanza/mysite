@@ -37,6 +37,7 @@ type ApiSubmissionResponse = {
     preTournament: ApiSubmissionResponse["submission"];
     r32: ApiSubmissionResponse["submission"];
     r16: ApiSubmissionResponse["submission"];
+    qf: ApiSubmissionResponse["submission"];
   };
   participant?: {
     code: string;
@@ -124,6 +125,12 @@ type PublicPickParticipant = {
     matchWinners: Record<string, string>;
     submittedAt: string | null;
   } | null;
+  qfSubmitted: boolean;
+  qfSubmittedAt: string | null;
+  qfPicks: {
+    matchWinners: Record<string, string>;
+    submittedAt: string | null;
+  } | null;
   groupPickScores?: Partial<Record<GroupId, {
     winner: number;
     runnerUp: number;
@@ -142,6 +149,10 @@ type RoundSubmissionSummary = {
     total: number;
   };
   r16: {
+    submitted: number;
+    total: number;
+  };
+  qf: {
     submitted: number;
     total: number;
   };
@@ -196,9 +207,9 @@ type RoundOf32Response = {
 
 type RoundOf16Response = RoundOf32Response;
 
-type KnockoutPickKey = "r32Picks" | "r16Picks";
+type KnockoutPickKey = "r32Picks" | "r16Picks" | "qfPicks";
 
-type KnockoutRoundStage = "r32" | "r16";
+type KnockoutRoundStage = "r32" | "r16" | "qf";
 
 type KnockoutRoundDisplay = {
   stage: KnockoutRoundStage;
@@ -299,6 +310,10 @@ const defaultRoundSubmissionSummary: RoundSubmissionSummary = {
     total: 0
   },
   r16: {
+    submitted: 0,
+    total: 0
+  },
+  qf: {
     submitted: 0,
     total: 0
   }
@@ -536,11 +551,12 @@ function getGroupPotentialToDate(rows: GroupStandingRow[]) {
   }, { advancers: 0, winnerBonus: 0 });
 }
 
-function getKnockoutPotentialToDate(r32Matches: R32Match[], r16Matches: R32Match[]) {
+function getKnockoutPotentialToDate(r32Matches: R32Match[], r16Matches: R32Match[], qfMatches: R32Match[]) {
   const r32Potential = r32Matches.filter((match) => match.winner).length;
   const r16Potential = r16Matches.filter((match) => match.winner).length * 2;
+  const qfPotential = qfMatches.filter((match) => match.winner).length * 3;
 
-  return r32Potential + r16Potential;
+  return r32Potential + r16Potential + qfPotential;
 }
 
 function formatScoreProgress(points: number, potential: number) {
@@ -1163,6 +1179,8 @@ export function PoolaramaPrototype() {
       r32SubmittedAt: null,
       r16Submitted: false,
       r16SubmittedAt: null,
+      qfSubmitted: false,
+      qfSubmittedAt: null,
       champion: null,
       goldenBoot: null
     }))
@@ -1189,7 +1207,11 @@ export function PoolaramaPrototype() {
   const [r16PreviewReady, setR16PreviewReady] = useState(false);
   const [r16Feedback, setR16Feedback] = useState("Round of 16 picks are not open yet.");
   const [qfMatches, setQfMatches] = useState<R32Match[]>([]);
+  const [qfPicks, setQfPicks] = useState<Record<string, string>>({});
+  const [qfSavedPicks, setQfSavedPicks] = useState<Record<string, string> | null>(null);
+  const [qfSavedAt, setQfSavedAt] = useState<string | null>(null);
   const [qfPreviewReady, setQfPreviewReady] = useState(false);
+  const [qfFeedback, setQfFeedback] = useState("Quarterfinal picks are not open yet.");
   const [selectedKnockoutMatchId, setSelectedKnockoutMatchId] = useState<string | null>(null);
   const [goldenBootRows, setGoldenBootRows] = useState<GoldenBootRow[]>([]);
   const [goldenBootFeedback, setGoldenBootFeedback] = useState("Golden Boot table is loading.");
@@ -1246,8 +1268,8 @@ export function PoolaramaPrototype() {
     [groupStandingsRows]
   );
   const knockoutPotentialToDate = useMemo(
-    () => getKnockoutPotentialToDate(r32Matches, r16Matches),
-    [r16Matches, r32Matches]
+    () => getKnockoutPotentialToDate(r32Matches, r16Matches, qfMatches),
+    [qfMatches, r16Matches, r32Matches]
   );
   const championStatusMatches = useMemo(
     () => [...r32Matches, ...r16Matches, ...qfMatches],
@@ -1256,6 +1278,7 @@ export function PoolaramaPrototype() {
   const preTournamentControlsLocked = preTournamentLocked || r32Open || r32Locked;
   const r32PicksComplete = r32Matches.length > 0 && r32Matches.every((match) => Boolean(r32Picks[match.matchId]));
   const r16PicksComplete = r16Matches.length > 0 && r16Matches.every((match) => Boolean(r16Picks[match.matchId]));
+  const qfPicksComplete = qfMatches.length > 0 && qfMatches.every((match) => Boolean(qfPicks[match.matchId]));
   const showLockedHomeNotice = preTournamentLocked && !r32Started && !identityConfirmed && !identityLockedByLink && !adminEnabled;
   const showParticipantLockedHeader = preTournamentLocked && identityConfirmed && !r32Open && !r32Locked;
   const showPersonalR32Pick = identityLockedByLink;
@@ -1274,7 +1297,14 @@ export function PoolaramaPrototype() {
   const adminSubmittedCount = adminOverview.filter((participant) => participant.submitted).length;
   const adminR32SubmittedCount = adminOverview.filter((participant) => participant.r32Submitted).length;
   const adminR16SubmittedCount = adminOverview.filter((participant) => participant.r16Submitted).length;
-  const heroKnockoutSubmissionMetric = r16Started
+  const adminQfSubmittedCount = adminOverview.filter((participant) => participant.qfSubmitted).length;
+  const heroKnockoutSubmissionMetric = qfStarted
+    ? {
+        submitted: adminEnabled ? adminQfSubmittedCount : roundSubmissions.qf.submitted,
+        total: adminEnabled ? adminOverview.length : roundSubmissions.qf.total || totalPlayers,
+        label: "QF submitted"
+      }
+    : r16Started
     ? {
         submitted: adminEnabled ? adminR16SubmittedCount : roundSubmissions.r16.submitted,
         total: adminEnabled ? adminOverview.length : roundSubmissions.r16.total || totalPlayers,
@@ -1324,7 +1354,20 @@ export function PoolaramaPrototype() {
       ? `${leaders.slice(0, 2).join(", ")}${leaders.length > 2 ? " +" : ""}`
       : "Scoring not started";
   const unpaidCount = adminOverview.filter((participant) => !participant.venmoPaid).length;
-  const currentKnockoutRound = r16Started && r16Matches.length > 0
+  const currentKnockoutRound = qfStarted && qfMatches.length > 0
+    ? {
+        label: "Quarterfinals",
+        shortLabel: "QF",
+        matches: qfMatches,
+        picks: qfPicks,
+        pickKey: "qfPicks" as KnockoutPickKey,
+        locked: qfLocked,
+        open: qfOpen,
+        scoredCount: qfScoredCount,
+        totalPoints: 12,
+        pointValue: 3
+      }
+    : r16Started && r16Matches.length > 0
     ? {
         label: "Round of 16",
         shortLabel: "R16",
@@ -1351,6 +1394,26 @@ export function PoolaramaPrototype() {
       };
   const currentKnockoutStarted = currentKnockoutRound.open || currentKnockoutRound.locked;
   const knockoutRoundDisplays: KnockoutRoundDisplay[] = [
+    {
+      stage: "qf" as const,
+      label: "Quarterfinals",
+      shortLabel: "QF",
+      titleId: "qf-picks-title",
+      matches: qfMatches,
+      picks: qfPicks,
+      savedPicks: qfSavedPicks,
+      savedAt: qfSavedAt,
+      submitted: Boolean(qfSavedPicks),
+      submittedAt: qfSavedAt,
+      open: qfOpen,
+      locked: qfLocked,
+      started: qfStarted,
+      pointValue: 3,
+      totalPoints: 12,
+      feedback: qfFeedback,
+      onPick: (matchId: string, teamName: string) => setQfPicks((current) => ({ ...current, [matchId]: teamName })),
+      onSave: handleSaveQuarterfinalPicks
+    },
     {
       stage: "r16" as const,
       label: "Round of 16",
@@ -1632,7 +1695,14 @@ export function PoolaramaPrototype() {
             setR16Feedback("Restored Round of 16 picks.");
           }
 
-          if (data.submission || data.submissions?.r32 || data.submissions?.r16) {
+          if (data.submissions?.qf?.picks.matchWinners) {
+            setQfPicks(data.submissions.qf.picks.matchWinners);
+            setQfSavedPicks(data.submissions.qf.picks.matchWinners);
+            setQfSavedAt(data.submissions.qf.submittedAt);
+            setQfFeedback("Restored Quarterfinal picks.");
+          }
+
+          if (data.submission || data.submissions?.r32 || data.submissions?.r16 || data.submissions?.qf) {
             return;
           }
         } else if (urlParticipantCode) {
@@ -1692,6 +1762,17 @@ export function PoolaramaPrototype() {
 
     setR16Matches([]);
   }, [adminEnabled, poolState.r16.status]);
+
+  useEffect(() => {
+    if (adminEnabled) return;
+
+    if (poolState.qf.status === "open" || poolState.qf.status === "locked") {
+      loadPublicQuarterfinals();
+      return;
+    }
+
+    setQfMatches([]);
+  }, [adminEnabled, poolState.qf.status]);
 
   async function loadAdminOverview() {
     try {
@@ -1757,6 +1838,10 @@ export function PoolaramaPrototype() {
           total: data.participants.length
         },
         r16: {
+          submitted: 0,
+          total: data.participants.length
+        },
+        qf: {
           submitted: 0,
           total: data.participants.length
         }
@@ -1916,6 +2001,32 @@ export function PoolaramaPrototype() {
       setR16Matches([]);
       setR16PreviewReady(false);
       setR16Feedback("Round of 16 unavailable.");
+    }
+  }
+
+  async function loadPublicQuarterfinals() {
+    try {
+      const response = await fetch(withBasePath("/api/qf"), { cache: "no-store" });
+
+      if (!response.ok) {
+        throw new Error("Quarterfinals failed.");
+      }
+
+      const data = (await response.json()) as RoundOf16Response;
+      setQfMatches(data.matches);
+      setPoolState(normalizePoolState(data.pool));
+      setQfPreviewReady(false);
+      setQfFeedback(
+        data.pool.qf.status === "open"
+          ? "Quarterfinal picks are open."
+          : data.pool.qf.status === "locked"
+            ? "Quarterfinal picks are locked."
+            : "Quarterfinal picks are not open yet."
+      );
+    } catch {
+      setQfMatches([]);
+      setQfPreviewReady(false);
+      setQfFeedback("Quarterfinals unavailable.");
     }
   }
 
@@ -2855,6 +2966,53 @@ export function PoolaramaPrototype() {
     }
   }
 
+  async function handleSaveQuarterfinalPicks() {
+    if (!qfPicksComplete) {
+      setQfFeedback("Pick every Quarterfinal winner before submitting.");
+      return;
+    }
+
+    if (!qfOpen) {
+      setQfFeedback(qfLocked ? "Quarterfinal picks are locked." : "Quarterfinal picks are not open yet.");
+      return;
+    }
+
+    setIsSaving(true);
+    setQfFeedback("Submitting Quarterfinal picks...");
+
+    try {
+      const response = await fetch(withBasePath("/api/submissions"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          stage: "qf",
+          participantCode: selectedParticipant.code,
+          picks: {
+            matchWinners: qfPicks
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Could not submit Quarterfinal picks.");
+      }
+
+      const data = (await response.json()) as ApiSubmissionResponse;
+      setQfSavedPicks(qfPicks);
+      setQfSavedAt(data.submission?.submittedAt || new Date().toISOString());
+      await loadPublicPicks();
+      setQfFeedback("Quarterfinal picks submitted.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not submit Quarterfinal picks.";
+      setQfFeedback(message);
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
   return (
     <main className="app-shell">
       <section className="hero" aria-labelledby="poolarama-title">
@@ -2905,20 +3063,24 @@ export function PoolaramaPrototype() {
       {tab === "picks" && (
         <section className="screen stack" aria-labelledby="picks-title">
           <ScreenHeader
-            kicker={r16Open ? "Round of 16 picks open" : r16Locked ? "Current round locked" : r32Open ? "Round of 32 picks open" : r32Locked || showLockedHomeNotice || showParticipantLockedHeader ? "Current round locked" : identityConfirmed ? "Picks open" : "Player access"}
-            title={r16Open ? "Round of 16 is now open" : r16Locked ? "Round of 16 is locked" : r32Open ? "Make your Round of 32 picks" : r32Locked ? "Round of 32 is locked" : showLockedHomeNotice ? "All picks are in" : showParticipantLockedHeader ? "Review your locked picks" : identityConfirmed ? "Make your group picks" : "Open your player link"}
+            kicker={qfOpen ? "Quarterfinal picks open" : qfLocked ? "Current round locked" : r16Open ? "Round of 16 picks open" : r16Locked ? "Current round locked" : r32Open ? "Round of 32 picks open" : r32Locked || showLockedHomeNotice || showParticipantLockedHeader ? "Current round locked" : identityConfirmed ? "Picks open" : "Player access"}
+            title={qfOpen ? "Quarterfinals are now open" : qfLocked ? "Quarterfinals are locked" : r16Open ? "Round of 16 is now open" : r16Locked ? "Round of 16 is locked" : r32Open ? "Make your Round of 32 picks" : r32Locked ? "Round of 32 is locked" : showLockedHomeNotice ? "All picks are in" : showParticipantLockedHeader ? "Review your locked picks" : identityConfirmed ? "Make your group picks" : "Open your player link"}
             note={showLockedHomeNotice
               ? "The group-stage picks are locked and visible in the standings."
+              : qfLocked
+              ? "Quarterfinal picks are locked and visible. Scoring updates as winners are entered."
+              : qfOpen
+              ? `This link is assigned to ${selectedParticipant.nickname}. Confirm your name, then pick every Quarterfinal match winner.`
+              : r16Open
+              ? `This link is assigned to ${selectedParticipant.nickname}. Confirm your name, then pick every Round of 16 match winner.`
               : r16Locked
               ? "Round of 16 picks are locked and visible. Scoring updates as winners are entered."
+              : r32Open
+              ? `This link is assigned to ${selectedParticipant.nickname}. Scroll to the Round of 32 card and pick every match winner.`
               : r32Locked
               ? "Round of 32 picks are locked and visible. Scoring updates as winners are entered."
               : showParticipantLockedHeader
               ? "Your group-stage, champion, and Golden Boot picks are locked. Knockout picks will appear here when John opens them."
-              : r16Open
-              ? `This link is assigned to ${selectedParticipant.nickname}. Confirm your name, then pick every Round of 16 match winner.`
-              : r32Open
-              ? `This link is assigned to ${selectedParticipant.nickname}. Scroll to the Round of 32 card and pick every match winner.`
               : identityLockedByLink
               ? `This test link is assigned to ${selectedParticipant.nickname}.`
               : identityConfirmed
@@ -3695,72 +3857,58 @@ export function PoolaramaPrototype() {
                   ))}
                 </div>
               </div>
-              <div className="saved-pick-section">
-                <h4>Round of 32</h4>
-                {r32SavedPicks && Object.keys(r32SavedPicks).length > 0 ? (
+              {knockoutRoundDisplays.map((round, index) => {
+                const roundPicks = round.savedPicks;
+                const roundContent = roundPicks && Object.keys(roundPicks).length > 0 ? (
                   <>
                     <div className="saved-pick-list">
-                      {(r32Matches.length > 0
-                        ? r32Matches.map((match) => ({
+                      {(round.matches.length > 0
+                        ? round.matches.map((match) => ({
                             id: match.matchId,
                             label: match.label,
                             schedule: formatKnockoutSchedule(match.label),
-                            winner: r32SavedPicks[match.matchId]
+                            winner: roundPicks[match.matchId]
                           }))
-                        : Object.entries(r32SavedPicks).map(([id, winner]) => ({
+                        : Object.entries(roundPicks).map(([id, winner]) => ({
                             id,
                             label: id.toUpperCase(),
                             schedule: "",
                             winner
                           }))
                       ).map((pick) => (
-                        <div key={`saved-r32-${pick.id}`}>
+                        <div key={`saved-${round.stage}-${pick.id}`}>
                           <span>{pick.label}{pick.schedule ? ` - ${pick.schedule}` : ""}</span>
                           <strong>{pick.winner || "No pick"}</strong>
                         </div>
                       ))}
                     </div>
-                    {r32SavedAt && (
-                      <p className="saved-pick-note">Round of 32 submitted {new Date(r32SavedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.</p>
+                    {round.savedAt && (
+                      <p className="saved-pick-note">{round.label} submitted {new Date(round.savedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.</p>
                     )}
                   </>
                 ) : (
-                  <p className="saved-pick-note">No Round of 32 picks submitted yet.</p>
-                )}
-              </div>
-              <div className="saved-pick-section">
-                <h4>Round of 16</h4>
-                {r16SavedPicks && Object.keys(r16SavedPicks).length > 0 ? (
-                  <>
-                    <div className="saved-pick-list">
-                      {(r16Matches.length > 0
-                        ? r16Matches.map((match) => ({
-                            id: match.matchId,
-                            label: match.label,
-                            schedule: formatKnockoutSchedule(match.label),
-                            winner: r16SavedPicks[match.matchId]
-                          }))
-                        : Object.entries(r16SavedPicks).map(([id, winner]) => ({
-                            id,
-                            label: id.toUpperCase(),
-                            schedule: "",
-                            winner
-                          }))
-                      ).map((pick) => (
-                        <div key={`saved-r16-${pick.id}`}>
-                          <span>{pick.label}{pick.schedule ? ` - ${pick.schedule}` : ""}</span>
-                          <strong>{pick.winner || "No pick"}</strong>
-                        </div>
-                      ))}
-                    </div>
-                    {r16SavedAt && (
-                      <p className="saved-pick-note">Round of 16 submitted {new Date(r16SavedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.</p>
-                    )}
-                  </>
-                ) : (
-                  <p className="saved-pick-note">No Round of 16 picks submitted yet.</p>
-                )}
-              </div>
+                  <p className="saved-pick-note">No {round.label} picks submitted yet.</p>
+                );
+
+                if (index > 0) {
+                  return (
+                    <details className="group-stage-details round-history-details" key={`saved-${round.stage}`}>
+                      <summary>
+                        <span>{round.label}</span>
+                        <strong>{round.savedPicks ? "Saved" : "No picks"}</strong>
+                      </summary>
+                      {roundContent}
+                    </details>
+                  );
+                }
+
+                return (
+                  <div className="saved-pick-section" key={`saved-${round.stage}`}>
+                    <h4>{round.label}</h4>
+                    {roundContent}
+                  </div>
+                );
+              })}
             </section>
           )}
             </>
@@ -3774,13 +3922,13 @@ export function PoolaramaPrototype() {
             kicker="Live board"
             title="Standings"
             note={
-              r32Locked
-                ? `${activeKnockoutRoundLabel} picks are locked and visible. Scoring updates as winners are entered.`
-                : r32Open
-                  ? "Group-stage picks are visible. Round of 32 picks stay hidden until John locks this round."
-                  : preTournamentLocked
-                    ? "Pre-tournament picks are locked and visible."
-                    : "Picks stay hidden until John locks the round."
+              currentKnockoutStarted
+                ? currentKnockoutRound.locked
+                  ? `${currentKnockoutRound.label} picks are locked and visible. Scoring updates as winners are entered.`
+                  : `${currentKnockoutRound.label} picks stay hidden until John locks this round.`
+                : preTournamentLocked
+                  ? "Pre-tournament picks are locked and visible."
+                  : "Picks stay hidden until John locks the round."
             }
           />
           {poolDataWarning && (
@@ -3822,6 +3970,9 @@ export function PoolaramaPrototype() {
                     r16Submitted: participant.r16Submitted,
                     r16SubmittedAt: participant.r16SubmittedAt,
                     r16Picks: null,
+                    qfSubmitted: participant.qfSubmitted,
+                    qfSubmittedAt: participant.qfSubmittedAt,
+                    qfPicks: null,
                     points: 0,
                     scoring: [],
                     visible: participant.code === selectedParticipant.code,
@@ -3849,6 +4000,16 @@ export function PoolaramaPrototype() {
                     (groupScore?.runnerUp !== undefined ? 1 : 0);
                 }, 0);
                 const personKnockoutRounds = [
+                  {
+                    stage: "qf",
+                    label: "Quarterfinals",
+                    shortLabel: "QF",
+                    started: qfStarted,
+                    submitted: person.qfSubmitted,
+                    picks: person.qfPicks,
+                    matches: qfMatches,
+                    pointValue: 3
+                  },
                   {
                     stage: "r16",
                     label: "Round of 16",
@@ -4194,6 +4355,12 @@ export function PoolaramaPrototype() {
                 <span>R16 submitted</span>
               </div>
             )}
+            {poolState.qf.status !== "setup" && (
+              <div>
+                <strong>{adminQfSubmittedCount}/{adminOverview.length}</strong>
+                <span>QF submitted</span>
+              </div>
+            )}
             <div>
               <strong>{adminOverview.length - unpaidCount}/{adminOverview.length}</strong>
               <span>paid</span>
@@ -4383,11 +4550,11 @@ export function PoolaramaPrototype() {
             )}
           </section>
           <details
-            className={`admin-rollup-card next-round-rollup archived-admin-card ${r16CanPreview || r16Started ? "admin-round-current" : "admin-round-next"}`}
-            open={r16CanPreview || r16Started}
+            className={`admin-rollup-card next-round-rollup archived-admin-card ${qfCanPreview || qfStarted ? "admin-round-archive" : r16CanPreview || r16Started ? "admin-round-current" : "admin-round-next"}`}
+            open={Boolean((r16CanPreview || r16Started) && !(qfCanPreview || qfStarted))}
           >
             <summary>
-              <span>{r16CanPreview || r16Started ? "Current round" : "Future round - no action yet"}</span>
+              <span>{qfCanPreview || qfStarted ? "Previous round" : r16CanPreview || r16Started ? "Current round" : "Future round - no action yet"}</span>
               <strong>{r16Started ? "Round of 16 controls" : "Round of 16 readiness"}</strong>
             </summary>
             <div className="next-round-status">
@@ -4631,6 +4798,11 @@ export function PoolaramaPrototype() {
                           {participant.r16Submitted ? "R16 submitted" : "R16 missing"}
                         </span>
                       )}
+                      {poolState.qf.status !== "setup" && (
+                        <span className={participant.qfSubmitted ? "status-pill submitted" : "status-pill missing"}>
+                          {participant.qfSubmitted ? "QF submitted" : "QF missing"}
+                        </span>
+                      )}
                     </div>
                     <div className="admin-pick-summary">
                       <span>Group: {participant.submittedAt ? new Date(participant.submittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
@@ -4639,6 +4811,9 @@ export function PoolaramaPrototype() {
                       )}
                       {poolState.r16.status !== "setup" && (
                         <span>R16: {participant.r16SubmittedAt ? new Date(participant.r16SubmittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
+                      )}
+                      {poolState.qf.status !== "setup" && (
+                        <span>QF: {participant.qfSubmittedAt ? new Date(participant.qfSubmittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
                       )}
                       <strong>
                         {participant.champion

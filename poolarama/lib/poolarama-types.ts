@@ -58,6 +58,8 @@ export type AdminParticipantOverview = {
   r32SubmittedAt: string | null;
   r16Submitted: boolean;
   r16SubmittedAt: string | null;
+  qfSubmitted: boolean;
+  qfSubmittedAt: string | null;
   champion: string | null;
   goldenBoot: string | null;
 };

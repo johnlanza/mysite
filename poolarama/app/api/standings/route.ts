@@ -76,13 +76,14 @@ export async function GET() {
       return NextResponse.json({ standings: mockStandings, storageMode: "mock" });
     }
 
-    const [pool, participants, submissions, groupStandingRows, r32Matches, r16Matches] = await Promise.all([
+    const [pool, participants, submissions, groupStandingRows, r32Matches, r16Matches, qfMatches] = await Promise.all([
       getOrCreateDefaultPool(),
       ParticipantModel.find({ poolSlug: defaultPoolSlug }).lean(),
-      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: { $in: ["preTournament", "r32", "r16"] } }).lean(),
+      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: { $in: ["preTournament", "r32", "r16", "qf"] } }).lean(),
       GroupStandingModel.find({ poolSlug: defaultPoolSlug }).lean(),
       MatchModel.find({ poolSlug: defaultPoolSlug, stage: "r32" }).lean(),
-      MatchModel.find({ poolSlug: defaultPoolSlug, stage: "r16" }).lean()
+      MatchModel.find({ poolSlug: defaultPoolSlug, stage: "r16" }).lean(),
+      MatchModel.find({ poolSlug: defaultPoolSlug, stage: "qf" }).lean()
     ]);
 
     if (participants.length === 0 && !allowMockFallback()) return poolDataUnavailableResponse();
@@ -108,13 +109,17 @@ export async function GET() {
           submissions.find((item) => item.participantCode === knownParticipant.code && item.stage === "r32") || null;
         const r16Submission =
           submissions.find((item) => item.participantCode === knownParticipant.code && item.stage === "r16") || null;
+        const qfSubmission =
+          submissions.find((item) => item.participantCode === knownParticipant.code && item.stage === "qf") || null;
         const picks = preTournamentSubmission ? normalizePicks(preTournamentSubmission.picks) : null;
         const r32Picks = r32Submission ? normalizePicks(r32Submission.picks) : null;
         const r16Picks = r16Submission ? normalizePicks(r16Submission.picks) : null;
+        const qfPicks = qfSubmission ? normalizePicks(qfSubmission.picks) : null;
         const score = picks ? scorePreTournamentPicks(picks, groupStandings, pool.scoringRules || {}) : null;
         const knockoutScore =
           scoreRoundOf32Picks(r32Picks, r32Matches, pool.scoringRules || {}) +
-          (pool.r16Status === "locked" ? scoreKnockoutPicks(r16Picks, r16Matches, "r16", pool.scoringRules || {}) : 0);
+          (pool.r16Status === "locked" ? scoreKnockoutPicks(r16Picks, r16Matches, "r16", pool.scoringRules || {}) : 0) +
+          (pool.qfStatus === "locked" ? scoreKnockoutPicks(qfPicks, qfMatches, "qf", pool.scoringRules || {}) : 0);
         const totalScore = (score?.total || 0) + knockoutScore;
 
         return {

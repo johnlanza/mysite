@@ -88,6 +88,12 @@ export async function GET(request: NextRequest) {
           r32Submitted: false,
           r32SubmittedAt: null,
           r32Picks: null,
+          r16Submitted: false,
+          r16SubmittedAt: null,
+          r16Picks: null,
+          qfSubmitted: false,
+          qfSubmittedAt: null,
+          qfPicks: null,
           points: 0,
           scoring: [],
           visible: false,
@@ -97,6 +103,14 @@ export async function GET(request: NextRequest) {
           r32: {
             submitted: 0,
             total: knownParticipants.length
+          },
+          r16: {
+            submitted: 0,
+            total: knownParticipants.length
+          },
+          qf: {
+            submitted: 0,
+            total: knownParticipants.length
           }
         },
         pool: buildPoolState(null),
@@ -104,13 +118,14 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const [pool, participants, submissions, groupStandingRows, r32Matches, r16Matches] = await Promise.all([
+    const [pool, participants, submissions, groupStandingRows, r32Matches, r16Matches, qfMatches] = await Promise.all([
       getOrCreateDefaultPool(),
       ParticipantModel.find({ poolSlug: defaultPoolSlug }).lean(),
-      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: { $in: ["preTournament", "r32", "r16"] } }).lean(),
+      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: { $in: ["preTournament", "r32", "r16", "qf"] } }).lean(),
       GroupStandingModel.find({ poolSlug: defaultPoolSlug }).lean(),
       MatchModel.find({ poolSlug: defaultPoolSlug, stage: "r32" }).lean(),
-      MatchModel.find({ poolSlug: defaultPoolSlug, stage: "r16" }).lean()
+      MatchModel.find({ poolSlug: defaultPoolSlug, stage: "r16" }).lean(),
+      MatchModel.find({ poolSlug: defaultPoolSlug, stage: "qf" }).lean()
     ]);
 
     if (participants.length === 0 && !allowMockFallback()) return poolDataUnavailableResponse();
@@ -132,6 +147,7 @@ export async function GET(request: NextRequest) {
     const isLocked = poolState.preTournament.status === "locked";
     const r32PicksVisible = poolState.r32.status === "locked";
     const r16PicksVisible = poolState.r16.status === "locked";
+    const qfPicksVisible = poolState.qf.status === "locked";
     const roster = mergeKnownAndMongoParticipants(participants.map(participantFromMongo));
     const activeParticipantCodes = new Set(roster.map((participant) => participant.code));
     const r32SubmissionCount = submissions.filter((submission) =>
@@ -139,6 +155,9 @@ export async function GET(request: NextRequest) {
     ).length;
     const r16SubmissionCount = submissions.filter((submission) =>
       submission.stage === "r16" && activeParticipantCodes.has(submission.participantCode)
+    ).length;
+    const qfSubmissionCount = submissions.filter((submission) =>
+      submission.stage === "qf" && activeParticipantCodes.has(submission.participantCode)
     ).length;
     const groupStandings =
       groupStandingRows.length > 0
@@ -155,14 +174,18 @@ export async function GET(request: NextRequest) {
           submissions.find((item) => item.participantCode === knownParticipant.code && item.stage === "r32") || null;
         const r16Submission =
           submissions.find((item) => item.participantCode === knownParticipant.code && item.stage === "r16") || null;
+        const qfSubmission =
+          submissions.find((item) => item.participantCode === knownParticipant.code && item.stage === "qf") || null;
         const visible = isLocked || knownParticipant.code === viewer?.code;
         const picks = submission ? normalizePicks(submission.picks) : null;
         const r32Picks = r32Submission ? normalizePicks(r32Submission.picks) : null;
         const r16Picks = r16Submission ? normalizePicks(r16Submission.picks) : null;
+        const qfPicks = qfSubmission ? normalizePicks(qfSubmission.picks) : null;
         const score = picks ? scorePreTournamentPicks(picks, groupStandings, pool.scoringRules || {}) : null;
         const knockoutScore =
           (r32PicksVisible ? scoreRoundOf32Picks(r32Picks, r32Matches, pool.scoringRules || {}) : 0) +
-          (r16PicksVisible ? scoreKnockoutPicks(r16Picks, r16Matches, "r16", pool.scoringRules || {}) : 0);
+          (r16PicksVisible ? scoreKnockoutPicks(r16Picks, r16Matches, "r16", pool.scoringRules || {}) : 0) +
+          (qfPicksVisible ? scoreKnockoutPicks(qfPicks, qfMatches, "qf", pool.scoringRules || {}) : 0);
         const totalScore = (score?.total || 0) + knockoutScore;
 
         return {
@@ -188,6 +211,14 @@ export async function GET(request: NextRequest) {
                 submittedAt: r16Submission?.submittedAt?.toISOString() || null
               }
             : null,
+          qfSubmitted: Boolean(qfSubmission),
+          qfSubmittedAt: qfSubmission?.submittedAt?.toISOString() || null,
+          qfPicks: qfPicksVisible && qfPicks
+            ? {
+                matchWinners: qfPicks.matchWinners || {},
+                submittedAt: qfSubmission?.submittedAt?.toISOString() || null
+              }
+            : null,
           points: totalScore,
           scoring: score || knockoutScore > 0
             ? [
@@ -209,6 +240,10 @@ export async function GET(request: NextRequest) {
         },
         r16: {
           submitted: r16SubmissionCount,
+          total: roster.length
+        },
+        qf: {
+          submitted: qfSubmissionCount,
           total: roster.length
         }
       },
