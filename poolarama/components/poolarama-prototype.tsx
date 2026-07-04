@@ -1274,9 +1274,19 @@ export function PoolaramaPrototype() {
   const adminSubmittedCount = adminOverview.filter((participant) => participant.submitted).length;
   const adminR32SubmittedCount = adminOverview.filter((participant) => participant.r32Submitted).length;
   const adminR16SubmittedCount = adminOverview.filter((participant) => participant.r16Submitted).length;
-  const heroR32SubmittedCount = adminEnabled ? adminR32SubmittedCount : roundSubmissions.r32.submitted;
-  const heroR32SubmissionTotal = adminEnabled ? adminOverview.length : roundSubmissions.r32.total || totalPlayers;
-  const showR32SubmissionMetric = poolState.r32.status !== "setup";
+  const heroKnockoutSubmissionMetric = r16Started
+    ? {
+        submitted: adminEnabled ? adminR16SubmittedCount : roundSubmissions.r16.submitted,
+        total: adminEnabled ? adminOverview.length : roundSubmissions.r16.total || totalPlayers,
+        label: "R16 submitted"
+      }
+    : r32Started
+      ? {
+          submitted: adminEnabled ? adminR32SubmittedCount : roundSubmissions.r32.submitted,
+          total: adminEnabled ? adminOverview.length : roundSubmissions.r32.total || totalPlayers,
+          label: "R32 submitted"
+        }
+      : null;
   const activeKnockoutRoundLabel = qfStarted ? "Quarterfinals" : r16Started ? "Round of 16" : "Round of 32";
   const adminCurrentRound = poolState.qf.status !== "setup"
     ? { label: "Quarterfinals", status: poolState.qf.status, openedAt: poolState.qf.openedAt, lockedAt: poolState.qf.lockedAt }
@@ -2870,10 +2880,10 @@ export function PoolaramaPrototype() {
             <strong>{leaderLabel}</strong>
             <span>leader</span>
           </div>
-          {showR32SubmissionMetric && (
+          {heroKnockoutSubmissionMetric && (
             <div>
-              <strong>{heroR32SubmittedCount}/{heroR32SubmissionTotal}</strong>
-              <span>R32 submitted</span>
+              <strong>{heroKnockoutSubmissionMetric.submitted}/{heroKnockoutSubmissionMetric.total}</strong>
+              <span>{heroKnockoutSubmissionMetric.label}</span>
             </div>
           )}
         </div>
