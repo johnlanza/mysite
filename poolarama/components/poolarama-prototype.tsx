@@ -296,8 +296,8 @@ type PathToGlory = {
   rankLabel: string;
   points: number;
   gapLabel: string;
-  knownUpside: number;
-  maxKnownPoints: number;
+  possibleUpside: number;
+  maxPossiblePoints: number;
   champion: string;
   championEliminated: boolean;
   leverage: string;
@@ -307,6 +307,12 @@ type PathToGlory = {
 const selectedParticipantKey = "poolarama-selected-participant";
 const confirmedParticipantKey = "poolarama-confirmed-participant";
 const goldenBootWriteInLabel = "Other / write-in";
+const championBonusPoints = 6;
+const futureKnockoutUpsideByPickKey: Record<KnockoutPickKey, number> = {
+  r32Picks: 16 + 12 + 8 + 5,
+  r16Picks: 12 + 8 + 5,
+  qfPicks: 8 + 5
+};
 const defaultPoolState: PoolState = {
   preTournament: {
     status: "open",
@@ -826,20 +832,23 @@ function buildPathToGlory(
   const leaderScore = rankedNow[0]?.points || 0;
   const gap = Math.max(0, leaderScore - person.points);
   const pendingPickCount = matches.filter((match) => !match.winner && Boolean(person[pickKey]?.matchWinners[match.matchId])).length;
-  const knownUpside = pendingPickCount * pointValue;
   const champion = person.picks?.champion || "No champion pick";
   const championEliminated = champion !== "No champion pick" && isChampionEliminated(champion, championMatches);
+  const pendingCurrentRoundUpside = pendingPickCount * pointValue;
+  const futureKnockoutUpside = futureKnockoutUpsideByPickKey[pickKey] || 0;
+  const championUpside = champion !== "No champion pick" && !championEliminated ? championBonusPoints : 0;
+  const possibleUpside = pendingCurrentRoundUpside + futureKnockoutUpside + championUpside;
   const rooting = buildRootingGuide(person, people, matches, pickKey, pointValue);
   const bestLeverage = rooting.find((item) => item.drama !== "low") || rooting[0] || null;
-  const maxKnownPoints = person.points + knownUpside;
-  const status = knownUpside === 0
-    ? "Known points for this round are already decided."
+  const maxPossiblePoints = person.points + possibleUpside;
+  const status = possibleUpside === 0
+    ? "No remaining path points are currently available."
     : gap === 0
-      ? "Protecting position now. The cleanest path is collecting the points already on the card."
-      : maxKnownPoints >= leaderScore
-        ? "Can reach the current lead with the right remaining results."
+      ? "Protecting position now, with possible points still on the board."
+      : maxPossiblePoints >= leaderScore
+        ? "Can still reach the current lead if the remaining path breaks right."
         : championEliminated
-          ? "Champion pick is gone, so knockout points have to do the climbing."
+          ? "Champion pick is gone, so the path depends on knockout points."
           : bestLeverage?.drama === "high"
             ? "Still dangerous if the swing games break right."
             : "Still has points available, but needs help above the line.";
@@ -848,8 +857,8 @@ function buildPathToGlory(
     rankLabel: rankedPerson ? getOrdinal(rankedPerson.displayRank) : "Unranked",
     points: person.points,
     gapLabel: gap === 0 ? "At the top" : `${gap} behind lead`,
-    knownUpside,
-    maxKnownPoints,
+    possibleUpside,
+    maxPossiblePoints,
     champion,
     championEliminated,
     leverage: bestLeverage ? `${bestLeverage.team} in ${bestLeverage.label}` : "No obvious leverage left",
@@ -3378,9 +3387,9 @@ export function PoolaramaPrototype() {
                   <em>{selectedPathToGlory.gapLabel}</em>
                 </div>
                 <div>
-                  <span>Known upside</span>
-                  <strong>+{selectedPathToGlory.knownUpside}</strong>
-                  <em>max {selectedPathToGlory.maxKnownPoints}</em>
+                  <span>Possible upside</span>
+                  <strong>+{selectedPathToGlory.possibleUpside}</strong>
+                  <em>ceiling {selectedPathToGlory.maxPossiblePoints}</em>
                 </div>
                 <div>
                   <span>Champion</span>
@@ -4470,8 +4479,8 @@ export function PoolaramaPrototype() {
 	                              <p>{pathToGlory.status}</p>
 	                            </div>
 	                            <div>
-	                              <span>Known upside</span>
-	                              <strong>+{pathToGlory.knownUpside}</strong>
+	                              <span>Possible upside</span>
+	                              <strong>+{pathToGlory.possibleUpside}</strong>
 	                              <p>{pathToGlory.leverage}</p>
 	                            </div>
 	                            <div>
