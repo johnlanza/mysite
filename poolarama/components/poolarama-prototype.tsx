@@ -759,21 +759,23 @@ function buildKnockoutReviewBullets(
         const hits = completed.filter((match) => person[pickKey]?.matchWinners[match.matchId] === match.winner).length;
         return { person, hits };
       })
-      .filter((item) => item.hits > 0)
       .sort((a, b) => b.hits - a.hits || b.person.points - a.person.points || a.person.nickname.localeCompare(b.person.nickname));
     const bestHitCount = roundRuns[0]?.hits || 0;
     const bestRuns = roundRuns.filter((item) => item.hits === bestHitCount);
+    const secondHitCount = roundRuns.find((item) => item.hits < bestHitCount)?.hits || 0;
+    const perfectOrBestRunCreatedSeparation = bestHitCount > 0 && secondHitCount < bestHitCount && bestRuns.length < people.length;
 
-    if (bestRuns.length > 0) {
+    if (perfectOrBestRunCreatedSeparation) {
       bullets.push(`${label} form: ${joinNames(bestRuns.map((item) => item.person.nickname), 3)} ${bestRuns.length === 1 ? "has" : "have"} hit ${bestHitCount}/${completed.length} completed match${completed.length === 1 ? "" : "es"} so far.`);
     }
 
     const leverageHit = completed
       .map((match) => {
         const winnerPickers = match.winner === match.teamA ? match.teamAPickers : match.teamBPickers;
-        return { match, winnerPickers };
+        const losingPickers = match.winner === match.teamA ? match.teamBPickers : match.teamAPickers;
+        return { match, winnerPickers, losingPickers };
       })
-      .filter((item) => item.winnerPickers.length > 0)
+      .filter((item) => item.winnerPickers.length > 0 && item.losingPickers.length > 0)
       .sort((a, b) => a.winnerPickers.length - b.winnerPickers.length || a.match.order - b.match.order)[0];
 
     if (leverageHit) {
