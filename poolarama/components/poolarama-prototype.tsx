@@ -3364,10 +3364,12 @@ export function PoolaramaPrototype() {
               <div className="path-heading">
                 <div>
                   <p className="eyebrow">Path to Glory</p>
-                  <h3 id="path-title">{selectedParticipant.nickname}</h3>
+                  <h3 id="path-title">
+                    {selectedParticipant.nickname}
+                    <span>{selectedPathToGlory.rankLabel}</span>
+                  </h3>
                   <p>{selectedPathToGlory.status}</p>
                 </div>
-                <span>{selectedPathToGlory.rankLabel}</span>
               </div>
               <div className="path-grid">
                 <div>
