@@ -211,13 +211,31 @@ export function generateRoundOf16Matches(roundOf32Matches: KnockoutSourceMatch[]
     throw new Error(`Round of 16 preview requires every Round of 32 winner. Missing ${missingWinner.label || missingWinner.matchId}.`);
   }
 
-  return Array.from({ length: 8 }, (_, index) => {
-    const firstMatch = orderedMatches[index * 2];
-    const secondMatch = orderedMatches[index * 2 + 1];
+  const matchesByNumber = new Map(
+    orderedMatches.map((match) => [Number((match.label || "").match(/\d+/)?.[0]), match])
+  );
+  const roundOf16Slots = [
+    { matchNumber: 89, sideA: 74, sideB: 77 },
+    { matchNumber: 90, sideA: 73, sideB: 75 },
+    { matchNumber: 91, sideA: 76, sideB: 78 },
+    { matchNumber: 92, sideA: 79, sideB: 80 },
+    { matchNumber: 93, sideA: 83, sideB: 84 },
+    { matchNumber: 94, sideA: 81, sideB: 82 },
+    { matchNumber: 95, sideA: 86, sideB: 88 },
+    { matchNumber: 96, sideA: 85, sideB: 87 }
+  ];
+
+  return roundOf16Slots.map((slot, index) => {
+    const firstMatch = matchesByNumber.get(slot.sideA);
+    const secondMatch = matchesByNumber.get(slot.sideB);
+
+    if (!firstMatch || !secondMatch) {
+      throw new Error(`Round of 16 preview is missing Match ${slot.sideA} or Match ${slot.sideB}.`);
+    }
 
     return {
       matchId: `r16-${String(index + 1).padStart(2, "0")}`,
-      label: `Match ${89 + index}`,
+      label: `Match ${slot.matchNumber}`,
       teamA: firstMatch.winner || "",
       teamB: secondMatch.winner || "",
       order: index + 1
@@ -238,13 +256,27 @@ export function generateQuarterfinalMatches(roundOf16Matches: KnockoutSourceMatc
     throw new Error(`Quarterfinal preview requires every Round of 16 winner. Missing ${missingWinner.label || missingWinner.matchId}.`);
   }
 
-  return Array.from({ length: 4 }, (_, index) => {
-    const firstMatch = orderedMatches[index * 2];
-    const secondMatch = orderedMatches[index * 2 + 1];
+  const matchesByNumber = new Map(
+    orderedMatches.map((match) => [Number((match.label || "").match(/\d+/)?.[0]), match])
+  );
+  const quarterfinalSlots = [
+    { matchNumber: 97, sideA: 89, sideB: 90 },
+    { matchNumber: 98, sideA: 93, sideB: 94 },
+    { matchNumber: 99, sideA: 91, sideB: 92 },
+    { matchNumber: 100, sideA: 95, sideB: 96 }
+  ];
+
+  return quarterfinalSlots.map((slot, index) => {
+    const firstMatch = matchesByNumber.get(slot.sideA);
+    const secondMatch = matchesByNumber.get(slot.sideB);
+
+    if (!firstMatch || !secondMatch) {
+      throw new Error(`Quarterfinal preview is missing Match ${slot.sideA} or Match ${slot.sideB}.`);
+    }
 
     return {
       matchId: `qf-${String(index + 1).padStart(2, "0")}`,
-      label: `Match ${97 + index}`,
+      label: `Match ${slot.matchNumber}`,
       teamA: firstMatch.winner || "",
       teamB: secondMatch.winner || "",
       order: index + 1
