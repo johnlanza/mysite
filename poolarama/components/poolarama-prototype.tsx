@@ -280,6 +280,18 @@ type DailyReview = {
   updatedLabel: string;
 };
 
+type RootingGuideItem = {
+  matchId: string;
+  label: string;
+  schedule: string;
+  team: string;
+  opponent: string;
+  headline: string;
+  detail: string;
+  note: string;
+  drama: "high" | "medium" | "low";
+};
+
 const selectedParticipantKey = "poolarama-selected-participant";
 const confirmedParticipantKey = "poolarama-confirmed-participant";
 const goldenBootWriteInLabel = "Other / write-in";
@@ -699,6 +711,92 @@ function buildKnockoutStakes(
     consensus,
     swingSize
   };
+}
+
+function buildRootingGuide(
+  person: PublicPickParticipant | null,
+  people: PublicPickParticipant[],
+  matches: KnockoutMatchSummary[],
+  pickKey: KnockoutPickKey,
+  pointValue: number
+): RootingGuideItem[] {
+  if (!person) return [];
+
+  const pending = matches.filter((match) => !match.winner);
+  if (pending.length === 0) return [];
+
+  const rankedNow = getDisplayRanks([...people].sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname)));
+  const currentRank = rankedNow.find((candidate) => candidate.code === person.code)?.displayRank || 0;
+
+  return pending
+    .map((match) => {
+      const pick = person[pickKey]?.matchWinners[match.matchId];
+      if (!pick) return null;
+
+      const opponent = pick === match.teamA ? match.teamB : match.teamA;
+      const pickers = pick === match.teamA ? match.teamAPickers : match.teamBPickers;
+      const opponents = pick === match.teamA ? match.teamBPickers : match.teamAPickers;
+      const pickerCodes = new Set(pickers.map((picker) => picker.code));
+      const projected = getDisplayRanks(
+        people
+          .map((candidate) => ({
+            ...candidate,
+            points: candidate.points + (pickerCodes.has(candidate.code) ? pointValue : 0)
+          }))
+          .sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname))
+      );
+      const projectedPerson = projected.find((candidate) => candidate.code === person.code);
+      const projectedRank = projectedPerson?.displayRank || currentRank;
+      const rankGain = currentRank && projectedRank ? Math.max(0, currentRank - projectedRank) : 0;
+      const rankedOpponents = opponents
+        .map((opponentPicker) => ({
+          ...opponentPicker,
+          displayRank: rankedNow.find((candidate) => candidate.code === opponentPicker.code)?.displayRank || 99
+        }))
+        .sort((a, b) => a.displayRank - b.displayRank || b.points - a.points || a.nickname.localeCompare(b.nickname));
+      const dangerousOpponents = rankedOpponents.filter((opponentPicker) => opponentPicker.displayRank <= Math.max(currentRank, 5));
+      const splitGap = Math.abs(pickers.length - opponents.length);
+      const isMinority = pickers.length < opponents.length;
+      const isConsensus = opponents.length === 0 || pickers.length === people.length;
+      const drama: RootingGuideItem["drama"] = isConsensus
+        ? "low"
+        : rankGain > 0 || isMinority || dangerousOpponents.length > 0 || splitGap <= 3
+          ? "high"
+          : "medium";
+      const headline = isConsensus
+        ? `No-drama wish: ${pick}`
+        : isMinority
+          ? `Lonely road: ${pick}`
+          : dangerousOpponents.length > 0
+            ? `Block ${joinNames(dangerousOpponents.map((opponentPicker) => opponentPicker.nickname), 2)}`
+            : `You want ${pick}`;
+      const detail = rankGain > 0
+        ? `${pick} can move you toward ${getOrdinal(projectedRank)}.`
+        : dangerousOpponents.length > 0
+          ? `${opponent} gives ${joinNames(dangerousOpponents.map((opponentPicker) => opponentPicker.nickname), 2)} the point instead.`
+          : isConsensus
+            ? "Almost everyone is on this side, so this is about keeping pace."
+            : `${pickers.length}-${opponents.length} pool split.`;
+      const note = `${pickers.length} with you, ${opponents.length} against`;
+
+      return {
+        matchId: match.matchId,
+        label: match.label,
+        schedule: formatKnockoutSchedule(match.label),
+        team: pick,
+        opponent,
+        headline,
+        detail,
+        note,
+        drama
+      };
+    })
+    .filter((item): item is RootingGuideItem => Boolean(item))
+    .sort((a, b) => {
+      const dramaScore = { high: 0, medium: 1, low: 2 };
+      return dramaScore[a.drama] - dramaScore[b.drama] || a.label.localeCompare(b.label);
+    })
+    .slice(0, 3);
 }
 
 function buildKnockoutOutcomeInsight(
@@ -1558,6 +1656,31 @@ export function PoolaramaPrototype() {
       ? buildKnockoutOutcomeInsight(selectedKnockoutMatch, publicPicks, currentKnockoutRound.pickKey)
       : null,
     [currentKnockoutRound.pickKey, publicPicks, selectedKnockoutMatch]
+  );
+  const selectedPublicParticipant = useMemo(
+    () => publicPicks.find((person) => person.code === selectedParticipant.code) || null,
+    [publicPicks, selectedParticipant.code]
+  );
+  const rootingGuide = useMemo(
+    () => currentKnockoutRound.locked && (identityConfirmed || identityLockedByLink)
+      ? buildRootingGuide(
+          selectedPublicParticipant,
+          publicPicks,
+          currentKnockoutMatchSummaries,
+          currentKnockoutRound.pickKey,
+          currentKnockoutRound.pointValue
+        )
+      : [],
+    [
+      currentKnockoutMatchSummaries,
+      currentKnockoutRound.locked,
+      currentKnockoutRound.pickKey,
+      currentKnockoutRound.pointValue,
+      identityConfirmed,
+      identityLockedByLink,
+      publicPicks,
+      selectedPublicParticipant
+    ]
   );
   const dailyReview = useMemo(
     () => buildDailyReview(publicPicks, groupStandingsRows, goldenBootRows, groupTablesUpdatedAt, {
@@ -3152,11 +3275,43 @@ export function PoolaramaPrototype() {
                 <span>Scoring</span>
                 <strong>{currentKnockoutRound.scoredCount}/{currentKnockoutRound.matches.length} entered</strong>
               </div>
-              <p>{currentKnockoutRound.locked ? "Everyone can compare picks for this round. Point totals update after winners are entered." : "Picks stay private until John locks the round."}</p>
+	              <p>{currentKnockoutRound.locked ? "Everyone can compare picks for this round. Point totals update after winners are entered." : "Picks stay private until John locks the round."}</p>
+	            </section>
+	          )}
+          {rootingGuide.length > 0 && (
+            <section className="rooting-guide-card" aria-labelledby="rooting-guide-title">
+              <div className="rooting-guide-heading">
+                <div>
+                  <p className="eyebrow">For {selectedParticipant.nickname}</p>
+                  <h3 id="rooting-guide-title">Rooting guide</h3>
+                </div>
+                <span>{currentKnockoutRound.shortLabel}</span>
+              </div>
+              <div className="rooting-guide-grid">
+                {rootingGuide.map((item) => {
+                  const team = getTeamMeta(item.team);
+
+                  return (
+                    <article
+                      className={`rooting-guide-item drama-${item.drama}`}
+                      key={`rooting-${item.matchId}`}
+                      style={{
+                        "--team-a": team.colors[0],
+                        "--team-b": team.colors[1]
+                      } as React.CSSProperties}
+                    >
+                      <span>{item.label}{item.schedule ? ` · ${item.schedule}` : ""}</span>
+                      <strong>{team.flag} {item.headline}</strong>
+                      <p>{item.detail}</p>
+                      <em>{item.note}</em>
+                    </article>
+                  );
+                })}
+              </div>
             </section>
           )}
-          {currentKnockoutStarted && currentKnockoutRound.locked && dailyReview.bullets.length > 0 && (
-            <section className="pool-pulse-card" aria-labelledby="pool-pulse-title">
+	          {currentKnockoutStarted && currentKnockoutRound.locked && dailyReview.bullets.length > 0 && (
+	            <section className="pool-pulse-card" aria-labelledby="pool-pulse-title">
               <div className="pool-pulse-heading">
                 <div>
                   <p className="eyebrow">Pool Pulse</p>
