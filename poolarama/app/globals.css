@@ -2846,18 +2846,34 @@ h1 {
 }
 
 .golden-rollup {
+  order: 5;
   background: linear-gradient(135deg, rgba(255, 200, 61, 0.28), rgba(15, 159, 110, 0.12)), #fff;
 }
 
 .people-rollup {
+  order: 6;
   background: linear-gradient(135deg, rgba(15, 159, 110, 0.16), rgba(255, 200, 61, 0.18)), #fff;
 }
 
+.daily-review-card {
+  order: 7;
+}
+
 .utility-rollup {
+  order: 9;
   background: linear-gradient(135deg, rgba(20, 99, 255, 0.1), rgba(17, 32, 51, 0.06)), #fff;
 }
 
+.invite-card {
+  order: 10;
+}
+
+.group-standings-admin {
+  order: 11;
+}
+
 .danger-zone-card {
+  order: 12;
   background: linear-gradient(135deg, rgba(227, 60, 74, 0.08), rgba(255, 255, 255, 0.92)), #fff;
   border-color: rgba(227, 60, 74, 0.28);
 }
