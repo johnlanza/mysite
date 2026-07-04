@@ -2895,8 +2895,8 @@ export function PoolaramaPrototype() {
       {tab === "picks" && (
         <section className="screen stack" aria-labelledby="picks-title">
           <ScreenHeader
-            kicker={r16Locked || r32Locked || showLockedHomeNotice || showParticipantLockedHeader ? "Current round locked" : r16Open ? "Round of 16 picks open" : r32Open ? "Round of 32 picks open" : identityConfirmed ? "Picks open" : "Player access"}
-            title={r16Locked ? "Round of 16 is locked" : r32Locked ? "Round of 32 is locked" : showLockedHomeNotice ? "All picks are in" : showParticipantLockedHeader ? "Review your locked picks" : r16Open ? "Round of 16 is now open" : r32Open ? "Make your Round of 32 picks" : identityConfirmed ? "Make your group picks" : "Open your player link"}
+            kicker={r16Open ? "Round of 16 picks open" : r16Locked ? "Current round locked" : r32Open ? "Round of 32 picks open" : r32Locked || showLockedHomeNotice || showParticipantLockedHeader ? "Current round locked" : identityConfirmed ? "Picks open" : "Player access"}
+            title={r16Open ? "Round of 16 is now open" : r16Locked ? "Round of 16 is locked" : r32Open ? "Make your Round of 32 picks" : r32Locked ? "Round of 32 is locked" : showLockedHomeNotice ? "All picks are in" : showParticipantLockedHeader ? "Review your locked picks" : identityConfirmed ? "Make your group picks" : "Open your player link"}
             note={showLockedHomeNotice
               ? "The group-stage picks are locked and visible in the standings."
               : r16Locked
