@@ -2896,7 +2896,7 @@ export function PoolaramaPrototype() {
         <section className="screen stack" aria-labelledby="picks-title">
           <ScreenHeader
             kicker={r16Locked || r32Locked || showLockedHomeNotice || showParticipantLockedHeader ? "Current round locked" : r16Open ? "Round of 16 picks open" : r32Open ? "Round of 32 picks open" : identityConfirmed ? "Picks open" : "Player access"}
-            title={r16Locked ? "Round of 16 is locked" : r32Locked ? "Round of 32 is locked" : showLockedHomeNotice ? "All picks are in" : showParticipantLockedHeader ? "Review your locked picks" : r16Open ? "Make your Round of 16 picks" : r32Open ? "Make your Round of 32 picks" : identityConfirmed ? "Make your group picks" : "Open your player link"}
+            title={r16Locked ? "Round of 16 is locked" : r32Locked ? "Round of 32 is locked" : showLockedHomeNotice ? "All picks are in" : showParticipantLockedHeader ? "Review your locked picks" : r16Open ? "Round of 16 is now open" : r32Open ? "Make your Round of 32 picks" : identityConfirmed ? "Make your group picks" : "Open your player link"}
             note={showLockedHomeNotice
               ? "The group-stage picks are locked and visible in the standings."
               : r16Locked
@@ -2906,7 +2906,7 @@ export function PoolaramaPrototype() {
               : showParticipantLockedHeader
               ? "Your group-stage, champion, and Golden Boot picks are locked. Knockout picks will appear here when John opens them."
               : r16Open
-              ? `This link is assigned to ${selectedParticipant.nickname}. Scroll to the Round of 16 card and pick every match winner.`
+              ? `This link is assigned to ${selectedParticipant.nickname}. Confirm your name, then pick every Round of 16 match winner.`
               : r32Open
               ? `This link is assigned to ${selectedParticipant.nickname}. Scroll to the Round of 32 card and pick every match winner.`
               : identityLockedByLink
@@ -2920,7 +2920,7 @@ export function PoolaramaPrototype() {
               <strong>{poolDataWarning}</strong>
             </div>
           )}
-          {currentKnockoutStarted && currentKnockoutRound.matches.length > 0 && (
+          {currentKnockoutStarted && currentKnockoutRound.locked && currentKnockoutRound.matches.length > 0 && (
             <section className="round-clarity-card" aria-label="Current round status">
               <div>
                 <span>Current round</span>
@@ -2953,7 +2953,7 @@ export function PoolaramaPrototype() {
               </div>
             </section>
           )}
-          {currentKnockoutStarted && currentKnockoutRound.matches.length > 0 && (
+          {currentKnockoutStarted && currentKnockoutRound.locked && currentKnockoutRound.matches.length > 0 && (
             <section className="current-round-card" aria-labelledby="current-round-title">
               <div className="current-round-heading">
                 <div>
