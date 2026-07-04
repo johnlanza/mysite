@@ -1344,6 +1344,50 @@ export function PoolaramaPrototype() {
             ? "Active task: collect Quarterfinal picks, then lock them before any scoring."
             : "Setup task: generate and open Quarterfinal picks."
       : "Pre-tournament picks are locked; knockout rounds are the active workflow.";
+  const adminCurrentRoundStats = adminCurrentRound.label === "Quarterfinals"
+    ? {
+        submitted: adminQfSubmittedCount,
+        total: adminOverview.length,
+        matchCount: qfMatches.length,
+        expectedMatches: 4,
+        scored: qfScoredCount,
+        openedAt: poolState.qf.openedAt,
+        lockedAt: poolState.qf.lockedAt
+      }
+    : adminCurrentRound.label === "Round of 16"
+      ? {
+          submitted: adminR16SubmittedCount,
+          total: adminOverview.length,
+          matchCount: r16Matches.length,
+          expectedMatches: 8,
+          scored: r16ScoredCount,
+          openedAt: poolState.r16.openedAt,
+          lockedAt: poolState.r16.lockedAt
+        }
+      : adminCurrentRound.label === "Round of 32"
+        ? {
+            submitted: adminR32SubmittedCount,
+            total: adminOverview.length,
+            matchCount: r32Matches.length,
+            expectedMatches: 16,
+            scored: r32ScoredCount,
+            openedAt: poolState.r32.openedAt,
+            lockedAt: poolState.r32.lockedAt
+          }
+        : {
+            submitted: adminSubmittedCount,
+            total: adminOverview.length,
+            matchCount: 0,
+            expectedMatches: 0,
+            scored: 0,
+            openedAt: null,
+            lockedAt: poolState.preTournament.lockedAt
+          };
+  const adminCurrentRoundStatusLabel = adminCurrentRound.status === "open"
+    ? "Picks open"
+    : adminCurrentRound.status === "locked"
+      ? "Locked and ready to score"
+      : "Setup";
   const leadingScore = publicPicks.reduce((maxPoints, participant) => Math.max(maxPoints, participant.points), 0);
   const leaders = leadingScore > 0
     ? publicPicks.filter((participant) => participant.points === leadingScore).map((participant) => participant.nickname)
@@ -3541,13 +3585,55 @@ export function PoolaramaPrototype() {
                         ? `${round.label} locked`
                         : `${round.label} not open`}
                 </button>
-                <p className="pick-status" aria-live="polite">{round.feedback}</p>
-              </section>
-            );
-          })}
-          <section className="group-picks-card" aria-labelledby="group-picks-title">
-            <div className="section-title-row">
-              <div>
+	                <p className="pick-status" aria-live="polite">{round.feedback}</p>
+	              </section>
+	            );
+	          })}
+          {preTournamentControlsLocked && savedPicks && (
+            <details className="group-stage-details pick-archive-details">
+              <summary>
+                <span>Pick archive</span>
+                <strong>Pre-tournament picks</strong>
+              </summary>
+              <div className="saved-grid">
+                <div>
+                  <span>Champion</span>
+                  <strong>{savedPicks.champion}</strong>
+                </div>
+                <div>
+                  <span>Golden Boot</span>
+                  <strong>{savedPicks.goldenBoot}</strong>
+                </div>
+                <div>
+                  <span>Groups</span>
+                  <strong>{completedGroupPicks}/12</strong>
+                </div>
+                <div>
+                  <span>Saved</span>
+                  <strong>{new Date(savedPicks.savedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</strong>
+                </div>
+              </div>
+              <details className="group-stage-details round-history-details">
+                <summary>
+                  <span>Group stage</span>
+                  <strong>All picks</strong>
+                </summary>
+                <div className="saved-pick-list">
+                  {groups.map((group) => (
+                    <div key={`locked-saved-group-${group}`}>
+                      <span>Group {group}</span>
+                      <strong>{savedPicks.groupWinners[group] || "No winner"} / {savedPicks.groupRunnersUp[group] || "No runner-up"}</strong>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            </details>
+          )}
+          {!preTournamentControlsLocked && (
+            <>
+	          <section className="group-picks-card" aria-labelledby="group-picks-title">
+	            <div className="section-title-row">
+	              <div>
                 <p className="eyebrow">Step 2 of 5</p>
                 <h3 id="group-picks-title">Pick winners and runners-up</h3>
                 <p>{completedGroupPicks}/12 groups complete</p>
@@ -3813,16 +3899,18 @@ export function PoolaramaPrototype() {
           <p className="pick-status" aria-live="polite">
             {allRequiredPicksComplete ? saveFeedback : completionHint}
           </p>
-          {incompleteAlertVisible && (
-            <div className="inline-alert" role="alertdialog" aria-modal="false" aria-label="Incomplete picks">
-              <strong>Please finish your picks before submitting.</strong>
-              <button type="button" onClick={() => setIncompleteAlertVisible(false)}>
-                OK
-              </button>
-            </div>
+	          {incompleteAlertVisible && (
+	            <div className="inline-alert" role="alertdialog" aria-modal="false" aria-label="Incomplete picks">
+	              <strong>Please finish your picks before submitting.</strong>
+	              <button type="button" onClick={() => setIncompleteAlertVisible(false)}>
+	                OK
+	              </button>
+	            </div>
+	          )}
+            </>
           )}
-          {savedPicks && (
-            <section className="save-confirmation" aria-live="polite" aria-label="Saved picks">
+	          {savedPicks && !preTournamentControlsLocked && (
+	            <section className="save-confirmation" aria-live="polite" aria-label="Saved picks">
               <div>
                 <p className="eyebrow">Saved picks</p>
                 <h3>{selectedParticipant.nickname}&apos;s picks are saved</h3>
@@ -4087,27 +4175,95 @@ export function PoolaramaPrototype() {
                         })}
                       </div>
                     )}
-                    <details className="pick-details">
-                      <summary>View {person.nickname}&apos;s picks</summary>
-                      <div className="pick-sheet">
-                        {person.visible && person.picks ? (
-                          <>
-                            <p>
-                              <strong>Champion:</strong>{" "}
-                              <span className={championEliminated ? "champion-pick eliminated" : "champion-pick"}>
-                                {person.picks.champion}
-                              </span>
-                            </p>
-                            <p>
-                              <strong>Golden Boot:</strong> {person.picks.goldenBoot}
-                              <span className="golden-boot-status">
-                                ({getGoldenBootStatus(person.picks.goldenBoot, goldenBootRows)})
-                              </span>
-                            </p>
-                            <details className="group-stage-details">
-                              <summary>
-                                <span>Group stage</span>
-                                <strong>{groupStagePoints} pts</strong>
+	                    <details className="pick-details">
+	                      <summary>View {person.nickname}&apos;s picks</summary>
+	                      <div className="pick-sheet">
+	                        {personKnockoutRounds.map((round, roundIndex) => {
+	                          const roundContent = round.picks ? (
+	                            <>
+	                              <div className="saved-pick-list round-result-list">
+	                                {getRoundOf32PickRows(round.picks.matchWinners, round.matches, round.pointValue).map((pick) => (
+	                                  <div
+	                                    className={`round-result-row result-${pick.result}`}
+	                                    key={`${person.code}-public-${round.stage}-${pick.id}`}
+	                                  >
+	                                    <span>{pick.label}{pick.schedule ? ` - ${pick.schedule}` : ""}</span>
+	                                    <strong>{pick.winner || "No pick"}</strong>
+	                                    <em>
+	                                      {pick.result === "pending"
+	                                        ? "Result pending"
+	                                        : pick.result === "won"
+	                                          ? `Won +${pick.points} point${pick.points === 1 ? "" : "s"}`
+	                                          : `Lost 0 points${pick.actualWinner ? ` · winner: ${pick.actualWinner}` : ""}`}
+	                                    </em>
+	                                  </div>
+	                                ))}
+	                              </div>
+	                              {round.picks.submittedAt && (
+	                                <p className="saved-pick-note">
+	                                  {round.label} submitted {new Date(round.picks.submittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.
+	                                </p>
+	                              )}
+	                            </>
+	                          ) : (
+	                            <div className="round-status-note">
+	                              <strong>{round.submitted ? `${round.label} picks submitted.` : `No ${round.label} picks submitted yet.`}</strong>
+	                              <p>
+	                                {round.submitted
+	                                  ? "They will appear here after John locks this round."
+	                                  : "Nothing to show for this round yet."}
+	                              </p>
+	                            </div>
+	                          );
+
+	                          if (roundIndex > 0) {
+	                            return (
+	                              <details className="group-stage-details round-history-details" key={`${person.code}-public-${round.stage}`}>
+	                                <summary>
+	                                  <span>{round.label}</span>
+	                                  <strong>{round.picks ? "View picks" : round.submitted ? "Submitted" : "No picks"}</strong>
+	                                </summary>
+	                                {roundContent}
+	                              </details>
+	                            );
+	                          }
+
+	                          return (
+	                            <div className="round-pick-section current-pick-section" key={`${person.code}-public-${round.stage}`}>
+	                              <h4>{round.label}</h4>
+	                              {roundContent}
+	                            </div>
+	                          );
+	                        })}
+	                        {person.visible && person.picks ? (
+	                          <details className="group-stage-details pick-archive-details">
+	                            <summary>
+	                              <span>Pick archive</span>
+	                              <strong>Pre-tournament picks</strong>
+	                            </summary>
+	                            <div className="saved-grid">
+	                              <div>
+	                                <span>Champion</span>
+	                                <strong>
+	                                  <span className={championEliminated ? "champion-pick eliminated" : "champion-pick"}>
+	                                    {person.picks.champion}
+	                                  </span>
+	                                </strong>
+	                              </div>
+	                              <div>
+	                                <span>Golden Boot</span>
+	                                <strong>
+	                                  {person.picks.goldenBoot}
+	                                  <span className="golden-boot-status">
+	                                    ({getGoldenBootStatus(person.picks.goldenBoot, goldenBootRows)})
+	                                  </span>
+	                                </strong>
+	                              </div>
+	                            </div>
+	                            <details className="group-stage-details">
+	                              <summary>
+	                                <span>Group stage</span>
+	                                <strong>{groupStagePoints} pts</strong>
                               </summary>
                               <div className="group-stage-rollup" aria-label={`${person.nickname} group stage rollup`}>
                                 <div>
@@ -4139,75 +4295,18 @@ export function PoolaramaPrototype() {
                                       <span className="pick-label">runner-up</span>
                                     </strong>
                                   </div>
-                                ))}
-                              </div>
-                            </details>
-                          </>
-                        ) : (
-                          <div className="round-status-note">
-                            <strong>{person.submitted ? "Pre-tournament picks hidden." : "No pre-tournament picks submitted."}</strong>
-                            <p>{person.submitted ? "They will appear here after John locks that round." : "Nothing to show yet."}</p>
-                          </div>
-                        )}
-                        {personKnockoutRounds.map((round, roundIndex) => {
-                          const roundContent = round.picks ? (
-                            <>
-                              <div className="saved-pick-list round-result-list">
-                                {getRoundOf32PickRows(round.picks.matchWinners, round.matches, round.pointValue).map((pick) => (
-                                  <div
-                                    className={`round-result-row result-${pick.result}`}
-                                    key={`${person.code}-public-${round.stage}-${pick.id}`}
-                                  >
-                                    <span>{pick.label}{pick.schedule ? ` - ${pick.schedule}` : ""}</span>
-                                    <strong>{pick.winner || "No pick"}</strong>
-                                    <em>
-                                      {pick.result === "pending"
-                                        ? "Result pending"
-                                        : pick.result === "won"
-                                          ? `Won +${pick.points} point${pick.points === 1 ? "" : "s"}`
-                                          : `Lost 0 points${pick.actualWinner ? ` · winner: ${pick.actualWinner}` : ""}`}
-                                    </em>
-                                  </div>
-                                ))}
-                              </div>
-                              {round.picks.submittedAt && (
-                                <p className="saved-pick-note">
-                                  {round.label} submitted {new Date(round.picks.submittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.
-                                </p>
-                              )}
-                            </>
-                          ) : (
-                            <div className="round-status-note">
-                              <strong>{round.submitted ? `${round.label} picks submitted.` : `No ${round.label} picks submitted yet.`}</strong>
-                              <p>
-                                {round.submitted
-                                  ? "They will appear here after John locks this round."
-                                  : "Nothing to show for this round yet."}
-                              </p>
-                            </div>
-                          );
-
-                          if (roundIndex > 0) {
-                            return (
-                              <details className="group-stage-details round-history-details" key={`${person.code}-public-${round.stage}`}>
-                                <summary>
-                                  <span>{round.label}</span>
-                                  <strong>{round.picks ? "View picks" : round.submitted ? "Submitted" : "No picks"}</strong>
-                                </summary>
-                                {roundContent}
-                              </details>
-                            );
-                          }
-
-                          return (
-                            <div className="round-pick-section" key={`${person.code}-public-${round.stage}`}>
-                              <h4>{round.label}</h4>
-                              {roundContent}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </details>
+	                                ))}
+	                              </div>
+	                            </details>
+	                          </details>
+	                        ) : (
+	                          <div className="round-status-note">
+	                            <strong>{person.submitted ? "Pre-tournament picks hidden." : "No pre-tournament picks submitted."}</strong>
+	                            <p>{person.submitted ? "They will appear here after John locks that round." : "Nothing to show yet."}</p>
+	                          </div>
+	                        )}
+	                      </div>
+	                    </details>
                   </article>
                 );
               });
@@ -4336,92 +4435,53 @@ export function PoolaramaPrototype() {
             title={`${adminCurrentRound.label} control room`}
             note={adminCurrentRoundAction}
           />
-          <div className="admin-summary">
-            <div className="admin-current-round-summary">
-              <strong>{adminCurrentRound.status}</strong>
-              <span>{adminCurrentRound.label}</span>
-            </div>
-            <div>
-              <strong>{adminSubmittedCount}/{adminOverview.length}</strong>
-              <span>group submitted</span>
-            </div>
-            <div>
-              <strong>{adminR32SubmittedCount}/{adminOverview.length}</strong>
-              <span>R32 submitted</span>
-            </div>
-            {poolState.r16.status !== "setup" && (
+          <section className="admin-focus-card admin-round-current" aria-label="Current admin task">
+            <div className="admin-focus-heading">
               <div>
-                <strong>{adminR16SubmittedCount}/{adminOverview.length}</strong>
-                <span>R16 submitted</span>
+                <p className="eyebrow">Current admin task</p>
+                <h3>{adminCurrentRound.label}: {adminCurrentRoundStatusLabel}</h3>
+                <p>{adminCurrentRoundAction}</p>
               </div>
-            )}
-            {poolState.qf.status !== "setup" && (
+              <span>{adminCurrentRound.status}</span>
+            </div>
+            <div className="admin-focus-grid">
               <div>
-                <strong>{adminQfSubmittedCount}/{adminOverview.length}</strong>
-                <span>QF submitted</span>
+                <span>Submitted</span>
+                <strong>{adminCurrentRoundStats.submitted}/{adminCurrentRoundStats.total}</strong>
               </div>
-            )}
-            <div>
-              <strong>{adminOverview.length - unpaidCount}/{adminOverview.length}</strong>
-              <span>paid</span>
-            </div>
-            <div>
-              <strong>{unpaidCount}</strong>
-              <span>unpaid</span>
-            </div>
-            <div>
-              <strong>{r32Matches.filter((match) => Boolean(match.winner)).length}/16</strong>
-              <span>R32 scored</span>
-            </div>
-            {poolState.r16.status !== "setup" && (
               <div>
-                <strong>{r16ScoredCount}/8</strong>
-                <span>R16 scored</span>
+                <span>Matchups</span>
+                <strong>
+                  {adminCurrentRoundStats.expectedMatches > 0
+                    ? `${adminCurrentRoundStats.matchCount}/${adminCurrentRoundStats.expectedMatches}`
+                    : "Not started"}
+                </strong>
               </div>
-            )}
-            {poolState.qf.status !== "setup" && (
               <div>
-                <strong>{qfScoredCount}/4</strong>
-                <span>QF scored</span>
+                <span>Scored</span>
+                <strong>
+                  {adminCurrentRoundStats.expectedMatches > 0
+                    ? `${adminCurrentRoundStats.scored}/${adminCurrentRoundStats.expectedMatches}`
+                    : "0/0"}
+                </strong>
               </div>
-            )}
-          </div>
-          <section className="admin-sync-status" aria-label="Live data status">
-            <div>
-              <span>Current round</span>
-              <strong>{adminCurrentRound.label}</strong>
-              <em>{adminCurrentRound.status}</em>
+              <div>
+                <span>Opened</span>
+                <strong>{formatAdminTimestamp(adminCurrentRoundStats.openedAt)}</strong>
+              </div>
             </div>
-            <div>
-              <span>Golden Boot</span>
-              <strong>{formatAdminTimestamp(goldenBootUpdatedAt)}</strong>
-              <em>{goldenBootProvider}</em>
-            </div>
-            <div>
-              <span>Last opened</span>
-              <strong>{formatAdminTimestamp(adminCurrentRound.openedAt)}</strong>
-            </div>
-            <div>
-              <span>Last locked</span>
-              <strong>{formatAdminTimestamp(adminCurrentRound.lockedAt)}</strong>
-            </div>
-          </section>
-          <div className="admin-toolbar">
-            <p>{adminFeedback}</p>
-            <div className="admin-toolbar-actions">
+            <div className="admin-focus-actions">
+              <p>{adminFeedback}</p>
               <button className="admin-action compact" type="button" onClick={handleExportPicks}>
                 Export CSV
               </button>
             </div>
-          </div>
-          <section className="admin-rollup-card round-health-card admin-support-card" aria-label="Round health">
-            <div className="section-title-row">
-              <div>
-                <p className="eyebrow">Round health</p>
-                <h3>Live operating check</h3>
-                <p>Quick confirmation that the active pool data and round workflow are where they should be.</p>
-              </div>
-            </div>
+          </section>
+          <details className="admin-rollup-card round-health-card admin-support-card archived-admin-card">
+            <summary>
+              <span>Pool health</span>
+              <strong>Full status snapshot</strong>
+            </summary>
             <div className="admin-sync-status">
               <div>
                 <span>Participants</span>
@@ -4454,8 +4514,15 @@ export function PoolaramaPrototype() {
                 <em>{qfMatches.length}/4 matches</em>
               </div>
             </div>
-          </section>
-          <section className={`r32-admin-card ${r16CanPreview || r16Started ? "admin-round-archive" : "admin-round-current"}`} aria-labelledby="r32-admin-title">
+          </details>
+          <details
+            className={`r32-admin-card archived-admin-card ${r16CanPreview || r16Started ? "admin-round-archive" : "admin-round-current"}`}
+            open={!(r16CanPreview || r16Started)}
+          >
+            <summary>
+              <span>{r16CanPreview || r16Started ? "Previous round" : "Current scoring round"}</span>
+              <strong>Round of 32 controls</strong>
+            </summary>
             <div className="section-title-row">
               <div>
                 <p className="eyebrow">{r16CanPreview || r16Started ? "Previous round" : "Current scoring round"}</p>
@@ -4548,7 +4615,7 @@ export function PoolaramaPrototype() {
             ) : (
               <p className="admin-empty-note">No Round of 32 preview has been generated yet.</p>
             )}
-          </section>
+          </details>
           <details
             className={`admin-rollup-card next-round-rollup archived-admin-card ${qfCanPreview || qfStarted ? "admin-round-archive" : r16CanPreview || r16Started ? "admin-round-current" : "admin-round-next"}`}
             open={Boolean((r16CanPreview || r16Started) && !(qfCanPreview || qfStarted))}
