@@ -793,6 +793,113 @@ h1 {
   line-height: 1.35;
 }
 
+.path-card {
+  display: grid;
+  gap: 13px;
+  padding: 16px;
+  border-radius: 20px;
+  color: var(--ink);
+  background:
+    linear-gradient(135deg, rgba(20, 99, 255, 0.16), rgba(255, 200, 61, 0.2) 52%, rgba(227, 60, 74, 0.1)),
+    #fff;
+  border: 2px solid rgba(20, 99, 255, 0.22);
+  box-shadow: 0 16px 34px rgba(17, 32, 51, 0.1);
+}
+
+.path-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.path-heading h3 {
+  margin: 0;
+  color: var(--navy);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(1.85rem, 7vw, 2.6rem);
+  line-height: 0.95;
+}
+
+.path-heading p {
+  margin: 7px 0 0;
+  color: var(--ink);
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.path-heading > span {
+  display: grid;
+  place-items: center;
+  min-width: 54px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--navy);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.path-grid,
+.path-mini {
+  display: grid;
+  gap: 10px;
+}
+
+.path-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.path-grid div,
+.path-mini div {
+  min-width: 0;
+  padding: 12px;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(17, 32, 51, 0.1);
+}
+
+.path-grid span,
+.path-grid em,
+.path-mini span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 1000;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.path-grid strong,
+.path-mini strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--navy);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.path-grid em {
+  margin-top: 6px;
+  text-transform: none;
+}
+
+.path-mini {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 12px;
+}
+
+.path-mini p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
 .rooting-guide-card {
   display: grid;
   gap: 13px;
@@ -3426,6 +3533,8 @@ h1 {
   .admin-focus-grid,
   .rules-grid,
   .round-clarity-card,
+  .path-grid,
+  .path-mini,
   .rooting-guide-grid,
   .saved-grid,
   .saved-pick-list,
@@ -3496,6 +3605,7 @@ h1 {
   .admin-toolbar,
   .admin-focus-heading,
   .admin-focus-actions,
+  .path-heading,
   .rooting-guide-heading,
   .admin-row,
   .admin-sync-status,

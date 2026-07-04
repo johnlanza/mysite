@@ -292,6 +292,18 @@ type RootingGuideItem = {
   drama: "high" | "medium" | "low";
 };
 
+type PathToGlory = {
+  rankLabel: string;
+  points: number;
+  gapLabel: string;
+  knownUpside: number;
+  maxKnownPoints: number;
+  champion: string;
+  championEliminated: boolean;
+  leverage: string;
+  status: string;
+};
+
 const selectedParticipantKey = "poolarama-selected-participant";
 const confirmedParticipantKey = "poolarama-confirmed-participant";
 const goldenBootWriteInLabel = "Other / write-in";
@@ -797,6 +809,52 @@ function buildRootingGuide(
       return dramaScore[a.drama] - dramaScore[b.drama] || a.label.localeCompare(b.label);
     })
     .slice(0, 3);
+}
+
+function buildPathToGlory(
+  person: PublicPickParticipant | null,
+  people: PublicPickParticipant[],
+  matches: KnockoutMatchSummary[],
+  pickKey: KnockoutPickKey,
+  pointValue: number,
+  championMatches: R32Match[]
+): PathToGlory | null {
+  if (!person || people.length === 0) return null;
+
+  const rankedNow = getDisplayRanks([...people].sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname)));
+  const rankedPerson = rankedNow.find((candidate) => candidate.code === person.code);
+  const leaderScore = rankedNow[0]?.points || 0;
+  const gap = Math.max(0, leaderScore - person.points);
+  const pendingPickCount = matches.filter((match) => !match.winner && Boolean(person[pickKey]?.matchWinners[match.matchId])).length;
+  const knownUpside = pendingPickCount * pointValue;
+  const champion = person.picks?.champion || "No champion pick";
+  const championEliminated = champion !== "No champion pick" && isChampionEliminated(champion, championMatches);
+  const rooting = buildRootingGuide(person, people, matches, pickKey, pointValue);
+  const bestLeverage = rooting.find((item) => item.drama !== "low") || rooting[0] || null;
+  const maxKnownPoints = person.points + knownUpside;
+  const status = knownUpside === 0
+    ? "Known points for this round are already decided."
+    : gap === 0
+      ? "Protecting position now. The cleanest path is collecting the points already on the card."
+      : maxKnownPoints >= leaderScore
+        ? "Can reach the current lead with the right remaining results."
+        : championEliminated
+          ? "Champion pick is gone, so knockout points have to do the climbing."
+          : bestLeverage?.drama === "high"
+            ? "Still dangerous if the swing games break right."
+            : "Still has points available, but needs help above the line.";
+
+  return {
+    rankLabel: rankedPerson ? getOrdinal(rankedPerson.displayRank) : "Unranked",
+    points: person.points,
+    gapLabel: gap === 0 ? "At the top" : `${gap} behind lead`,
+    knownUpside,
+    maxKnownPoints,
+    champion,
+    championEliminated,
+    leverage: bestLeverage ? `${bestLeverage.team} in ${bestLeverage.label}` : "No obvious leverage left",
+    status
+  };
 }
 
 function buildKnockoutOutcomeInsight(
@@ -1672,6 +1730,29 @@ export function PoolaramaPrototype() {
         )
       : [],
     [
+      currentKnockoutMatchSummaries,
+      currentKnockoutRound.locked,
+      currentKnockoutRound.pickKey,
+      currentKnockoutRound.pointValue,
+      identityConfirmed,
+      identityLockedByLink,
+      publicPicks,
+      selectedPublicParticipant
+    ]
+  );
+  const selectedPathToGlory = useMemo(
+    () => currentKnockoutRound.locked && (identityConfirmed || identityLockedByLink)
+      ? buildPathToGlory(
+          selectedPublicParticipant,
+          publicPicks,
+          currentKnockoutMatchSummaries,
+          currentKnockoutRound.pickKey,
+          currentKnockoutRound.pointValue,
+          championStatusMatches
+        )
+      : null,
+    [
+      championStatusMatches,
       currentKnockoutMatchSummaries,
       currentKnockoutRound.locked,
       currentKnockoutRound.pickKey,
@@ -3278,6 +3359,42 @@ export function PoolaramaPrototype() {
 	              <p>{currentKnockoutRound.locked ? "Everyone can compare picks for this round. Point totals update after winners are entered." : "Picks stay private until John locks the round."}</p>
 	            </section>
 	          )}
+          {selectedPathToGlory && (
+            <section className="path-card" aria-labelledby="path-title">
+              <div className="path-heading">
+                <div>
+                  <p className="eyebrow">Path to Glory</p>
+                  <h3 id="path-title">{selectedParticipant.nickname}</h3>
+                  <p>{selectedPathToGlory.status}</p>
+                </div>
+                <span>{selectedPathToGlory.rankLabel}</span>
+              </div>
+              <div className="path-grid">
+                <div>
+                  <span>Now</span>
+                  <strong>{selectedPathToGlory.points} pts</strong>
+                  <em>{selectedPathToGlory.gapLabel}</em>
+                </div>
+                <div>
+                  <span>Known upside</span>
+                  <strong>+{selectedPathToGlory.knownUpside}</strong>
+                  <em>max {selectedPathToGlory.maxKnownPoints}</em>
+                </div>
+                <div>
+                  <span>Champion</span>
+                  <strong className={selectedPathToGlory.championEliminated ? "champion-pick eliminated" : "champion-pick"}>
+                    {selectedPathToGlory.champion}
+                  </strong>
+                  <em>{selectedPathToGlory.championEliminated ? "eliminated" : "alive"}</em>
+                </div>
+                <div>
+                  <span>Leverage</span>
+                  <strong>{selectedPathToGlory.leverage}</strong>
+                  <em>best remaining angle</em>
+                </div>
+              </div>
+            </section>
+          )}
           {rootingGuide.length > 0 && (
             <section className="rooting-guide-card" aria-labelledby="rooting-guide-title">
               <div className="rooting-guide-heading">
@@ -4275,17 +4392,25 @@ export function PoolaramaPrototype() {
                     matches: r32Matches,
                     pointValue: 1
                   }
-                ].filter((round) => round.started)
-                  .sort((a, b) => {
-                    const currentLabel = currentKnockoutRound.shortLabel;
-                    if (a.shortLabel === currentLabel && b.shortLabel !== currentLabel) return -1;
-                    if (b.shortLabel === currentLabel && a.shortLabel !== currentLabel) return 1;
-
-                    return b.pointValue - a.pointValue;
-                  });
-
-                return (
-                  <article className={`standing-row standing-${displayRank}`} key={person.code}>
+	                ].filter((round) => round.started)
+	                  .sort((a, b) => {
+	                    const currentLabel = currentKnockoutRound.shortLabel;
+	                    if (a.shortLabel === currentLabel && b.shortLabel !== currentLabel) return -1;
+	                    if (b.shortLabel === currentLabel && a.shortLabel !== currentLabel) return 1;
+	                    return b.pointValue - a.pointValue;
+	                  });
+                const pathToGlory = currentKnockoutRound.locked
+                  ? buildPathToGlory(
+                      person,
+                      standingsPeople,
+                      currentKnockoutMatchSummaries,
+                      currentKnockoutRound.pickKey,
+                      currentKnockoutRound.pointValue,
+                      championStatusMatches
+                    )
+                  : null;
+	                return (
+	                  <article className={`standing-row standing-${displayRank}`} key={person.code}>
                     <div className="standing-main">
                       <div className="rank">{displayRank}</div>
                       <div>
@@ -4335,6 +4460,27 @@ export function PoolaramaPrototype() {
 	                    <details className="pick-details">
 	                      <summary>View {person.nickname}&apos;s picks</summary>
 	                      <div className="pick-sheet">
+	                        {pathToGlory && (
+	                          <div className="path-mini">
+	                            <div>
+	                              <span>Path to Glory</span>
+	                              <strong>{pathToGlory.rankLabel} · {pathToGlory.points} pts</strong>
+	                              <p>{pathToGlory.status}</p>
+	                            </div>
+	                            <div>
+	                              <span>Known upside</span>
+	                              <strong>+{pathToGlory.knownUpside}</strong>
+	                              <p>{pathToGlory.leverage}</p>
+	                            </div>
+	                            <div>
+	                              <span>Champion</span>
+	                              <strong className={pathToGlory.championEliminated ? "champion-pick eliminated" : "champion-pick"}>
+	                                {pathToGlory.champion}
+	                              </strong>
+	                              <p>{pathToGlory.championEliminated ? "Eliminated" : "Alive"}</p>
+	                            </div>
+	                          </div>
+	                        )}
 	                        {personKnockoutRounds.map((round, roundIndex) => {
 	                          const roundContent = round.picks ? (
 	                            <>
