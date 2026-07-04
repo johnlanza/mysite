@@ -4435,7 +4435,7 @@ export function PoolaramaPrototype() {
             title={`${adminCurrentRound.label} control room`}
             note={adminCurrentRoundAction}
           />
-          <section className="admin-focus-card admin-round-current" aria-label="Current admin task">
+          <section className="admin-focus-card admin-current-task-card admin-round-current" aria-label="Current admin task">
             <div className="admin-focus-heading">
               <div>
                 <p className="eyebrow">Current admin task</p>
@@ -4516,7 +4516,7 @@ export function PoolaramaPrototype() {
             </div>
           </details>
           <details
-            className={`r32-admin-card archived-admin-card ${r16CanPreview || r16Started ? "admin-round-archive" : "admin-round-current"}`}
+            className={`r32-admin-card archived-admin-card ${r16CanPreview || r16Started ? "admin-round-archive" : "admin-current-round-card admin-round-current"}`}
             open={!(r16CanPreview || r16Started)}
           >
             <summary>
@@ -4617,7 +4617,7 @@ export function PoolaramaPrototype() {
             )}
           </details>
           <details
-            className={`admin-rollup-card next-round-rollup archived-admin-card ${qfCanPreview || qfStarted ? "admin-round-archive" : r16CanPreview || r16Started ? "admin-round-current" : "admin-round-next"}`}
+            className={`admin-rollup-card next-round-rollup archived-admin-card ${qfCanPreview || qfStarted ? "admin-round-archive" : r16CanPreview || r16Started ? "admin-current-round-card admin-round-current" : "admin-round-next"}`}
             open={Boolean((r16CanPreview || r16Started) && !(qfCanPreview || qfStarted))}
           >
             <summary>
@@ -4722,7 +4722,7 @@ export function PoolaramaPrototype() {
             )}
           </details>
           <details
-            className={`admin-rollup-card next-round-rollup archived-admin-card ${qfCanPreview || qfStarted ? "admin-round-current" : "admin-round-next"}`}
+            className={`admin-rollup-card next-round-rollup archived-admin-card ${qfCanPreview || qfStarted ? "admin-current-round-card admin-round-current" : "admin-round-next"}`}
             open={qfCanPreview || qfStarted}
           >
             <summary>

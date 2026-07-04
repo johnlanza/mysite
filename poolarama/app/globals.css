@@ -2821,20 +2821,28 @@ h1 {
   background: linear-gradient(135deg, rgba(20, 99, 255, 0.16), rgba(0, 168, 168, 0.14)), #fff;
 }
 
-.admin-round-current {
+.admin-current-task-card {
   order: 1;
 }
 
-.admin-round-next {
+.admin-current-round-card {
   order: 2;
 }
 
-.admin-support-card {
+.admin-round-current {
+  order: 2;
+}
+
+.admin-round-next {
   order: 3;
 }
 
-.admin-round-archive {
+.admin-support-card {
   order: 4;
+}
+
+.admin-round-archive {
+  order: 8;
 }
 
 .golden-rollup {
