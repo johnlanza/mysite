@@ -9,7 +9,8 @@ import type { AdminParticipantOverview } from "@/lib/poolarama-types";
 import { goldenBootCandidates, groups, teams, type GroupId } from "@/lib/tournament-data";
 
 type Tab = "picks" | "standings" | "rules" | "payments" | "pantheon" | "tables" | "admin";
-type StatsSortKey = "rank" | "player" | "total" | "group" | "advancers" | "winnerBonus" | "knockout" | "r32" | "r16" | "qf" | "possibleUpside";
+type StatsSortKey = "rank" | "player" | "total" | "group" | "advancers" | "winnerBonus" | "r32" | "r16" | "qf" | "possibleUpside";
+type StatsRoundColumn = { key: Extract<StatsSortKey, "r32" | "r16" | "qf">; label: string };
 
 type PlayerStatsRow = {
   code: string;
@@ -20,7 +21,6 @@ type PlayerStatsRow = {
   group: number;
   advancers: number;
   winnerBonus: number;
-  knockout: number;
   r32: number;
   r16: number;
   qf: number;
@@ -1831,7 +1831,6 @@ export function PoolaramaPrototype() {
         group: advancers + winnerBonus,
         advancers,
         winnerBonus,
-        knockout: getPickScoreValue(person, "Knockout"),
         r32: getKnockoutRoundPoints(person, "r32Picks", r32Matches, 1),
         r16: getKnockoutRoundPoints(person, "r16Picks", r16Matches, 2),
         qf: getKnockoutRoundPoints(person, "qfPicks", qfMatches, 3),
@@ -1872,6 +1871,15 @@ export function PoolaramaPrototype() {
       return a.player.localeCompare(b.player);
     });
   }, [playerStatsRows, statsSort]);
+  const statsRoundColumns = useMemo<StatsRoundColumn[]>(() => {
+    const columns: StatsRoundColumn[] = [];
+
+    if (r32Started) columns.push({ key: "r32", label: "R32" });
+    if (r16Started) columns.push({ key: "r16", label: "R16" });
+    if (qfStarted) columns.push({ key: "qf", label: "QF" });
+
+    return columns;
+  }, [qfStarted, r16Started, r32Started]);
   const dailyReview = useMemo(
     () => buildDailyReview(publicPicks, groupStandingsRows, goldenBootRows, groupTablesUpdatedAt, {
       label: currentKnockoutRound.shortLabel,
@@ -4846,6 +4854,7 @@ export function PoolaramaPrototype() {
           />
           <PlayerStatsTable
             rows={sortedPlayerStatsRows}
+            roundColumns={statsRoundColumns}
             sort={statsSort}
             onSort={handleStatsSort}
           />
@@ -5534,10 +5543,12 @@ export function PoolaramaPrototype() {
 
 function PlayerStatsTable({
   rows,
+  roundColumns,
   sort,
   onSort
 }: {
   rows: PlayerStatsRow[];
+  roundColumns: StatsRoundColumn[];
   sort: { key: StatsSortKey; direction: "asc" | "desc" };
   onSort: (key: StatsSortKey) => void;
 }) {
@@ -5549,8 +5560,9 @@ function PlayerStatsTable({
         <div>
           <p className="eyebrow">Sortable stats</p>
           <h3 id="player-stats-title">All player scoring</h3>
-          <p>Scroll sideways for every round. Tap a column heading to sort.</p>
+          <p>Swipe sideways for round details. Tap a column heading to sort.</p>
         </div>
+        <span className="stats-scroll-cue">Swipe →</span>
       </div>
       <div className="player-stats-scroll" role="region" aria-label="Sortable player stats table" tabIndex={0}>
         <table className="player-stats-table">
@@ -5564,10 +5576,11 @@ function PlayerStatsTable({
               <th><button type="button" onClick={() => onSort("group")}>Group{sortMark("group")}</button></th>
               <th><button type="button" onClick={() => onSort("advancers")}>Adv{sortMark("advancers")}</button></th>
               <th><button type="button" onClick={() => onSort("winnerBonus")}>Bonus{sortMark("winnerBonus")}</button></th>
-              <th><button type="button" onClick={() => onSort("knockout")}>KO{sortMark("knockout")}</button></th>
-              <th><button type="button" onClick={() => onSort("r32")}>R32{sortMark("r32")}</button></th>
-              <th><button type="button" onClick={() => onSort("r16")}>R16{sortMark("r16")}</button></th>
-              <th><button type="button" onClick={() => onSort("qf")}>QF{sortMark("qf")}</button></th>
+              {roundColumns.map((column) => (
+                <th key={`stats-head-${column.key}`}>
+                  <button type="button" onClick={() => onSort(column.key)}>{column.label}{sortMark(column.key)}</button>
+                </th>
+              ))}
               <th>Champion</th>
               <th>Golden Boot</th>
               <th><button type="button" onClick={() => onSort("possibleUpside")}>Upside{sortMark("possibleUpside")}</button></th>
@@ -5585,10 +5598,9 @@ function PlayerStatsTable({
                 <td>{row.group}</td>
                 <td>{row.advancers}</td>
                 <td>{row.winnerBonus}</td>
-                <td>{row.knockout}</td>
-                <td>{row.r32}</td>
-                <td>{row.r16}</td>
-                <td>{row.qf}</td>
+                {roundColumns.map((column) => (
+                  <td key={`${row.code}-${column.key}`}>{row[column.key]}</td>
+                ))}
                 <td>
                   <span className={row.championEliminated ? "champion-pick eliminated" : "champion-pick"}>
                     {row.champion}

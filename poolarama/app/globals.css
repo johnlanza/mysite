@@ -1629,6 +1629,7 @@ h1 {
 }
 
 .player-stats-card {
+  min-width: 0;
   padding: 16px;
   border-radius: 18px;
   background:
@@ -1640,16 +1641,35 @@ h1 {
 
 .player-stats-scroll {
   width: 100%;
-  overflow-x: auto;
+  max-width: 100%;
+  overflow-x: scroll;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
   border-radius: 14px;
   border: 1px solid rgba(17, 32, 51, 0.12);
   background: rgba(255, 255, 255, 0.72);
+  scrollbar-color: var(--navy) rgba(17, 32, 51, 0.08);
+}
+
+.player-stats-scroll::-webkit-scrollbar {
+  height: 10px;
+}
+
+.player-stats-scroll::-webkit-scrollbar-track {
+  background: rgba(17, 32, 51, 0.08);
+  border-radius: 999px;
+}
+
+.player-stats-scroll::-webkit-scrollbar-thumb {
+  background: var(--navy);
+  border-radius: 999px;
 }
 
 .player-stats-table {
-  min-width: 980px;
-  width: 100%;
+  min-width: 860px;
+  width: max-content;
   border-collapse: separate;
   border-spacing: 0;
   color: var(--ink);
@@ -1731,6 +1751,18 @@ h1 {
 
 .player-stats-table .stat-upside {
   color: #08784e;
+}
+
+.stats-scroll-cue {
+  justify-self: end;
+  align-self: end;
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--navy);
+  font-size: 0.78rem;
+  font-weight: 1000;
+  white-space: nowrap;
 }
 
 .player-stats-table td em {
