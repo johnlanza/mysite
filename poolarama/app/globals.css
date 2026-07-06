@@ -1642,10 +1642,11 @@ h1 {
 .player-stats-scroll {
   width: 100%;
   max-width: 100%;
+  max-height: min(68vh, 620px);
   overflow-x: scroll;
-  overflow-y: hidden;
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior-x: contain;
+  overscroll-behavior: contain;
   touch-action: pan-x pan-y;
   border-radius: 14px;
   border: 1px solid rgba(17, 32, 51, 0.12);
@@ -1688,7 +1689,7 @@ h1 {
 .player-stats-table thead th {
   position: sticky;
   top: 0;
-  z-index: 2;
+  z-index: 7;
   background: #f9fbff;
   color: var(--muted);
   font-size: 0.66rem;
@@ -1722,7 +1723,7 @@ h1 {
 }
 
 .player-stats-table thead .sticky-stat-col {
-  z-index: 6;
+  z-index: 8;
   background: #f9fbff;
 }
 
