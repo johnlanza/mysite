@@ -9,6 +9,27 @@ import type { AdminParticipantOverview } from "@/lib/poolarama-types";
 import { goldenBootCandidates, groups, teams, type GroupId } from "@/lib/tournament-data";
 
 type Tab = "picks" | "standings" | "rules" | "payments" | "pantheon" | "tables" | "admin";
+type StatsSortKey = "rank" | "player" | "total" | "group" | "advancers" | "winnerBonus" | "knockout" | "r32" | "r16" | "qf" | "possibleUpside";
+
+type PlayerStatsRow = {
+  code: string;
+  rank: number;
+  player: string;
+  name: string;
+  total: number;
+  group: number;
+  advancers: number;
+  winnerBonus: number;
+  knockout: number;
+  r32: number;
+  r16: number;
+  qf: number;
+  champion: string;
+  championEliminated: boolean;
+  goldenBoot: string;
+  goldenBootStatus: string;
+  possibleUpside: number;
+};
 
 type SavedPicks = {
   champion: string;
@@ -527,6 +548,12 @@ function getDisplayRanks(people: PublicPickParticipant[]) {
 
 function getPickScoreValue(person: PublicPickParticipant, label: string) {
   return person.scoring.find((item) => item.label === label)?.value || 0;
+}
+
+function getKnockoutRoundPoints(person: PublicPickParticipant, pickKey: KnockoutPickKey, matches: R32Match[], pointValue: number) {
+  const picks = person[pickKey]?.matchWinners || {};
+
+  return getRoundOf32PickRows(picks, matches, pointValue).reduce((total, pick) => total + pick.points, 0);
 }
 
 function isGroupWinnerSeparated(winner: GroupStandingRow | null, runnerUp: GroupStandingRow | null) {
@@ -1385,6 +1412,10 @@ export function PoolaramaPrototype() {
   const [groupTablesUpdatedAt, setGroupTablesUpdatedAt] = useState<string | null>(null);
   const [goldenBootUpdatedAt, setGoldenBootUpdatedAt] = useState<string | null>(null);
   const [goldenBootProvider, setGoldenBootProvider] = useState("ESPN scoreboard");
+  const [statsSort, setStatsSort] = useState<{ key: StatsSortKey; direction: "asc" | "desc" }>({
+    key: "total",
+    direction: "desc"
+  });
 
   const visibleRoster = publicPicks.length > 0 ? publicPicks : adminOverview;
   const paidCount = visibleRoster.filter((person) => person.venmoPaid).length;
@@ -1772,6 +1803,75 @@ export function PoolaramaPrototype() {
       selectedPublicParticipant
     ]
   );
+  const playerStatsRows = useMemo<PlayerStatsRow[]>(() => {
+    const rankedPeople = getDisplayRanks([...publicPicks].sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname)));
+
+    return rankedPeople.map((person) => {
+      const advancers = getPickScoreValue(person, "Advancers");
+      const winnerBonus = getPickScoreValue(person, "Winner bonus");
+      const champion = person.picks?.champion || "No pick";
+      const goldenBoot = person.picks?.goldenBoot || "No pick";
+      const pathToGlory = currentKnockoutRound.locked
+        ? buildPathToGlory(
+            person,
+            rankedPeople,
+            currentKnockoutMatchSummaries,
+            currentKnockoutRound.pickKey,
+            currentKnockoutRound.pointValue,
+            championStatusMatches
+          )
+        : null;
+
+      return {
+        code: person.code,
+        rank: person.displayRank,
+        player: person.nickname,
+        name: person.name,
+        total: person.points,
+        group: advancers + winnerBonus,
+        advancers,
+        winnerBonus,
+        knockout: getPickScoreValue(person, "Knockout"),
+        r32: getKnockoutRoundPoints(person, "r32Picks", r32Matches, 1),
+        r16: getKnockoutRoundPoints(person, "r16Picks", r16Matches, 2),
+        qf: getKnockoutRoundPoints(person, "qfPicks", qfMatches, 3),
+        champion,
+        championEliminated: champion !== "No pick" && isChampionEliminated(champion, championStatusMatches),
+        goldenBoot,
+        goldenBootStatus: getGoldenBootStatus(goldenBoot, goldenBootRows),
+        possibleUpside: pathToGlory?.possibleUpside || 0
+      };
+    });
+  }, [
+    championStatusMatches,
+    currentKnockoutMatchSummaries,
+    currentKnockoutRound.locked,
+    currentKnockoutRound.pickKey,
+    currentKnockoutRound.pointValue,
+    goldenBootRows,
+    publicPicks,
+    qfMatches,
+    r16Matches,
+    r32Matches
+  ]);
+  const sortedPlayerStatsRows = useMemo(() => {
+    const directionMultiplier = statsSort.direction === "asc" ? 1 : -1;
+
+    return [...playerStatsRows].sort((a, b) => {
+      if (statsSort.key === "player") {
+        return directionMultiplier * a.player.localeCompare(b.player);
+      }
+
+      const first = a[statsSort.key];
+      const second = b[statsSort.key];
+
+      if (typeof first === "number" && typeof second === "number" && first !== second) {
+        return directionMultiplier * (first - second);
+      }
+
+      return a.player.localeCompare(b.player);
+    });
+  }, [playerStatsRows, statsSort]);
   const dailyReview = useMemo(
     () => buildDailyReview(publicPicks, groupStandingsRows, goldenBootRows, groupTablesUpdatedAt, {
       label: currentKnockoutRound.shortLabel,
@@ -1810,6 +1910,13 @@ export function PoolaramaPrototype() {
     }
 
     return headers;
+  }
+
+  function handleStatsSort(key: StatsSortKey) {
+    setStatsSort((current) => ({
+      key,
+      direction: current.key === key && current.direction === "desc" ? "asc" : "desc"
+    }));
   }
 
   useEffect(() => {
@@ -3309,14 +3416,14 @@ export function PoolaramaPrototype() {
       <nav className="tabbar" aria-label="Poolarama sections">
         <TabButton label={r32Started ? "Current" : "Picks"} tabName="picks" activeTab={tab} onSelect={setTab} />
         <TabButton label="Standings" tabName="standings" activeTab={tab} onSelect={setTab} />
-        <TabButton label="Rules" tabName="rules" activeTab={tab} onSelect={setTab} />
-        <TabButton label="Pay" tabName="payments" activeTab={tab} onSelect={setTab} />
-        <TabButton label="Pantheon" tabName="pantheon" activeTab={tab} onSelect={setTab} />
         {adminEnabled ? (
           <TabButton label="Admin" tabName="admin" activeTab={tab} onSelect={setTab} />
         ) : (
-          <TabButton label="Tables" tabName="tables" activeTab={tab} onSelect={setTab} />
+          <TabButton label="Stats" tabName="tables" activeTab={tab} onSelect={setTab} />
         )}
+        <TabButton label="Rules" tabName="rules" activeTab={tab} onSelect={setTab} />
+        <TabButton label="Pay" tabName="payments" activeTab={tab} onSelect={setTab} />
+        <TabButton label="Pantheon" tabName="pantheon" activeTab={tab} onSelect={setTab} />
       </nav>
 
       {tab === "picks" && (
@@ -4733,12 +4840,23 @@ export function PoolaramaPrototype() {
       {tab === "tables" && (
         <section className="screen stack" aria-labelledby="tables-title">
           <ScreenHeader
-            kicker="Live tables"
-            title="Group standings"
-            note="Current group tables used for pool scoring."
+            kicker="Pool stats"
+            title="Stats"
+            note="Sortable round-by-round scoring, Golden Boot status, and archived group tables."
           />
-          <GroupStandingsDisplay rows={groupStandingsRows} />
+          <PlayerStatsTable
+            rows={sortedPlayerStatsRows}
+            sort={statsSort}
+            onSort={handleStatsSort}
+          />
           <GoldenBootTable rows={goldenBootRows} feedback={goldenBootFeedback} />
+          <details className="group-stage-details stats-archive-details">
+            <summary>
+              <span>Group-stage archive</span>
+              <strong>Group tables</strong>
+            </summary>
+            <GroupStandingsDisplay rows={groupStandingsRows} />
+          </details>
         </section>
       )}
 
@@ -5411,6 +5529,82 @@ export function PoolaramaPrototype() {
         </section>
       )}
     </main>
+  );
+}
+
+function PlayerStatsTable({
+  rows,
+  sort,
+  onSort
+}: {
+  rows: PlayerStatsRow[];
+  sort: { key: StatsSortKey; direction: "asc" | "desc" };
+  onSort: (key: StatsSortKey) => void;
+}) {
+  const sortMark = (key: StatsSortKey) => (sort.key === key ? (sort.direction === "asc" ? " ↑" : " ↓") : "");
+
+  return (
+    <section className="player-stats-card" aria-labelledby="player-stats-title">
+      <div className="section-title-row">
+        <div>
+          <p className="eyebrow">Sortable stats</p>
+          <h3 id="player-stats-title">All player scoring</h3>
+          <p>Scroll sideways for every round. Tap a column heading to sort.</p>
+        </div>
+      </div>
+      <div className="player-stats-scroll" role="region" aria-label="Sortable player stats table" tabIndex={0}>
+        <table className="player-stats-table">
+          <thead>
+            <tr>
+              <th className="sticky-stat-col">
+                <button type="button" onClick={() => onSort("player")}>Player{sortMark("player")}</button>
+              </th>
+              <th><button type="button" onClick={() => onSort("rank")}>Rank{sortMark("rank")}</button></th>
+              <th><button type="button" onClick={() => onSort("total")}>Total{sortMark("total")}</button></th>
+              <th><button type="button" onClick={() => onSort("group")}>Group{sortMark("group")}</button></th>
+              <th><button type="button" onClick={() => onSort("advancers")}>Adv{sortMark("advancers")}</button></th>
+              <th><button type="button" onClick={() => onSort("winnerBonus")}>Bonus{sortMark("winnerBonus")}</button></th>
+              <th><button type="button" onClick={() => onSort("knockout")}>KO{sortMark("knockout")}</button></th>
+              <th><button type="button" onClick={() => onSort("r32")}>R32{sortMark("r32")}</button></th>
+              <th><button type="button" onClick={() => onSort("r16")}>R16{sortMark("r16")}</button></th>
+              <th><button type="button" onClick={() => onSort("qf")}>QF{sortMark("qf")}</button></th>
+              <th>Champion</th>
+              <th>Golden Boot</th>
+              <th><button type="button" onClick={() => onSort("possibleUpside")}>Upside{sortMark("possibleUpside")}</button></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.code}>
+                <th className="sticky-stat-col" scope="row">
+                  <strong>{row.player}</strong>
+                  <span>{row.name}</span>
+                </th>
+                <td>{row.rank}</td>
+                <td className="stat-total">{row.total}</td>
+                <td>{row.group}</td>
+                <td>{row.advancers}</td>
+                <td>{row.winnerBonus}</td>
+                <td>{row.knockout}</td>
+                <td>{row.r32}</td>
+                <td>{row.r16}</td>
+                <td>{row.qf}</td>
+                <td>
+                  <span className={row.championEliminated ? "champion-pick eliminated" : "champion-pick"}>
+                    {row.champion}
+                  </span>
+                </td>
+                <td>
+                  <span>{row.goldenBoot}</span>
+                  <em>{row.goldenBootStatus}</em>
+                </td>
+                <td className="stat-upside">+{row.possibleUpside}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
   );
 }
 

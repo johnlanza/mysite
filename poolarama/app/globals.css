@@ -1628,6 +1628,125 @@ h1 {
   gap: 6px;
 }
 
+.player-stats-card {
+  padding: 16px;
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(245, 251, 255, 0.82)),
+    rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(17, 32, 51, 0.12);
+  box-shadow: 0 14px 28px rgba(17, 32, 51, 0.1);
+}
+
+.player-stats-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 14px;
+  border: 1px solid rgba(17, 32, 51, 0.12);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.player-stats-table {
+  min-width: 980px;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: var(--ink);
+}
+
+.player-stats-table th,
+.player-stats-table td {
+  padding: 10px 9px;
+  border-bottom: 1px solid rgba(17, 32, 51, 0.08);
+  text-align: center;
+  vertical-align: middle;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.player-stats-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f9fbff;
+  color: var(--muted);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+}
+
+.player-stats-table button {
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  text-transform: inherit;
+}
+
+.player-stats-table tbody tr:nth-child(even) td,
+.player-stats-table tbody tr:nth-child(even) .sticky-stat-col {
+  background: rgba(16, 47, 104, 0.035);
+}
+
+.player-stats-table .sticky-stat-col {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  min-width: 158px;
+  max-width: 158px;
+  background: #fff;
+  text-align: left;
+  box-shadow: 8px 0 16px rgba(17, 32, 51, 0.08);
+}
+
+.player-stats-table thead .sticky-stat-col {
+  z-index: 4;
+  background: #f9fbff;
+}
+
+.player-stats-table .sticky-stat-col strong,
+.player-stats-table .sticky-stat-col span {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-stats-table .sticky-stat-col strong {
+  color: var(--navy);
+  font-size: 0.96rem;
+}
+
+.player-stats-table .sticky-stat-col span {
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.player-stats-table .stat-total {
+  color: #e9384f;
+  font-size: 1.05rem;
+}
+
+.player-stats-table .stat-upside {
+  color: #08784e;
+}
+
+.player-stats-table td em {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.stats-archive-details[open] {
+  display: grid;
+  gap: 12px;
+}
+
 .public-table-header,
 .public-table-row {
   display: grid;
