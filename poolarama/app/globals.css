@@ -1707,13 +1707,13 @@ h1 {
 
 .player-stats-table tbody tr:nth-child(even) td,
 .player-stats-table tbody tr:nth-child(even) .sticky-stat-col {
-  background: rgba(16, 47, 104, 0.035);
+  background: #f6f8fb;
 }
 
 .player-stats-table .sticky-stat-col {
   position: sticky;
   left: 0;
-  z-index: 3;
+  z-index: 5;
   min-width: 158px;
   max-width: 158px;
   background: #fff;
@@ -1722,7 +1722,7 @@ h1 {
 }
 
 .player-stats-table thead .sticky-stat-col {
-  z-index: 4;
+  z-index: 6;
   background: #f9fbff;
 }
 
