@@ -1461,6 +1461,11 @@ export function PoolaramaPrototype() {
   const qfStarted = qfOpen || qfLocked;
   const qfScoredCount = qfMatches.filter((match) => Boolean(match.winner)).length;
   const qfCanPreview = r16ScoredCount === 8;
+  const picksTabLabel = qfOpen || r16Open || r32Open
+    ? "Picks"
+    : r32Started || preTournamentLocked
+      ? "Current"
+      : "Picks";
   const groupPotentialToDate = useMemo(
     () => getGroupPotentialToDate(groupStandingsRows),
     [groupStandingsRows]
@@ -3422,7 +3427,7 @@ export function PoolaramaPrototype() {
       </section>
 
       <nav className="tabbar" aria-label="Poolarama sections">
-        <TabButton label={r32Started ? "Current" : "Picks"} tabName="picks" activeTab={tab} onSelect={setTab} />
+        <TabButton label={picksTabLabel} tabName="picks" activeTab={tab} onSelect={setTab} />
         <TabButton label="Standings" tabName="standings" activeTab={tab} onSelect={setTab} />
         {adminEnabled ? (
           <TabButton label="Admin" tabName="admin" activeTab={tab} onSelect={setTab} />
@@ -3837,7 +3842,7 @@ export function PoolaramaPrototype() {
                   View standings
                 </button>
                 <button className="admin-action compact" type="button" onClick={() => setTab("tables")}>
-                  View tables
+                  View stats
                 </button>
               </div>
             </section>
@@ -3845,7 +3850,6 @@ export function PoolaramaPrototype() {
           {!showLockedHomeNotice && (!r32Locked || identityConfirmed || identityLockedByLink) && (
           <section className="identity-card" aria-labelledby="identity-title">
             <div>
-              <p className="eyebrow">Step 1 of 5</p>
               <h3 id="identity-title">{identityConfirmed ? `Confirmed: ${selectedParticipant.nickname}` : "Claim your name"}</h3>
             </div>
             {identityLockedByLink ? (
