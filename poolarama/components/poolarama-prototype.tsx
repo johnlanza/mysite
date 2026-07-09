@@ -898,7 +898,7 @@ function buildPathToGlory(
     : gap === 0
       ? "Protecting position now, with possible points still on the board."
       : maxPossiblePoints >= leaderScore
-        ? "Can still reach the current lead if the remaining path breaks right."
+        ? "Your ceiling can still match today's leader score, but other players' paths may still block first place."
         : championEliminated
           ? "Champion pick is gone, so the path depends on knockout points."
           : bestLeverage?.drama === "high"
@@ -1043,12 +1043,14 @@ function buildCompararamaForecast(
         };
         const teamAChance = titleChanceIf(match.teamA);
         const teamBChance = titleChanceIf(match.teamB);
-        const preferred = teamAChance >= teamBChance ? match.teamA : match.teamB;
         const swing = Math.abs(teamAChance - teamBChance);
 
         return {
           label: match.label,
-          preferred,
+          teamA: match.teamA,
+          teamAChance,
+          teamB: match.teamB,
+          teamBChance,
           swing
         };
       })
@@ -1056,7 +1058,7 @@ function buildCompararamaForecast(
     const best = swings[0];
 
     if (!best || best.swing === 0) return "No single QF match changes this forecast much.";
-    return `${best.preferred} in ${best.label} could change title chances by about ${Math.round(best.swing * 100)} percentage points.`;
+    return `${best.label}: about ${percent(best.teamAChance)} if ${best.teamA} wins; ${percent(best.teamBChance)} if ${best.teamB} wins.`;
   };
   const championLeverageFor = (person: PublicPickParticipant) => {
     const champion = person.picks?.champion || "";
