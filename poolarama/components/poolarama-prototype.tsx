@@ -354,6 +354,8 @@ const selectedParticipantKey = "poolarama-selected-participant";
 const confirmedParticipantKey = "poolarama-confirmed-participant";
 const goldenBootWriteInLabel = "Other / write-in";
 const championBonusPoints = 6;
+const forecastFuturePickSamples = 128;
+const forecastFuturePickPointValues = [4, 4, 5];
 const futureKnockoutUpsideByPickKey: Record<KnockoutPickKey, number> = {
   r32Picks: 16 + 12 + 8 + 5,
   r16Picks: 12 + 8 + 5,
@@ -931,13 +933,33 @@ function branchMatchWinners(matches: R32Match[]) {
   }, [{}]);
 }
 
+function deterministicForecastCoinFlip(seed: string) {
+  let hash = 2166136261;
+
+  for (let index = 0; index < seed.length; index += 1) {
+    hash ^= seed.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return (hash >>> 0) / 4294967296 < 0.5;
+}
+
+function getFuturePickSamplePoints(personCode: string, scenarioKey: string, sampleIndex: number) {
+  return forecastFuturePickPointValues.reduce((total, pointValue, matchIndex) => {
+    const hit = deterministicForecastCoinFlip(`${personCode}:${scenarioKey}:${sampleIndex}:${matchIndex}`);
+    return total + (hit ? pointValue : 0);
+  }, 0);
+}
+
 function buildForecastScenario(
   people: PublicPickParticipant[],
   qfMatches: R32Match[],
   qfWinners: Record<string, string>,
-  champion: string
+  champion: string,
+  sampleIndex: number
 ): ForecastScenario {
   const scores = new Map<string, number>();
+  const scenarioKey = `${qfMatches.map((match) => qfWinners[match.matchId]).join("|")}|${champion}`;
 
   people.forEach((person) => {
     const qfPoints = qfMatches.reduce((total, match) => {
@@ -945,8 +967,9 @@ function buildForecastScenario(
       return total + (pick && pick === qfWinners[match.matchId] ? 3 : 0);
     }, 0);
     const championPoints = person.picks?.champion === champion ? championBonusPoints : 0;
+    const futurePickPoints = getFuturePickSamplePoints(person.code, scenarioKey, sampleIndex);
 
-    scores.set(person.code, person.points + qfPoints + championPoints);
+    scores.set(person.code, person.points + qfPoints + futurePickPoints + championPoints);
   });
 
   return {
@@ -972,7 +995,9 @@ function buildCompararamaForecast(
     semiOneTeams.forEach((firstFinalist) => {
       semiTwoTeams.forEach((secondFinalist) => {
         [firstFinalist, secondFinalist].forEach((champion) => {
-          scenarios.push(buildForecastScenario(people, qfMatches, qfWinners, champion));
+          for (let sampleIndex = 0; sampleIndex < forecastFuturePickSamples; sampleIndex += 1) {
+            scenarios.push(buildForecastScenario(people, qfMatches, qfWinners, champion, sampleIndex));
+          }
         });
       });
     });
@@ -1013,11 +1038,12 @@ function buildCompararamaForecast(
     });
   });
 
-  const scenarioCount = scenarios.length;
-  const percent = (count: number) => Math.round((count / scenarioCount) * 1000) / 10;
+  const sampleCount = scenarios.length;
+  const bracketRouteCount = Math.round(sampleCount / forecastFuturePickSamples);
+  const percent = (count: number) => Math.round((count / sampleCount) * 1000) / 10;
   const formatPath = (person: PublicPickParticipant) => {
     const scenario = titlePath.get(person.code);
-    if (!scenario) return "No clear route to first from the remaining QF results.";
+    if (!scenario) return "No clear route to first from the remaining results.";
 
     const qfPath = qfMatches
       .filter((match) => person.qfPicks?.matchWinners?.[match.matchId] === scenario.qfWinners[match.matchId])
@@ -1058,7 +1084,7 @@ function buildCompararamaForecast(
     const best = swings[0];
 
     if (!best || best.swing === 0) return "No single QF match changes this much.";
-    return `${best.label}: about ${percent(best.teamAChance)} if ${best.teamA} wins; ${percent(best.teamBChance)} if ${best.teamB} wins.`;
+    return `${best.label}: about ${percent(best.teamAChance)}% if ${best.teamA} wins; ${percent(best.teamBChance)}% if ${best.teamB} wins.`;
   };
   const championLeverageFor = (person: PublicPickParticipant) => {
     const champion = person.picks?.champion || "";
@@ -1073,8 +1099,8 @@ function buildCompararamaForecast(
   };
 
   return {
-    scenarioCount,
-    note: "This checks every possible path from the Quarterfinals through the champion. It treats each remaining game as equally likely, so it shows which results matter most. It is not a prediction.",
+    scenarioCount: bracketRouteCount,
+    note: "This checks every possible path from the Quarterfinals through the champion. It treats each remaining game as equally likely.",
     rows: people
       .map((person) => ({
         code: person.code,
@@ -1083,7 +1109,7 @@ function buildCompararamaForecast(
         currentPoints: person.points,
         titleChance: percent(wins.get(person.code) || 0),
         topThreeChance: percent(topThrees.get(person.code) || 0),
-        averagePoints: Math.round(((pointTotals.get(person.code) || 0) / scenarioCount) * 10) / 10,
+        averagePoints: Math.round(((pointTotals.get(person.code) || 0) / sampleCount) * 10) / 10,
         bestPath: formatPath(person),
         dangerMatch: dangerMatchFor(person),
         championLeverage: championLeverageFor(person)

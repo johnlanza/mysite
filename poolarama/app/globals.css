@@ -1060,8 +1060,8 @@ h1 {
 }
 
 .forecast-heading {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
   align-items: start;
 }
@@ -1079,6 +1079,7 @@ h1 {
   color: var(--muted);
   font-weight: 800;
   line-height: 1.35;
+  max-width: 60ch;
 }
 
 .forecast-heading > span {
