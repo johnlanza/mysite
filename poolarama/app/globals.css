@@ -1067,11 +1067,26 @@ h1 {
 }
 
 .forecast-heading h3 {
+  display: inline-block;
   margin: 3px 0 5px;
   color: var(--navy);
   font-family: var(--font-display), system-ui, sans-serif;
   font-size: clamp(1.55rem, 6vw, 2.15rem);
   line-height: 1;
+}
+
+.forecast-beta {
+  display: inline-flex;
+  margin-left: 8px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: #fff;
+  background: #e9384f;
+  font-size: 0.68rem;
+  font-weight: 1000;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  vertical-align: text-bottom;
 }
 
 .forecast-heading p {

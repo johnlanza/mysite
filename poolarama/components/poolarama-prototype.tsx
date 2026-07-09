@@ -1041,6 +1041,7 @@ function buildCompararamaForecast(
   const sampleCount = scenarios.length;
   const bracketRouteCount = Math.round(sampleCount / forecastFuturePickSamples);
   const percent = (count: number) => Math.round((count / sampleCount) * 1000) / 10;
+  const percentFromFraction = (fraction: number) => Math.round(fraction * 1000) / 10;
   const formatPath = (person: PublicPickParticipant) => {
     const scenario = titlePath.get(person.code);
     if (!scenario) return "No clear route to first from the remaining results.";
@@ -1084,7 +1085,7 @@ function buildCompararamaForecast(
     const best = swings[0];
 
     if (!best || best.swing === 0) return "No single QF match changes this much.";
-    return `${best.label}: about ${percent(best.teamAChance)}% if ${best.teamA} wins; ${percent(best.teamBChance)}% if ${best.teamB} wins.`;
+    return `${best.label}: about ${percentFromFraction(best.teamAChance)}% if ${best.teamA} wins; ${percentFromFraction(best.teamBChance)}% if ${best.teamB} wins.`;
   };
   const championLeverageFor = (person: PublicPickParticipant) => {
     const champion = person.picks?.champion || "";
@@ -3793,6 +3794,7 @@ export function PoolaramaPrototype() {
                 <div>
                   <p className="eyebrow">Compararama Forecast</p>
                   <h3 id="forecast-title">Title chances</h3>
+                  <span className="forecast-beta">Beta</span>
                   <p>{compararamaForecast.note}</p>
                 </div>
                 <span>{compararamaForecast.scenarioCount} routes</span>
