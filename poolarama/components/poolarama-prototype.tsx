@@ -1017,13 +1017,13 @@ function buildCompararamaForecast(
   const percent = (count: number) => Math.round((count / scenarioCount) * 1000) / 10;
   const formatPath = (person: PublicPickParticipant) => {
     const scenario = titlePath.get(person.code);
-    if (!scenario) return "Needs help from later rounds.";
+    if (!scenario) return "No clear route to first from the remaining QF results.";
 
     const qfPath = qfMatches
       .filter((match) => person.qfPicks?.matchWinners?.[match.matchId] === scenario.qfWinners[match.matchId])
       .map((match) => scenario.qfWinners[match.matchId]);
-    const championLine = person.picks?.champion === scenario.champion ? `${scenario.champion} champion` : `${scenario.champion} lifts the bracket`;
-    const qfLine = qfPath.length > 0 ? qfPath.join(", ") : "misses can still survive";
+    const championLine = `${scenario.champion} wins the title`;
+    const qfLine = qfPath.length > 0 ? qfPath.join(", ") : "can survive without another QF point";
 
     return `${qfLine}; ${championLine}`;
   };
@@ -1057,7 +1057,7 @@ function buildCompararamaForecast(
       .sort((a, b) => b.swing - a.swing);
     const best = swings[0];
 
-    if (!best || best.swing === 0) return "No single QF match changes this forecast much.";
+    if (!best || best.swing === 0) return "No single QF match changes this much.";
     return `${best.label}: about ${percent(best.teamAChance)} if ${best.teamA} wins; ${percent(best.teamBChance)} if ${best.teamB} wins.`;
   };
   const championLeverageFor = (person: PublicPickParticipant) => {
@@ -1066,15 +1066,15 @@ function buildCompararamaForecast(
     const sameChampionCount = people.filter((candidate) => candidate.picks?.champion === champion).length;
 
     if (!champion) return "No champion pick.";
-    if (!championStillPossible) return `${champion} is out of the forecast.`;
+    if (!championStillPossible) return "Your pick was eliminated.";
     return sameChampionCount === 1
-      ? `${champion} is a solo champion lane.`
-      : `${sameChampionCount} players share ${champion}.`;
+      ? `Only you picked ${champion}.`
+      : `${sameChampionCount} players picked ${champion}.`;
   };
 
   return {
     scenarioCount,
-    note: "This compares every possible path from the Quarterfinals through the champion. It treats each remaining game as a coin flip, so use it as a practical map of leverage, not a betting line.",
+    note: "This checks every possible path from the Quarterfinals through the champion. It treats each remaining game as equally likely, so it shows which results matter most. It is not a prediction.",
     rows: people
       .map((person) => ({
         code: person.code,
@@ -3766,10 +3766,10 @@ export function PoolaramaPrototype() {
               <div className="forecast-heading">
                 <div>
                   <p className="eyebrow">Compararama Forecast</p>
-                  <h3 id="forecast-title">Title odds</h3>
-                  <p>Forecast, not fate. {compararamaForecast.note}</p>
+                  <h3 id="forecast-title">Title chances</h3>
+                  <p>{compararamaForecast.note}</p>
                 </div>
-                <span>{compararamaForecast.scenarioCount} paths</span>
+                <span>{compararamaForecast.scenarioCount} routes</span>
               </div>
               <div className="forecast-grid">
                 {compararamaForecast.rows.slice(0, 8).map((row) => (
@@ -3790,7 +3790,7 @@ export function PoolaramaPrototype() {
                     </div>
                     <dl>
                       <div>
-                        <dt>Best path</dt>
+                        <dt>Helpful results</dt>
                         <dd>{row.bestPath}</dd>
                       </div>
                       <div>
@@ -3798,7 +3798,7 @@ export function PoolaramaPrototype() {
                         <dd>{row.dangerMatch}</dd>
                       </div>
                       <div>
-                        <dt>Champion leverage</dt>
+                        <dt>Champion pick</dt>
                         <dd>{row.championLeverage}</dd>
                       </div>
                     </dl>
