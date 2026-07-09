@@ -3632,11 +3632,12 @@ export function PoolaramaPrototype() {
         <TabButton label="Standings" tabName="standings" activeTab={tab} onSelect={setTab} />
         <TabButton label="Stats" tabName="tables" activeTab={tab} onSelect={setTab} />
         <TabButton label="Rules" tabName="rules" activeTab={tab} onSelect={setTab} />
-        {adminEnabled && (
-          <TabButton label="Admin" tabName="admin" activeTab={tab} onSelect={setTab} />
-        )}
         <TabButton label="Pantheon" tabName="pantheon" activeTab={tab} onSelect={setTab} />
-        <TabButton label="Pay" tabName="payments" activeTab={tab} onSelect={setTab} />
+        {adminEnabled ? (
+          <TabButton label="Admin" tabName="admin" activeTab={tab} onSelect={setTab} />
+        ) : (
+          <TabButton label="Pay" tabName="payments" activeTab={tab} onSelect={setTab} />
+        )}
       </nav>
 
       {tab === "picks" && (
