@@ -1055,8 +1055,8 @@ function buildCompararamaForecast(
       .sort((a, b) => b.swing - a.swing);
     const best = swings[0];
 
-    if (!best || best.swing === 0) return "No single QF match swings the forecast much.";
-    return `${best.preferred} in ${best.label} (${Math.round(best.swing * 100)}-point title swing)`;
+    if (!best || best.swing === 0) return "No single QF match changes this forecast much.";
+    return `${best.preferred} in ${best.label} could change title chances by about ${Math.round(best.swing * 100)} percentage points.`;
   };
   const championLeverageFor = (person: PublicPickParticipant) => {
     const champion = person.picks?.champion || "";
@@ -1072,7 +1072,7 @@ function buildCompararamaForecast(
 
   return {
     scenarioCount,
-    note: "Equal-probability simulation of remaining QF results plus the champion from the QF field. Future SF/final picks are not included because they have not been made yet.",
+    note: "This compares every possible path from the Quarterfinals through the champion. It treats each remaining game as a coin flip, so use it as a practical map of leverage, not a betting line.",
     rows: people
       .map((person) => ({
         code: person.code,
@@ -3774,7 +3774,7 @@ export function PoolaramaPrototype() {
                   <article className="forecast-row" key={`forecast-${row.code}`}>
                     <div>
                       <strong>{row.nickname}</strong>
-                      <span>{row.currentPoints} pts now · avg {row.averagePoints}</span>
+                      <span>{row.currentPoints} pts now · projected finish {row.averagePoints}</span>
                     </div>
                     <div className="forecast-odds">
                       <span>
@@ -3792,7 +3792,7 @@ export function PoolaramaPrototype() {
                         <dd>{row.bestPath}</dd>
                       </div>
                       <div>
-                        <dt>Danger match</dt>
+                        <dt>Biggest swing</dt>
                         <dd>{row.dangerMatch}</dd>
                       </div>
                       <div>
