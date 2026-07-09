@@ -1047,6 +1047,133 @@ h1 {
   line-height: 1.35;
 }
 
+.forecast-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(255, 244, 191, 0.92), rgba(226, 247, 243, 0.9)),
+    rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(255, 185, 0, 0.4);
+  box-shadow: 0 16px 30px rgba(17, 32, 51, 0.1);
+}
+
+.forecast-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+}
+
+.forecast-heading h3 {
+  margin: 3px 0 5px;
+  color: var(--navy);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(1.55rem, 6vw, 2.15rem);
+  line-height: 1;
+}
+
+.forecast-heading p {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.forecast-heading > span {
+  flex: 0 0 auto;
+  padding: 8px 10px;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--navy);
+  font-size: 0.76rem;
+  font-weight: 1000;
+  white-space: nowrap;
+}
+
+.forecast-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.forecast-row {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(17, 32, 51, 0.1);
+}
+
+.forecast-row > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.forecast-row > div:first-child strong {
+  color: var(--navy);
+  font-size: 1.06rem;
+}
+
+.forecast-row > div:first-child span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 900;
+  text-align: right;
+}
+
+.forecast-odds {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.forecast-odds span {
+  display: grid;
+  gap: 2px;
+  padding: 10px;
+  border-radius: 12px;
+  color: var(--muted);
+  background: rgba(16, 47, 104, 0.06);
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.forecast-odds strong {
+  color: #e9384f;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.forecast-row dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.forecast-row dl div {
+  display: grid;
+  gap: 2px;
+}
+
+.forecast-row dt {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 1000;
+  text-transform: uppercase;
+}
+
+.forecast-row dd {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
 .current-round-heading,
 .match-comparison-header {
   display: grid;

@@ -325,6 +325,31 @@ type PathToGlory = {
   status: string;
 };
 
+type ForecastScenario = {
+  scores: Map<string, number>;
+  champion: string;
+  qfWinners: Record<string, string>;
+};
+
+type ForecastRow = {
+  code: string;
+  nickname: string;
+  name: string;
+  currentPoints: number;
+  titleChance: number;
+  topThreeChance: number;
+  averagePoints: number;
+  bestPath: string;
+  dangerMatch: string;
+  championLeverage: string;
+};
+
+type CompararamaForecast = {
+  rows: ForecastRow[];
+  scenarioCount: number;
+  note: string;
+};
+
 const selectedParticipantKey = "poolarama-selected-participant";
 const confirmedParticipantKey = "poolarama-confirmed-participant";
 const goldenBootWriteInLabel = "Other / write-in";
@@ -890,6 +915,178 @@ function buildPathToGlory(
     championEliminated,
     leverage: bestLeverage ? `${bestLeverage.team} in ${bestLeverage.label}` : "No obvious leverage left",
     status
+  };
+}
+
+function branchMatchWinners(matches: R32Match[]) {
+  return matches.reduce<Record<string, string>[]>((branches, match) => {
+    if (match.winner) {
+      return branches.map((branch) => ({ ...branch, [match.matchId]: match.winner || "" }));
+    }
+
+    return branches.flatMap((branch) => [
+      { ...branch, [match.matchId]: match.teamA },
+      { ...branch, [match.matchId]: match.teamB }
+    ]);
+  }, [{}]);
+}
+
+function buildForecastScenario(
+  people: PublicPickParticipant[],
+  qfMatches: R32Match[],
+  qfWinners: Record<string, string>,
+  champion: string
+): ForecastScenario {
+  const scores = new Map<string, number>();
+
+  people.forEach((person) => {
+    const qfPoints = qfMatches.reduce((total, match) => {
+      const pick = person.qfPicks?.matchWinners?.[match.matchId];
+      return total + (pick && pick === qfWinners[match.matchId] ? 3 : 0);
+    }, 0);
+    const championPoints = person.picks?.champion === champion ? championBonusPoints : 0;
+
+    scores.set(person.code, person.points + qfPoints + championPoints);
+  });
+
+  return {
+    scores,
+    champion,
+    qfWinners
+  };
+}
+
+function buildCompararamaForecast(
+  people: PublicPickParticipant[],
+  qfMatches: R32Match[]
+): CompararamaForecast | null {
+  if (people.length === 0 || qfMatches.length !== 4 || people.some((person) => !person.qfPicks)) return null;
+
+  const qfWinnerBranches = branchMatchWinners(qfMatches);
+  const scenarios: ForecastScenario[] = [];
+
+  qfWinnerBranches.forEach((qfWinners) => {
+    const semiOneTeams = [qfWinners[qfMatches[0].matchId], qfWinners[qfMatches[1].matchId]];
+    const semiTwoTeams = [qfWinners[qfMatches[2].matchId], qfWinners[qfMatches[3].matchId]];
+
+    semiOneTeams.forEach((firstFinalist) => {
+      semiTwoTeams.forEach((secondFinalist) => {
+        [firstFinalist, secondFinalist].forEach((champion) => {
+          scenarios.push(buildForecastScenario(people, qfMatches, qfWinners, champion));
+        });
+      });
+    });
+  });
+
+  if (scenarios.length === 0) return null;
+
+  const wins = new Map<string, number>();
+  const topThrees = new Map<string, number>();
+  const pointTotals = new Map<string, number>();
+  const titlePath = new Map<string, ForecastScenario>();
+
+  scenarios.forEach((scenario) => {
+    const scoredPeople = people
+      .map((person) => ({
+        person,
+        points: scenario.scores.get(person.code) || person.points
+      }))
+      .sort((a, b) => b.points - a.points || a.person.nickname.localeCompare(b.person.nickname));
+    const leaderScore = scoredPeople[0]?.points || 0;
+    const ranked = getDisplayRanks(scoredPeople.map((item) => ({
+      ...item.person,
+      points: item.points
+    })));
+
+    scoredPeople.forEach(({ person, points }) => {
+      pointTotals.set(person.code, (pointTotals.get(person.code) || 0) + points);
+      if (points === leaderScore) {
+        wins.set(person.code, (wins.get(person.code) || 0) + 1);
+        if (!titlePath.has(person.code)) titlePath.set(person.code, scenario);
+      }
+    });
+
+    ranked.forEach((person) => {
+      if (person.displayRank <= 3) {
+        topThrees.set(person.code, (topThrees.get(person.code) || 0) + 1);
+      }
+    });
+  });
+
+  const scenarioCount = scenarios.length;
+  const percent = (count: number) => Math.round((count / scenarioCount) * 1000) / 10;
+  const formatPath = (person: PublicPickParticipant) => {
+    const scenario = titlePath.get(person.code);
+    if (!scenario) return "Needs help from later rounds.";
+
+    const qfPath = qfMatches
+      .filter((match) => person.qfPicks?.matchWinners?.[match.matchId] === scenario.qfWinners[match.matchId])
+      .map((match) => scenario.qfWinners[match.matchId]);
+    const championLine = person.picks?.champion === scenario.champion ? `${scenario.champion} champion` : `${scenario.champion} lifts the bracket`;
+    const qfLine = qfPath.length > 0 ? qfPath.join(", ") : "misses can still survive";
+
+    return `${qfLine}; ${championLine}`;
+  };
+  const dangerMatchFor = (person: PublicPickParticipant) => {
+    const swings = qfMatches
+      .filter((match) => !match.winner)
+      .map((match) => {
+        const titleChanceIf = (winner: string) => {
+          const matchingScenarios = scenarios.filter((scenario) => scenario.qfWinners[match.matchId] === winner);
+          if (matchingScenarios.length === 0) return 0;
+          const matchingWins = matchingScenarios.filter((scenario) => {
+            const scores = Array.from(scenario.scores.values());
+            return scenario.scores.get(person.code) === Math.max(...scores);
+          }).length;
+
+          return matchingWins / matchingScenarios.length;
+        };
+        const teamAChance = titleChanceIf(match.teamA);
+        const teamBChance = titleChanceIf(match.teamB);
+        const preferred = teamAChance >= teamBChance ? match.teamA : match.teamB;
+        const swing = Math.abs(teamAChance - teamBChance);
+
+        return {
+          label: match.label,
+          preferred,
+          swing
+        };
+      })
+      .sort((a, b) => b.swing - a.swing);
+    const best = swings[0];
+
+    if (!best || best.swing === 0) return "No single QF match swings the forecast much.";
+    return `${best.preferred} in ${best.label} (${Math.round(best.swing * 100)} pt swing)`;
+  };
+  const championLeverageFor = (person: PublicPickParticipant) => {
+    const champion = person.picks?.champion || "";
+    const championStillPossible = scenarios.some((scenario) => scenario.champion === champion);
+    const sameChampionCount = people.filter((candidate) => candidate.picks?.champion === champion).length;
+
+    if (!champion) return "No champion pick.";
+    if (!championStillPossible) return `${champion} is out of the forecast.`;
+    return sameChampionCount === 1
+      ? `${champion} is a solo champion lane.`
+      : `${sameChampionCount} players share ${champion}.`;
+  };
+
+  return {
+    scenarioCount,
+    note: "Equal-probability simulation of remaining QF results plus the champion from the QF field. Future SF/final picks are not included because they have not been made yet.",
+    rows: people
+      .map((person) => ({
+        code: person.code,
+        nickname: person.nickname,
+        name: person.name,
+        currentPoints: person.points,
+        titleChance: percent(wins.get(person.code) || 0),
+        topThreeChance: percent(topThrees.get(person.code) || 0),
+        averagePoints: Math.round(((pointTotals.get(person.code) || 0) / scenarioCount) * 10) / 10,
+        bestPath: formatPath(person),
+        dangerMatch: dangerMatchFor(person),
+        championLeverage: championLeverageFor(person)
+      }))
+      .sort((a, b) => b.titleChance - a.titleChance || b.topThreeChance - a.topThreeChance || b.currentPoints - a.currentPoints || a.nickname.localeCompare(b.nickname))
   };
 }
 
@@ -1904,6 +2101,10 @@ export function PoolaramaPrototype() {
       groupTablesUpdatedAt,
       publicPicks
     ]
+  );
+  const compararamaForecast = useMemo(
+    () => qfLocked ? buildCompararamaForecast(publicPicks, qfMatches) : null,
+    [publicPicks, qfLocked, qfMatches]
   );
   const adminFetchOptions = useMemo<RequestInit>(() => {
     if (!adminToken) return {};
@@ -3555,6 +3756,52 @@ export function PoolaramaPrototype() {
                     </article>
                   );
                 })}
+              </div>
+            </section>
+          )}
+          {compararamaForecast && (
+            <section className="forecast-card" aria-labelledby="forecast-title">
+              <div className="forecast-heading">
+                <div>
+                  <p className="eyebrow">Compararama Forecast</p>
+                  <h3 id="forecast-title">Title odds</h3>
+                  <p>Forecast, not fate. {compararamaForecast.note}</p>
+                </div>
+                <span>{compararamaForecast.scenarioCount} paths</span>
+              </div>
+              <div className="forecast-grid">
+                {compararamaForecast.rows.slice(0, 8).map((row) => (
+                  <article className="forecast-row" key={`forecast-${row.code}`}>
+                    <div>
+                      <strong>{row.nickname}</strong>
+                      <span>{row.currentPoints} pts now · avg {row.averagePoints}</span>
+                    </div>
+                    <div className="forecast-odds">
+                      <span>
+                        <strong>{row.titleChance}%</strong>
+                        title
+                      </span>
+                      <span>
+                        <strong>{row.topThreeChance}%</strong>
+                        top 3
+                      </span>
+                    </div>
+                    <dl>
+                      <div>
+                        <dt>Best path</dt>
+                        <dd>{row.bestPath}</dd>
+                      </div>
+                      <div>
+                        <dt>Danger match</dt>
+                        <dd>{row.dangerMatch}</dd>
+                      </div>
+                      <div>
+                        <dt>Champion leverage</dt>
+                        <dd>{row.championLeverage}</dd>
+                      </div>
+                    </dl>
+                  </article>
+                ))}
               </div>
             </section>
           )}
