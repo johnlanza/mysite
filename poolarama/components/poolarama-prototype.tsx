@@ -1056,7 +1056,7 @@ function buildCompararamaForecast(
     const best = swings[0];
 
     if (!best || best.swing === 0) return "No single QF match swings the forecast much.";
-    return `${best.preferred} in ${best.label} (${Math.round(best.swing * 100)} pt swing)`;
+    return `${best.preferred} in ${best.label} (${Math.round(best.swing * 100)}-point title swing)`;
   };
   const championLeverageFor = (person: PublicPickParticipant) => {
     const champion = person.picks?.champion || "";
