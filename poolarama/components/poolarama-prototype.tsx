@@ -3794,10 +3794,9 @@ export function PoolaramaPrototype() {
                 <div>
                   <p className="eyebrow">Compararama Forecast</p>
                   <h3 id="forecast-title">Title chances</h3>
-                  <span className="forecast-beta">Beta</span>
                   <p>{compararamaForecast.note}</p>
                 </div>
-                <span>{compararamaForecast.scenarioCount} routes</span>
+                <span className="forecast-beta">Beta</span>
               </div>
               <div className="forecast-grid">
                 {compararamaForecast.rows.slice(0, 8).map((row) => (

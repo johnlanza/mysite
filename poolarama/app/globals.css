@@ -1067,7 +1067,6 @@ h1 {
 }
 
 .forecast-heading h3 {
-  display: inline-block;
   margin: 3px 0 5px;
   color: var(--navy);
   font-family: var(--font-display), system-ui, sans-serif;
@@ -1076,8 +1075,6 @@ h1 {
 }
 
 .forecast-beta {
-  display: inline-flex;
-  margin-left: 8px;
   padding: 4px 8px;
   border-radius: 999px;
   color: #fff;
@@ -1086,7 +1083,6 @@ h1 {
   font-weight: 1000;
   letter-spacing: 0;
   text-transform: uppercase;
-  vertical-align: text-bottom;
 }
 
 .forecast-heading p {
@@ -1098,11 +1094,10 @@ h1 {
 }
 
 .forecast-heading > span {
-  flex: 0 0 auto;
   padding: 8px 10px;
   border-radius: 999px;
   color: #fff;
-  background: var(--navy);
+  background: #e9384f;
   font-size: 0.76rem;
   font-weight: 1000;
   white-space: nowrap;
@@ -1123,10 +1118,8 @@ h1 {
 }
 
 .forecast-row > div:first-child {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  align-items: baseline;
+  display: grid;
+  gap: 3px;
 }
 
 .forecast-row > div:first-child strong {
@@ -1138,7 +1131,6 @@ h1 {
   color: var(--muted);
   font-size: 0.8rem;
   font-weight: 900;
-  text-align: right;
 }
 
 .forecast-odds {
