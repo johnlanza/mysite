@@ -42,6 +42,13 @@ const PoolSchema = new Schema(
     },
     qfOpenedAt: { type: Date, default: null },
     qfLockedAt: { type: Date, default: null },
+    sfStatus: {
+      type: String,
+      enum: ["setup", "open", "locked"],
+      default: "setup"
+    },
+    sfOpenedAt: { type: Date, default: null },
+    sfLockedAt: { type: Date, default: null },
     scoringRules: {
       champion: { type: Number, default: 6 },
       groupWinner: { type: Number, default: 2 },

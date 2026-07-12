@@ -283,3 +283,42 @@ export function generateQuarterfinalMatches(roundOf16Matches: KnockoutSourceMatc
     };
   });
 }
+
+export function generateSemifinalMatches(quarterfinalMatches: KnockoutSourceMatch[]): GeneratedMatch[] {
+  const orderedMatches = [...quarterfinalMatches].sort((a, b) => a.order - b.order);
+
+  if (orderedMatches.length !== 4) {
+    throw new Error(`Semifinal preview requires 4 Quarterfinal matches, found ${orderedMatches.length}.`);
+  }
+
+  const missingWinner = orderedMatches.find((match) => !match.winner);
+
+  if (missingWinner) {
+    throw new Error(`Semifinal preview requires every Quarterfinal winner. Missing ${missingWinner.label || missingWinner.matchId}.`);
+  }
+
+  const matchesByNumber = new Map(
+    orderedMatches.map((match) => [Number((match.label || "").match(/\d+/)?.[0]), match])
+  );
+  const semifinalSlots = [
+    { matchNumber: 101, sideA: 97, sideB: 98 },
+    { matchNumber: 102, sideA: 99, sideB: 100 }
+  ];
+
+  return semifinalSlots.map((slot, index) => {
+    const firstMatch = matchesByNumber.get(slot.sideA);
+    const secondMatch = matchesByNumber.get(slot.sideB);
+
+    if (!firstMatch || !secondMatch) {
+      throw new Error(`Semifinal preview is missing Match ${slot.sideA} or Match ${slot.sideB}.`);
+    }
+
+    return {
+      matchId: `sf-${String(index + 1).padStart(2, "0")}`,
+      label: `Match ${slot.matchNumber}`,
+      teamA: firstMatch.winner || "",
+      teamB: secondMatch.winner || "",
+      order: index + 1
+    };
+  });
+}

@@ -9,8 +9,8 @@ import type { AdminParticipantOverview } from "@/lib/poolarama-types";
 import { goldenBootCandidates, groups, teams, type GroupId } from "@/lib/tournament-data";
 
 type Tab = "picks" | "standings" | "rules" | "payments" | "pantheon" | "tables" | "admin";
-type StatsSortKey = "rank" | "player" | "total" | "group" | "advancers" | "winnerBonus" | "r32" | "r16" | "qf" | "possibleUpside";
-type StatsRoundColumn = { key: Extract<StatsSortKey, "r32" | "r16" | "qf">; label: string };
+type StatsSortKey = "rank" | "player" | "total" | "group" | "advancers" | "winnerBonus" | "r32" | "r16" | "qf" | "sf" | "possibleUpside";
+type StatsRoundColumn = { key: Extract<StatsSortKey, "r32" | "r16" | "qf" | "sf">; label: string };
 
 type PlayerStatsRow = {
   code: string;
@@ -24,6 +24,7 @@ type PlayerStatsRow = {
   r32: number;
   r16: number;
   qf: number;
+  sf: number;
   champion: string;
   championEliminated: boolean;
   goldenBoot: string;
@@ -59,6 +60,7 @@ type ApiSubmissionResponse = {
     r32: ApiSubmissionResponse["submission"];
     r16: ApiSubmissionResponse["submission"];
     qf: ApiSubmissionResponse["submission"];
+    sf: ApiSubmissionResponse["submission"];
   };
   participant?: {
     code: string;
@@ -91,6 +93,11 @@ type PoolState = {
     lockedAt: string | null;
   };
   qf: {
+    status: "setup" | "open" | "locked";
+    openedAt: string | null;
+    lockedAt: string | null;
+  };
+  sf: {
     status: "setup" | "open" | "locked";
     openedAt: string | null;
     lockedAt: string | null;
@@ -152,6 +159,12 @@ type PublicPickParticipant = {
     matchWinners: Record<string, string>;
     submittedAt: string | null;
   } | null;
+  sfSubmitted: boolean;
+  sfSubmittedAt: string | null;
+  sfPicks: {
+    matchWinners: Record<string, string>;
+    submittedAt: string | null;
+  } | null;
   groupPickScores?: Partial<Record<GroupId, {
     winner: number;
     runnerUp: number;
@@ -174,6 +187,10 @@ type RoundSubmissionSummary = {
     total: number;
   };
   qf: {
+    submitted: number;
+    total: number;
+  };
+  sf: {
     submitted: number;
     total: number;
   };
@@ -228,9 +245,9 @@ type RoundOf32Response = {
 
 type RoundOf16Response = RoundOf32Response;
 
-type KnockoutPickKey = "r32Picks" | "r16Picks" | "qfPicks";
+type KnockoutPickKey = "r32Picks" | "r16Picks" | "qfPicks" | "sfPicks";
 
-type KnockoutRoundStage = "r32" | "r16" | "qf";
+type KnockoutRoundStage = "r32" | "r16" | "qf" | "sf";
 
 type KnockoutRoundDisplay = {
   stage: KnockoutRoundStage;
@@ -359,7 +376,8 @@ const forecastFuturePickPointValues = [4, 4, 5];
 const futureKnockoutUpsideByPickKey: Record<KnockoutPickKey, number> = {
   r32Picks: 16 + 12 + 8 + 5,
   r16Picks: 12 + 8 + 5,
-  qfPicks: 8 + 5
+  qfPicks: 8 + 5,
+  sfPicks: 5
 };
 const defaultPoolState: PoolState = {
   preTournament: {
@@ -380,6 +398,11 @@ const defaultPoolState: PoolState = {
     status: "setup",
     openedAt: null,
     lockedAt: null
+  },
+  sf: {
+    status: "setup",
+    openedAt: null,
+    lockedAt: null
   }
 };
 const defaultRoundSubmissionSummary: RoundSubmissionSummary = {
@@ -392,6 +415,10 @@ const defaultRoundSubmissionSummary: RoundSubmissionSummary = {
     total: 0
   },
   qf: {
+    submitted: 0,
+    total: 0
+  },
+  sf: {
     submitted: 0,
     total: 0
   }
@@ -414,6 +441,10 @@ function normalizePoolState(pool: Partial<PoolState> | null | undefined): PoolSt
     qf: {
       ...defaultPoolState.qf,
       ...(pool?.qf || {})
+    },
+    sf: {
+      ...defaultPoolState.sf,
+      ...(pool?.sf || {})
     }
   };
 }
@@ -635,12 +666,13 @@ function getGroupPotentialToDate(rows: GroupStandingRow[]) {
   }, { advancers: 0, winnerBonus: 0 });
 }
 
-function getKnockoutPotentialToDate(r32Matches: R32Match[], r16Matches: R32Match[], qfMatches: R32Match[]) {
+function getKnockoutPotentialToDate(r32Matches: R32Match[], r16Matches: R32Match[], qfMatches: R32Match[], sfMatches: R32Match[]) {
   const r32Potential = r32Matches.filter((match) => match.winner).length;
   const r16Potential = r16Matches.filter((match) => match.winner).length * 2;
   const qfPotential = qfMatches.filter((match) => match.winner).length * 3;
+  const sfPotential = sfMatches.filter((match) => match.winner).length * 4;
 
-  return r32Potential + r16Potential + qfPotential;
+  return r32Potential + r16Potential + qfPotential + sfPotential;
 }
 
 function formatScoreProgress(points: number, potential: number) {
@@ -1601,6 +1633,8 @@ export function PoolaramaPrototype() {
       r16SubmittedAt: null,
       qfSubmitted: false,
       qfSubmittedAt: null,
+      sfSubmitted: false,
+      sfSubmittedAt: null,
       champion: null,
       goldenBoot: null
     }))
@@ -1632,6 +1666,12 @@ export function PoolaramaPrototype() {
   const [qfSavedAt, setQfSavedAt] = useState<string | null>(null);
   const [qfPreviewReady, setQfPreviewReady] = useState(false);
   const [qfFeedback, setQfFeedback] = useState("Quarterfinal picks are not open yet.");
+  const [sfMatches, setSfMatches] = useState<R32Match[]>([]);
+  const [sfPicks, setSfPicks] = useState<Record<string, string>>({});
+  const [sfSavedPicks, setSfSavedPicks] = useState<Record<string, string> | null>(null);
+  const [sfSavedAt, setSfSavedAt] = useState<string | null>(null);
+  const [sfPreviewReady, setSfPreviewReady] = useState(false);
+  const [sfFeedback, setSfFeedback] = useState("Semifinal picks are not open yet.");
   const [selectedKnockoutMatchId, setSelectedKnockoutMatchId] = useState<string | null>(null);
   const [goldenBootRows, setGoldenBootRows] = useState<GoldenBootRow[]>([]);
   const [goldenBootFeedback, setGoldenBootFeedback] = useState("Golden Boot table is loading.");
@@ -1687,7 +1727,12 @@ export function PoolaramaPrototype() {
   const qfStarted = qfOpen || qfLocked;
   const qfScoredCount = qfMatches.filter((match) => Boolean(match.winner)).length;
   const qfCanPreview = r16ScoredCount === 8;
-  const picksTabLabel = qfOpen || r16Open || r32Open
+  const sfOpen = poolState.sf.status === "open";
+  const sfLocked = poolState.sf.status === "locked";
+  const sfStarted = sfOpen || sfLocked;
+  const sfScoredCount = sfMatches.filter((match) => Boolean(match.winner)).length;
+  const sfCanPreview = qfScoredCount === 4;
+  const picksTabLabel = sfOpen || qfOpen || r16Open || r32Open
     ? "Picks"
     : r32Started || preTournamentLocked
       ? "Current"
@@ -1697,17 +1742,18 @@ export function PoolaramaPrototype() {
     [groupStandingsRows]
   );
   const knockoutPotentialToDate = useMemo(
-    () => getKnockoutPotentialToDate(r32Matches, r16Matches, qfMatches),
-    [qfMatches, r16Matches, r32Matches]
+    () => getKnockoutPotentialToDate(r32Matches, r16Matches, qfMatches, sfMatches),
+    [qfMatches, r16Matches, r32Matches, sfMatches]
   );
   const championStatusMatches = useMemo(
-    () => [...r32Matches, ...r16Matches, ...qfMatches],
-    [qfMatches, r16Matches, r32Matches]
+    () => [...r32Matches, ...r16Matches, ...qfMatches, ...sfMatches],
+    [qfMatches, r16Matches, r32Matches, sfMatches]
   );
   const preTournamentControlsLocked = preTournamentLocked || r32Open || r32Locked;
   const r32PicksComplete = r32Matches.length > 0 && r32Matches.every((match) => Boolean(r32Picks[match.matchId]));
   const r16PicksComplete = r16Matches.length > 0 && r16Matches.every((match) => Boolean(r16Picks[match.matchId]));
   const qfPicksComplete = qfMatches.length > 0 && qfMatches.every((match) => Boolean(qfPicks[match.matchId]));
+  const sfPicksComplete = sfMatches.length > 0 && sfMatches.every((match) => Boolean(sfPicks[match.matchId]));
   const showLockedHomeNotice = preTournamentLocked && !r32Started && !identityConfirmed && !identityLockedByLink && !adminEnabled;
   const showParticipantLockedHeader = preTournamentLocked && identityConfirmed && !r32Open && !r32Locked;
   const showPersonalR32Pick = identityLockedByLink;
@@ -1727,7 +1773,14 @@ export function PoolaramaPrototype() {
   const adminR32SubmittedCount = adminOverview.filter((participant) => participant.r32Submitted).length;
   const adminR16SubmittedCount = adminOverview.filter((participant) => participant.r16Submitted).length;
   const adminQfSubmittedCount = adminOverview.filter((participant) => participant.qfSubmitted).length;
-  const heroKnockoutSubmissionMetric = qfStarted
+  const adminSfSubmittedCount = adminOverview.filter((participant) => participant.sfSubmitted).length;
+  const heroKnockoutSubmissionMetric = sfStarted
+    ? {
+        submitted: adminEnabled ? adminSfSubmittedCount : roundSubmissions.sf.submitted,
+        total: adminEnabled ? adminOverview.length : roundSubmissions.sf.total || totalPlayers,
+        label: "SF submitted"
+      }
+    : qfStarted
     ? {
         submitted: adminEnabled ? adminQfSubmittedCount : roundSubmissions.qf.submitted,
         total: adminEnabled ? adminOverview.length : roundSubmissions.qf.total || totalPlayers,
@@ -1746,8 +1799,10 @@ export function PoolaramaPrototype() {
           label: "R32 submitted"
         }
       : null;
-  const activeKnockoutRoundLabel = qfStarted ? "Quarterfinals" : r16Started ? "Round of 16" : "Round of 32";
-  const adminCurrentRound = poolState.qf.status !== "setup"
+  const activeKnockoutRoundLabel = sfStarted ? "Semifinals" : qfStarted ? "Quarterfinals" : r16Started ? "Round of 16" : "Round of 32";
+  const adminCurrentRound = poolState.sf.status !== "setup"
+    ? { label: "Semifinals", status: poolState.sf.status, openedAt: poolState.sf.openedAt, lockedAt: poolState.sf.lockedAt }
+    : poolState.qf.status !== "setup"
     ? { label: "Quarterfinals", status: poolState.qf.status, openedAt: poolState.qf.openedAt, lockedAt: poolState.qf.lockedAt }
     : poolState.r16.status !== "setup"
     ? { label: "Round of 16", status: poolState.r16.status, openedAt: poolState.r16.openedAt, lockedAt: poolState.r16.lockedAt }
@@ -1768,12 +1823,28 @@ export function PoolaramaPrototype() {
           : "Setup task: generate and open R16 picks."
       : adminCurrentRound.label === "Quarterfinals"
         ? poolState.qf.status === "locked"
-          ? "Active task: score Quarterfinal winners as matches finish."
+          ? "Active task: score Quarterfinal winners as matches finish. Semifinal preview unlocks only after all 4 winners are scored."
           : poolState.qf.status === "open"
             ? "Active task: collect Quarterfinal picks, then lock them before any scoring."
             : "Setup task: generate and open Quarterfinal picks."
+        : adminCurrentRound.label === "Semifinals"
+          ? poolState.sf.status === "locked"
+            ? "Active task: score Semifinal winners as matches finish."
+            : poolState.sf.status === "open"
+              ? "Active task: collect Semifinal picks, then lock them before any scoring."
+              : "Setup task: generate and open Semifinal picks."
       : "Pre-tournament picks are locked; knockout rounds are the active workflow.";
-  const adminCurrentRoundStats = adminCurrentRound.label === "Quarterfinals"
+  const adminCurrentRoundStats = adminCurrentRound.label === "Semifinals"
+    ? {
+        submitted: adminSfSubmittedCount,
+        total: adminOverview.length,
+        matchCount: sfMatches.length,
+        expectedMatches: 2,
+        scored: sfScoredCount,
+        openedAt: poolState.sf.openedAt,
+        lockedAt: poolState.sf.lockedAt
+      }
+    : adminCurrentRound.label === "Quarterfinals"
     ? {
         submitted: adminQfSubmittedCount,
         total: adminOverview.length,
@@ -1827,7 +1898,20 @@ export function PoolaramaPrototype() {
       ? `${leaders.slice(0, 2).join(", ")}${leaders.length > 2 ? " +" : ""}`
       : "Scoring not started";
   const unpaidCount = adminOverview.filter((participant) => !participant.venmoPaid).length;
-  const currentKnockoutRound = qfStarted && qfMatches.length > 0
+  const currentKnockoutRound = sfStarted && sfMatches.length > 0
+    ? {
+        label: "Semifinals",
+        shortLabel: "SF",
+        matches: sfMatches,
+        picks: sfPicks,
+        pickKey: "sfPicks" as KnockoutPickKey,
+        locked: sfLocked,
+        open: sfOpen,
+        scoredCount: sfScoredCount,
+        totalPoints: 8,
+        pointValue: 4
+      }
+    : qfStarted && qfMatches.length > 0
     ? {
         label: "Quarterfinals",
         shortLabel: "QF",
@@ -1867,6 +1951,26 @@ export function PoolaramaPrototype() {
       };
   const currentKnockoutStarted = currentKnockoutRound.open || currentKnockoutRound.locked;
   const knockoutRoundDisplays: KnockoutRoundDisplay[] = [
+    {
+      stage: "sf" as const,
+      label: "Semifinals",
+      shortLabel: "SF",
+      titleId: "sf-picks-title",
+      matches: sfMatches,
+      picks: sfPicks,
+      savedPicks: sfSavedPicks,
+      savedAt: sfSavedAt,
+      submitted: Boolean(sfSavedPicks),
+      submittedAt: sfSavedAt,
+      open: sfOpen,
+      locked: sfLocked,
+      started: sfStarted,
+      pointValue: 4,
+      totalPoints: 8,
+      feedback: sfFeedback,
+      onPick: (matchId: string, teamName: string) => setSfPicks((current) => ({ ...current, [matchId]: teamName })),
+      onSave: handleSaveSemifinalPicks
+    },
     {
       stage: "qf" as const,
       label: "Quarterfinals",
@@ -2065,6 +2169,7 @@ export function PoolaramaPrototype() {
         r32: getKnockoutRoundPoints(person, "r32Picks", r32Matches, 1),
         r16: getKnockoutRoundPoints(person, "r16Picks", r16Matches, 2),
         qf: getKnockoutRoundPoints(person, "qfPicks", qfMatches, 3),
+        sf: getKnockoutRoundPoints(person, "sfPicks", sfMatches, 4),
         champion,
         championEliminated: champion !== "No pick" && isChampionEliminated(champion, championStatusMatches),
         goldenBoot,
@@ -2082,7 +2187,8 @@ export function PoolaramaPrototype() {
     publicPicks,
     qfMatches,
     r16Matches,
-    r32Matches
+    r32Matches,
+    sfMatches
   ]);
   const sortedPlayerStatsRows = useMemo(() => {
     const directionMultiplier = statsSort.direction === "asc" ? 1 : -1;
@@ -2108,9 +2214,10 @@ export function PoolaramaPrototype() {
     if (r32Started) columns.push({ key: "r32", label: "R32" });
     if (r16Started) columns.push({ key: "r16", label: "R16" });
     if (qfStarted) columns.push({ key: "qf", label: "QF" });
+    if (sfStarted) columns.push({ key: "sf", label: "SF" });
 
     return columns;
-  }, [qfStarted, r16Started, r32Started]);
+  }, [qfStarted, r16Started, r32Started, sfStarted]);
   const dailyReview = useMemo(
     () => buildDailyReview(publicPicks, groupStandingsRows, goldenBootRows, groupTablesUpdatedAt, {
       label: currentKnockoutRound.shortLabel,
@@ -2132,8 +2239,8 @@ export function PoolaramaPrototype() {
     ]
   );
   const compararamaForecast = useMemo(
-    () => qfLocked ? buildCompararamaForecast(publicPicks, qfMatches) : null,
-    [publicPicks, qfLocked, qfMatches]
+    () => qfLocked && !sfStarted ? buildCompararamaForecast(publicPicks, qfMatches) : null,
+    [publicPicks, qfLocked, qfMatches, sfStarted]
   );
   const adminFetchOptions = useMemo<RequestInit>(() => {
     if (!adminToken) return {};
@@ -2311,7 +2418,14 @@ export function PoolaramaPrototype() {
             setQfFeedback("Restored Quarterfinal picks.");
           }
 
-          if (data.submission || data.submissions?.r32 || data.submissions?.r16 || data.submissions?.qf) {
+          if (data.submissions?.sf?.picks.matchWinners) {
+            setSfPicks(data.submissions.sf.picks.matchWinners);
+            setSfSavedPicks(data.submissions.sf.picks.matchWinners);
+            setSfSavedAt(data.submissions.sf.submittedAt);
+            setSfFeedback("Restored Semifinal picks.");
+          }
+
+          if (data.submission || data.submissions?.r32 || data.submissions?.r16 || data.submissions?.qf || data.submissions?.sf) {
             return;
           }
         } else if (urlParticipantCode) {
@@ -2338,6 +2452,7 @@ export function PoolaramaPrototype() {
     loadRoundOf32();
     loadRoundOf16();
     loadQuarterfinals();
+    loadSemifinals();
   }, [adminEnabled, adminToken]);
 
   useEffect(() => {
@@ -2382,6 +2497,17 @@ export function PoolaramaPrototype() {
 
     setQfMatches([]);
   }, [adminEnabled, poolState.qf.status]);
+
+  useEffect(() => {
+    if (adminEnabled) return;
+
+    if (poolState.sf.status === "open" || poolState.sf.status === "locked") {
+      loadPublicSemifinals();
+      return;
+    }
+
+    setSfMatches([]);
+  }, [adminEnabled, poolState.sf.status]);
 
   async function loadAdminOverview() {
     try {
@@ -2451,6 +2577,10 @@ export function PoolaramaPrototype() {
           total: data.participants.length
         },
         qf: {
+          submitted: 0,
+          total: data.participants.length
+        },
+        sf: {
           submitted: 0,
           total: data.participants.length
         }
@@ -2561,6 +2691,26 @@ export function PoolaramaPrototype() {
     }
   }
 
+  async function loadSemifinals() {
+    try {
+      const response = await fetch(withBasePath("/api/admin/sf"), {
+        cache: "no-store",
+        ...adminFetchOptions
+      });
+
+      if (!response.ok) {
+        throw new Error("Semifinals failed.");
+      }
+
+      const data = (await response.json()) as RoundOf16Response;
+      setSfMatches(data.matches);
+      setPoolState(normalizePoolState(data.pool));
+      setSfPreviewReady(Boolean(data.previewOnly));
+    } catch {
+      setAdminFeedback("Semifinals unavailable.");
+    }
+  }
+
   async function loadPublicRoundOf32() {
     try {
       const response = await fetch(withBasePath("/api/r32"), { cache: "no-store" });
@@ -2636,6 +2786,32 @@ export function PoolaramaPrototype() {
       setQfMatches([]);
       setQfPreviewReady(false);
       setQfFeedback("Quarterfinals unavailable.");
+    }
+  }
+
+  async function loadPublicSemifinals() {
+    try {
+      const response = await fetch(withBasePath("/api/sf"), { cache: "no-store" });
+
+      if (!response.ok) {
+        throw new Error("Semifinals failed.");
+      }
+
+      const data = (await response.json()) as RoundOf16Response;
+      setSfMatches(data.matches);
+      setPoolState(normalizePoolState(data.pool));
+      setSfPreviewReady(false);
+      setSfFeedback(
+        data.pool.sf.status === "open"
+          ? "Semifinal picks are open."
+          : data.pool.sf.status === "locked"
+            ? "Semifinal picks are locked."
+            : "Semifinal picks are not open yet."
+      );
+    } catch {
+      setSfMatches([]);
+      setSfPreviewReady(false);
+      setSfFeedback("Semifinals unavailable.");
     }
   }
 
@@ -3149,6 +3325,139 @@ export function PoolaramaPrototype() {
     }
   }
 
+  async function handleSemifinalAdminAction(action: "generate" | "open" | "lock") {
+    const labels = {
+      generate: "Generating private Semifinal preview...",
+      open: "Creating backup and opening Semifinal picks...",
+      lock: "Creating backup and locking Semifinal picks..."
+    };
+    const successMessages = {
+      generate: "Private Semifinal preview generated. Review the matchups, then confirm and open.",
+      open: "Semifinal picks are open.",
+      lock: "Semifinal picks are locked."
+    };
+
+    if (action === "generate" && !sfCanPreview) {
+      setAdminFeedback("Score all 4 Quarterfinal winners before generating Semifinals.");
+      return;
+    }
+
+    if (action === "open" && sfMatches.length !== 2) {
+      setAdminFeedback("Generate and verify 2 Semifinal matches before opening picks.");
+      return;
+    }
+
+    if (action === "open" && !sfPreviewReady) {
+      setAdminFeedback("Generate a fresh private preview before opening Semifinal picks.");
+      return;
+    }
+
+    if (action === "open" && !window.confirm("Open Semifinal picks from this preview? A backup will be saved first.")) {
+      setAdminFeedback("Semifinal open cancelled.");
+      return;
+    }
+
+    if (action === "lock" && !window.confirm("Lock Semifinal picks? A backup will be saved first.")) {
+      setAdminFeedback("Semifinal lock cancelled.");
+      return;
+    }
+
+    setAdminFeedback(labels[action]);
+
+    try {
+      const response = await fetch(withBasePath("/api/admin/sf"), {
+        method: "POST",
+        headers: adminJsonHeaders(),
+        body: JSON.stringify({
+          action,
+          confirmation: action === "open" ? "OPEN" : undefined,
+          previewMatches: action === "open" ? sfMatches : undefined
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Could not update Semifinals.");
+      }
+
+      const data = (await response.json()) as RoundOf16Response;
+      setSfMatches(data.matches);
+      setPoolState(normalizePoolState(data.pool));
+      setSfPreviewReady(Boolean(data.previewOnly));
+      await loadAdminOverview();
+      await loadPublicPicks();
+      setAdminFeedback(`${successMessages[action]}${formatBackupMessage(data)}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not update Semifinals.";
+      setAdminFeedback(message);
+    }
+  }
+
+  async function handleSemifinalWinner(matchId: string, winner: string) {
+    setAdminFeedback("Creating backup and saving Semifinal winner...");
+
+    try {
+      const response = await fetch(withBasePath("/api/admin/sf"), {
+        method: "POST",
+        headers: adminJsonHeaders(),
+        body: JSON.stringify({
+          action: "score",
+          matchId,
+          winner
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Could not save Semifinal winner.");
+      }
+
+      const data = (await response.json()) as RoundOf16Response;
+      setSfMatches(data.matches);
+      setPoolState(normalizePoolState(data.pool));
+      setSfPreviewReady(false);
+      await loadPublicPicks();
+      setAdminFeedback(`Semifinal winner saved.${formatBackupMessage(data)}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not save Semifinal winner.";
+      setAdminFeedback(message);
+    }
+  }
+
+  async function handleSyncSemifinalWinners() {
+    setAdminFeedback("Checking completed Semifinal matches...");
+
+    try {
+      const response = await fetch(withBasePath("/api/admin/sf"), {
+        method: "POST",
+        headers: adminJsonHeaders(),
+        body: JSON.stringify({ action: "sync-winners" })
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Could not sync Semifinal winners.");
+      }
+
+      const data = (await response.json()) as RoundOf16Response;
+      const updates = data.sync?.updates.length || 0;
+      const unchanged = data.sync?.unchanged.length || 0;
+      const conflicts = data.sync?.conflicts.length || 0;
+      setSfMatches(data.matches);
+      setPoolState(normalizePoolState(data.pool));
+      setSfPreviewReady(false);
+      await loadPublicPicks();
+      setAdminFeedback(
+        conflicts > 0
+          ? `Synced ${updates} SF winner${updates === 1 ? "" : "s"}; ${conflicts} conflict${conflicts === 1 ? "" : "s"} need manual review.`
+          : `Synced ${updates} SF winner${updates === 1 ? "" : "s"} from ${data.sync?.provider || "the provider"}. ${unchanged} already current.${formatBackupMessage(data)}`
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not sync Semifinal winners.";
+      setAdminFeedback(message);
+    }
+  }
+
   async function handleSeedParticipants() {
     setAdminFeedback("Seeding participants...");
 
@@ -3344,6 +3653,15 @@ export function PoolaramaPrototype() {
     setR32Picks({});
     setR32SavedPicks(null);
     setR32SavedAt(null);
+    setR16Picks({});
+    setR16SavedPicks(null);
+    setR16SavedAt(null);
+    setQfPicks({});
+    setQfSavedPicks(null);
+    setQfSavedAt(null);
+    setSfPicks({});
+    setSfSavedPicks(null);
+    setSfSavedAt(null);
     setIsReviewing(false);
     setIncompleteAlertVisible(false);
     setSaveFeedback(`Ready for ${participant.nickname}.`);
@@ -3394,6 +3712,18 @@ export function PoolaramaPrototype() {
         setR16Picks(data.submissions.r16.picks.matchWinners);
         setR16SavedPicks(data.submissions.r16.picks.matchWinners);
         setR16SavedAt(data.submissions.r16.submittedAt);
+      }
+
+      if (data.submissions?.qf?.picks.matchWinners) {
+        setQfPicks(data.submissions.qf.picks.matchWinners);
+        setQfSavedPicks(data.submissions.qf.picks.matchWinners);
+        setQfSavedAt(data.submissions.qf.submittedAt);
+      }
+
+      if (data.submissions?.sf?.picks.matchWinners) {
+        setSfPicks(data.submissions.sf.picks.matchWinners);
+        setSfSavedPicks(data.submissions.sf.picks.matchWinners);
+        setSfSavedAt(data.submissions.sf.submittedAt);
       }
     } catch {
       setSaveFeedback(`Ready for ${participant.nickname}. API lookup unavailable.`);
@@ -3617,6 +3947,53 @@ export function PoolaramaPrototype() {
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not submit Quarterfinal picks.";
       setQfFeedback(message);
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function handleSaveSemifinalPicks() {
+    if (!sfPicksComplete) {
+      setSfFeedback("Pick every Semifinal winner before submitting.");
+      return;
+    }
+
+    if (!sfOpen) {
+      setSfFeedback(sfLocked ? "Semifinal picks are locked." : "Semifinal picks are not open yet.");
+      return;
+    }
+
+    setIsSaving(true);
+    setSfFeedback("Submitting Semifinal picks...");
+
+    try {
+      const response = await fetch(withBasePath("/api/submissions"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          stage: "sf",
+          participantCode: selectedParticipant.code,
+          picks: {
+            matchWinners: sfPicks
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Could not submit Semifinal picks.");
+      }
+
+      const data = (await response.json()) as ApiSubmissionResponse;
+      setSfSavedPicks(sfPicks);
+      setSfSavedAt(data.submission?.submittedAt || new Date().toISOString());
+      await loadPublicPicks();
+      setSfFeedback("Semifinal picks submitted.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not submit Semifinal picks.";
+      setSfFeedback(message);
     } finally {
       setIsSaving(false);
     }
@@ -4741,6 +5118,9 @@ export function PoolaramaPrototype() {
                     qfSubmitted: participant.qfSubmitted,
                     qfSubmittedAt: participant.qfSubmittedAt,
                     qfPicks: null,
+                    sfSubmitted: participant.sfSubmitted,
+                    sfSubmittedAt: participant.sfSubmittedAt,
+                    sfPicks: null,
                     points: 0,
                     scoring: [],
                     visible: participant.code === selectedParticipant.code,
@@ -4768,6 +5148,16 @@ export function PoolaramaPrototype() {
                     (groupScore?.runnerUp !== undefined ? 1 : 0);
                 }, 0);
                 const personKnockoutRounds = [
+                  {
+                    stage: "sf",
+                    label: "Semifinals",
+                    shortLabel: "SF",
+                    started: sfStarted,
+                    submitted: person.sfSubmitted,
+                    picks: person.sfPicks,
+                    matches: sfMatches,
+                    pointValue: 4
+                  },
                   {
                     stage: "qf",
                     label: "Quarterfinals",
@@ -5443,11 +5833,11 @@ export function PoolaramaPrototype() {
             )}
           </details>
           <details
-            className={`admin-rollup-card next-round-rollup archived-admin-card ${qfCanPreview || qfStarted ? "admin-current-round-card admin-round-current" : "admin-round-next"}`}
-            open={qfCanPreview || qfStarted}
+            className={`admin-rollup-card next-round-rollup archived-admin-card ${sfCanPreview || sfStarted ? "admin-round-archive" : qfCanPreview || qfStarted ? "admin-current-round-card admin-round-current" : "admin-round-next"}`}
+            open={Boolean((qfCanPreview || qfStarted) && !(sfCanPreview || sfStarted))}
           >
             <summary>
-              <span>{qfCanPreview || qfStarted ? "Current round" : "Future round - no action yet"}</span>
+              <span>{sfCanPreview || sfStarted ? "Previous round" : qfCanPreview || qfStarted ? "Current round" : "Future round - no action yet"}</span>
               <strong>{qfStarted ? "Quarterfinal controls" : "Quarterfinal readiness"}</strong>
             </summary>
             <div className="next-round-status">
@@ -5547,6 +5937,111 @@ export function PoolaramaPrototype() {
               </p>
             )}
           </details>
+          <details
+            className={`admin-rollup-card next-round-rollup archived-admin-card ${sfCanPreview || sfStarted ? "admin-current-round-card admin-round-current" : "admin-round-next"}`}
+            open={sfCanPreview || sfStarted}
+          >
+            <summary>
+              <span>{sfCanPreview || sfStarted ? "Current round" : "Future round - no action yet"}</span>
+              <strong>{sfStarted ? "Semifinal controls" : "Semifinal readiness"}</strong>
+            </summary>
+            <div className="next-round-status">
+              <div>
+                <strong>{qfScoredCount}/4</strong>
+                <span>QF winners scored</span>
+              </div>
+              <p>
+                {sfCanPreview
+                  ? "Semifinal preview can be generated and reviewed."
+                  : "Semifinal controls stay disabled until every Quarterfinal winner is scored."}
+              </p>
+            </div>
+            <div className="admin-toolbar-actions compact-actions">
+              <button
+                className="admin-action compact"
+                type="button"
+                onClick={() => handleSemifinalAdminAction("generate")}
+                disabled={poolState.sf.status !== "setup" || !sfCanPreview}
+              >
+                Generate SF preview
+              </button>
+              <button
+                className="admin-action compact"
+                type="button"
+                onClick={() => handleSemifinalAdminAction("open")}
+                disabled={poolState.sf.status !== "setup" || !sfPreviewReady || sfMatches.length !== 2}
+              >
+                Confirm and open SF
+              </button>
+              <button
+                className="admin-action compact quiet"
+                type="button"
+                onClick={() => handleSemifinalAdminAction("lock")}
+                disabled={!sfOpen}
+              >
+                Lock SF picks
+              </button>
+              <button
+                className="admin-action compact"
+                type="button"
+                onClick={handleSyncSemifinalWinners}
+                disabled={!sfLocked}
+              >
+                Sync completed SF winners
+              </button>
+            </div>
+            <div className="admin-sync-status" aria-label="Semifinal status">
+              <div>
+                <span>Status</span>
+                <strong>{poolState.sf.status}</strong>
+              </div>
+              <div>
+                <span>Matchups</span>
+                <strong>{sfMatches.length}/2{sfPreviewReady ? " preview" : ""}</strong>
+              </div>
+              <div>
+                <span>Submitted</span>
+                <strong>{adminSfSubmittedCount}/{adminOverview.length}</strong>
+              </div>
+              <div>
+                <span>Scored</span>
+                <strong>{sfScoredCount}/2</strong>
+              </div>
+            </div>
+            {sfMatches.length > 0 ? (
+              <div className="r32-preview-grid">
+                {sfMatches.map((match) => (
+                  <div key={`admin-sf-preview-${match.matchId}`}>
+                    <span>{match.label}</span>
+                    {formatKnockoutSchedule(match.label) && (
+                      <em className="admin-match-schedule">{formatKnockoutSchedule(match.label)}</em>
+                    )}
+                    <strong>{match.teamA}</strong>
+                    <strong>{match.teamB}</strong>
+                    {match.winner && <em className="r32-result-winner">Winner: {match.winner}</em>}
+                    {poolState.sf.status === "locked" && (
+                      <div className="r32-result-actions">
+                        {[match.teamA, match.teamB].map((teamName) => (
+                          <button
+                            className={`admin-action compact ${match.winner === teamName ? "" : "quiet"}`}
+                            type="button"
+                            key={`${match.matchId}-${teamName}`}
+                            onClick={() => handleSemifinalWinner(match.matchId, teamName)}
+                          >
+                            {match.winner === teamName ? "Winner" : `Set SF winner: ${teamName}`}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="admin-empty-note">
+                {sfCanPreview ? "No Semifinal preview has been generated yet." : "Semifinal preview is waiting on the remaining QF winners."}
+              </p>
+            )}
+          </details>
           <details className="admin-rollup-card golden-rollup archived-admin-card">
             <summary>
               <span>Golden Boot</span>
@@ -5591,6 +6086,11 @@ export function PoolaramaPrototype() {
                           {participant.qfSubmitted ? "QF submitted" : "QF missing"}
                         </span>
                       )}
+                      {poolState.sf.status !== "setup" && (
+                        <span className={participant.sfSubmitted ? "status-pill submitted" : "status-pill missing"}>
+                          {participant.sfSubmitted ? "SF submitted" : "SF missing"}
+                        </span>
+                      )}
                     </div>
                     <div className="admin-pick-summary">
                       <span>Group: {participant.submittedAt ? new Date(participant.submittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
@@ -5602,6 +6102,9 @@ export function PoolaramaPrototype() {
                       )}
                       {poolState.qf.status !== "setup" && (
                         <span>QF: {participant.qfSubmittedAt ? new Date(participant.qfSubmittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
+                      )}
+                      {poolState.sf.status !== "setup" && (
+                        <span>SF: {participant.sfSubmittedAt ? new Date(participant.sfSubmittedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Not submitted yet"}</span>
                       )}
                       <strong>
                         {participant.champion

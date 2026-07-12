@@ -14,6 +14,20 @@ import SubmissionModel from "@/models/Submission";
 export const dynamic = "force-dynamic";
 
 const validStages = new Set<PoolStage>(["preTournament", "r32", "r16", "qf", "sf", "final"]);
+const knockoutRoundLabels: Partial<Record<PoolStage, string>> = {
+  r32: "Round of 32",
+  r16: "Round of 16",
+  qf: "Quarterfinal",
+  sf: "Semifinal",
+  final: "Final"
+};
+const knockoutRoundMatchCounts: Partial<Record<PoolStage, number>> = {
+  r32: 16,
+  r16: 8,
+  qf: 4,
+  sf: 2,
+  final: 1
+};
 
 function isValidPickText(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0 && value.trim().length <= 80;
@@ -24,11 +38,11 @@ function parsePicks(body: Record<string, unknown>, stage: PoolStage): PoolSubmis
   const champion = picks.champion;
   const goldenBoot = picks.goldenBoot;
 
-  if (stage === "r32" || stage === "r16" || stage === "qf") {
+  if (stage === "r32" || stage === "r16" || stage === "qf" || stage === "sf" || stage === "final") {
     const matchWinners = picks.matchWinners || {};
 
     if (Object.keys(matchWinners).length === 0) {
-      throw new Error(`${stage === "r32" ? "Round of 32" : stage === "r16" ? "Round of 16" : "Quarterfinal"} picks are required.`);
+      throw new Error(`${knockoutRoundLabels[stage]} picks are required.`);
     }
 
     return {
@@ -126,11 +140,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    if (stage === "r32" || stage === "r16" || stage === "qf") {
+    if (stage === "r32" || stage === "r16" || stage === "qf" || stage === "sf" || stage === "final") {
       const pool = await getOrCreateDefaultPool();
-      const roundLabel = stage === "r32" ? "Round of 32" : stage === "r16" ? "Round of 16" : "Quarterfinal";
-      const expectedMatches = stage === "r32" ? 16 : stage === "r16" ? 8 : 4;
-      const roundStatus = stage === "r32" ? pool.r32Status : stage === "r16" ? pool.r16Status : pool.qfStatus;
+      const roundLabel = knockoutRoundLabels[stage] || "Knockout";
+      const expectedMatches = knockoutRoundMatchCounts[stage] || 0;
+      const roundStatus =
+        stage === "r32" ? pool.r32Status :
+        stage === "r16" ? pool.r16Status :
+        stage === "qf" ? pool.qfStatus :
+        stage === "sf" ? pool.sfStatus :
+        undefined;
 
       if (roundStatus !== "open") {
         return NextResponse.json(

@@ -40,11 +40,13 @@ export async function GET(request: NextRequest) {
       r32Submissions,
       r16Submissions,
       qfSubmissions,
+      sfSubmissions,
       totalSubmissionCount,
       groupStandingCount,
       r32MatchCount,
       r16MatchCount,
-      qfMatchCount
+      qfMatchCount,
+      sfMatchCount
     ] = await Promise.all([
       getOrCreateDefaultPool(),
       ParticipantModel.find({ poolSlug: defaultPoolSlug }).lean(),
@@ -52,11 +54,13 @@ export async function GET(request: NextRequest) {
       SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "r32" }).lean(),
       SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "r16" }).lean(),
       SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "qf" }).lean(),
+      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "sf" }).lean(),
       SubmissionModel.countDocuments({ poolSlug: defaultPoolSlug }),
       GroupStandingModel.countDocuments({ poolSlug: defaultPoolSlug }),
       MatchModel.countDocuments({ poolSlug: defaultPoolSlug, stage: "r32" }),
       MatchModel.countDocuments({ poolSlug: defaultPoolSlug, stage: "r16" }),
-      MatchModel.countDocuments({ poolSlug: defaultPoolSlug, stage: "qf" })
+      MatchModel.countDocuments({ poolSlug: defaultPoolSlug, stage: "qf" }),
+      MatchModel.countDocuments({ poolSlug: defaultPoolSlug, stage: "sf" })
     ]);
     const activeRoster = mergeKnownAndMongoParticipants(participants.map(participantFromMongo));
     const activeParticipantCodes = new Set(activeRoster.map((participant) => participant.code));
@@ -70,6 +74,9 @@ export async function GET(request: NextRequest) {
       activeParticipantCodes.has(submission.participantCode)
     ).length;
     const activeQfSubmissionCount = qfSubmissions.filter((submission) =>
+      activeParticipantCodes.has(submission.participantCode)
+    ).length;
+    const activeSfSubmissionCount = sfSubmissions.filter((submission) =>
       activeParticipantCodes.has(submission.participantCode)
     ).length;
 
@@ -92,11 +99,14 @@ export async function GET(request: NextRequest) {
         rawR16Submissions: r16Submissions.length,
         qfSubmissions: activeQfSubmissionCount,
         rawQfSubmissions: qfSubmissions.length,
+        sfSubmissions: activeSfSubmissionCount,
+        rawSfSubmissions: sfSubmissions.length,
         totalSubmissions: totalSubmissionCount,
         groupStandings: groupStandingCount,
         r32Matches: r32MatchCount,
         r16Matches: r16MatchCount,
-        qfMatches: qfMatchCount
+        qfMatches: qfMatchCount,
+        sfMatches: sfMatchCount
       }
     });
   } catch (error) {
