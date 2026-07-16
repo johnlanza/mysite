@@ -62,6 +62,8 @@ export type AdminParticipantOverview = {
   qfSubmittedAt: string | null;
   sfSubmitted: boolean;
   sfSubmittedAt: string | null;
+  finalSubmitted: boolean;
+  finalSubmittedAt: string | null;
   champion: string | null;
   goldenBoot: string | null;
 };

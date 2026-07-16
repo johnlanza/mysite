@@ -322,3 +322,37 @@ export function generateSemifinalMatches(quarterfinalMatches: KnockoutSourceMatc
     };
   });
 }
+
+export function generateFinalMatches(semifinalMatches: KnockoutSourceMatch[]): GeneratedMatch[] {
+  const orderedMatches = [...semifinalMatches].sort((a, b) => a.order - b.order);
+
+  if (orderedMatches.length !== 2) {
+    throw new Error(`Final preview requires 2 Semifinal matches, found ${orderedMatches.length}.`);
+  }
+
+  const missingWinner = orderedMatches.find((match) => !match.winner);
+
+  if (missingWinner) {
+    throw new Error(`Final preview requires every Semifinal winner. Missing ${missingWinner.label || missingWinner.matchId}.`);
+  }
+
+  const matchesByNumber = new Map(
+    orderedMatches.map((match) => [Number((match.label || "").match(/\d+/)?.[0]), match])
+  );
+  const firstMatch = matchesByNumber.get(101);
+  const secondMatch = matchesByNumber.get(102);
+
+  if (!firstMatch || !secondMatch) {
+    throw new Error("Final preview is missing Match 101 or Match 102.");
+  }
+
+  return [
+    {
+      matchId: "final-01",
+      label: "Match 104",
+      teamA: firstMatch.winner || "",
+      teamB: secondMatch.winner || "",
+      order: 1
+    }
+  ];
+}

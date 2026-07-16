@@ -149,6 +149,7 @@ export async function POST(request: NextRequest) {
         stage === "r16" ? pool.r16Status :
         stage === "qf" ? pool.qfStatus :
         stage === "sf" ? pool.sfStatus :
+        stage === "final" ? pool.finalStatus :
         undefined;
 
       if (roundStatus !== "open") {

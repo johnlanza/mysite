@@ -26,6 +26,11 @@ export type PoolRoundState = {
     openedAt: string | null;
     lockedAt: string | null;
   };
+  final: {
+    status: "setup" | "open" | "locked";
+    openedAt: string | null;
+    lockedAt: string | null;
+  };
 };
 
 export function buildPoolState(pool: {
@@ -43,6 +48,9 @@ export function buildPoolState(pool: {
   sfStatus?: "setup" | "open" | "locked";
   sfOpenedAt?: Date | null;
   sfLockedAt?: Date | null;
+  finalStatus?: "setup" | "open" | "locked";
+  finalOpenedAt?: Date | null;
+  finalLockedAt?: Date | null;
 } | null): PoolRoundState {
   return {
     preTournament: {
@@ -68,6 +76,11 @@ export function buildPoolState(pool: {
       status: pool?.sfStatus === "open" || pool?.sfStatus === "locked" ? pool.sfStatus : "setup",
       openedAt: pool?.sfOpenedAt ? pool.sfOpenedAt.toISOString() : null,
       lockedAt: pool?.sfLockedAt ? pool.sfLockedAt.toISOString() : null
+    },
+    final: {
+      status: pool?.finalStatus === "open" || pool?.finalStatus === "locked" ? pool.finalStatus : "setup",
+      openedAt: pool?.finalOpenedAt ? pool.finalOpenedAt.toISOString() : null,
+      lockedAt: pool?.finalLockedAt ? pool.finalLockedAt.toISOString() : null
     }
   };
 }
@@ -95,7 +108,10 @@ export async function getOrCreateDefaultPool() {
         qfLockedAt: null,
         sfStatus: "setup",
         sfOpenedAt: null,
-        sfLockedAt: null
+        sfLockedAt: null,
+        finalStatus: "setup",
+        finalOpenedAt: null,
+        finalLockedAt: null
       }
     },
     { new: true, upsert: true }

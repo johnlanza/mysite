@@ -25,7 +25,11 @@ export type PoolaramaBackupReason =
   | "sf-open"
   | "sf-lock"
   | "sf-score"
-  | "sf-sync";
+  | "sf-sync"
+  | "final-open"
+  | "final-lock"
+  | "final-score"
+  | "final-sync";
 
 export async function buildPoolaramaBackupSnapshot(reason: PoolaramaBackupReason = "manual") {
   const [pool, participants, submissions, groupStandings, matches] = await Promise.all([

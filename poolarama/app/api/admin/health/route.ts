@@ -41,12 +41,14 @@ export async function GET(request: NextRequest) {
       r16Submissions,
       qfSubmissions,
       sfSubmissions,
+      finalSubmissions,
       totalSubmissionCount,
       groupStandingCount,
       r32MatchCount,
       r16MatchCount,
       qfMatchCount,
-      sfMatchCount
+      sfMatchCount,
+      finalMatchCount
     ] = await Promise.all([
       getOrCreateDefaultPool(),
       ParticipantModel.find({ poolSlug: defaultPoolSlug }).lean(),
@@ -55,12 +57,14 @@ export async function GET(request: NextRequest) {
       SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "r16" }).lean(),
       SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "qf" }).lean(),
       SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "sf" }).lean(),
+      SubmissionModel.find({ poolSlug: defaultPoolSlug, stage: "final" }).lean(),
       SubmissionModel.countDocuments({ poolSlug: defaultPoolSlug }),
       GroupStandingModel.countDocuments({ poolSlug: defaultPoolSlug }),
       MatchModel.countDocuments({ poolSlug: defaultPoolSlug, stage: "r32" }),
       MatchModel.countDocuments({ poolSlug: defaultPoolSlug, stage: "r16" }),
       MatchModel.countDocuments({ poolSlug: defaultPoolSlug, stage: "qf" }),
-      MatchModel.countDocuments({ poolSlug: defaultPoolSlug, stage: "sf" })
+      MatchModel.countDocuments({ poolSlug: defaultPoolSlug, stage: "sf" }),
+      MatchModel.countDocuments({ poolSlug: defaultPoolSlug, stage: "final" })
     ]);
     const activeRoster = mergeKnownAndMongoParticipants(participants.map(participantFromMongo));
     const activeParticipantCodes = new Set(activeRoster.map((participant) => participant.code));
@@ -77,6 +81,9 @@ export async function GET(request: NextRequest) {
       activeParticipantCodes.has(submission.participantCode)
     ).length;
     const activeSfSubmissionCount = sfSubmissions.filter((submission) =>
+      activeParticipantCodes.has(submission.participantCode)
+    ).length;
+    const activeFinalSubmissionCount = finalSubmissions.filter((submission) =>
       activeParticipantCodes.has(submission.participantCode)
     ).length;
 
@@ -101,12 +108,15 @@ export async function GET(request: NextRequest) {
         rawQfSubmissions: qfSubmissions.length,
         sfSubmissions: activeSfSubmissionCount,
         rawSfSubmissions: sfSubmissions.length,
+        finalSubmissions: activeFinalSubmissionCount,
+        rawFinalSubmissions: finalSubmissions.length,
         totalSubmissions: totalSubmissionCount,
         groupStandings: groupStandingCount,
         r32Matches: r32MatchCount,
         r16Matches: r16MatchCount,
         qfMatches: qfMatchCount,
-        sfMatches: sfMatchCount
+        sfMatches: sfMatchCount,
+        finalMatches: finalMatchCount
       }
     });
   } catch (error) {
