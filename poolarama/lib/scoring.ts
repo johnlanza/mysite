@@ -106,7 +106,8 @@ function getCompletedGroupResults(standings: GroupStandingInput[]) {
 export function scorePreTournamentPicks(
   picks: PoolSubmissionPicks,
   standings: GroupStandingInput[],
-  rules: Partial<ScoringRules> = {}
+  rules: Partial<ScoringRules> = {},
+  tournamentChampion = ""
 ): ScoreBreakdown {
   const scoringRules = { ...defaultScoringRules, ...rules };
   const groupWinners = normalizeGroupPicks(picks.groupWinners);
@@ -146,7 +147,9 @@ export function scorePreTournamentPicks(
     };
   }
 
-  const champion = 0;
+  const champion = picks.champion && tournamentChampion && picks.champion === tournamentChampion
+    ? scoringRules.champion
+    : 0;
   const knockout = 0;
 
   return {

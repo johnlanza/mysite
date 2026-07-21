@@ -1627,6 +1627,7 @@ const participants = [
 ];
 
 const pantheon = [
+  { year: "2026", tournament: "Men’s World Cup", champion: "Kellyn", detail: "82 points" },
   { year: "2024", tournament: "Euro Pool", champion: "Jessie", detail: "51 points" },
   { year: "2023", tournament: "Women’s World Cup", champion: "Mike", detail: "Pool champion" },
   { year: "2022", tournament: "Men’s World Cup", champion: "Brett", detail: "23 points" },
@@ -1777,7 +1778,26 @@ export function PoolaramaPrototype() {
   const finalStarted = finalOpen || finalLocked;
   const finalScoredCount = finalMatches.filter((match) => Boolean(match.winner)).length;
   const finalCanPreview = sfScoredCount === 2;
-  const picksTabLabel = finalOpen || sfOpen || qfOpen || r16Open || r32Open
+  const finalWinner = finalMatches.find((match) => match.winner)?.winner || "";
+  const tournamentComplete = finalLocked && Boolean(finalWinner);
+  const rankedPublicPicks = useMemo(
+    () => getDisplayRanks([...publicPicks].sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname))),
+    [publicPicks]
+  );
+  const poolChampion = tournamentComplete ? rankedPublicPicks[0] || null : null;
+  const runnerUp = tournamentComplete ? rankedPublicPicks.find((person) => person.displayRank === 2) || null : null;
+  const championMargin = poolChampion && runnerUp ? poolChampion.points - runnerUp.points : 0;
+  const championPickBackers = tournamentComplete
+    ? publicPicks.filter((person) => person.picks?.champion === finalWinner)
+    : [];
+  const finalWinnerPickers = tournamentComplete
+    ? publicPicks.filter((person) =>
+        finalMatches.some((match) => match.winner && person.finalPicks?.matchWinners?.[match.matchId] === match.winner)
+      )
+    : [];
+  const picksTabLabel = tournamentComplete
+    ? "Archive"
+    : finalOpen || sfOpen || qfOpen || r16Open || r32Open
     ? "Picks"
     : r32Started || preTournamentLocked
       ? "Current"
@@ -1821,7 +1841,13 @@ export function PoolaramaPrototype() {
   const adminQfSubmittedCount = adminOverview.filter((participant) => participant.qfSubmitted).length;
   const adminSfSubmittedCount = adminOverview.filter((participant) => participant.sfSubmitted).length;
   const adminFinalSubmittedCount = adminOverview.filter((participant) => participant.finalSubmitted).length;
-  const heroKnockoutSubmissionMetric = finalStarted
+  const heroKnockoutSubmissionMetric = tournamentComplete
+    ? {
+        submitted: finalScoredCount,
+        total: finalMatches.length || 1,
+        label: "Final scored"
+      }
+    : finalStarted
     ? {
         submitted: adminEnabled ? adminFinalSubmittedCount : roundSubmissions.final.submitted,
         total: adminEnabled ? adminOverview.length : roundSubmissions.final.total || totalPlayers,
@@ -1864,7 +1890,9 @@ export function PoolaramaPrototype() {
     : poolState.r32.status !== "setup"
       ? { label: "Round of 32", status: poolState.r32.status, openedAt: poolState.r32.openedAt, lockedAt: poolState.r32.lockedAt }
       : { label: "Pre-tournament", status: poolState.preTournament.status, openedAt: null, lockedAt: poolState.preTournament.lockedAt };
-  const adminCurrentRoundAction = adminCurrentRound.label === "Round of 32"
+  const adminCurrentRoundAction = tournamentComplete && poolChampion
+    ? `Tournament complete: ${poolChampion.nickname} is the 2026 champion. Final standings are archived for review.`
+    : adminCurrentRound.label === "Round of 32"
     ? poolState.r32.status === "locked"
       ? "Active task: score R32 winners as matches finish. R16 preview unlocks only after all 16 winners are scored."
       : poolState.r32.status === "open"
@@ -1954,7 +1982,9 @@ export function PoolaramaPrototype() {
             openedAt: null,
             lockedAt: poolState.preTournament.lockedAt
           };
-  const adminCurrentRoundStatusLabel = adminCurrentRound.status === "open"
+  const adminCurrentRoundStatusLabel = tournamentComplete
+    ? "Tournament complete"
+    : adminCurrentRound.status === "open"
     ? "Picks open"
     : adminCurrentRound.status === "locked"
       ? "Locked and ready to score"
@@ -1963,7 +1993,9 @@ export function PoolaramaPrototype() {
   const leaders = leadingScore > 0
     ? publicPicks.filter((participant) => participant.points === leadingScore).map((participant) => participant.nickname)
     : [];
-  const leaderLabel = submittedCount === 0
+  const leaderLabel = poolChampion
+    ? poolChampion.nickname
+    : submittedCount === 0
     ? "Awaiting initial picks"
     : leaders.length > 0
       ? `${leaders.slice(0, 2).join(", ")}${leaders.length > 2 ? " +" : ""}`
@@ -2242,6 +2274,34 @@ export function PoolaramaPrototype() {
       selectedPublicParticipant
     ]
   );
+  const trophyRoomInsights = useMemo(() => {
+    if (!tournamentComplete || !poolChampion) return [];
+
+    const lines: string[] = [];
+
+    if (runnerUp) {
+      lines.push(`${poolChampion.nickname} finished ${championMargin} point${championMargin === 1 ? "" : "s"} ahead of ${runnerUp.nickname}.`);
+    }
+
+    if (finalWinner && finalWinnerPickers.length > 0) {
+      lines.push(`${finalWinner} in the Final paid 5 points to ${joinNames(finalWinnerPickers.map((person) => person.nickname), 4)}.`);
+    }
+
+    if (championPickBackers.length > 0) {
+      lines.push(`${finalWinner} as champion added 6 more points for ${joinNames(championPickBackers.map((person) => person.nickname), 4)}.`);
+    }
+
+    const bestKnockoutScore = Math.max(...publicPicks.map((person) => getPickScoreValue(person, "Knockout")), 0);
+    const bestKnockoutPeople = publicPicks
+      .filter((person) => getPickScoreValue(person, "Knockout") === bestKnockoutScore)
+      .map((person) => person.nickname);
+
+    if (bestKnockoutScore > 0) {
+      lines.push(`${joinNames(bestKnockoutPeople, 4)} had the best knockout run with ${bestKnockoutScore} points.`);
+    }
+
+    return lines;
+  }, [championMargin, championPickBackers, finalWinner, finalWinnerPickers, poolChampion, publicPicks, runnerUp, tournamentComplete]);
   const playerStatsRows = useMemo<PlayerStatsRow[]>(() => {
     const rankedPeople = getDisplayRanks([...publicPicks].sort((a, b) => b.points - a.points || a.nickname.localeCompare(b.nickname)));
 
@@ -4387,7 +4447,7 @@ export function PoolaramaPrototype() {
           </div>
           <div>
             <strong>{leaderLabel}</strong>
-            <span>leader</span>
+            <span>{tournamentComplete ? "champion" : "leader"}</span>
           </div>
           {heroKnockoutSubmissionMetric && (
             <div>
@@ -4406,18 +4466,20 @@ export function PoolaramaPrototype() {
         <TabButton label="Pantheon" tabName="pantheon" activeTab={tab} onSelect={setTab} />
         {adminEnabled ? (
           <TabButton label="Admin" tabName="admin" activeTab={tab} onSelect={setTab} />
-        ) : (
+        ) : !tournamentComplete ? (
           <TabButton label="Pay" tabName="payments" activeTab={tab} onSelect={setTab} />
-        )}
+        ) : null}
       </nav>
 
       {tab === "picks" && (
         <section className="screen stack" aria-labelledby="picks-title">
           <ScreenHeader
-            kicker={finalOpen ? "Final picks open" : finalLocked ? "Current round locked" : sfOpen ? "Semifinal picks open" : sfLocked ? "Previous round locked" : qfOpen ? "Quarterfinal picks open" : qfLocked ? "Previous round locked" : r16Open ? "Round of 16 picks open" : r16Locked ? "Previous round locked" : r32Open ? "Round of 32 picks open" : r32Locked || showLockedHomeNotice || showParticipantLockedHeader ? "Previous round locked" : identityConfirmed ? "Picks open" : "Player access"}
-            title={finalOpen ? "The Final is now open" : finalLocked ? "The Final is locked" : sfOpen ? "Semifinals are now open" : sfLocked ? "Semifinals are locked" : qfOpen ? "Quarterfinals are now open" : qfLocked ? "Quarterfinals are locked" : r16Open ? "Round of 16 is now open" : r16Locked ? "Round of 16 is locked" : r32Open ? "Make your Round of 32 picks" : r32Locked ? "Round of 32 is locked" : showLockedHomeNotice ? "All picks are in" : showParticipantLockedHeader ? "Review your locked picks" : identityConfirmed ? "Make your group picks" : "Open your player link"}
+            kicker={tournamentComplete ? "Trophy Room" : finalOpen ? "Final picks open" : finalLocked ? "Current round locked" : sfOpen ? "Semifinal picks open" : sfLocked ? "Previous round locked" : qfOpen ? "Quarterfinal picks open" : qfLocked ? "Previous round locked" : r16Open ? "Round of 16 picks open" : r16Locked ? "Previous round locked" : r32Open ? "Round of 32 picks open" : r32Locked || showLockedHomeNotice || showParticipantLockedHeader ? "Previous round locked" : identityConfirmed ? "Picks open" : "Player access"}
+            title={tournamentComplete ? "2026 Poolarama Champion" : finalOpen ? "The Final is now open" : finalLocked ? "The Final is locked" : sfOpen ? "Semifinals are now open" : sfLocked ? "Semifinals are locked" : qfOpen ? "Quarterfinals are now open" : qfLocked ? "Quarterfinals are locked" : r16Open ? "Round of 16 is now open" : r16Locked ? "Round of 16 is locked" : r32Open ? "Make your Round of 32 picks" : r32Locked ? "Round of 32 is locked" : showLockedHomeNotice ? "All picks are in" : showParticipantLockedHeader ? "Review your locked picks" : identityConfirmed ? "Make your group picks" : "Open your player link"}
             note={showLockedHomeNotice
               ? "The group-stage picks are locked and visible in the standings."
+              : tournamentComplete && poolChampion
+              ? `${poolChampion.name} wins the 2026 Men's World Cup pool. Every pick remains archived below for future review.`
               : finalOpen
               ? `This link is assigned to ${selectedParticipant.nickname}. Confirm your name, then pick the Final winner.`
               : finalLocked
@@ -4451,6 +4513,47 @@ export function PoolaramaPrototype() {
               <strong>{poolDataWarning}</strong>
             </div>
           )}
+          {tournamentComplete && poolChampion && (
+            <section className="trophy-room-card" aria-labelledby="trophy-room-title">
+              <div className="trophy-room-heading">
+                <div>
+                  <p className="eyebrow">Current champion</p>
+                  <h3 id="trophy-room-title">{poolChampion.nickname}</h3>
+                  <p>{poolChampion.name} finished with {poolChampion.points} points{runnerUp ? `, ${championMargin} point${championMargin === 1 ? "" : "s"} ahead of ${runnerUp.nickname}` : ""}.</p>
+                </div>
+                <span>2026</span>
+              </div>
+              <div className="trophy-room-grid">
+                <div>
+                  <span>Winner</span>
+                  <strong>{poolChampion.points}</strong>
+                  <em>points</em>
+                </div>
+                <div>
+                  <span>Final</span>
+                  <strong>{finalWinner || "TBD"}</strong>
+                  <em>champion</em>
+                </div>
+                <div>
+                  <span>Title pick</span>
+                  <strong>{championPickBackers.length}</strong>
+                  <em>{finalWinner || "champion"} backers</em>
+                </div>
+                <div>
+                  <span>Final pick</span>
+                  <strong>{finalWinnerPickers.length}</strong>
+                  <em>correct</em>
+                </div>
+              </div>
+              {trophyRoomInsights.length > 0 && (
+                <div className="trophy-room-insights" aria-label="How the pool was won">
+                  {trophyRoomInsights.map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
           {currentKnockoutStarted && currentKnockoutRound.locked && currentKnockoutRound.matches.length > 0 && (
             <section className="round-clarity-card" aria-label="Current round status">
               <div>
@@ -4468,7 +4571,7 @@ export function PoolaramaPrototype() {
 	              <p>{currentKnockoutRound.locked ? "Everyone can compare picks for this round. Point totals update after winners are entered." : "Picks stay private until John locks the round."}</p>
 	            </section>
 	          )}
-          {selectedPathToGlory && (
+          {!tournamentComplete && selectedPathToGlory && (
             <section className="path-card" aria-labelledby="path-title">
               <div className="path-heading">
                 <div>
@@ -4506,7 +4609,7 @@ export function PoolaramaPrototype() {
               </div>
             </section>
           )}
-          {rootingGuide.length > 0 && (
+          {!tournamentComplete && rootingGuide.length > 0 && (
             <section className="rooting-guide-card" aria-labelledby="rooting-guide-title">
               <div className="rooting-guide-heading">
                 <div>
@@ -4604,10 +4707,12 @@ export function PoolaramaPrototype() {
             <section className="current-round-card" aria-labelledby="current-round-title">
               <div className="current-round-heading">
                 <div>
-                  <p className="eyebrow">{currentKnockoutRound.locked ? "Current round locked" : "Current round open"}</p>
+                  <p className="eyebrow">{tournamentComplete ? "Final result" : currentKnockoutRound.locked ? "Current round locked" : "Current round open"}</p>
                   <h3 id="current-round-title">{currentKnockoutRound.label}</h3>
                   <p>
-                    {currentKnockoutRound.locked
+                    {tournamentComplete
+                      ? `${finalWinner || "The champion"} won the Final. Tap the matchup to compare who had the winner and who needed the other side.`
+                      : currentKnockoutRound.locked
                       ? `${currentKnockoutRound.scoredCount}/${currentKnockoutRound.matches.length} matches scored. Tap a match to compare picks and spot the swing games.`
                       : "Make your picks below. Match-by-match pool splits appear after John locks the round."}
                   </p>
@@ -5437,10 +5542,12 @@ export function PoolaramaPrototype() {
       {tab === "standings" && (
         <section className="screen stack" aria-labelledby="standings-title">
           <ScreenHeader
-            kicker="Live board"
-            title="Standings"
+            kicker={tournamentComplete ? "Final board" : "Live board"}
+            title={tournamentComplete ? "Final Standings" : "Standings"}
             note={
-              currentKnockoutStarted
+              tournamentComplete && poolChampion
+                ? `${poolChampion.nickname} is the 2026 Poolarama champion. Full pick history remains available below.`
+                : currentKnockoutStarted
                 ? currentKnockoutRound.locked
                   ? `${currentKnockoutRound.label} picks are locked and visible. Scoring updates as winners are entered.`
                   : `${currentKnockoutRound.label} picks stay hidden until John locks this round.`
@@ -5457,7 +5564,7 @@ export function PoolaramaPrototype() {
           {currentKnockoutStarted && currentKnockoutRound.matches.length > 0 && (
             <section className="round-clarity-card compact" aria-label="Standings round status">
               <div>
-                <span>Current round</span>
+                <span>{tournamentComplete ? "Completed round" : "Current round"}</span>
                 <strong>{currentKnockoutRound.label}</strong>
               </div>
               <div>
@@ -5468,7 +5575,7 @@ export function PoolaramaPrototype() {
                 <span>Scoring</span>
                 <strong>{currentKnockoutRound.scoredCount}/{currentKnockoutRound.matches.length}</strong>
               </div>
-              <p>{currentKnockoutRound.locked ? "Round points are included here after each winner is entered." : "This round is not included in standings yet."}</p>
+              <p>{tournamentComplete ? "Final totals include group-stage, champion, Golden Boot context, and every knockout round." : currentKnockoutRound.locked ? "Round points are included here after each winner is entered." : "This round is not included in standings yet."}</p>
             </section>
           )}
           <div className="standings-list">
@@ -5885,8 +5992,8 @@ export function PoolaramaPrototype() {
         <section className="screen stack" aria-labelledby="pantheon-title">
           <ScreenHeader
             kicker="Poolarama Pantheon"
-            title="Previous champions"
-            note="Men’s World Cup, Women’s World Cup, Euros, and future family glory."
+            title={tournamentComplete ? "Champions" : "Previous champions"}
+            note={tournamentComplete && poolChampion ? `${poolChampion.nickname} joins the Pantheon as the 2026 Men's World Cup pool champion.` : "Men’s World Cup, Women’s World Cup, Euros, and future family glory."}
           />
           <div className="pantheon-grid">
             {pantheon.map((item) => (
@@ -5904,9 +6011,9 @@ export function PoolaramaPrototype() {
       {tab === "tables" && (
         <section className="screen stack" aria-labelledby="tables-title">
           <ScreenHeader
-            kicker="Pool stats"
+            kicker={tournamentComplete ? "Final stats" : "Pool stats"}
             title="Stats"
-            note="Sortable round-by-round scoring, Golden Boot status, and archived group tables."
+            note={tournamentComplete ? "The finished box score: sortable round-by-round scoring, Golden Boot status, and archived group tables." : "Sortable round-by-round scoring, Golden Boot status, and archived group tables."}
           />
           <PlayerStatsTable
             rows={sortedPlayerStatsRows}
@@ -5929,7 +6036,7 @@ export function PoolaramaPrototype() {
         <section className="screen stack" aria-labelledby="admin-title">
           <ScreenHeader
             kicker="Admin dashboard"
-            title={`${adminCurrentRound.label} control room`}
+            title={tournamentComplete ? "Trophy Room control room" : `${adminCurrentRound.label} control room`}
             note={adminCurrentRoundAction}
           />
           <section className="admin-focus-card admin-current-task-card admin-round-current" aria-label="Current admin task">
@@ -6439,11 +6546,11 @@ export function PoolaramaPrototype() {
             )}
           </details>
           <details
-            className={`admin-rollup-card next-round-rollup archived-admin-card ${finalCanPreview || finalStarted ? "admin-current-round-card admin-round-current" : "admin-round-next"}`}
-            open={finalCanPreview || finalStarted}
+            className={`admin-rollup-card next-round-rollup archived-admin-card ${tournamentComplete ? "admin-round-archive" : finalCanPreview || finalStarted ? "admin-current-round-card admin-round-current" : "admin-round-next"}`}
+            open={Boolean((finalCanPreview || finalStarted) && !tournamentComplete)}
           >
             <summary>
-              <span>{finalCanPreview || finalStarted ? "Current round" : "Future round - no action yet"}</span>
+              <span>{tournamentComplete ? "Completed round" : finalCanPreview || finalStarted ? "Current round" : "Future round - no action yet"}</span>
               <strong>{finalStarted ? "Final controls" : "Final readiness"}</strong>
             </summary>
             <div className="next-round-status">

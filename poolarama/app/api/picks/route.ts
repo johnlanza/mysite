@@ -187,6 +187,7 @@ export async function GET(request: NextRequest) {
       groupStandingRows.length > 0
         ? reconcileGroupStandings(groupStandingRows.map(rowToStanding))
         : getDefaultGroupStandings();
+    const tournamentChampion = finalMatches.find((match) => match.winner)?.winner || "";
 
     return NextResponse.json({
       participants: roster.map((knownParticipant) => {
@@ -211,7 +212,7 @@ export async function GET(request: NextRequest) {
         const qfPicks = qfSubmission ? normalizePicks(qfSubmission.picks) : null;
         const sfPicks = sfSubmission ? normalizePicks(sfSubmission.picks) : null;
         const finalPicks = finalSubmission ? normalizePicks(finalSubmission.picks) : null;
-        const score = picks ? scorePreTournamentPicks(picks, groupStandings, pool.scoringRules || {}) : null;
+        const score = picks ? scorePreTournamentPicks(picks, groupStandings, pool.scoringRules || {}, tournamentChampion) : null;
         const knockoutScore =
           (r32PicksVisible ? scoreRoundOf32Picks(r32Picks, r32Matches, pool.scoringRules || {}) : 0) +
           (r16PicksVisible ? scoreKnockoutPicks(r16Picks, r16Matches, "r16", pool.scoringRules || {}) : 0) +

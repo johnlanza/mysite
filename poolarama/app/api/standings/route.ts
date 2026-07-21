@@ -100,6 +100,7 @@ export async function GET() {
         : getDefaultGroupStandings();
     const roster = mergeKnownAndMongoParticipants(participants.map(participantFromMongo));
     const preTournamentLocked = pool.preTournamentStatus === "locked";
+    const tournamentChampion = finalMatches.find((match) => match.winner)?.winner || "";
 
     return NextResponse.json({
       standings: roster.map((knownParticipant) => {
@@ -123,7 +124,7 @@ export async function GET() {
         const qfPicks = qfSubmission ? normalizePicks(qfSubmission.picks) : null;
         const sfPicks = sfSubmission ? normalizePicks(sfSubmission.picks) : null;
         const finalPicks = finalSubmission ? normalizePicks(finalSubmission.picks) : null;
-        const score = picks ? scorePreTournamentPicks(picks, groupStandings, pool.scoringRules || {}) : null;
+        const score = picks ? scorePreTournamentPicks(picks, groupStandings, pool.scoringRules || {}, tournamentChampion) : null;
         const knockoutScore =
           scoreRoundOf32Picks(r32Picks, r32Matches, pool.scoringRules || {}) +
           (pool.r16Status === "locked" ? scoreKnockoutPicks(r16Picks, r16Matches, "r16", pool.scoringRules || {}) : 0) +
