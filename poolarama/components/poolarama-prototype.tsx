@@ -4557,7 +4557,7 @@ export function PoolaramaPrototype() {
           {currentKnockoutStarted && currentKnockoutRound.locked && currentKnockoutRound.matches.length > 0 && (
             <section className="round-clarity-card" aria-label="Current round status">
               <div>
-                <span>Current round</span>
+                <span>{tournamentComplete ? "Completed round" : "Current round"}</span>
                 <strong>{currentKnockoutRound.label}</strong>
               </div>
               <div>
@@ -4568,7 +4568,7 @@ export function PoolaramaPrototype() {
                 <span>Scoring</span>
                 <strong>{currentKnockoutRound.scoredCount}/{currentKnockoutRound.matches.length} entered</strong>
               </div>
-	              <p>{currentKnockoutRound.locked ? "Everyone can compare picks for this round. Point totals update after winners are entered." : "Picks stay private until John locks the round."}</p>
+	              <p>{tournamentComplete ? "The Final is scored and all picks are available for comparison." : currentKnockoutRound.locked ? "Everyone can compare picks for this round. Point totals update after winners are entered." : "Picks stay private until John locks the round."}</p>
 	            </section>
 	          )}
           {!tournamentComplete && selectedPathToGlory && (
@@ -4687,7 +4687,7 @@ export function PoolaramaPrototype() {
               </div>
             </section>
           )}
-	          {currentKnockoutStarted && currentKnockoutRound.locked && dailyReview.bullets.length > 0 && (
+	          {!tournamentComplete && currentKnockoutStarted && currentKnockoutRound.locked && dailyReview.bullets.length > 0 && (
 	            <section className="pool-pulse-card" aria-labelledby="pool-pulse-title">
               <div className="pool-pulse-heading">
                 <div>
