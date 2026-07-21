@@ -2001,6 +2001,7 @@ export function PoolaramaPrototype() {
       ? `${leaders.slice(0, 2).join(", ")}${leaders.length > 2 ? " +" : ""}`
       : "Scoring not started";
   const unpaidCount = adminOverview.filter((participant) => !participant.venmoPaid).length;
+  const CurrentRoundShell = tournamentComplete ? "details" : "section";
   const currentKnockoutRound = finalStarted && finalMatches.length > 0
     ? {
         label: "Final",
@@ -4704,7 +4705,13 @@ export function PoolaramaPrototype() {
             </section>
           )}
           {currentKnockoutStarted && currentKnockoutRound.locked && currentKnockoutRound.matches.length > 0 && (
-            <section className="current-round-card" aria-labelledby="current-round-title">
+            <CurrentRoundShell className={`current-round-card ${tournamentComplete ? "current-round-archive-details" : ""}`} aria-labelledby="current-round-title">
+              {tournamentComplete && (
+                <summary>
+                  <span>Final pick archive</span>
+                  <strong>{finalWinner || "Final"} result and pick split</strong>
+                </summary>
+              )}
               <div className="current-round-heading">
                 <div>
                   <p className="eyebrow">{tournamentComplete ? "Final result" : currentKnockoutRound.locked ? "Current round locked" : "Current round open"}</p>
@@ -4959,7 +4966,7 @@ export function PoolaramaPrototype() {
                   )}
                 </div>
               )}
-            </section>
+            </CurrentRoundShell>
           )}
           {showLockedHomeNotice && (
             <section className="locked-round-card" aria-labelledby="locked-round-title">

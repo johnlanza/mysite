@@ -748,6 +748,65 @@ h1 {
   box-shadow: 0 18px 38px rgba(17, 32, 51, 0.12);
 }
 
+.current-round-archive-details {
+  display: block;
+}
+
+.current-round-archive-details summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  cursor: pointer;
+  list-style: none;
+}
+
+.current-round-archive-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.current-round-archive-details summary::after {
+  content: "+";
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--navy);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.current-round-archive-details[open] summary::after {
+  content: "-";
+}
+
+.current-round-archive-details summary span,
+.current-round-archive-details summary strong {
+  display: block;
+}
+
+.current-round-archive-details summary span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 1000;
+  text-transform: uppercase;
+}
+
+.current-round-archive-details summary strong {
+  margin-top: 4px;
+  color: var(--navy);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(1.25rem, 5vw, 1.9rem);
+  line-height: 1;
+}
+
+.current-round-archive-details[open] .current-round-heading {
+  margin-top: 16px;
+}
+
 .round-clarity-card {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
