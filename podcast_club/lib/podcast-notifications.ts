@@ -2,6 +2,7 @@ import { connectToDatabase } from '@/lib/db';
 import {
   isEmailDeliveryConfigured,
   sendNewPodcastEmail,
+  sendPodcastEmailReport,
   sendWeeklyReviewReminderEmail
 } from '@/lib/email';
 import MemberModel from '@/models/Member';
@@ -27,6 +28,62 @@ function hasReviewFromMember(podcast: PodcastNotificationDetails, memberId: stri
     const value = String(rating.value || '').trim().toLowerCase();
     return String(rating.member) === memberId && value !== 'no selection';
   });
+}
+
+type EmailReportRecipient = {
+  name: string;
+  email: string;
+  details?: string;
+};
+
+type AdminRecipient = {
+  name: string;
+  email: string;
+};
+
+async function sendAdminEmailReports({
+  admins,
+  mailingName,
+  sentRecipients,
+  failedRecipients
+}: {
+  admins: AdminRecipient[];
+  mailingName: string;
+  sentRecipients: EmailReportRecipient[];
+  failedRecipients: EmailReportRecipient[];
+}) {
+  if (sentRecipients.length === 0 && failedRecipients.length === 0) {
+    return { sent: 0, failed: 0 };
+  }
+
+  const reports = await Promise.allSettled(
+    admins.map((admin) =>
+      sendPodcastEmailReport({
+        to: admin.email,
+        recipientName: admin.name,
+        mailingName,
+        sentRecipients,
+        failedRecipients
+      })
+    )
+  );
+
+  const failed = reports.filter(
+    (report) =>
+      report.status === 'rejected' ||
+      (report.status === 'fulfilled' && !report.value.delivered)
+  );
+  for (const report of failed) {
+    console.error(
+      '[podcast-notifications] Admin email report failed',
+      report.status === 'rejected' ? report.reason : report.value.reason
+    );
+  }
+
+  return {
+    sent: reports.length - failed.length,
+    failed: failed.length
+  };
 }
 
 function getWeekKey(date = new Date()) {
@@ -68,7 +125,8 @@ export async function notifyMembersOfNewPodcast(
   }
 
   await connectToDatabase();
-  const members = await MemberModel.find().select('name email').lean();
+  const members = await MemberModel.find().select('name email isAdmin').lean();
+  const admins = members.filter((member) => member.isAdmin);
   const deliveries = await Promise.allSettled(
     members.map((member) =>
       sendNewPodcastEmail({
@@ -91,15 +149,34 @@ export async function notifyMembersOfNewPodcast(
     console.error('[podcast-notifications] New podcast email failed', delivery.reason);
   }
 
+  const sentRecipients = members.flatMap((member, index) => {
+    const delivery = deliveries[index];
+    return delivery.status === 'fulfilled' && delivery.value.delivered
+      ? [{ name: member.name, email: member.email }]
+      : [];
+  });
+  const failedRecipients = members.flatMap((member, index) => {
+    const delivery = deliveries[index];
+    return delivery.status === 'rejected' ||
+      (delivery.status === 'fulfilled' && !delivery.value.delivered)
+      ? [{ name: member.name, email: member.email }]
+      : [];
+  });
+  const adminReport = await sendAdminEmailReports({
+    admins,
+    mailingName: `New podcast: ${podcast.title}`,
+    sentRecipients,
+    failedRecipients
+  });
+
   return {
-    sent: deliveries.filter(
-      (delivery) => delivery.status === 'fulfilled' && delivery.value.delivered
-    ).length,
+    sent: sentRecipients.length,
     skipped: deliveries.filter(
       (delivery) => delivery.status === 'fulfilled' && !delivery.value.delivered
     ).length,
     failed: failed.length,
-    notConfigured: false
+    notConfigured: false,
+    adminReport
   };
 }
 
@@ -110,7 +187,7 @@ export async function runWeeklyPodcastReviewSweep() {
 
   await connectToDatabase();
   const [members, podcasts] = await Promise.all([
-    MemberModel.find().select('name email').lean(),
+    MemberModel.find().select('name email isAdmin').lean(),
     PodcastModel.find({ status: 'pending' })
       .select('title host episodeCount episodeNames totalTimeMinutes link notes ratings')
       .lean<PodcastNotificationDetails[]>()
@@ -119,6 +196,8 @@ export async function runWeeklyPodcastReviewSweep() {
   let sent = 0;
   let skipped = 0;
   let failed = 0;
+  const sentRecipients: EmailReportRecipient[] = [];
+  const failedRecipients: EmailReportRecipient[] = [];
 
   for (const member of members) {
     const memberId = String(member._id);
@@ -162,17 +241,32 @@ export async function runWeeklyPodcastReviewSweep() {
           { _id: member._id, weeklyPodcastReminderKey: weekKey },
           { $unset: { weeklyPodcastReminderKey: 1 } }
         );
+        failedRecipients.push({
+          name: member.name,
+          email: member.email,
+          details: `${missingPodcasts.length} podcast${missingPodcasts.length === 1 ? '' : 's'} awaiting review`
+        });
         skipped += 1;
         continue;
       }
 
       sent += 1;
+      sentRecipients.push({
+        name: member.name,
+        email: member.email,
+        details: `${missingPodcasts.length} podcast${missingPodcasts.length === 1 ? '' : 's'} awaiting review`
+      });
     } catch (error) {
       await MemberModel.updateOne(
         { _id: member._id, weeklyPodcastReminderKey: weekKey },
         { $unset: { weeklyPodcastReminderKey: 1 } }
       );
       failed += 1;
+      failedRecipients.push({
+        name: member.name,
+        email: member.email,
+        details: `${missingPodcasts.length} podcast${missingPodcasts.length === 1 ? '' : 's'} awaiting review`
+      });
       console.error('[podcast-notifications] Weekly reminder email failed', {
         memberId,
         error
@@ -180,5 +274,12 @@ export async function runWeeklyPodcastReviewSweep() {
     }
   }
 
-  return { sent, skipped, failed, notConfigured: false };
+  const adminReport = await sendAdminEmailReports({
+    admins: members.filter((member) => member.isAdmin),
+    mailingName: 'Weekly review reminders',
+    sentRecipients,
+    failedRecipients
+  });
+
+  return { sent, skipped, failed, notConfigured: false, adminReport };
 }

@@ -32,6 +32,20 @@ type SendWeeklyReviewReminderEmailParams = {
   podcasts: PodcastEmailDetails[];
 };
 
+type EmailReportRecipient = {
+  name: string;
+  email: string;
+  details?: string;
+};
+
+type SendPodcastEmailReportParams = {
+  to: string;
+  recipientName: string;
+  mailingName: string;
+  sentRecipients: EmailReportRecipient[];
+  failedRecipients: EmailReportRecipient[];
+};
+
 function getBaseUrl() {
   return process.env.APP_BASE_URL || 'http://localhost:3000';
 }
@@ -150,6 +164,42 @@ export async function sendWeeklyReviewReminderEmail({
       `<p>${podcasts.length === 1 ? 'This podcast is' : 'These podcasts are'} still waiting for your review:</p>`,
       `<ul>${podcastItems}</ul>`,
       `<p><a href="${escapeHtml(`${getBaseUrl()}/podcasts`)}">Review your pending podcasts</a></p>`
+    ].join('')
+  });
+}
+
+export async function sendPodcastEmailReport({
+  to,
+  recipientName,
+  mailingName,
+  sentRecipients,
+  failedRecipients
+}: SendPodcastEmailReportParams) {
+  const recipientList = (recipients: EmailReportRecipient[]) =>
+    recipients
+      .map(
+        (recipient) =>
+          `<li>${escapeHtml(recipient.name)} (${escapeHtml(recipient.email)})` +
+          `${recipient.details ? ` — ${escapeHtml(recipient.details)}` : ''}</li>`
+      )
+      .join('');
+
+  return sendEmail({
+    to,
+    subject: `Podcast Club email report: ${mailingName}`,
+    html: [
+      `<p>Hi ${escapeHtml(recipientName || 'there')},</p>`,
+      `<p>Here is the delivery report for <strong>${escapeHtml(mailingName)}</strong>.</p>`,
+      `<p><strong>Emailed (${sentRecipients.length}):</strong></p>`,
+      sentRecipients.length > 0
+        ? `<ul>${recipientList(sentRecipients)}</ul>`
+        : '<p>No member emails were delivered.</p>',
+      failedRecipients.length > 0
+        ? [
+            `<p><strong>Could not email (${failedRecipients.length}):</strong></p>`,
+            `<ul>${recipientList(failedRecipients)}</ul>`
+          ].join('')
+        : ''
     ].join('')
   });
 }
