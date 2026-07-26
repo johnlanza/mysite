@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { requireSession } from '@/lib/auth';
 import { formatPodcastForClient, sortPodcastsLikeSheet } from '@/lib/podcasts';
+import { notifyMembersOfNewPodcast } from '@/lib/podcast-notifications';
 import { getRatingPoints } from '@/lib/ranking';
 import MemberModel from '@/models/Member';
 import '@/models/Meeting';
@@ -140,7 +141,30 @@ export async function POST(req: Request) {
       ]
     });
 
-    return NextResponse.json(podcast, { status: 201 });
+    let notification;
+    try {
+      notification = await notifyMembersOfNewPodcast(
+        {
+          _id: podcast._id,
+          title: podcast.title,
+          host: podcast.host,
+          episodeCount: podcast.episodeCount,
+          episodeNames: podcast.episodeNames,
+          totalTimeMinutes: podcast.totalTimeMinutes,
+          link: podcast.link,
+          notes: podcast.notes
+        },
+        session.member.name
+      );
+    } catch (error) {
+      console.error('[podcasts:POST] notification failed after podcast creation', {
+        podcastId: String(podcast._id),
+        error
+      });
+      notification = { sent: 0, skipped: 0, failed: 1, notConfigured: false };
+    }
+
+    return NextResponse.json({ ...podcast.toObject(), notification }, { status: 201 });
   } catch (error) {
     console.error('[podcasts:POST] create failed', {
       memberId: session.member._id,

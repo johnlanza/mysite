@@ -16,7 +16,8 @@ const MemberSchema = new Schema(
     isAdmin: { type: Boolean, default: false },
     accountStatus: { type: String, enum: ['pending', 'claimed'], default: 'claimed' },
     claimCodeHash: { type: String, default: null, select: false },
-    claimCodeExpiresAt: { type: Date, default: null }
+    claimCodeExpiresAt: { type: Date, default: null },
+    weeklyPodcastReminderKey: { type: String, default: null }
   },
   { timestamps: true }
 );
