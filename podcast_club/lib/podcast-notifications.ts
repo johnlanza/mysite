@@ -180,7 +180,13 @@ export async function notifyMembersOfNewPodcast(
   };
 }
 
-export async function runWeeklyPodcastReviewSweep() {
+export async function runWeeklyPodcastReviewSweep({
+  reminderKey = getWeekKey(),
+  mailingName = 'Weekly review reminders'
+}: {
+  reminderKey?: string;
+  mailingName?: string;
+} = {}) {
   if (!isEmailDeliveryConfigured()) {
     return { sent: 0, skipped: 0, failed: 0, notConfigured: true };
   }
@@ -192,7 +198,6 @@ export async function runWeeklyPodcastReviewSweep() {
       .select('title host episodeCount episodeNames totalTimeMinutes link notes ratings')
       .lean<PodcastNotificationDetails[]>()
   ]);
-  const weekKey = getWeekKey();
   let sent = 0;
   let skipped = 0;
   let failed = 0;
@@ -210,9 +215,9 @@ export async function runWeeklyPodcastReviewSweep() {
     const claimedMember = await MemberModel.findOneAndUpdate(
       {
         _id: member._id,
-        weeklyPodcastReminderKey: { $ne: weekKey }
+        weeklyPodcastReminderKey: { $ne: reminderKey }
       },
-      { $set: { weeklyPodcastReminderKey: weekKey } }
+      { $set: { weeklyPodcastReminderKey: reminderKey } }
     )
       .select('_id')
       .lean();
@@ -238,7 +243,7 @@ export async function runWeeklyPodcastReviewSweep() {
 
       if (!result.delivered) {
         await MemberModel.updateOne(
-          { _id: member._id, weeklyPodcastReminderKey: weekKey },
+          { _id: member._id, weeklyPodcastReminderKey: reminderKey },
           { $unset: { weeklyPodcastReminderKey: 1 } }
         );
         failedRecipients.push({
@@ -258,7 +263,7 @@ export async function runWeeklyPodcastReviewSweep() {
       });
     } catch (error) {
       await MemberModel.updateOne(
-        { _id: member._id, weeklyPodcastReminderKey: weekKey },
+        { _id: member._id, weeklyPodcastReminderKey: reminderKey },
         { $unset: { weeklyPodcastReminderKey: 1 } }
       );
       failed += 1;
@@ -276,7 +281,7 @@ export async function runWeeklyPodcastReviewSweep() {
 
   const adminReport = await sendAdminEmailReports({
     admins: members.filter((member) => member.isAdmin),
-    mailingName: 'Weekly review reminders',
+    mailingName,
     sentRecipients,
     failedRecipients
   });
