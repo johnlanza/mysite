@@ -35,6 +35,15 @@ const SOURCE_REF_ALLOWLIST = new Set([
   "founders podcast",
   "waking up",
 ]);
+const PERSON_NAME_WORD =
+  String.raw`(?:[A-Z][A-Za-zÀ-ÖØ-öø-ÿ.'’-]*|[A-Z]{2,}|von|van|de|del|der|da|di|la|le)`;
+const PERSON_NAME_PATTERN = String.raw`${PERSON_NAME_WORD}(?:\s+${PERSON_NAME_WORD}){0,5}`;
+const PERSON_NAME_RE = new RegExp(
+  String.raw`^${PERSON_NAME_PATTERN}(?:\s+(?:and|&)\s+${PERSON_NAME_PATTERN})?$`,
+  "u",
+);
+const SOURCE_WORD_PATTERN =
+  /\b(?:advice|app|article|blog|book|course|newsletter|podcast|profile|rhetoric|signals|street|test|way|web|wisdom|workweek)\b/i;
 
 function decodeFileName(fileName) {
   return decodeURIComponent(fileName.replace(/\.md$/i, ""));
@@ -334,17 +343,17 @@ function parseAuthorLine(line) {
 }
 
 function extractInlineAuthor(text) {
-  const match = text.match(/(?:[”"]|\.)[ \t]*[—-][ \t]*([^#\n[]+)/);
+  const match = text.match(/(?:[”"]|\.)[ \t]*[—–~-][ \t]*([^#\n[]+)/);
   return match ? cleanupInlineMarkup(match[1]).trim() : null;
 }
 
 function splitTrailingAuthor(text) {
   const cleaned = cleanupInlineMarkup(text);
   const match = cleaned.match(
-    /^(.*?)(?:\s*[—-]\s*([A-Z][A-Za-z0-9.'’ -]+(?:,\s*[^.]+)?))$/,
+    /^(.*?)(?:\s*[—–-]\s*([A-Z][^#\n]+?))$/,
   );
 
-  if (!match) {
+  if (!match || !isAuthorLikeTail(match[2])) {
     return {
       text: cleaned,
       author: null,
@@ -359,8 +368,8 @@ function splitTrailingAuthor(text) {
 
 function extractTrailingAuthorFromLine(line) {
   const cleaned = stripTagsAndMarkers(line);
-  const match = cleaned.match(/(?:^|.*?\s)[—-]\s*([A-Z][A-Za-z.'’ -]+)$/);
-  return match ? match[1].trim() : null;
+  const split = splitTrailingAuthor(cleaned);
+  return split.author;
 }
 
 function extractQuotedText(text) {
@@ -379,6 +388,11 @@ function extractLeadingAuthorFromQuotedLine(line) {
     .replace(/^[—-]\s*/, "")
     .replace(/[,:;.\s]+$/, "")
     .trim();
+
+  const attributionAuthor = extractAuthorFromAttributionPhrase(candidate);
+  if (attributionAuthor !== undefined) {
+    return attributionAuthor;
+  }
 
   if (!candidate || candidate.split(/\s+/).length > 8) {
     return null;
@@ -489,6 +503,205 @@ function extractBookStyleSourceDetails(value) {
   };
 }
 
+function cleanupExtractedAuthorName(value) {
+  return cleanupInlineMarkup(value)
+    .replace(/^\s*\(+\s*/, "")
+    .replace(/\s*\)+\s*$/, "")
+    .replace(/\s+\([^)]*\)\s*$/g, "")
+    .replace(/\s+\([^)]*$/g, "")
+    .replace(/\s+[—–-]\s+Progressive Summarization Test$/i, "")
+    .replace(/^(?:general|dr\.?|professor|sir|saint)\s+/i, "")
+    .replace(/\s+\b(?:put it this way|courtesy of|to his publisher|to her publisher)\b.*$/i, "")
+    .replace(/\*/g, "")
+    .replace(/[’']s$/i, "")
+    .replace(/^[,\s]+|[,\s]+$/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+function isGenericAttributionPhrase(value) {
+  return (
+    /^(?:or\s+)?as\s+(?:the\s+)?(?:great\s+)?(?:sufi|japanese zen masters?|one (?:man|woman|person)|someone|somebody)\b/i.test(
+      value,
+    ) || /^it is said\b/i.test(value)
+  );
+}
+
+function isNamedNonPersonAttribution(value) {
+  const cleaned = cleanupInlineMarkup(value)
+    .replace(/\s+in line with\b.*$/i, "")
+    .trim();
+
+  if (!cleaned) {
+    return false;
+  }
+
+  if (/^(?:my quotes|first)$/i.test(cleaned)) {
+    return true;
+  }
+
+  if (/^(?:chinese wisdom|the daily stoic)\b/i.test(cleaned)) {
+    return true;
+  }
+
+  if (/^the hp way\b/i.test(cleaned) || /^ai is killing the web\b/i.test(cleaned)) {
+    return true;
+  }
+
+  return (
+    SOURCE_WORD_PATTERN.test(cleaned) &&
+    !PERSON_NAME_RE.test(cleanupExtractedAuthorName(cleaned))
+  );
+}
+
+function sourceFromNonPersonAttribution(value) {
+  const cleaned = cleanupInlineMarkup(value)
+    .replace(/\s+in line with\b.*$/i, "")
+    .replace(/\s+from\s+\[\[[^\]]+\]\]\s*$/i, "")
+    .trim();
+
+  if (!cleaned || /^my quotes$/i.test(cleaned) || /^first$/i.test(cleaned)) {
+    return null;
+  }
+
+  if (/^chinese wisdom\b/i.test(cleaned)) {
+    return "Chinese Wisdom";
+  }
+
+  if (/^the hp way\b/i.test(cleaned)) {
+    return "The HP Way";
+  }
+
+  if (/^the daily stoic\b/i.test(cleaned)) {
+    return "The Daily Stoic";
+  }
+
+  if (/^ai is killing the web\b/i.test(cleaned)) {
+    return "AI is killing the web";
+  }
+
+  return SOURCE_WORD_PATTERN.test(cleaned) ? cleanupSource(cleaned) : null;
+}
+
+function isLikelyPersonName(value) {
+  const author = cleanupExtractedAuthorName(value);
+
+  if (!author || author.length > 90 || author.split(/\s+/).length > 8) {
+    return false;
+  }
+
+  if (/^(?:the|my)\b/i.test(author) || isGenericAttributionPhrase(author)) {
+    return false;
+  }
+
+  if (isNamedNonPersonAttribution(author)) {
+    return false;
+  }
+
+  if (/\b(?:quote|quotes|said|says|notes?|writes?|definition|teacher|source)\b/i.test(author)) {
+    return false;
+  }
+
+  return PERSON_NAME_RE.test(author);
+}
+
+function isLikelyExtractedPersonName(value) {
+  return isLikelyPersonName(value);
+}
+
+function isAuthorLikeTail(value) {
+  const cleaned = cleanupInlineMarkup(value).trim();
+  const firstSegment = cleaned.split(",")[0] ?? cleaned;
+  const attributionAuthor = extractAuthorFromAttributionPhrase(cleaned);
+
+  return (
+    isLikelyPersonName(firstSegment) ||
+    attributionAuthor !== undefined ||
+    isNamedNonPersonAttribution(cleaned)
+  );
+}
+
+function extractAuthorFromAttributionPhrase(value) {
+  const cleaned = cleanupInlineMarkup(value)
+    .replace(/^[\s(["“]+/, "")
+    .replace(/[,\s]+$/, "")
+    .trim();
+
+  if (!cleaned) {
+    return undefined;
+  }
+
+  if (isGenericAttributionPhrase(cleaned)) {
+    return null;
+  }
+
+  const personBeforeSpeechVerb = [
+    ...cleaned.matchAll(
+      new RegExp(
+        String.raw`\b(?:[Aa]s|[Bb]y)\s+(?:the\s+)?(?:[A-Za-z]+\s+){0,8}?(${PERSON_NAME_PATTERN})\s+(?:notes?|says?|said|writes?|wrote|observes?|observed|once noted|once said|is thought to have)\b`,
+        "gu",
+      ),
+    ),
+  ].at(-1)?.[1];
+
+  if (personBeforeSpeechVerb) {
+    const author = cleanupExtractedAuthorName(personBeforeSpeechVerb);
+
+    if (isLikelyExtractedPersonName(author)) {
+      return author;
+    }
+  }
+
+  const patterns = [
+    new RegExp(String.raw`^\(?\s*[Ii] think it was\s+(${PERSON_NAME_PATTERN})\s+who\b`, "u"),
+    new RegExp(
+      String.raw`^\(?\s*[Tt]his is the wisdom behind\s+(${PERSON_NAME_PATTERN})(?:[’']s)?\s+famous quote\b`,
+      "u",
+    ),
+    new RegExp(String.raw`^\(?\s*(${PERSON_NAME_PATTERN})[’']s\s+definition\b`, "u"),
+    new RegExp(String.raw`\bquotes?\s+(${PERSON_NAME_PATTERN})$`, "u"),
+    /\bquip of\s+(.+?)(?:[.,]|$)/i,
+    /^\(?\s*from\s+(.+?)$/i,
+    new RegExp(
+      String.raw`^\(?\s*(?:[Tt]he\s+)?(?:software engineer|historian|anthropologist|philosopher|economist|psychologist|investor|poet|artist|composer|scientist|teacher|physician|doctor|writer|author)\s+(${PERSON_NAME_PATTERN})\s+(?:notes?|says?|said|writes?|wrote|observes?|observed)\b`,
+      "u",
+    ),
+    new RegExp(
+      String.raw`^\(?\s*(${PERSON_NAME_PATTERN})\s+(?:put it this way|once noted|once said|said|says|writes|wrote|notes?|observes?|observed|is thought to have)\b`,
+      "u",
+    ),
+    /^\(?\s*(.+?),\s+.*\b(?:described|called|said|says|writes|wrote|notes?|observes?|observed)\b/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = cleaned.match(pattern);
+    const author = cleanupExtractedAuthorName(match?.[1] ?? "");
+
+    if (isLikelyExtractedPersonName(author)) {
+      return author;
+    }
+  }
+
+  return undefined;
+}
+
+function isNonPersonAttribution(author, sourcePageTitle) {
+  const normalized = author.toLowerCase();
+  const sourceTitle = deriveTitleFromPageTitle(sourcePageTitle).toLowerCase();
+
+  if (normalized === sourceTitle || normalized === "my quotes") {
+    return true;
+  }
+
+  if (isNamedNonPersonAttribution(author)) {
+    return true;
+  }
+
+  return /^(?:as|or as|it is said|this is|what i accomplished|the greatest teacher is called)\b/i.test(
+    author,
+  );
+}
+
 function cleanupAuthor(value) {
   if (!value) {
     return null;
@@ -501,16 +714,46 @@ function cleanupAuthor(value) {
     .replace(/\s*\bsaid\b\s*$/i, "")
     .replace(/\s*\bonce said that\b\s*$/i, "")
     .replace(/\s*\bon aging well\b\s*$/i, "")
+    .replace(/\*/g, "")
     .replace(/\s{2,}/g, " ")
     .trim();
 
-  if (/^[A-Z0-9 .’'-]+,\s+/.test(author)) {
-    author = author.split(",")[0]?.trim() ?? author;
+  const attributionAuthor = extractAuthorFromAttributionPhrase(author);
+  if (attributionAuthor !== undefined) {
+    author = attributionAuthor ?? "";
   }
 
-  author = author.replace(/[,\s]+$/, "");
+  author = cleanupExtractedAuthorName(author).replace(/[,\s]+$/, "");
 
   return author || null;
+}
+
+function isCoauthorTail(value) {
+  return /\band\b|,/.test(value) && /^[A-Za-zÀ-ÖØ-öø-ÿ.'’ ,&-]+$/.test(value);
+}
+
+function isDescriptiveAuthorTail(value) {
+  return /\b(?:champion|courtesy|favorite|governor|not sure|pioneer|qb|tycoon|winner)\b/i.test(
+    value,
+  );
+}
+
+function shouldTreatAsSourceTail(value) {
+  const source = cleanupSource(value);
+
+  if (!source || source.length > 90) {
+    return false;
+  }
+
+  if (SOURCE_REF_ALLOWLIST.has(source.toLowerCase()) || SOURCE_WORD_PATTERN.test(source)) {
+    return true;
+  }
+
+  if (isDescriptiveAuthorTail(source) || isCoauthorTail(source)) {
+    return false;
+  }
+
+  return source.split(/\s+/).length <= 5 && /^[A-Z0-9][A-Za-z0-9À-ÖØ-öø-ÿ.'’ &-]+$/.test(source);
 }
 
 function extractSourceFromAuthor(author) {
@@ -521,17 +764,50 @@ function extractSourceFromAuthor(author) {
     };
   }
 
-  const fromMatch = author.match(/^(.*?)(?:,\s*|\s+\bfrom\b\s+)(.+)$/i);
+  const adjacentSourceMatch = author.match(
+    new RegExp(
+      String.raw`^(${PERSON_NAME_PATTERN})\s+(Founders Podcast|the Waking Up app|Waking Up app)$`,
+      "u",
+    ),
+  );
 
-  if (!fromMatch) {
+  if (adjacentSourceMatch) {
+    return {
+      author: cleanupAuthor(adjacentSourceMatch[1]),
+      source: cleanupSource(adjacentSourceMatch[2]),
+    };
+  }
+
+  const fromMatch = author.match(/^(.*?)\s+\bfrom\b\s+(.+)$/i);
+
+  if (fromMatch) {
+    const nextAuthor = cleanupAuthor(fromMatch[1]);
+    const nextSource = cleanupSource(fromMatch[2]);
+
+    if (nextAuthor && nextSource && isLikelyPersonName(nextAuthor)) {
+      return {
+        author: nextAuthor,
+        source: nextSource,
+      };
+    }
+
     return {
       author,
       source: null,
     };
   }
 
-  const nextAuthor = cleanupAuthor(fromMatch[1]);
-  const nextSource = cleanupSource(fromMatch[2]);
+  const commaMatch = author.match(/^(.+?),\s*(.+)$/);
+
+  if (!commaMatch) {
+    return {
+      author,
+      source: null,
+    };
+  }
+
+  const nextAuthor = cleanupAuthor(commaMatch[1]);
+  const nextSource = cleanupSource(commaMatch[2]);
 
   if (!nextAuthor || !nextSource) {
     return {
@@ -540,21 +816,29 @@ function extractSourceFromAuthor(author) {
     };
   }
 
-  if (
-    /(newsletter|novel|book|podcast|app|wonderland|revolutionists|alaska|neighborhood)/i.test(
-      nextSource,
-    )
-  ) {
+  if (isDescriptiveAuthorTail(nextSource) && isLikelyPersonName(nextAuthor)) {
+    return {
+      author: nextAuthor,
+      source: null,
+    };
+  }
+
+  if (shouldTreatAsSourceTail(nextSource) && isLikelyPersonName(nextAuthor)) {
     return {
       author: nextAuthor,
       source: nextSource,
     };
   }
 
-  return {
-    author,
-    source: null,
-  };
+  return isLikelyPersonName(nextAuthor) && !isCoauthorTail(nextSource)
+    ? {
+        author: nextAuthor,
+        source: null,
+      }
+    : {
+        author,
+        source: null,
+      };
 }
 
 function cleanupSource(value) {
@@ -589,6 +873,10 @@ function normalizeQuoteText(text) {
     .replace(/^["“”]+/, "")
     .replace(/["“”]+$/, "")
     .trim();
+
+  if ((normalized.match(/"/g) ?? []).length % 2 === 1) {
+    normalized = normalized.replace(/"/g, "");
+  }
 
   return normalized;
 }
@@ -630,7 +918,15 @@ function deriveAuthorFromPageTitle(sourcePageTitle) {
   }
 
   const parts = sourcePageTitle.split(" | ").map((part) => part.trim());
-  return parts.at(-1) ?? null;
+  return cleanupExtractedAuthorName(parts.at(-1) ?? "") || null;
+}
+
+function deriveTitleFromPageTitle(sourcePageTitle) {
+  if (!sourcePageTitle.includes(" | ")) {
+    return sourcePageTitle;
+  }
+
+  return sourcePageTitle.split(" | ")[0]?.trim() ?? sourcePageTitle;
 }
 
 function deriveSourceDisplay(entry) {
@@ -664,19 +960,43 @@ function createQuoteEntry({
   }
 
   const split = splitTrailingAuthor(quoteText);
+  const rawAuthorCandidate = author ?? split.author;
+  const explicitNamedNonPersonAuthor =
+    rawAuthorCandidate !== null &&
+    rawAuthorCandidate !== undefined &&
+    isNamedNonPersonAttribution(rawAuthorCandidate);
   const normalizedText = normalizeQuoteText(split.text);
-  const initialAuthor = author
-    ? cleanupAuthor(author)
-    : split.author
-      ? cleanupAuthor(split.author)
-      : null;
+  const initialAuthor = rawAuthorCandidate
+    ? cleanupAuthor(rawAuthorCandidate)
+    : null;
   const authorSourceSplit = extractSourceFromAuthor(initialAuthor);
-  const normalizedAuthor = authorSourceSplit.author;
-  let normalizedSource = cleanupSource(source) ?? authorSourceSplit.source;
+  let normalizedAuthor = authorSourceSplit.author;
+  let normalizedSource = cleanupSource(source);
+
+  if (
+    authorSourceSplit.source &&
+    (!normalizedSource ||
+      normalizedSource.toLowerCase() ===
+        (authorSourceSplit.author ?? "").toLowerCase())
+  ) {
+    normalizedSource = authorSourceSplit.source;
+  }
+
+  if (
+    normalizedAuthor &&
+    isNonPersonAttribution(normalizedAuthor, meta.sourcePageTitle)
+  ) {
+    normalizedSource ??= sourceFromNonPersonAttribution(normalizedAuthor);
+    normalizedAuthor = null;
+  }
+
+  if (!normalizedAuthor && !explicitNamedNonPersonAuthor) {
+    normalizedAuthor = deriveAuthorFromPageTitle(meta.sourcePageTitle);
+  }
 
   if (
     normalizedSource &&
-    (normalizedSource.length > 120 ||
+    (normalizedSource.length > 100 ||
       normalizedSource.toLowerCase().includes(normalizedText.toLowerCase().slice(0, 30)))
   ) {
     normalizedSource = null;

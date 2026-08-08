@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-08T15:27:27.049Z",
+  "generatedAt": "2026-08-08T18:08:16.075Z",
   "sourceDirectories": [
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/journals",
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages"
@@ -46,10 +46,10 @@
     "writing"
   ],
   "stats": {
-    "totalQuotes": 326,
-    "taggedQuotes": 144,
-    "suspiciousQuotes": 118,
-    "newQuotes": 7
+    "totalQuotes": 321,
+    "taggedQuotes": 143,
+    "suspiciousQuotes": 109,
+    "newQuotes": 72
   },
   "quotes": [
     {
@@ -220,7 +220,7 @@
     {
       "id": "pages:Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md:1",
       "text": "A saint is one until he or she knows it",
-      "author": "Or as the great Sufi would say",
+      "author": "Anthony DeMello",
       "source": null,
       "sourcePageTitle": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "sourceDisplay": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
@@ -231,7 +231,7 @@
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -501,7 +501,7 @@
     {
       "id": "journals:2024_01_10.md:0",
       "text": "Be regular and orderly in your life, so that you may be violent and original in your work",
-      "author": "Gustave Flaubert, one of Tiago's favorite quotes.",
+      "author": "Gustave Flaubert",
       "source": null,
       "sourcePageTitle": "2024_01_10",
       "sourceDisplay": "2024_01_10",
@@ -512,7 +512,7 @@
       "originType": "journals",
       "originFile": "2024_01_10.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
           "journal-date-fallback"
         ]
@@ -521,10 +521,10 @@
     {
       "id": "journals:2025_11_06.md:0",
       "text": "Be strict to yourself and forgive others, and then you will have no enemies",
-      "author": "Chinese Wisdom",
-      "source": null,
+      "author": null,
+      "source": "Chinese Wisdom",
       "sourcePageTitle": "2025_11_06",
-      "sourceDisplay": "2025_11_06",
+      "sourceDisplay": "Chinese Wisdom",
       "note": null,
       "sourceLocator": null,
       "blockId": "c0d5d783-2428-511d-b47e-5d1f3f2559ee",
@@ -532,34 +532,16 @@
       "originType": "journals",
       "originFile": "2025_11_06.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
-          "journal-date-fallback"
+          "missing-author"
         ]
-      }
-    },
-    {
-      "id": "pages:A Calendar of Wisdom%3A Daily Thoughts to Nourish the Soul %7C Leo Tolstoy and Peter Sekirin.md:3",
-      "text": "Be strict to yourself and forgive others, and then you will have no enemies",
-      "author": "CHINESE WISDOM In line with Kevin Kelly",
-      "source": null,
-      "sourcePageTitle": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
-      "sourceDisplay": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
-      "note": null,
-      "sourceLocator": null,
-      "blockId": "520b2e7a-a1b7-523b-a8dd-8f20f53def6f",
-      "tags": [],
-      "originType": "pages",
-      "originFile": "A Calendar of Wisdom%3A Daily Thoughts to Nourish the Soul %7C Leo Tolstoy and Peter Sekirin.md",
-      "review": {
-        "isNew": false,
-        "flags": []
       }
     },
     {
       "id": "journals:2024_07_14.md:1",
       "text": "Being happy with what you have doesn't prevent you from pursuing what you want",
-      "author": "My Quotes",
+      "author": null,
       "source": "The HP Way",
       "sourcePageTitle": "2024_07_14",
       "sourceDisplay": "The HP Way",
@@ -570,14 +552,16 @@
       "originType": "journals",
       "originFile": "2024_07_14.md",
       "review": {
-        "isNew": false,
-        "flags": []
+        "isNew": true,
+        "flags": [
+          "missing-author"
+        ]
       }
     },
     {
       "id": "pages:Atomic Habits%3A An Easy & Proven Way to Build Good Habits & Break Bad Ones %7C James Clear.md:3",
       "text": "Being poor is not having too little, it is wanting more",
-      "author": "This is the wisdom behind Seneca’s famous quote",
+      "author": "Seneca",
       "source": null,
       "sourcePageTitle": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones | James Clear",
       "sourceDisplay": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones | James Clear",
@@ -591,7 +575,7 @@
       "originType": "pages",
       "originFile": "Atomic Habits%3A An Easy & Proven Way to Build Good Habits & Break Bad Ones %7C James Clear.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -683,10 +667,10 @@
     {
       "id": "journals:2024_04_09.md:0",
       "text": "By making you believe that the past was more predictable than it really was, hindsight bias fools you into thinking that the future is more predictable than it can ever be.",
-      "author": "Jason Zweig, YM&YB",
-      "source": null,
+      "author": "Jason Zweig",
+      "source": "YM&YB",
       "sourcePageTitle": "2024_04_09",
-      "sourceDisplay": "2024_04_09",
+      "sourceDisplay": "YM&YB",
       "note": null,
       "sourceLocator": null,
       "blockId": "715d3d21-1f60-5cbe-bcaf-848657dc537f",
@@ -699,10 +683,8 @@
       "originType": "journals",
       "originFile": "2024_04_09.md",
       "review": {
-        "isNew": false,
-        "flags": [
-          "journal-date-fallback"
-        ]
+        "isNew": true,
+        "flags": []
       }
     },
     {
@@ -790,7 +772,7 @@
     {
       "id": "journals:2022_06_08.md:0",
       "text": "Comparison is the thief of joy is what Barry Odom told me one day when I was in college and that's kind of stuck with me.",
-      "author": "Drew Lock, Seahawks QB",
+      "author": "Drew Lock",
       "source": null,
       "sourcePageTitle": "2022_06_08",
       "sourceDisplay": "2022_06_08",
@@ -801,7 +783,7 @@
       "originType": "journals",
       "originFile": "2022_06_08.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
           "journal-date-fallback"
         ]
@@ -810,10 +792,10 @@
     {
       "id": "pages:The Daily Stoic %7C Ryan Holiday & Stephen Hanselman.md:0",
       "text": "Control your perceptions. Direct your actions properly. Willingly accept what’s outside your control.",
-      "author": "The Daily Stoic",
-      "source": null,
+      "author": null,
+      "source": "The Daily Stoic",
       "sourcePageTitle": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
-      "sourceDisplay": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
+      "sourceDisplay": "The Daily Stoic",
       "note": null,
       "sourceLocator": null,
       "blockId": "f7ba2fc5-ea0e-5cf3-a2cf-7deccd46cb7e",
@@ -823,8 +805,10 @@
       "originType": "pages",
       "originFile": "The Daily Stoic %7C Ryan Holiday & Stephen Hanselman.md",
       "review": {
-        "isNew": false,
-        "flags": []
+        "isNew": true,
+        "flags": [
+          "missing-author"
+        ]
       }
     },
     {
@@ -1053,7 +1037,7 @@
     {
       "id": "pages:Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md:2",
       "text": "Don’t seek the truth; just drop your opinions",
-      "author": "As the Japanese Zen masters say",
+      "author": "Anthony DeMello",
       "source": null,
       "sourcePageTitle": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "sourceDisplay": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
@@ -1064,7 +1048,7 @@
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -1135,7 +1119,7 @@
     {
       "id": "pages:Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md:0",
       "text": "Every great idea starts out as a blasphemy",
-      "author": "I think it was Bertrand Russell who",
+      "author": "Bertrand Russell",
       "source": null,
       "sourcePageTitle": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "sourceDisplay": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
@@ -1146,7 +1130,7 @@
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -1228,7 +1212,7 @@
       "originType": "journals",
       "originFile": "2023_10_18.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -1279,7 +1263,7 @@
     },
     {
       "id": "journals:2023_07_10.md:0",
-      "text": "Fear does not prevent death. It prevents life.\" via @momentumdash",
+      "text": "Fear does not prevent death. It prevents life. via @momentumdash",
       "author": "Naguib Mahfouz",
       "source": null,
       "sourcePageTitle": "2023_07_10",
@@ -1291,7 +1275,7 @@
       "originType": "journals",
       "originFile": "2023_07_10.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
           "journal-date-fallback"
         ]
@@ -1364,7 +1348,7 @@
     {
       "id": "pages:Finite and Infinte Games %7C James Carse — Progressive Summarization Test.md:2",
       "text": "For an infinite player there is no such thing as an hour of time. There can be an hour of love, or a day of grieving, or a season of learning, or a period of labor. Note:I like this",
-      "author": "James Carse — Progressive Summarization Test",
+      "author": "James Carse",
       "source": null,
       "sourcePageTitle": "Finite and Infinte Games | James Carse — Progressive Summarization Test",
       "sourceDisplay": "Finite and Infinte Games | James Carse — Progressive Summarization Test",
@@ -1377,7 +1361,7 @@
       "originType": "pages",
       "originFile": "Finite and Infinte Games %7C James Carse — Progressive Summarization Test.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -1449,7 +1433,7 @@
     {
       "id": "pages:Atomic Habits%3A An Easy & Proven Way to Build Good Habits & Break Bad Ones %7C James Clear.md:0",
       "text": "Genes can predispose, but they don’t predetermine",
-      "author": "As physician Gabor Mate notes",
+      "author": "Gabor Mate",
       "source": null,
       "sourcePageTitle": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones | James Clear",
       "sourceDisplay": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones | James Clear",
@@ -1460,7 +1444,7 @@
       "originType": "pages",
       "originFile": "Atomic Habits%3A An Easy & Proven Way to Build Good Habits & Break Bad Ones %7C James Clear.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -1512,8 +1496,8 @@
     },
     {
       "id": "journals:2024_05_07.md:0",
-      "text": "Government should be inventive rather than orderly.\" -FDR (not sure this is the exact quote)",
-      "author": "FDR (not sure this is the exact quote)",
+      "text": "Government should be inventive rather than orderly.",
+      "author": "FDR",
       "source": null,
       "sourcePageTitle": "2024_05_07",
       "sourceDisplay": "2024_05_07",
@@ -1553,7 +1537,7 @@
     {
       "id": "pages:Atomic Habits%3A An Easy & Proven Way to Build Good Habits & Break Bad Ones %7C James Clear.md:2",
       "text": "Happiness is the space between one desire being fulfilled and a new desire forming",
-      "author": "As Caed Budris says",
+      "author": "Caed Budris",
       "source": null,
       "sourcePageTitle": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones | James Clear",
       "sourceDisplay": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones | James Clear",
@@ -1566,7 +1550,7 @@
       "originType": "pages",
       "originFile": "Atomic Habits%3A An Easy & Proven Way to Build Good Habits & Break Bad Ones %7C James Clear.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -1604,7 +1588,7 @@
       "originType": "pages",
       "originFile": "Man's Search for Meaning %7C Viktor E. Frankl, Harold S. Kushner, and William J. Winslade.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -1754,7 +1738,7 @@
     {
       "id": "pages:Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md:15",
       "text": "Human beings cannot comprehend very large or very small numbers. It would be useful for us to acknowledge that fact",
-      "author": "Daniel Kahneman once",
+      "author": "Daniel Kahneman",
       "source": null,
       "sourcePageTitle": "Same as Ever: A Guide to What Never Changes | Morgan Housel",
       "sourceDisplay": "Same as Ever: A Guide to What Never Changes | Morgan Housel",
@@ -1765,7 +1749,7 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -1903,7 +1887,7 @@
     {
       "id": "pages:Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md:3",
       "text": "I got a pretty good education. It took me years to get over it",
-      "author": "As one man",
+      "author": "Anthony DeMello",
       "source": null,
       "sourcePageTitle": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "sourceDisplay": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
@@ -1914,7 +1898,7 @@
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -1963,7 +1947,7 @@
     },
     {
       "id": "journals:2024_01_16.md:0",
-      "text": "I like this from the Apple Music description of Steely Dan's aja, \"Fagen and Becker tried out multpile players of the same part, until they found a satisfactory combination - all before breaking it down and starting all over again in the nest song. (Deacdes later, guitarist Dean Parks diplomatically reflected that \"we would work then past the perfection point until it became natural.\") I feel like there's something in that last quote here",
+      "text": "I like this from the Apple Music description of Steely Dan's aja, Fagen and Becker tried out multpile players of the same part, until they found a satisfactory combination - all before breaking it down and starting all over again in the nest song. (Deacdes later, guitarist Dean Parks diplomatically reflected that we would work then past the perfection point until it became natural.) I feel like there's something in that last quote here",
       "author": null,
       "source": null,
       "sourcePageTitle": "2024_01_16",
@@ -1977,7 +1961,7 @@
       "originType": "journals",
       "originFile": "2024_01_16.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
           "missing-author",
           "journal-date-fallback"
@@ -2042,7 +2026,7 @@
     },
     {
       "id": "journals:2024_03_01.md:0",
-      "text": "I never get bored with the basics.\" —Kobe Bryant https://x.com/ZFellows_/status/1763159470283137222?s=20",
+      "text": "I never get bored with the basics. —Kobe Bryant https://x.com/ZFellows_/status/1763159470283137222?s=20",
       "author": "Kobe Bryant",
       "source": null,
       "sourcePageTitle": "2024_03_01",
@@ -2056,7 +2040,7 @@
       "originType": "journals",
       "originFile": "2024_03_01.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
           "journal-date-fallback"
         ]
@@ -2064,11 +2048,11 @@
     },
     {
       "id": "journals:2026_02_15.md:0",
-      "text": "I never looked back, although I had many uneasy periods looking forward.” —Raymond Chandler to his publisher. Pulled from Ryan Holiday & Stephen Hanselman",
-      "author": "Raymond Chandler to his publisher. Pulled",
-      "source": "Ryan Holiday & Stephen Hanselman - https://www.netflix.com/title/81001496 from tim ferriss We watched this",
+      "text": "I never looked back, although I had many uneasy periods looking forward.",
+      "author": "Raymond Chandler",
+      "source": null,
       "sourcePageTitle": "2026_02_15",
-      "sourceDisplay": "Ryan Holiday & Stephen Hanselman - https://www.netflix.com/title/81001496 from tim ferriss We watched this",
+      "sourceDisplay": "2026_02_15",
       "note": null,
       "sourceLocator": null,
       "blockId": "ae8af118-070f-5cec-a5de-1919dc07cd5e",
@@ -2078,8 +2062,7 @@
       "review": {
         "isNew": true,
         "flags": [
-          "source-too-long",
-          "quote-text-needs-cleanup"
+          "journal-date-fallback"
         ]
       }
     },
@@ -2120,7 +2103,7 @@
       "originType": "journals",
       "originFile": "2024_07_14.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
           "missing-author",
           "inline-attribution-left-in-quote"
@@ -2386,7 +2369,7 @@
     {
       "id": "journals:2023_02_25.md:0",
       "text": "If you want to know whether you are destined to be a success or failure in life, you can easily find out. The test is simple and invaluable. Are you able to save money? If not, drop out. You will lose. You may think not, but you will lose as sure as you live. The seed of success is not in you.",
-      "author": "James Jay Hill, Railroad Tycoon",
+      "author": "James Jay Hill",
       "source": "Founders Podcast",
       "sourcePageTitle": "2023_02_25",
       "sourceDisplay": "Founders Podcast",
@@ -2399,7 +2382,7 @@
       "originType": "journals",
       "originFile": "2023_02_25.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -2647,7 +2630,7 @@
     {
       "id": "journals:2024_11_27.md:0",
       "text": "Ironically, people eat their favorite foods quickly. Binge eaters also report that they keep on eating in an effort to recreate the pleasure of the first bite. Because the taste receptors tire out quickly, this will never work",
-      "author": "Jan Chozen Bays from the Waking Up app",
+      "author": "Jan Chozen Bays",
       "source": null,
       "sourcePageTitle": "2024_11_27",
       "sourceDisplay": "2024_11_27",
@@ -2661,10 +2644,9 @@
       "originType": "journals",
       "originFile": "2024_11_27.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
-          "journal-date-fallback",
-          "author-needs-cleanup"
+          "journal-date-fallback"
         ]
       }
     },
@@ -2728,8 +2710,8 @@
     },
     {
       "id": "journals:2022_06_01.md:0",
-      "text": "It is better to see once than hear a hundred times.” –Gorbachev",
-      "author": null,
+      "text": "It is better to see once than hear a hundred times.",
+      "author": "Gorbachev",
       "source": "ryan holiday",
       "sourcePageTitle": "2022_06_01",
       "sourceDisplay": "ryan holiday",
@@ -2744,10 +2726,8 @@
       "originType": "journals",
       "originFile": "2022_06_01.md",
       "review": {
-        "isNew": false,
-        "flags": [
-          "missing-author"
-        ]
+        "isNew": true,
+        "flags": []
       }
     },
     {
@@ -2950,9 +2930,9 @@
       "id": "journals:2024_07_15.md:0",
       "text": "It's easier to do something 100% of the time, than 98% of the time",
       "author": "Clayton Christensen",
-      "source": null,
+      "source": "37 Signals",
       "sourcePageTitle": "2024_07_15",
-      "sourceDisplay": "2024_07_15",
+      "sourceDisplay": "37 Signals",
       "note": null,
       "sourceLocator": null,
       "blockId": "64e0ae65-12ae-5898-bae6-905701531784",
@@ -2960,10 +2940,8 @@
       "originType": "journals",
       "originFile": "2024_07_15.md",
       "review": {
-        "isNew": false,
-        "flags": [
-          "journal-date-fallback"
-        ]
+        "isNew": true,
+        "flags": []
       }
     },
     {
@@ -2991,7 +2969,7 @@
     {
       "id": "journals:2026_03_12.md:0",
       "text": "It's not what you achieve, but how hard you work to achieve it",
-      "author": "Nathan Martin, LA Marathon winner",
+      "author": "Nathan Martin",
       "source": null,
       "sourcePageTitle": "2026_03_12",
       "sourceDisplay": "2026_03_12",
@@ -3004,7 +2982,7 @@
       "originType": "journals",
       "originFile": "2026_03_12.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
           "journal-date-fallback"
         ]
@@ -3053,7 +3031,7 @@
     {
       "id": "pages:Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md:8",
       "text": "It’s the only thing I am enjoying here",
-      "author": "Anthony DeMello",
+      "author": "George Bernard Shaw",
       "source": null,
       "sourcePageTitle": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "sourceDisplay": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
@@ -3064,14 +3042,14 @@
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
     {
       "id": "journals:2023_01_22.md:0",
       "text": "It’s very easy to be like, ‘I’m just the person with a bad memory. When you start to change that narrative, and you start to realize that our memories are really more amazing than most people think … it just is a snowball effect that makes your memory even more powerful.",
-      "author": "Nelson Dellis, memory champion",
+      "author": "Nelson Dellis",
       "source": "Tips to improve your memory from",
       "sourcePageTitle": "2023_01_22",
       "sourceDisplay": "Tips to improve your memory from",
@@ -3082,7 +3060,7 @@
       "originType": "journals",
       "originFile": "2023_01_22.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -3146,7 +3124,7 @@
     {
       "id": "journals:2023_02_25.md:4",
       "text": "Learning is not memorizing information. Learning is changing our behavior.",
-      "author": "David Senra Founders Podcast",
+      "author": "David Senra",
       "source": "founders podcast",
       "sourcePageTitle": "2023_02_25",
       "sourceDisplay": "founders podcast",
@@ -3160,7 +3138,7 @@
       "originType": "journals",
       "originFile": "2023_02_25.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -3185,10 +3163,10 @@
     {
       "id": "journals:2023_01_01.md:0",
       "text": "Let the news come when it does. Be too busy working to care.",
-      "author": "The Daily Stoic, 08.21.21",
-      "source": null,
+      "author": null,
+      "source": "The Daily Stoic",
       "sourcePageTitle": "2023_01_01",
-      "sourceDisplay": "2023_01_01",
+      "sourceDisplay": "The Daily Stoic",
       "note": null,
       "sourceLocator": null,
       "blockId": "cd0cc855-71f1-5ee4-be87-df52401bbc73",
@@ -3196,9 +3174,9 @@
       "originType": "journals",
       "originFile": "2023_01_01.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
-          "journal-date-fallback"
+          "missing-author"
         ]
       }
     },
@@ -3258,7 +3236,7 @@
     },
     {
       "id": "journals:2023_10_09.md:8",
-      "text": "Machines do not, of course, make us into machines when we operate them; we make ourselves into machinery in order to operate them...There is no style in operating a machine. The more efficient the machine, the more it either limits or absorbs our uniqueness into its operation.\" toy-based play, legos, etc",
+      "text": "Machines do not, of course, make us into machines when we operate them; we make ourselves into machinery in order to operate them...There is no style in operating a machine. The more efficient the machine, the more it either limits or absorbs our uniqueness into its operation. toy-based play, legos, etc",
       "author": "Finite and Infinte Games",
       "source": null,
       "sourcePageTitle": "2023_10_09",
@@ -3272,7 +3250,7 @@
       "originType": "journals",
       "originFile": "2023_10_09.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
           "journal-date-fallback"
         ]
@@ -3281,7 +3259,7 @@
     {
       "id": "pages:Succeed%3A How We Can Reach Our Goals %7C Heidi Grant Halvorson Ph.D. and Carol S. Dweck.md:0",
       "text": "Many of life’s failures are people who did not realize how close they were to success when they gave up",
-      "author": "(As Thomas Edison once noted",
+      "author": "Thomas Edison",
       "source": null,
       "sourcePageTitle": "Succeed: How We Can Reach Our Goals | Heidi Grant Halvorson Ph.D. and Carol S. Dweck",
       "sourceDisplay": "Succeed: How We Can Reach Our Goals | Heidi Grant Halvorson Ph.D. and Carol S. Dweck",
@@ -3292,7 +3270,7 @@
       "originType": "pages",
       "originFile": "Succeed%3A How We Can Reach Our Goals %7C Heidi Grant Halvorson Ph.D. and Carol S. Dweck.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -3355,7 +3333,7 @@
     {
       "id": "journals:2025_10_18.md:0",
       "text": "Montaigne, the great French philosopher, adopted these seventeen words as the motto of his life: ‘A man is not hurt so much by what happens, as by his opinion of what happens.’ And our opinion of what happens is entirely up to us",
-      "author": "AI is killing the web from tim ferriss",
+      "author": null,
       "source": "AI is killing the web",
       "sourcePageTitle": "2025_10_18",
       "sourceDisplay": "AI is killing the web",
@@ -3366,9 +3344,9 @@
       "originType": "journals",
       "originFile": "2025_10_18.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
-          "author-needs-cleanup"
+          "missing-author"
         ]
       }
     },
@@ -3393,7 +3371,7 @@
     {
       "id": "journals:2025_09_29.md:0",
       "text": "mostly white, middle to upper income and predominantly college educated ... they are distinguished by a vocal do-good mentality that sometimes cloaks a strong streak of elitism that is often coupled with a belief that the end justifies the means",
-      "author": "Dixy Lee Ray, Washington governor described environmentalists as",
+      "author": "Dixy Lee Ray",
       "source": null,
       "sourcePageTitle": "2025_09_29",
       "sourceDisplay": "2025_09_29",
@@ -3404,7 +3382,7 @@
       "originType": "journals",
       "originFile": "2025_09_29.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
           "journal-date-fallback"
         ]
@@ -3574,7 +3552,7 @@
     {
       "id": "pages:Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md:2",
       "text": "Not everything that can be counted counts, and not everything that counts can be counted",
-      "author": "As Einstein is thought to have",
+      "author": "Einstein",
       "source": null,
       "sourcePageTitle": "Clear Thinking: Turning Ordinary Moments into Extraordinary Results | Shane Parrish",
       "sourceDisplay": "Clear Thinking: Turning Ordinary Moments into Extraordinary Results | Shane Parrish",
@@ -3587,7 +3565,7 @@
       "originType": "pages",
       "originFile": "Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -3654,7 +3632,7 @@
     {
       "id": "pages:Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md:9",
       "text": "One cannot make a slave of a free person, for a free person is free even in prison",
-      "author": "from Plato",
+      "author": "Plato",
       "source": null,
       "sourcePageTitle": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "sourceDisplay": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
@@ -3665,10 +3643,8 @@
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
       "review": {
-        "isNew": false,
-        "flags": [
-          "author-needs-cleanup"
-        ]
+        "isNew": true,
+        "flags": []
       }
     },
     {
@@ -3799,7 +3775,7 @@
     {
       "id": "pages:The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md:1",
       "text": "People are not rational. They are rationalizing. Once you understand this simple fact, all the oddest human behavior will suddenly make way more sense",
-      "author": "The software engineer Billy Markus says",
+      "author": "Billy Markus",
       "source": null,
       "sourcePageTitle": "The Art of Spending Money: Simple Choices for a Richer Life | Morgan Housel",
       "sourceDisplay": "The Art of Spending Money: Simple Choices for a Richer Life | Morgan Housel",
@@ -3812,17 +3788,17 @@
       "originType": "pages",
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
     {
       "id": "journals:2025_03_26.md:0",
       "text": "People do not seem to talk for the sake of expressing their opinions, but to maintain an opinion for the sake of talking.",
-      "author": "Hazlitt from Farnsworth Rhetoric",
-      "source": null,
+      "author": "Hazlitt",
+      "source": "Farnsworth Rhetoric",
       "sourcePageTitle": "2025_03_26",
-      "sourceDisplay": "2025_03_26",
+      "sourceDisplay": "Farnsworth Rhetoric",
       "note": null,
       "sourceLocator": null,
       "blockId": "8b5b9a31-8b71-5879-954d-53130cca98a8",
@@ -3830,11 +3806,8 @@
       "originType": "journals",
       "originFile": "2025_03_26.md",
       "review": {
-        "isNew": false,
-        "flags": [
-          "journal-date-fallback",
-          "author-needs-cleanup"
-        ]
+        "isNew": true,
+        "flags": []
       }
     },
     {
@@ -3858,7 +3831,7 @@
     {
       "id": "pages:Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md:16",
       "text": "People follow incentives, not advice",
-      "author": "James Clear put it this way",
+      "author": "James Clear",
       "source": null,
       "sourcePageTitle": "Same as Ever: A Guide to What Never Changes | Morgan Housel",
       "sourceDisplay": "Same as Ever: A Guide to What Never Changes | Morgan Housel",
@@ -3869,14 +3842,14 @@
       "originType": "pages",
       "originFile": "Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
     {
       "id": "journals:2023_10_18.md:0",
       "text": "Perfection is not when there is no more to add, but no more to take away",
-      "author": "ANTOINE DE SAINT-EXUPÉRY, pioneer of international postal flight and author of Le Petit Prince (The Little Prince)",
+      "author": "ANTOINE DE SAINT-EXUPÉRY",
       "source": null,
       "sourcePageTitle": "2023_10_18",
       "sourceDisplay": "2023_10_18",
@@ -3887,28 +3860,10 @@
       "originType": "journals",
       "originFile": "2023_10_18.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
           "journal-date-fallback"
         ]
-      }
-    },
-    {
-      "id": "pages:The 4-Hour Workweek, Expanded and Updated %7C Timothy Ferriss.md:3",
-      "text": "Perfection is not when there is no more to add, but no more to take away.—ANTOINE DE SAINT-EXUPÉRY, pioneer of international postal flight and author of Le Petit Prince (The Little Prince)",
-      "author": "Timothy Ferriss",
-      "source": null,
-      "sourcePageTitle": "The 4-Hour Workweek, Expanded and Updated | Timothy Ferriss",
-      "sourceDisplay": "The 4-Hour Workweek, Expanded and Updated | Timothy Ferriss",
-      "note": null,
-      "sourceLocator": null,
-      "blockId": "4e6b5eb8-6f6b-5ec7-bab8-900f4fe5f651",
-      "tags": [],
-      "originType": "pages",
-      "originFile": "The 4-Hour Workweek, Expanded and Updated %7C Timothy Ferriss.md",
-      "review": {
-        "isNew": false,
-        "flags": []
       }
     },
     {
@@ -4035,7 +3990,7 @@
     {
       "id": "journals:2025_12_15.md:0",
       "text": "Reading maketh a full man… writing maketh an exact man",
-      "author": "What I accomplished",
+      "author": "Francis Bacon",
       "source": null,
       "sourcePageTitle": "2025_12_15",
       "sourceDisplay": "2025_12_15",
@@ -4048,7 +4003,7 @@
       "originType": "journals",
       "originFile": "2025_12_15.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
           "journal-date-fallback"
         ]
@@ -4057,7 +4012,7 @@
     {
       "id": "pages:Finite and Infinte Games %7C James Carse — Progressive Summarization Test.md:4",
       "text": "reading-note:697 To be prepared against surprise is to be trained. To be prepared for surprise is to be educated",
-      "author": "James Carse — Progressive Summarization Test",
+      "author": "James Carse",
       "source": null,
       "sourcePageTitle": "Finite and Infinte Games | James Carse — Progressive Summarization Test",
       "sourceDisplay": "Finite and Infinte Games | James Carse — Progressive Summarization Test",
@@ -4070,14 +4025,14 @@
       "originType": "pages",
       "originFile": "Finite and Infinte Games %7C James Carse — Progressive Summarization Test.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
     {
       "id": "pages:Finite and Infinte Games %7C James Carse — Progressive Summarization Test.md:5",
       "text": "reading-note:797 For an infinite player there is no such thing as an hour of time. There can be an hour of love, or a day of grieving, or a season of learning, or a period of labor. Note:I like this",
-      "author": "James Carse — Progressive Summarization Test",
+      "author": "James Carse",
       "source": null,
       "sourcePageTitle": "Finite and Infinte Games | James Carse — Progressive Summarization Test",
       "sourceDisplay": "Finite and Infinte Games | James Carse — Progressive Summarization Test",
@@ -4090,7 +4045,7 @@
       "originType": "pages",
       "originFile": "Finite and Infinte Games %7C James Carse — Progressive Summarization Test.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -4135,7 +4090,7 @@
     {
       "id": "journals:2023_11_13.md:0",
       "text": "Somebody who only reads newspapers and at best books of contemporary authors looks to me like an extremely near-sighted person who scorns eyeglasses. He is completely dependent on the prejudices and fashions of his times, since he never gets to see or hear anything else.",
-      "author": "Einstein, courtesy of",
+      "author": "Einstein",
       "source": null,
       "sourcePageTitle": "2023_11_13",
       "sourceDisplay": "2023_11_13",
@@ -4146,7 +4101,7 @@
       "originType": "journals",
       "originFile": "2023_11_13.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
           "journal-date-fallback"
         ]
@@ -4175,7 +4130,7 @@
     {
       "id": "journals:2026_02_15.md:1",
       "text": "Spirituality is not just about finding quiet in a noisy world. It is about finding the sacred in the mundane",
-      "author": "Tara Mohr from tim ferriss",
+      "author": null,
       "source": "Tara Mohr",
       "sourcePageTitle": "2026_02_15",
       "sourceDisplay": "Tara Mohr",
@@ -4186,9 +4141,9 @@
       "originType": "journals",
       "originFile": "2026_02_15.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
-          "author-needs-cleanup"
+          "missing-author"
         ]
       }
     },
@@ -4419,10 +4374,10 @@
     {
       "id": "pages:A Calendar of Wisdom%3A Daily Thoughts to Nourish the Soul %7C Leo Tolstoy and Peter Sekirin.md:4",
       "text": "The first rule of achieving goodness is this: think only about self-perfection, and do so without thought to being praised by others",
-      "author": "CHINESE WISDOM",
-      "source": null,
+      "author": null,
+      "source": "Chinese Wisdom",
       "sourcePageTitle": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
-      "sourceDisplay": "A Calendar of Wisdom: Daily Thoughts to Nourish the Soul | Leo Tolstoy and Peter Sekirin",
+      "sourceDisplay": "Chinese Wisdom",
       "note": null,
       "sourceLocator": null,
       "blockId": "702341f8-316f-56cc-b4e8-3136c8df659f",
@@ -4430,8 +4385,10 @@
       "originType": "pages",
       "originFile": "A Calendar of Wisdom%3A Daily Thoughts to Nourish the Soul %7C Leo Tolstoy and Peter Sekirin.md",
       "review": {
-        "isNew": false,
-        "flags": []
+        "isNew": true,
+        "flags": [
+          "missing-author"
+        ]
       }
     },
     {
@@ -4491,7 +4448,7 @@
     {
       "id": "pages:Richer, Wiser, Happier%3A How the World's Greatest Investors Win in Markets and Life.md:1",
       "text": "The greatest enemy of a good plan is the dream of a perfect plan",
-      "author": null,
+      "author": "Carl von Clausewitz",
       "source": null,
       "sourcePageTitle": "Richer, Wiser, Happier: How the World's Greatest Investors Win in Markets and Life",
       "sourceDisplay": "Richer, Wiser, Happier: How the World's Greatest Investors Win in Markets and Life",
@@ -4502,10 +4459,8 @@
       "originType": "pages",
       "originFile": "Richer, Wiser, Happier%3A How the World's Greatest Investors Win in Markets and Life.md",
       "review": {
-        "isNew": false,
-        "flags": [
-          "missing-author"
-        ]
+        "isNew": true,
+        "flags": []
       }
     },
     {
@@ -4530,11 +4485,11 @@
     },
     {
       "id": "journals:2024_05_15.md:0",
-      "text": "The greatest teacher is called \"doing.",
-      "author": "The greatest teacher is called",
-      "source": null,
+      "text": "The greatest teacher is called doing.",
+      "author": "Kevin Kelly",
+      "source": "Excellent Advice",
       "sourcePageTitle": "2024_05_15",
-      "sourceDisplay": "2024_05_15",
+      "sourceDisplay": "Excellent Advice",
       "note": null,
       "sourceLocator": null,
       "blockId": "375a3452-b76a-50a3-916c-9efec51daa96",
@@ -4544,16 +4499,14 @@
       "originType": "journals",
       "originFile": "2024_05_15.md",
       "review": {
-        "isNew": false,
-        "flags": [
-          "journal-date-fallback"
-        ]
+        "isNew": true,
+        "flags": []
       }
     },
     {
       "id": "journals:2023_02_13.md:0",
       "text": "The health of the people is the supreme law. (salus populi suprema lex.)",
-      "author": "John Locke quotes Cicero",
+      "author": "Cicero",
       "source": "Praxis and David Perell",
       "sourcePageTitle": "2023_02_13",
       "sourceDisplay": "Praxis and David Perell",
@@ -4564,7 +4517,7 @@
       "originType": "journals",
       "originFile": "2023_02_13.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -4609,7 +4562,7 @@
     {
       "id": "pages:The Psychology of Money%3A Timeless lessons on wealth, greed, and happiness %7C Morgan Housel.md:3",
       "text": "The man who can do the average thing when all those around him are going crazy",
-      "author": "Napoleon’s definition of a military genius was",
+      "author": "Napoleon",
       "source": null,
       "sourcePageTitle": "The Psychology of Money: Timeless lessons on wealth, greed, and happiness | Morgan Housel",
       "sourceDisplay": "The Psychology of Money: Timeless lessons on wealth, greed, and happiness | Morgan Housel",
@@ -4622,7 +4575,7 @@
       "originType": "pages",
       "originFile": "The Psychology of Money%3A Timeless lessons on wealth, greed, and happiness %7C Morgan Housel.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -4803,7 +4756,7 @@
     {
       "id": "journals:2025_07_01.md:0",
       "text": "The reasonable man adapts himself to the world; the unreasonable one persists in trying to adapt the world to himself. Therefore all progress depends on the unreasonable man",
-      "author": "George Bernard Shaw from Timothy Ferriss",
+      "author": "George Bernard Shaw",
       "source": null,
       "sourcePageTitle": "2025_07_01",
       "sourceDisplay": "2025_07_01",
@@ -4814,29 +4767,10 @@
       "originType": "journals",
       "originFile": "2025_07_01.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
-          "journal-date-fallback",
-          "author-needs-cleanup"
+          "journal-date-fallback"
         ]
-      }
-    },
-    {
-      "id": "pages:The 4-Hour Workweek, Expanded and Updated %7C Timothy Ferriss.md:2",
-      "text": "The reasonable man adapts himself to the world; the unreasonable one persists in trying to adapt the world to himself. Therefore all progress depends on the unreasonable man",
-      "author": "GEORGE BERNARD SHAW",
-      "source": null,
-      "sourcePageTitle": "The 4-Hour Workweek, Expanded and Updated | Timothy Ferriss",
-      "sourceDisplay": "The 4-Hour Workweek, Expanded and Updated | Timothy Ferriss",
-      "note": null,
-      "sourceLocator": null,
-      "blockId": "f3ae4a4f-a563-589b-8654-0bcd9416d6af",
-      "tags": [],
-      "originType": "pages",
-      "originFile": "The 4-Hour Workweek, Expanded and Updated %7C Timothy Ferriss.md",
-      "review": {
-        "isNew": false,
-        "flags": []
       }
     },
     {
@@ -4921,9 +4855,9 @@
       "id": "journals:2023_10_18.md:2",
       "text": "The simple willingness to improvise is more vital, in the long run, than research",
       "author": "ROLF POTTS",
-      "source": null,
+      "source": "Vagabonding",
       "sourcePageTitle": "2023_10_18",
-      "sourceDisplay": "2023_10_18",
+      "sourceDisplay": "Vagabonding",
       "note": null,
       "sourceLocator": null,
       "blockId": "b3cadde4-b866-5872-8fa8-f065f5f58603",
@@ -4931,27 +4865,7 @@
       "originType": "journals",
       "originFile": "2023_10_18.md",
       "review": {
-        "isNew": false,
-        "flags": [
-          "journal-date-fallback"
-        ]
-      }
-    },
-    {
-      "id": "pages:The 4-Hour Workweek, Expanded and Updated %7C Timothy Ferriss.md:4",
-      "text": "The simple willingness to improvise is more vital, in the long run, than research",
-      "author": "Timothy Ferriss",
-      "source": null,
-      "sourcePageTitle": "The 4-Hour Workweek, Expanded and Updated | Timothy Ferriss",
-      "sourceDisplay": "The 4-Hour Workweek, Expanded and Updated | Timothy Ferriss",
-      "note": null,
-      "sourceLocator": null,
-      "blockId": "4b639e9e-c984-53d2-9110-83142fc0dd5a",
-      "tags": [],
-      "originType": "pages",
-      "originFile": "The 4-Hour Workweek, Expanded and Updated %7C Timothy Ferriss.md",
-      "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -4977,9 +4891,9 @@
       "id": "pages:The Daily Stoic %7C Ryan Holiday & Stephen Hanselman.md:5",
       "text": "The task of a philosopher: we should bring our will into harmony with whatever happens, so that nothing happens against our will and nothing that we wish for fails to happen",
       "author": "EPICTETUS",
-      "source": null,
+      "source": "DISCOURSES",
       "sourcePageTitle": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
-      "sourceDisplay": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
+      "sourceDisplay": "DISCOURSES",
       "note": null,
       "sourceLocator": null,
       "blockId": "414eef86-a9ce-5bc5-9466-e9f657f4b5b8",
@@ -4989,7 +4903,7 @@
       "originType": "pages",
       "originFile": "The Daily Stoic %7C Ryan Holiday & Stephen Hanselman.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -5171,7 +5085,7 @@
     {
       "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:0",
       "text": "There is no magic number of days. Why? Because the formation time of a habit depends on three things: The person doing the habit The habit itself (the action) The context",
-      "author": "BJ Fogg — Progressive Summarization Test",
+      "author": "BJ Fogg",
       "source": null,
       "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
       "sourceDisplay": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
@@ -5182,7 +5096,7 @@
       "originType": "pages",
       "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -5247,7 +5161,7 @@
     {
       "id": "journals:2022_06_17.md:0",
       "text": "There's always a balance between discipline and spontaneity.",
-      "author": "Sir Ken Robinson",
+      "author": "Ken Robinson",
       "source": null,
       "sourcePageTitle": "2022_06_17",
       "sourceDisplay": "2022_06_17",
@@ -5258,7 +5172,7 @@
       "originType": "journals",
       "originFile": "2022_06_17.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
           "journal-date-fallback"
         ]
@@ -5266,8 +5180,8 @@
     },
     {
       "id": "pages:The 4-Hour Workweek, Expanded and Updated %7C Timothy Ferriss.md:1",
-      "text": "These individuals have riches just as we say that we “have a fever,” when really the fever has us. —SENECA (4 B.C.–A.D. 65)",
-      "author": "SENECA (4 B.C.–A.D. 65)",
+      "text": "These individuals have riches just as we say that we “have a fever,” when really the fever has us",
+      "author": "SENECA",
       "source": null,
       "sourcePageTitle": "The 4-Hour Workweek, Expanded and Updated | Timothy Ferriss",
       "sourceDisplay": "The 4-Hour Workweek, Expanded and Updated | Timothy Ferriss",
@@ -5278,7 +5192,7 @@
       "originType": "pages",
       "originFile": "The 4-Hour Workweek, Expanded and Updated %7C Timothy Ferriss.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -5357,7 +5271,7 @@
     {
       "id": "pages:Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md:6",
       "text": "Those who know, do not say; those who say, do not know",
-      "author": "It is said widely in the East",
+      "author": "Anthony DeMello",
       "source": null,
       "sourcePageTitle": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
       "sourceDisplay": "Awareness: the Perils and Opportunities of Reality | Anthony DeMello",
@@ -5368,10 +5282,8 @@
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
       "review": {
-        "isNew": false,
-        "flags": [
-          "author-needs-cleanup"
-        ]
+        "isNew": true,
+        "flags": []
       }
     },
     {
@@ -5435,7 +5347,7 @@
     {
       "id": "pages:Finite and Infinte Games %7C James Carse — Progressive Summarization Test.md:0",
       "text": "To be prepared against surprise is to be trained. To be prepared for surprise is to be educated",
-      "author": "James Carse — Progressive Summarization Test",
+      "author": "James Carse",
       "source": null,
       "sourcePageTitle": "Finite and Infinte Games | James Carse — Progressive Summarization Test",
       "sourceDisplay": "Finite and Infinte Games | James Carse — Progressive Summarization Test",
@@ -5448,27 +5360,7 @@
       "originType": "pages",
       "originFile": "Finite and Infinte Games %7C James Carse — Progressive Summarization Test.md",
       "review": {
-        "isNew": false,
-        "flags": []
-      }
-    },
-    {
-      "id": "pages:Finite and Infinte Games %7C James Carse.md:0",
-      "text": "To be prepared against surprise is to be trained. To be prepared for surprise is to be educated",
-      "author": "James Carse",
-      "source": null,
-      "sourcePageTitle": "Finite and Infinte Games | James Carse",
-      "sourceDisplay": "Finite and Infinte Games | James Carse",
-      "note": null,
-      "sourceLocator": null,
-      "blockId": "9fb6b88b-f051-5a0f-b7bc-4e96a86a5946",
-      "tags": [
-        "profound"
-      ],
-      "originType": "pages",
-      "originFile": "Finite and Infinte Games %7C James Carse.md",
-      "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -5516,10 +5408,10 @@
     {
       "id": "journals:2022_10_16.md:0",
       "text": "To learn which questions are unanswerable, and not to answer them: this skill is most needful in times of stress and darkness.",
-      "author": "Ursula K. Le Guin, The Left Hand of Darkness",
-      "source": null,
+      "author": "Ursula K. Le Guin",
+      "source": "The Left Hand of Darkness",
       "sourcePageTitle": "2022_10_16",
-      "sourceDisplay": "2022_10_16",
+      "sourceDisplay": "The Left Hand of Darkness",
       "note": null,
       "sourceLocator": null,
       "blockId": "5845c231-dd89-58b7-ac82-b678364d5013",
@@ -5529,10 +5421,8 @@
       "originType": "journals",
       "originFile": "2022_10_16.md",
       "review": {
-        "isNew": false,
-        "flags": [
-          "journal-date-fallback"
-        ]
+        "isNew": true,
+        "flags": []
       }
     },
     {
@@ -5560,7 +5450,7 @@
     {
       "id": "journals:2025_08_07.md:0",
       "text": "Today’s society is characterized by achievement orientation, and consequently it adores people who are successful and happy and, in particular, it adores the young. It virtually ignores the value of all those who are otherwise, and in so doing blurs the decisive difference between being valuable in the sense of dignity and being valuable in the sense of usefulness",
-      "author": "My Quotes",
+      "author": null,
       "source": null,
       "sourcePageTitle": "2025_08_07",
       "sourceDisplay": "2025_08_07",
@@ -5573,8 +5463,9 @@
       "originType": "journals",
       "originFile": "2025_08_07.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
+          "missing-author",
           "journal-date-fallback"
         ]
       }
@@ -5605,10 +5496,10 @@
     {
       "id": "journals:2026_01_14.md:0",
       "text": "Understanding is but the sum of our misunderstandings.",
-      "author": "Haruki Murakami, Sputnik Sweetheart",
-      "source": null,
+      "author": "Haruki Murakami",
+      "source": "Sputnik Sweetheart",
       "sourcePageTitle": "2026_01_14",
-      "sourceDisplay": "2026_01_14",
+      "sourceDisplay": "Sputnik Sweetheart",
       "note": null,
       "sourceLocator": null,
       "blockId": "3792d1d9-8f50-5f1b-96e7-a34825d4193a",
@@ -5618,10 +5509,8 @@
       "originType": "journals",
       "originFile": "2026_01_14.md",
       "review": {
-        "isNew": false,
-        "flags": [
-          "journal-date-fallback"
-        ]
+        "isNew": true,
+        "flags": []
       }
     },
     {
@@ -5687,7 +5576,7 @@
     },
     {
       "id": "pages:The Daily Stoic %7C Ryan Holiday & Stephen Hanselman.md:9",
-      "text": "We are like many pellets of incense falling on the same altar. Some collapse sooner, others later, but it makes no difference.” —MARCUS AURELIUS, MEDITATIONS, 4.15 What’s the difference between you and the richest person in the world? One has a little more money than the other. What’s the difference between you and the oldest person in the world? One has been around a little longer than the other. Same goes for the tallest, smartest, fastest, and on down the line",
+      "text": "We are like many pellets of incense falling on the same altar. Some collapse sooner, others later, but it makes no difference.",
       "author": "MARCUS AURELIUS",
       "source": null,
       "sourcePageTitle": "The Daily Stoic | Ryan Holiday & Stephen Hanselman",
@@ -5707,7 +5596,7 @@
     },
     {
       "id": "journals:2022_06_07.md:0",
-      "text": "We are waves on the ocean of experience.\" inspired by Stephen Bodian in Waking app",
+      "text": "We are waves on the ocean of experience. inspired by Stephen Bodian in Waking app",
       "author": null,
       "source": null,
       "sourcePageTitle": "2022_06_07",
@@ -5721,7 +5610,7 @@
       "originType": "journals",
       "originFile": "2022_06_07.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": [
           "missing-author",
           "journal-date-fallback"
@@ -5885,7 +5774,7 @@
     {
       "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:2",
       "text": "Weight loss happens mostly through changing how we eat. Although exercise is beneficial in many ways, it is not the key to weight loss",
-      "author": "BJ Fogg — Progressive Summarization Test",
+      "author": "BJ Fogg",
       "source": null,
       "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
       "sourceDisplay": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
@@ -5898,7 +5787,7 @@
       "originType": "pages",
       "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
@@ -6163,10 +6052,10 @@
     {
       "id": "journals:2026_01_14.md:1",
       "text": "Why do people have to be this lonely? What’s the point of it all? Millions of people in this world, all of them yearning, looking to others to satisfy them, yet isolating themselves. Why? Was the earth put here just to nourish human loneliness?",
-      "author": "Haruki Murakami, Sputnik Sweetheart",
-      "source": null,
+      "author": "Haruki Murakami",
+      "source": "Sputnik Sweetheart",
       "sourcePageTitle": "2026_01_14",
-      "sourceDisplay": "2026_01_14",
+      "sourceDisplay": "Sputnik Sweetheart",
       "note": null,
       "sourceLocator": null,
       "blockId": "f8b7043d-f7ac-5c42-a07d-dcffc004e1a5",
@@ -6174,10 +6063,8 @@
       "originType": "journals",
       "originFile": "2026_01_14.md",
       "review": {
-        "isNew": false,
-        "flags": [
-          "journal-date-fallback"
-        ]
+        "isNew": true,
+        "flags": []
       }
     },
     {
@@ -6391,7 +6278,7 @@
     },
     {
       "id": "journals:2023_02_15.md:0",
-      "text": "You have zero excuse to not be the most knowledgeable person in your field.\" He's talking about today. Sournce: Founders Podcast",
+      "text": "You have zero excuse to not be the most knowledgeable person in your field. He's talking about today. Sournce: Founders Podcast",
       "author": "Bill Gurley",
       "source": "founders podcast",
       "sourcePageTitle": "2023_02_15",
@@ -6403,7 +6290,7 @@
       "originType": "journals",
       "originFile": "2023_02_15.md",
       "review": {
-        "isNew": false,
+        "isNew": true,
         "flags": []
       }
     },
