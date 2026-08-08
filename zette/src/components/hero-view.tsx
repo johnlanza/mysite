@@ -111,6 +111,7 @@ export function HeroView({
   const searchOpen =
     searchOverride?.routeKey === searchRouteKey ? searchOverride.open : isBrowse;
   const showBrowseSearch = isBrowse && searchOpen;
+  const closeSearchForSelection = () => setSearchOverride(null);
   const drawParams = new URLSearchParams({
     ...(selectedTags.length > 0 ? { tags: selectedTags.join(",") } : {}),
     from: piece.id,
@@ -198,6 +199,8 @@ export function HeroView({
             tags={tags}
             selectedTags={selectedTags}
             mode="browse"
+            piecePath={dailyPath}
+            onSelectPiece={closeSearchForSelection}
           />
         </main>
       ) : (
@@ -209,6 +212,8 @@ export function HeroView({
                 pieces={pieces}
                 tags={tags}
                 selectedTags={selectedTags}
+                piecePath={dailyPath}
+                onSelectPiece={closeSearchForSelection}
               />
             </div>
           ) : null}
@@ -229,7 +234,7 @@ export function HeroView({
               }`}
             >
               <p className="mb-6 font-sans text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-accent/85">
-                {isSeed ? "Featured card" : "Card"}
+                Featured card
               </p>
               <p
                 className={`font-serif font-normal tracking-tight text-foreground ${textSizeClass(combinedLength(piece))}`}

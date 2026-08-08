@@ -12,6 +12,8 @@ type PieceSearchProps = {
   tags: string[];
   selectedTags: string[];
   mode?: "compact" | "browse";
+  piecePath?: string;
+  onSelectPiece?: () => void;
 };
 
 type TagSortMode = "alphabetical" | "frequency";
@@ -52,7 +54,7 @@ function pieceHaystack(piece: Piece): string {
     .toLowerCase();
 }
 
-function pieceHref(piece: Piece, selectedTags: string[]): string {
+function pieceHref(piece: Piece, selectedTags: string[], piecePath: string): string {
   const params = new URLSearchParams();
 
   if (selectedTags.length > 0) {
@@ -61,7 +63,7 @@ function pieceHref(piece: Piece, selectedTags: string[]): string {
 
   params.set("p", piece.id);
 
-  return `/?${params.toString()}`;
+  return `${piecePath}?${params.toString()}`;
 }
 
 function tagsHref(selectedTags: string[], tag: string | null): string {
@@ -85,6 +87,8 @@ export function PieceSearch({
   tags,
   selectedTags,
   mode = "compact",
+  piecePath = "/",
+  onSelectPiece,
 }: PieceSearchProps) {
   const [query, setQuery] = useState("");
   const isBrowse = mode === "browse";
@@ -299,7 +303,8 @@ export function PieceSearch({
                 <li key={piece.id}>
                   <PieceNoteBox
                     className={isBrowse ? "h-full sm:px-6 sm:py-5" : ""}
-                    href={pieceHref(piece, selectedTags)}
+                    href={pieceHref(piece, selectedTags, piecePath)}
+                    onClick={onSelectPiece}
                     piece={piece}
                   />
                 </li>

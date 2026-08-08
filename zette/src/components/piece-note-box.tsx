@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { MouseEventHandler } from "react";
 
 import type { Piece } from "@/lib/pieces";
 
@@ -6,6 +7,7 @@ type PieceNoteBoxProps = {
   piece: Piece;
   href: string;
   className?: string;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
 };
 
 function attributionParts(piece: Piece) {
@@ -27,6 +29,7 @@ export function PieceNoteBox({
   piece,
   href,
   className = "",
+  onClick,
 }: PieceNoteBoxProps) {
   const { attribution, context, fallback } = attributionParts(piece);
 
@@ -34,6 +37,7 @@ export function PieceNoteBox({
     <Link
       className={`block w-full rounded-[1.25rem] border border-line bg-card/78 px-5 py-4 shadow-[0_12px_30px_rgba(89,64,34,0.05)] transition active:scale-[0.99] hover:border-accent/60 hover:bg-accent-soft/35 ${className}`}
       href={href}
+      onClick={onClick}
     >
       <p className="font-serif text-[1.05rem] leading-snug text-foreground">
         {piece.text}
