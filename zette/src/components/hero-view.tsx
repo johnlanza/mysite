@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { PieceNoteBox } from "@/components/piece-note-box";
 import { PieceSearch } from "@/components/piece-search";
 import { getDailyCardDateKey } from "@/lib/daily-card";
+import { getLogseqUrl } from "@/lib/logseq";
 import type { Piece } from "@/lib/pieces";
 
 type HeroViewProps = {
@@ -100,6 +101,9 @@ export function HeroView({
     ) +
     "#echoes";
   const dailyHref = buildDailyHref(dailyPath, selectedTags);
+  const logseqUrl = piece.blockId
+    ? getLogseqUrl(piece.originType, piece.originFile, piece.blockId)
+    : null;
   const isBrowse = selectedTags.length > 0 && isSeed;
   const selectedTagsKey = selectedTags.join("\u001f");
   const searchRouteKey = `${isBrowse ? "browse" : "card"}:${selectedTagsKey}`;
@@ -262,11 +266,23 @@ export function HeroView({
                   </p>
                 ) : null}
 
-                {piece.sourceLocator ? (
-                  <div className="mt-4">
-                    <p className="font-sans text-[0.68rem] font-medium uppercase tracking-[0.22em] text-muted/55">
-                      {piece.sourceLocator}
-                    </p>
+                {logseqUrl || piece.sourceLocator ? (
+                  <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+                    {logseqUrl ? (
+                      <a
+                        href={logseqUrl}
+                        className="inline-flex items-center gap-1.5 font-sans text-[0.68rem] font-medium uppercase tracking-[0.24em] text-muted/70 transition hover:text-accent"
+                      >
+                        <span aria-hidden="true">↗</span>
+                        <span>Edit in Logseq</span>
+                      </a>
+                    ) : null}
+
+                    {piece.sourceLocator ? (
+                      <p className="font-sans text-[0.68rem] font-medium uppercase tracking-[0.22em] text-muted/55">
+                        {piece.sourceLocator}
+                      </p>
+                    ) : null}
                   </div>
                 ) : null}
               </div>

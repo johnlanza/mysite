@@ -1,6 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
+import {
+  applyLogseqBlockIdPlans,
+  planLogseqBlockId,
+} from "./logseq-block-ids.mjs";
+
 const SOURCE_DIRECTORIES = [
   {
     type: "journals",
@@ -46,6 +51,7 @@ function cleanupInlineMarkup(value) {
     .replace(/\[\[([^\]]+)\]\]/g, "$1")
     .replace(/(?:\*\*|__|`|~~)/g, "")
     .replace(/(?:==|\^\^)/g, "")
+    .replace(/^\s*(?:id|source-id)::\s*.+$/gim, " ")
     .replace(/\b[a-z-]+::/gi, " ")
     .replace(/\s+/g, " ")
     .trim();
@@ -183,6 +189,10 @@ function findPreferredLinkedSource(text) {
 
 function isStandalonePageRefLine(line) {
   return /^\s*\[\[[^\]]+\]\]\s*$/.test(line);
+}
+
+function isLogseqPropertyLine(line) {
+  return /^\s*(?:id|source-id)::\s*.+$/i.test(line);
 }
 
 function stripTagsAndMarkers(value) {
@@ -639,7 +649,16 @@ function buildId(originType, originFile, index) {
   return `${originType}:${originFile}:${index}`;
 }
 
-function createQuoteEntry({ quoteText, author, source, tags, note, meta, index }) {
+function createQuoteEntry({
+  quoteText,
+  author,
+  source,
+  tags,
+  note,
+  meta,
+  index,
+  blockId,
+}) {
   if (!quoteText) {
     return null;
   }
@@ -680,14 +699,14 @@ function createQuoteEntry({ quoteText, author, source, tags, note, meta, index }
     }),
     note: cleanupInlineMarkup(note ?? "").trim() || null,
     sourceLocator: null,
-    blockId: null,
+    blockId,
     tags,
     originType: meta.originType,
     originFile: meta.originFile,
   };
 }
 
-function extractQuoteBlockEntry(block, meta, index) {
+function extractQuoteBlockEntry(block, meta, index, blockId) {
   if (!MY_QUOTES_PATTERN.test(block)) {
     return null;
   }
@@ -790,34 +809,38 @@ function extractQuoteBlockEntry(block, meta, index) {
     note: combineNotes(notes),
     meta,
     index,
+    blockId,
   });
 }
 
-function findPreviousNonEmptyLine(lines, start) {
+function findPreviousNonEmptyLineEntry(lines, start) {
   for (let index = start; index >= 0; index -= 1) {
-    if (lines[index].trim()) {
-      return lines[index];
+    if (lines[index].trim() && !isLogseqPropertyLine(lines[index])) {
+      return { index, line: lines[index] };
     }
   }
 
   return null;
 }
 
-function findNextNonEmptyLine(lines, start) {
+function findNextNonEmptyLineEntry(lines, start) {
   for (let index = start; index < lines.length; index += 1) {
-    if (lines[index].trim()) {
-      return lines[index];
+    if (lines[index].trim() && !isLogseqPropertyLine(lines[index])) {
+      return { index, line: lines[index] };
     }
   }
 
   return null;
 }
 
-function extractLineEntry(lines, currentIndex, meta, index) {
+function extractLineEntry(lines, currentIndex, meta, index, blockIdPlans) {
   const current = lines[currentIndex];
-  const previous = findPreviousNonEmptyLine(lines, currentIndex - 1);
-  const next = findNextNonEmptyLine(lines, currentIndex + 1);
-  const nextTwo = findNextNonEmptyLine(lines, currentIndex + 2);
+  const previousEntry = findPreviousNonEmptyLineEntry(lines, currentIndex - 1);
+  const nextEntry = findNextNonEmptyLineEntry(lines, currentIndex + 1);
+  const nextTwoEntry = findNextNonEmptyLineEntry(lines, currentIndex + 2);
+  const previous = previousEntry?.line ?? null;
+  const next = nextEntry?.line ?? null;
+  const nextTwo = nextTwoEntry?.line ?? null;
   const context = [];
 
   if (previous && isQuoteishLine(previous)) {
@@ -876,6 +899,8 @@ function extractLineEntry(lines, currentIndex, meta, index) {
       : currentQuotedTextCandidate;
 
   if (!currentQuotedText && quotedPreviousText && currentLooksLikeAttributionLine) {
+    const targetLineIndex = previousEntry?.index ?? currentIndex;
+
     return createQuoteEntry({
       quoteText: quotedPreviousText,
       author: attributionDetailsFromCurrent.author ?? trailingAuthorFromCurrent,
@@ -888,10 +913,17 @@ function extractLineEntry(lines, currentIndex, meta, index) {
       note,
       meta,
       index,
+      blockId: planLogseqBlockId(
+        lines,
+        targetLineIndex,
+        ["quote", meta.originType, meta.originFile, quotedPreviousText],
+        blockIdPlans,
+      ),
     });
   }
 
   let quoteText = currentQuotedText ?? null;
+  let targetLineIndex = currentIndex;
 
   if (
     !quoteText &&
@@ -900,6 +932,7 @@ function extractLineEntry(lines, currentIndex, meta, index) {
     quotedPreviousText
   ) {
     quoteText = quotedPreviousText;
+    targetLineIndex = previousEntry?.index ?? currentIndex;
   }
 
   if (!quoteText && isQuoteishLine(current)) {
@@ -908,6 +941,7 @@ function extractLineEntry(lines, currentIndex, meta, index) {
 
   if (!quoteText && previous && isQuoteishLine(previous)) {
     quoteText = extractQuotedText(previous) ?? previousText;
+    targetLineIndex = previousEntry?.index ?? currentIndex;
   }
 
   const author =
@@ -939,6 +973,12 @@ function extractLineEntry(lines, currentIndex, meta, index) {
     note,
     meta,
     index,
+    blockId: planLogseqBlockId(
+      lines,
+      targetLineIndex,
+      ["quote", meta.originType, meta.originFile, quoteText ?? current],
+      blockIdPlans,
+    ),
   });
 }
 
@@ -1016,11 +1056,36 @@ function getSuspiciousFlags(quote) {
   return flags;
 }
 
+function lineIndexForOffset(content, offset) {
+  if (offset <= 0) {
+    return 0;
+  }
+
+  return content.slice(0, offset).split("\n").length - 1;
+}
+
+function markLineRange(lineIndexes, startLineIndex, text) {
+  const lineCount = text.split("\n").length;
+
+  for (
+    let lineIndex = startLineIndex;
+    lineIndex < startLineIndex + lineCount;
+    lineIndex += 1
+  ) {
+    lineIndexes.add(lineIndex);
+  }
+}
+
 async function main() {
   const allQuotes = [];
   const previousDataset = await readPreviousDataset();
   const previousSignatures = new Set(
     (previousDataset?.quotes ?? []).map((quote) => buildQuoteSignature(quote)),
+  );
+  const previousNewSignatures = new Set(
+    (previousDataset?.quotes ?? [])
+      .filter((quote) => quote.review?.isNew)
+      .map((quote) => buildQuoteSignature(quote)),
   );
 
   for (const source of SOURCE_DIRECTORIES) {
@@ -1029,6 +1094,9 @@ async function main() {
     for (const filePath of files) {
       const content = await fs.readFile(filePath, "utf8");
       const originFile = path.basename(filePath);
+      const lines = content.split("\n");
+      const blockIdPlans = new Map();
+      const quoteBlockLineIndexes = new Set();
       const meta = {
         originType: source.type,
         originFile,
@@ -1038,26 +1106,39 @@ async function main() {
       let nextIndex = 0;
 
       for (const match of content.matchAll(QUOTE_BLOCK_PATTERN)) {
-        const entry = extractQuoteBlockEntry(match[0], meta, nextIndex++);
+        const blockStartLineIndex = lineIndexForOffset(content, match.index ?? 0);
+        const blockId = planLogseqBlockId(
+          lines,
+          blockStartLineIndex,
+          ["quote-block", source.type, originFile, match[0]],
+          blockIdPlans,
+        );
+        const entry = extractQuoteBlockEntry(match[0], meta, nextIndex++, blockId);
+        markLineRange(quoteBlockLineIndexes, blockStartLineIndex, match[0]);
 
         if (entry) {
           allQuotes.push(entry);
         }
       }
 
-      const contentWithoutBlocks = content.replace(QUOTE_BLOCK_PATTERN, "");
-      const lines = contentWithoutBlocks.split("\n");
-
       for (let index = 0; index < lines.length; index += 1) {
+        if (quoteBlockLineIndexes.has(index)) {
+          continue;
+        }
+
         if (!MY_QUOTES_PATTERN.test(lines[index])) {
           continue;
         }
 
-        const entry = extractLineEntry(lines, index, meta, nextIndex++);
+        const entry = extractLineEntry(lines, index, meta, nextIndex++, blockIdPlans);
 
         if (entry) {
           allQuotes.push(entry);
         }
+      }
+
+      if (applyLogseqBlockIdPlans(lines, blockIdPlans)) {
+        await fs.writeFile(filePath, lines.join("\n"));
       }
     }
   }
@@ -1070,7 +1151,9 @@ async function main() {
       return {
         ...quote,
         review: {
-          isNew: !previousSignatures.has(signature),
+          isNew:
+            previousNewSignatures.has(signature) ||
+            !previousSignatures.has(signature),
           flags,
         },
       };

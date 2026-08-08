@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-08T14:49:29.249Z",
+  "generatedAt": "2026-08-08T15:29:26.708Z",
   "sourceDirectories": [
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/journals",
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages"
@@ -18,12 +18,12 @@
   },
   "questions": [
     {
-      "id": "pages:My Questions.md:50",
+      "id": "pages:My Questions.md:76",
       "text": "Before I schedule something, would I do that thing now if I had the opportunity?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "1d985d3a-991b-58e5-822f-b784738798d4",
       "tags": [],
       "originType": "pages",
       "originFile": "My Questions.md",
@@ -38,7 +38,7 @@
       "sourceDisplay": "2021_12_26",
       "sourcePageTitle": "2021_12_26",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "32df1b3d-2ddf-50ab-81e7-04574b5847dd",
       "tags": [],
       "originType": "journals",
       "originFile": "2021_12_26.md",
@@ -48,12 +48,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:60",
+      "id": "pages:My Questions.md:96",
       "text": "Do I want to be the sort of person who does X?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "c4d82614-010b-5f5d-97de-a5a33719ea32",
       "tags": [],
       "originType": "pages",
       "originFile": "My Questions.md",
@@ -63,12 +63,12 @@
       }
     },
     {
-      "id": "journals:2021_12_26.md:13",
+      "id": "journals:2021_12_26.md:14",
       "text": "Do we need property? And if so, what property has real value?",
       "sourceDisplay": "2021_12_26",
       "sourcePageTitle": "2021_12_26",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "d013c9d6-00de-543e-b033-86dd5a0b6303",
       "tags": [],
       "originType": "journals",
       "originFile": "2021_12_26.md",
@@ -78,12 +78,12 @@
       }
     },
     {
-      "id": "pages:Zero to One%3A Notes on Startups, or How to Build the Future %7C Peter Thiel.md:221",
+      "id": "pages:Zero to One%3A Notes on Startups, or How to Build the Future %7C Peter Thiel.md:231",
       "text": "Every entrepreneur should plan to be the last mover in her particular market. That starts with asking yourself: what will the world look like 10 and 20 years from now, and how will my business fit in?",
       "sourceDisplay": "Zero to One: Notes on Startups, or How to Build the Future",
       "sourcePageTitle": "Zero to One: Notes on Startups, or How to Build the Future | Peter Thiel",
       "sourceLocator": "Location 1,969",
-      "blockId": null,
+      "blockId": "b9495172-a80c-50b6-b81a-f3a49f1a3c93",
       "tags": [
         "business"
       ],
@@ -95,12 +95,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:59",
+      "id": "pages:My Questions.md:94",
       "text": "How certain am I about this decision and how certain do I need to be?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "b2a31d8c-0ab2-56e1-aac6-5ec571b09f94",
       "tags": [],
       "originType": "pages",
       "originFile": "My Questions.md",
@@ -115,7 +115,7 @@
       "sourceDisplay": "2025_04_16",
       "sourcePageTitle": "2025_04_16",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "6b7502f3-e6c9-5613-9c4c-e18798916357",
       "tags": [],
       "originType": "journals",
       "originFile": "2025_04_16.md",
@@ -130,7 +130,7 @@
       "sourceDisplay": "2026_06_20",
       "sourcePageTitle": "2026_06_20",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "d6ccd456-27b6-5589-8c54-a2049f467966",
       "tags": [],
       "originType": "journals",
       "originFile": "2026_06_20.md",
@@ -145,7 +145,7 @@
       "sourceDisplay": "2025_06_11",
       "sourcePageTitle": "2025_06_11",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "19dcdf5e-aac4-5ae8-8a0e-cb37a1cc071f",
       "tags": [],
       "originType": "journals",
       "originFile": "2025_06_11.md",
@@ -155,12 +155,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:53",
+      "id": "pages:My Questions.md:82",
       "text": "How reversible is the decision?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "40e2d21d-0f95-54fd-a296-db89ebbfc0ea",
       "tags": [],
       "originType": "pages",
       "originFile": "My Questions.md",
@@ -170,12 +170,12 @@
       }
     },
     {
-      "id": "pages:Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md:60",
+      "id": "pages:Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md:63",
       "text": "I wonder if the natural language movement is flawed.",
       "sourceDisplay": "Gut Feelings: The Intelligence of the Unconscious",
       "sourcePageTitle": "Gut Feelings: The Intelligence of the Unconscious | Gerd Gigerenzer",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "488eaed7-a211-509c-b20c-a87a8ea35bfe",
       "tags": [],
       "originType": "pages",
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
@@ -185,12 +185,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:58",
+      "id": "pages:My Questions.md:92",
       "text": "If you were to die today, what would you have regretted not having done?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "51c65f5b-2e8c-52be-9c6f-b6238374950c",
       "tags": [
         "powerful"
       ],
@@ -202,12 +202,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:54",
+      "id": "pages:My Questions.md:84",
       "text": "In one year's time, what would I regret not having started today?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "703c9e14-cb7c-500e-9caa-7d9942c26127",
       "tags": [],
       "originType": "pages",
       "originFile": "My Questions.md",
@@ -222,7 +222,7 @@
       "sourceDisplay": "2024_02_22",
       "sourcePageTitle": "2024_02_22",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "6733623e-c149-4a6d-b5fd-8bec8f75c20e",
       "tags": [
         "profound"
       ],
@@ -234,12 +234,12 @@
       }
     },
     {
-      "id": "journals:2021_12_26.md:30",
+      "id": "journals:2021_12_26.md:32",
       "text": "Is cyberspace a great equalizer?",
       "sourceDisplay": "2021_12_26",
       "sourcePageTitle": "2021_12_26",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "1c158f87-d1fb-581a-8b9a-2c9d0afcb47f",
       "tags": [],
       "originType": "journals",
       "originFile": "2021_12_26.md",
@@ -254,7 +254,7 @@
       "sourceDisplay": "2025_05_04",
       "sourcePageTitle": "2025_05_04",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "2ab61c8d-635c-5933-b874-8bf6cf2f7b6a",
       "tags": [],
       "originType": "journals",
       "originFile": "2025_05_04.md",
@@ -264,12 +264,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:35",
+      "id": "pages:My Questions.md:53",
       "text": "Is there anything I can help you with this week/month/year?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "50696ebf-cd1e-5dc5-920e-92e82fed7ba0",
       "tags": [
         "powerful"
       ],
@@ -286,7 +286,7 @@
       "sourceDisplay": "2024_01_16",
       "sourcePageTitle": "2024_01_16",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "c529bc27-9f1a-5783-97c3-97d3a514e025",
       "tags": [],
       "originType": "journals",
       "originFile": "2024_01_16.md",
@@ -296,12 +296,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:48",
+      "id": "pages:My Questions.md:73",
       "text": "Is what I’m about to do today what I would do if it were the last day of my life?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "2d717d7b-2925-5f70-8295-ee2657025eb9",
       "tags": [],
       "originType": "pages",
       "originFile": "My Questions.md",
@@ -316,7 +316,7 @@
       "sourceDisplay": "2024_12_24",
       "sourcePageTitle": "2024_12_24",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "676a9685-812e-48f9-aa25-35377b656480",
       "tags": [],
       "originType": "journals",
       "originFile": "2024_12_24.md",
@@ -326,12 +326,12 @@
       }
     },
     {
-      "id": "pages:Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md:327",
+      "id": "pages:Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md:351",
       "text": "So what do you do if your mother is sick and you want to know what your doctor really thinks?",
       "sourceDisplay": "Gut Feelings: The Intelligence of the Unconscious",
       "sourcePageTitle": "Gut Feelings: The Intelligence of the Unconscious | Gerd Gigerenzer",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "0863b3c0-8de6-5c2c-8a25-75a9dfda4d48",
       "tags": [
         "life"
       ],
@@ -348,7 +348,7 @@
       "sourceDisplay": "2026_07_02",
       "sourcePageTitle": "2026_07_02",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "741f3c79-6249-59e8-ae5c-01821397a3fa",
       "tags": [
         "profound"
       ],
@@ -360,12 +360,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:65",
+      "id": "pages:My Questions.md:103",
       "text": "The general concensus is that technology has made lives better for so many people that we must accept that progress is good. But have we replaced physical suffering with mental suffering?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "42852fb9-1fb9-56af-b6bb-41f952b17cfd",
       "tags": [
         "ponder"
       ],
@@ -377,12 +377,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:27",
+      "id": "pages:My Questions.md:38",
       "text": "What are 2-3 things to always do, and 2-3 things to never do?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "b4ac24fe-c15f-53b7-b932-38a78a6e7036",
       "tags": [
         "powerful"
       ],
@@ -399,7 +399,7 @@
       "sourceDisplay": "2025_12_20",
       "sourcePageTitle": "2025_12_20",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "daed2f97-402e-5341-bdef-7c9d301ed1c4",
       "tags": [],
       "originType": "journals",
       "originFile": "2025_12_20.md",
@@ -409,12 +409,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:34",
+      "id": "pages:My Questions.md:51",
       "text": "What are you looking forward to today (or tomorrow)? Or this year?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "5f1e3000-cb99-5565-8d8b-514a78aa8a79",
       "tags": [
         "powerful"
       ],
@@ -426,12 +426,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:67",
+      "id": "pages:My Questions.md:106",
       "text": "What are you trying to figure out right now?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "d0b6fa7f-68a6-55de-bf08-702406883af4",
       "tags": [
         "powerful"
       ],
@@ -443,12 +443,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:30",
+      "id": "pages:My Questions.md:43",
       "text": "What book, movie, story or podcast changed or most influenced your life?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "5f2a8429-25f7-5e61-9a50-1bb11bd1aa18",
       "tags": [
         "powerful"
       ],
@@ -460,12 +460,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:57",
+      "id": "pages:My Questions.md:90",
       "text": "What core value am I optimising for?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "e9c26e26-4c4e-5904-b237-952453258ece",
       "tags": [
         "powerful"
       ],
@@ -477,12 +477,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:33",
+      "id": "pages:My Questions.md:49",
       "text": "What do I have to do today that my current self would beg to have if he was sick or injured?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "4a0ad6cc-3219-56eb-a654-68670eec0534",
       "tags": [],
       "originType": "pages",
       "originFile": "My Questions.md",
@@ -492,12 +492,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:26",
+      "id": "pages:My Questions.md:36",
       "text": "What do I have today that I would beg to have back in 50 years?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "e8c61bbc-b0e2-5598-868b-1eed35100abe",
       "tags": [
         "powerful"
       ],
@@ -509,12 +509,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:28",
+      "id": "pages:My Questions.md:40",
       "text": "What do I have today that I would have begged to have had ten years ago?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "25e6706e-d850-5077-bb13-0a791c1d16bb",
       "tags": [],
       "originType": "pages",
       "originFile": "My Questions.md",
@@ -529,7 +529,7 @@
       "sourceDisplay": "2023_09_11",
       "sourcePageTitle": "2023_09_11",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "7bf68f87-4fea-5f6e-ac43-74a6cf9a1c6a",
       "tags": [],
       "originType": "journals",
       "originFile": "2023_09_11.md",
@@ -539,12 +539,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:22",
+      "id": "pages:My Questions.md:28",
       "text": "What do you do for fun?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "82703148-fc83-5674-b3cf-3d038152604e",
       "tags": [],
       "originType": "pages",
       "originFile": "My Questions.md",
@@ -559,7 +559,7 @@
       "sourceDisplay": "2025_09_13",
       "sourcePageTitle": "2025_09_13",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "7f43668c-d002-568b-94c9-41a525c0ac75",
       "tags": [],
       "originType": "journals",
       "originFile": "2025_09_13.md",
@@ -569,12 +569,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:39",
+      "id": "pages:My Questions.md:60",
       "text": "What do you think of where you are in your life right now?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "3433d04c-7a31-513c-aeff-db9997ab0718",
       "tags": [
         "powerful"
       ],
@@ -586,12 +586,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:31",
+      "id": "pages:My Questions.md:45",
       "text": "What do you think WON'T change in the next 10 years?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "ac8ae7f1-d539-5623-9aa8-3faccf66d345",
       "tags": [
         "powerful"
       ],
@@ -608,7 +608,7 @@
       "sourceDisplay": "Tiny Habits",
       "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "05b93525-e267-5379-9abf-d1d0273d7919",
       "tags": [],
       "originType": "pages",
       "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
@@ -623,7 +623,7 @@
       "sourceDisplay": "Tiny Habits",
       "sourcePageTitle": "Tiny Habits | BJ Fogg",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "a63cc85e-d006-5441-9fc3-ce99e682ecfc",
       "tags": [],
       "originType": "pages",
       "originFile": "Tiny Habits %7C BJ Fogg.md",
@@ -633,12 +633,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:13",
+      "id": "pages:My Questions.md:17",
       "text": "What four historical figures would you most like to have dinner with?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "44235a1e-0e94-5481-8527-f642032dabd4",
       "tags": [
         "powerful"
       ],
@@ -650,12 +650,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:43",
+      "id": "pages:My Questions.md:65",
       "text": "What haven't I done yet? Why?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "49f0a28b-b3b7-5dc0-882d-4d6bfad0458d",
       "tags": [],
       "originType": "pages",
       "originFile": "My Questions.md",
@@ -665,12 +665,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:4",
+      "id": "pages:My Questions.md:6",
       "text": "What haven't you done yet, other than travel to a particular place, that you really want to do?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "51a73125-293b-5941-b7b7-9f9173653a5a",
       "tags": [
         "powerful"
       ],
@@ -682,12 +682,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:6",
+      "id": "pages:My Questions.md:9",
       "text": "What important truth do you know that very few people agree with you on?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "7e9bf65f-ffbb-52b8-b90d-f6b87b5a2908",
       "tags": [
         "powerful"
       ],
@@ -704,7 +704,7 @@
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "fc701b82-577f-5605-871c-264a443c0327",
       "tags": [
         "powerful"
       ],
@@ -716,12 +716,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:45",
+      "id": "pages:My Questions.md:69",
       "text": "What is making me frustrated or discontent?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "c1916f6e-8ebf-5717-914b-fa25deca0e76",
       "tags": [],
       "originType": "pages",
       "originFile": "My Questions.md",
@@ -731,12 +731,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:56",
+      "id": "pages:My Questions.md:88",
       "text": "What is the risk of doing nothing?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "2228e9d5-3658-5873-ac3a-a6d2c35bc0e9",
       "tags": [],
       "originType": "pages",
       "originFile": "My Questions.md",
@@ -746,12 +746,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:32",
+      "id": "pages:My Questions.md:47",
       "text": "What is your passion?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "b5d998be-b4e7-5a4b-a9da-7516438cb046",
       "tags": [
         "powerful"
       ],
@@ -763,12 +763,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:36",
+      "id": "pages:My Questions.md:55",
       "text": "What made you smile this week?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "5ea1bf1e-b512-5aa3-b4c1-dfee5a8f1bd6",
       "tags": [
         "powerful"
       ],
@@ -780,12 +780,12 @@
       }
     },
     {
-      "id": "pages:The 4-Hour Workweek, Expanded and Updated %7C Timothy Ferriss.md:302",
+      "id": "pages:The 4-Hour Workweek, Expanded and Updated %7C Timothy Ferriss.md:308",
       "text": "What makes you most angry about the state of the world? What are you most afraid of for the next generation, whether you have children or not? What makes you happiest in your life? How can you help others have the same?",
       "sourceDisplay": "The 4-Hour Workweek, Expanded and Updated",
       "sourcePageTitle": "The 4-Hour Workweek, Expanded and Updated | Timothy Ferriss",
       "sourceLocator": "Location 4,996",
-      "blockId": null,
+      "blockId": "3b7cea13-1cc7-50d7-b4f3-ffd2e3a7230d",
       "tags": [],
       "originType": "pages",
       "originFile": "The 4-Hour Workweek, Expanded and Updated %7C Timothy Ferriss.md",
@@ -800,7 +800,7 @@
       "sourceDisplay": "2026_01_02",
       "sourcePageTitle": "2026_01_02",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "1b6878fb-7f5c-5e29-a9b8-071675f6c7ba",
       "tags": [],
       "originType": "journals",
       "originFile": "2026_01_02.md",
@@ -810,12 +810,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:2",
+      "id": "pages:My Questions.md:3",
       "text": "What pain do you want in your life? What are you willing to struggle for?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "b961ba10-09a0-5a49-ad82-62bc329b18af",
       "tags": [
         "powerful"
       ],
@@ -827,12 +827,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:55",
+      "id": "pages:My Questions.md:86",
       "text": "What would My Advisors say?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "2caa5869-105a-5937-ab0b-108e1c36206f",
       "tags": [],
       "originType": "pages",
       "originFile": "My Questions.md",
@@ -842,12 +842,12 @@
       }
     },
     {
-      "id": "journals:2024_01_16.md:1",
+      "id": "journals:2024_01_16.md:2",
       "text": "What would this look like if it were easy?",
       "sourceDisplay": "2024_01_16",
       "sourcePageTitle": "2024_01_16",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "56ad9803-7953-527b-99c6-e33565712135",
       "tags": [],
       "originType": "journals",
       "originFile": "2024_01_16.md",
@@ -857,12 +857,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:51",
+      "id": "pages:My Questions.md:78",
       "text": "What would this look like if it were easy?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "f432f222-ffa8-55b5-9056-0ce0424dd252",
       "tags": [
         "powerful"
       ],
@@ -879,7 +879,7 @@
       "sourceDisplay": "2025_09_12",
       "sourcePageTitle": "2025_09_12",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "6608420f-845a-555c-869e-ee2d71eb043e",
       "tags": [],
       "originType": "journals",
       "originFile": "2025_09_12.md",
@@ -889,12 +889,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:52",
+      "id": "pages:My Questions.md:80",
       "text": "What's an easy experiment I could run to test this out?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "3c423bf3-e9c8-52a7-962e-9f033919b72c",
       "tags": [],
       "originType": "pages",
       "originFile": "My Questions.md",
@@ -904,12 +904,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:21",
+      "id": "pages:My Questions.md:26",
       "text": "What’s one thing about your company/family/city/country that most people don’t know about?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "67680622-1b27-5e96-ba71-b67c788fffdd",
       "tags": [
         "powerful"
       ],
@@ -921,12 +921,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:44",
+      "id": "pages:My Questions.md:67",
       "text": "What's stopping me from doing this?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "ce0e8bfa-3a29-5985-9a10-6163a05f90eb",
       "tags": [],
       "originType": "pages",
       "originFile": "My Questions.md",
@@ -936,12 +936,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:38",
+      "id": "pages:My Questions.md:58",
       "text": "What’s your biggest regret?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "ef94243a-faca-5883-867b-1fb9e9924da2",
       "tags": [],
       "originType": "pages",
       "originFile": "My Questions.md",
@@ -951,12 +951,12 @@
       }
     },
     {
-      "id": "journals:2025_06_11.md:3",
+      "id": "journals:2025_06_11.md:4",
       "text": "What’s your favorite joke?",
       "sourceDisplay": "2025_06_11",
       "sourcePageTitle": "2025_06_11",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "6ce1a75b-b58f-532a-8d19-c31e7dca7be1",
       "tags": [],
       "originType": "journals",
       "originFile": "2025_06_11.md",
@@ -971,7 +971,7 @@
       "sourceDisplay": "2023_09_12",
       "sourcePageTitle": "2023_09_12",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "1fbdc6b2-fdeb-52e9-ab44-98ddc2b3a1b4",
       "tags": [],
       "originType": "journals",
       "originFile": "2023_09_12.md",
@@ -981,12 +981,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:25",
+      "id": "pages:My Questions.md:34",
       "text": "Who do you know that I should know, and would you introduce me?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "13a9281a-a74b-5f2b-9b76-7a66f258f491",
       "tags": [
         "powerful"
       ],
@@ -998,12 +998,12 @@
       }
     },
     {
-      "id": "pages:Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md:316",
+      "id": "pages:Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md:335",
       "text": "Whom should I hire for this project? I’m hiring a software developer, and I’d like to learn from your experiences. What skills matter and which ones can be learned on the job? Why? Where do I find the best people? How do I test these skills?",
       "sourceDisplay": "Clear Thinking: Turning Ordinary Moments into Extraordinary Results",
       "sourcePageTitle": "Clear Thinking: Turning Ordinary Moments into Extraordinary Results | Shane Parrish",
       "sourceLocator": "Location 2,355",
-      "blockId": null,
+      "blockId": "8c8a837f-9e81-54d8-b8e6-0f4a665a834f",
       "tags": [],
       "originType": "pages",
       "originFile": "Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md",
@@ -1013,12 +1013,12 @@
       }
     },
     {
-      "id": "pages:Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md:38",
+      "id": "pages:Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md:39",
       "text": "Will this action make the future easier or harder?",
       "sourceDisplay": "Clear Thinking: Turning Ordinary Moments into Extraordinary Results",
       "sourcePageTitle": "Clear Thinking: Turning Ordinary Moments into Extraordinary Results | Shane Parrish",
       "sourceLocator": "Location 785",
-      "blockId": null,
+      "blockId": "6733625a-cabf-43b6-a1d4-549bf570da9a",
       "tags": [],
       "originType": "pages",
       "originFile": "Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md",
@@ -1028,12 +1028,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:61",
+      "id": "pages:My Questions.md:98",
       "text": "Will this energise me or will it drain me?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "89c16a31-dc5b-5025-8d56-b48142994e04",
       "tags": [],
       "originType": "pages",
       "originFile": "My Questions.md",
@@ -1048,7 +1048,7 @@
       "sourceDisplay": "2023_08_12",
       "sourcePageTitle": "2023_08_12",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "a934420a-bc8a-526f-a97a-b20f4b5cbec5",
       "tags": [],
       "originType": "journals",
       "originFile": "2023_08_12.md",
@@ -1063,7 +1063,7 @@
       "sourceDisplay": "2023_07_13",
       "sourcePageTitle": "2023_07_13",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "65174656-b478-4242-ab83-e33e5bd142a5",
       "tags": [
         "life"
       ],
@@ -1075,12 +1075,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:23",
+      "id": "pages:My Questions.md:30",
       "text": "Would you prefer to go forward into the future or backward into the past? How far?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "f27e866a-4d77-55e2-ad7b-78d1518acc45",
       "tags": [],
       "originType": "pages",
       "originFile": "My Questions.md",
@@ -1090,12 +1090,12 @@
       }
     },
     {
-      "id": "pages:My Questions.md:24",
+      "id": "pages:My Questions.md:32",
       "text": "Would you trade a few weeks of the end of your healthspan to travel into the future?",
       "sourceDisplay": "My Questions",
       "sourcePageTitle": "My Questions",
       "sourceLocator": null,
-      "blockId": null,
+      "blockId": "8d0c632b-ca9e-5f94-b49b-44881697ef3d",
       "tags": [
         "powerful"
       ],
@@ -1107,12 +1107,12 @@
       }
     },
     {
-      "id": "pages:How to Raise an Adult%3A Break Free of the Overparenting Trap and Prepare Your Kid for Success %7C Julie Lythcott-Haims.md:144",
+      "id": "pages:How to Raise an Adult%3A Break Free of the Overparenting Trap and Prepare Your Kid for Success %7C Julie Lythcott-Haims.md:155",
       "text": "You seem to love what you do. When and how did you figure out that’s what you wanted to do?",
       "sourceDisplay": "How to Raise an Adult: Break Free of the Overparenting Trap and Prepare Your Kid for Success",
       "sourcePageTitle": "How to Raise an Adult: Break Free of the Overparenting Trap and Prepare Your Kid for Success | Julie Lythcott-Haims",
       "sourceLocator": "Location 4,231",
-      "blockId": null,
+      "blockId": "716750a9-fcbb-5f83-b49f-c3704281f85f",
       "tags": [],
       "originType": "pages",
       "originFile": "How to Raise an Adult%3A Break Free of the Overparenting Trap and Prepare Your Kid for Success %7C Julie Lythcott-Haims.md",

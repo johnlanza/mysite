@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 
 import { withBasePath } from "@/lib/base-path";
 
@@ -9,42 +8,65 @@ type RefreshQuotesButtonProps = {
   compact?: boolean;
 };
 
+type SyncDatasetStatus = {
+  count: number;
+  generatedAt: string | null;
+};
+
+type SyncStatusPayload = {
+  generatedAt: string | null;
+  datasets: {
+    quotes: SyncDatasetStatus;
+    bookNotes: SyncDatasetStatus;
+    questions: SyncDatasetStatus;
+    embeddings: SyncDatasetStatus;
+  };
+};
+
+function formatUpdatedAt(value: string | null) {
+  if (!value) {
+    return "No sync found";
+  }
+
+  return new Date(value).toLocaleString(undefined, {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
+}
+
 export function RefreshQuotesButton({
   compact = false,
 }: RefreshQuotesButtonProps) {
-  const router = useRouter();
   const [status, setStatus] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isPending, startTransition] = useTransition();
-  const disabled = isRefreshing || isPending;
+  const disabled = isRefreshing;
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    setStatus("Syncing Zette...");
+    setStatus("Checking Zette...");
 
     try {
       const response = await fetch(withBasePath("/api/refresh-quotes"), {
-        method: "POST",
+        cache: "no-store",
+        method: "GET",
       });
 
       if (!response.ok) {
         const payload = (await response.json().catch(() => null)) as
-          | { error?: string; script?: string }
+          | { error?: string }
           | null;
-        const script = payload?.script ? ` (${payload.script})` : "";
         const error = payload?.error ? `: ${payload.error}` : ".";
 
-        setStatus(`Refresh failed${script}${error}`);
+        setStatus(`Status check failed${error}`);
         return;
       }
 
-      const payload = (await response.json()) as { generatedAt: string };
+      const payload = (await response.json()) as SyncStatusPayload;
+      const counts = payload.datasets;
 
-      startTransition(() => {
-        router.refresh();
-      });
-
-      setStatus(`Updated ${new Date(payload.generatedAt).toLocaleString()}`);
+      setStatus(
+        `Updated ${formatUpdatedAt(payload.generatedAt)} · ${counts.quotes.count.toLocaleString()} quotes · ${counts.bookNotes.count.toLocaleString()} notes · ${counts.questions.count.toLocaleString()} questions`,
+      );
     } finally {
       setIsRefreshing(false);
     }
@@ -63,9 +85,20 @@ export function RefreshQuotesButton({
         suppressHydrationWarning
         type="button"
       >
-        {disabled ? "Syncing..." : compact ? "Sync" : "Sync Zette"}
+        {disabled ? "Checking..." : compact ? "Sync" : "Sync Zette"}
       </button>
-      {status && !compact ? <p className="text-xs text-muted">{status}</p> : null}
+      {status ? (
+        <p
+          aria-live="polite"
+          className={`text-muted ${
+            compact
+              ? "max-w-[14rem] text-right text-[0.62rem] leading-4"
+              : "text-xs"
+          }`}
+        >
+          {status}
+        </p>
+      ) : null}
     </div>
   );
 }

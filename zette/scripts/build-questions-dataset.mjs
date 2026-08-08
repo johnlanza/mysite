@@ -1,6 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
+import {
+  applyLogseqBlockIdPlans,
+  planLogseqBlockId,
+} from "./logseq-block-ids.mjs";
+
 const SOURCE_DIRECTORIES = [
   {
     type: "journals",
@@ -33,6 +38,7 @@ function cleanupInlineMarkup(value) {
     .replace(/\[\[([^\]]+)\]\]/g, "$1")
     .replace(/(?:\*\*|__|`|~~)/g, "")
     .replace(/(?:==|\^\^)/g, "")
+    .replace(/^\s*(?:id|source-id)::\s*.+$/gim, " ")
     .replace(/\b[a-z-]+::/gi, " ")
     .replace(/\s+/g, " ")
     .trim();
@@ -219,6 +225,11 @@ async function main() {
   const previousSignatures = new Set(
     (previousDataset?.questions ?? []).map((question) => buildSignature(question)),
   );
+  const previousNewSignatures = new Set(
+    (previousDataset?.questions ?? [])
+      .filter((question) => question.review?.isNew)
+      .map((question) => buildSignature(question)),
+  );
   const allQuestions = [];
 
   for (const source of SOURCE_DIRECTORIES) {
@@ -228,6 +239,7 @@ async function main() {
       const content = await fs.readFile(filePath, "utf8");
       const originFile = path.basename(filePath);
       const lines = content.split("\n");
+      const blockIdPlans = new Map();
 
       for (let index = 0; index < lines.length; index += 1) {
         const line = lines[index];
@@ -252,17 +264,28 @@ async function main() {
           }
         }
 
+        const blockId = planLogseqBlockId(
+          lines,
+          index,
+          ["question", source.type, originFile, text],
+          blockIdPlans,
+        );
+
         allQuestions.push({
           id: buildId(source.type, originFile, index),
           text,
           sourceDisplay: sourceDisplayFor(source.type, originFile),
           sourcePageTitle: decodeFileName(originFile),
           sourceLocator,
-          blockId: null,
+          blockId,
           tags: collectTags(line),
           originType: source.type,
           originFile,
         });
+      }
+
+      if (applyLogseqBlockIdPlans(lines, blockIdPlans)) {
+        await fs.writeFile(filePath, lines.join("\n"));
       }
     }
   }
@@ -284,7 +307,9 @@ async function main() {
       return {
         ...question,
         review: {
-          isNew: !previousSignatures.has(signature),
+          isNew:
+            previousNewSignatures.has(signature) ||
+            !previousSignatures.has(signature),
           flags: [],
         },
       };

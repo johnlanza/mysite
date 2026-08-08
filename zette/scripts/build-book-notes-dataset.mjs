@@ -1,6 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
+import {
+  applyLogseqBlockIdPlans,
+  planLogseqBlockId,
+} from "./logseq-block-ids.mjs";
+
 const PAGES_DIRECTORY =
   "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages";
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
@@ -255,6 +260,16 @@ function wordCount(text) {
   return text.split(/\s+/).filter(Boolean).length;
 }
 
+function isImportChecklistLine(line) {
+  return /^DONE\s+Include on website\b/i.test(stripTagsAndMarkers(line));
+}
+
+function isGeneratedMetadataLine(line) {
+  return /^\s*(?:id|source-id|page|progressive-summary|tags|tags-note)::\s*.+$/i.test(
+    line,
+  );
+}
+
 function findAnchorEntry(lines, tagIndex) {
   const currentSplit = splitMyWordsNote(lines[tagIndex]);
   const explicitCurrentNote = isExplicitNoteLine(lines[tagIndex])
@@ -277,10 +292,15 @@ function findAnchorEntry(lines, tagIndex) {
       text: current,
       note: currentSplit.note,
       sourceLocator,
+      lineIndex: tagIndex,
     };
   }
 
   for (let index = tagIndex - 1; index >= Math.max(0, tagIndex - 4); index -= 1) {
+    if (isImportChecklistLine(lines[index]) || isGeneratedMetadataLine(lines[index])) {
+      continue;
+    }
+
     const candidateSplit = splitMyWordsNote(lines[index]);
     const candidate = normalizeBookNoteText(stripTagsAndMarkers(lines[index]));
 
@@ -304,6 +324,7 @@ function findAnchorEntry(lines, tagIndex) {
           currentSplit.note,
         ]),
         sourceLocator,
+        lineIndex: index,
       };
     }
   }
@@ -313,6 +334,7 @@ function findAnchorEntry(lines, tagIndex) {
       text: current,
       note: currentSplit.note,
       sourceLocator,
+      lineIndex: tagIndex,
     };
   }
 
@@ -332,6 +354,7 @@ function findAnchorEntry(lines, tagIndex) {
         candidateSplit.note,
       ]),
       sourceLocator,
+      lineIndex: index,
     };
   }
 
@@ -339,6 +362,7 @@ function findAnchorEntry(lines, tagIndex) {
     text: null,
     note: combineNotes([explicitCurrentNote, currentSplit.note]),
     sourceLocator,
+    lineIndex: tagIndex,
   };
 }
 
@@ -425,6 +449,11 @@ async function main() {
   const previousSignatures = new Set(
     (previousDataset?.notes ?? []).map((note) => buildSignature(note)),
   );
+  const previousNewSignatures = new Set(
+    (previousDataset?.notes ?? [])
+      .filter((note) => note.review?.isNew)
+      .map((note) => buildSignature(note)),
+  );
   const dirents = await fs.readdir(PAGES_DIRECTORY, { withFileTypes: true });
   const allNotes = [];
 
@@ -445,6 +474,7 @@ async function main() {
     const bookTitle = getMetadataValue(content, "Title") ?? deriveTitleFromPageTitle(sourcePageTitle);
     const bookAuthor = normalizeBookAuthor(getMetadataValue(content, "Author"), sourcePageTitle);
     const lines = content.split("\n");
+    const blockIdPlans = new Map();
     const notesStartIndex = findNotesStartIndex(lines);
 
     if (notesStartIndex === -1) {
@@ -471,6 +501,13 @@ async function main() {
         continue;
       }
 
+      const blockId = planLogseqBlockId(
+        lines,
+        anchor.lineIndex,
+        ["book-note", originFile, normalizeBookNoteText(text)],
+        blockIdPlans,
+      );
+
       allNotes.push({
         id: buildId(originFile, index),
         text: normalizeBookNoteText(text),
@@ -480,11 +517,15 @@ async function main() {
         sourcePageTitle,
         sourceDisplay: bookTitle,
         sourceLocator: anchor.sourceLocator,
-        blockId: null,
+        blockId,
         tags,
         originType: "pages",
         originFile,
       });
+    }
+
+    if (applyLogseqBlockIdPlans(lines, blockIdPlans)) {
+      await fs.writeFile(filePath, lines.join("\n"));
     }
   }
 
@@ -507,7 +548,9 @@ async function main() {
       return {
         ...note,
         review: {
-          isNew: !previousSignatures.has(signature),
+          isNew:
+            previousNewSignatures.has(signature) ||
+            !previousSignatures.has(signature),
           flags,
         },
       };
