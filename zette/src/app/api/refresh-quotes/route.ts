@@ -1,6 +1,4 @@
-import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
-import { promisify } from "node:util";
 
 import { readBookNotesDataset } from "@/lib/book-notes-data";
 import { EMBEDDINGS_DATA_FILE, type EmbeddingsFile } from "@/lib/embeddings";
@@ -8,9 +6,6 @@ import { readQuestionsDataset } from "@/lib/questions-data";
 import { readQuotesDataset } from "@/lib/quotes-data";
 
 export const dynamic = "force-dynamic";
-
-const execFileAsync = promisify(execFile);
-const ROOT = process.env.ZETTE_ROOT ?? process.cwd();
 
 function latestGeneratedAt(values: Array<string | null | undefined>) {
   const timestamps = values
@@ -36,29 +31,6 @@ async function readEmbeddingsFile(): Promise<EmbeddingsFile | null> {
 
     throw error;
   }
-}
-
-async function runScript(scriptName: string) {
-  try {
-    await execFileAsync(process.execPath, [`${ROOT}/scripts/${scriptName}`], {
-      cwd: ROOT,
-      env: process.env,
-      maxBuffer: 1024 * 1024 * 10,
-    });
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : `Failed to run ${scriptName}`;
-
-    return Response.json(
-      {
-        error: message,
-        script: scriptName,
-      },
-      { status: 500 },
-    );
-  }
-
-  return null;
 }
 
 export async function GET() {
@@ -95,28 +67,5 @@ export async function GET() {
         generatedAt: embeddings?.generatedAt ?? null,
       },
     },
-  });
-}
-
-export async function POST() {
-  for (const scriptName of [
-    "build-quotes-dataset.mjs",
-    "build-book-notes-dataset.mjs",
-    "build-questions-dataset.mjs",
-    "build-embeddings.mjs",
-  ]) {
-    const errorResponse = await runScript(scriptName);
-
-    if (errorResponse) {
-      return errorResponse;
-    }
-  }
-
-  const dataset = await readQuotesDataset();
-
-  return Response.json({
-    generatedAt: dataset.generatedAt,
-    stats: dataset.stats,
-    embeddingsRefreshed: true,
   });
 }
