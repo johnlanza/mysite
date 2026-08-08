@@ -1,6 +1,6 @@
 import { QuotesExplorer } from "@/components/quotes-explorer";
 import { RefreshQuotesButton } from "@/components/refresh-quotes-button";
-import { getLogseqUrl } from "@/lib/logseq";
+import { getLogseqPageUrl } from "@/lib/logseq";
 import { readBookNotesDataset } from "@/lib/book-notes-data";
 import { readQuotesDataset } from "@/lib/quotes-data";
 import Link from "next/link";
@@ -76,14 +76,13 @@ export default async function Home() {
             {dailyQuote.author ?? "Unknown"}
           </p>
           <p className="mt-1 text-sm text-[#dfd5c8]">
-            <a
-              className="underline decoration-transparent underline-offset-4 transition hover:decoration-current"
-              href={getLogseqUrl(
-                dailyQuote.originType,
-                dailyQuote.originFile,
-                dailyQuote.blockId,
-              )}
-            >
+              <a
+                className="underline decoration-transparent underline-offset-4 transition hover:decoration-current"
+                href={getLogseqPageUrl(
+                  dailyQuote.originType,
+                  dailyQuote.originFile,
+                )}
+              >
               {dailyQuote.sourceDisplay}
             </a>
           </p>

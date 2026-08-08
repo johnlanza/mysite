@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-import { getLogseqUrl } from "@/lib/logseq";
+import { LogseqEditLink } from "@/components/logseq-edit-link";
+import { getLogseqBlockUrl, getLogseqPageUrl } from "@/lib/logseq";
 import type { QuestionRecord } from "@/lib/questions-data";
 
 type QuestionViewProps = {
@@ -17,11 +18,10 @@ function textSizeClass(length: number): string {
 }
 
 export function QuestionView({ question, remaining, seen }: QuestionViewProps) {
-  const logseqUrl = getLogseqUrl(
-    question.originType,
-    question.originFile,
-    question.blockId,
-  );
+  const logseqBlockUrl = question.blockId
+    ? getLogseqBlockUrl(question.blockId)
+    : null;
+  const logseqPageUrl = getLogseqPageUrl(question.originType, question.originFile);
   const nextParams = new URLSearchParams();
   nextParams.set("from", question.id);
 
@@ -65,13 +65,15 @@ export function QuestionView({ question, remaining, seen }: QuestionViewProps) {
             ) : null}
           </div>
 
-          <a
-            href={logseqUrl}
+          <LogseqEditLink
+            blockUrl={logseqBlockUrl}
             className="mt-5 inline-flex items-center gap-1.5 font-sans text-[0.68rem] font-medium uppercase tracking-[0.24em] text-muted/70 transition hover:text-accent"
+            copyText={question.text}
+            pageUrl={logseqPageUrl}
           >
             <span aria-hidden="true">↗</span>
             <span>Open in Logseq</span>
-          </a>
+          </LogseqEditLink>
 
           {question.tags.length > 0 ? (
             <ul className="mt-7 flex flex-wrap gap-1.5">

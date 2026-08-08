@@ -16,16 +16,27 @@ export function getLogseqPageName(originType: string, originFile: string) {
   return pageName;
 }
 
+export function getLogseqPageUrl(originType: string, originFile: string) {
+  const graph = encodeURIComponent(getGraphName());
+  const page = encodeURIComponent(getLogseqPageName(originType, originFile));
+
+  return `logseq://graph/${graph}?page=${page}`;
+}
+
+export function getLogseqBlockUrl(blockId: string) {
+  const graph = encodeURIComponent(getGraphName());
+
+  return `logseq://graph/${graph}?block-id=${encodeURIComponent(blockId.trim())}`;
+}
+
 export function getLogseqUrl(
   originType: string,
   originFile: string,
   blockId?: string | null,
 ) {
-  const graph = encodeURIComponent(getGraphName());
   if (blockId?.trim()) {
-    return `logseq://graph/${graph}?block-id=${encodeURIComponent(blockId.trim())}`;
+    return getLogseqBlockUrl(blockId);
   }
 
-  const page = encodeURIComponent(getLogseqPageName(originType, originFile));
-  return `logseq://graph/${graph}?page=${page}`;
+  return getLogseqPageUrl(originType, originFile);
 }

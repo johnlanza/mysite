@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import { getLogseqUrl } from "@/lib/logseq";
+import { LogseqEditLink } from "@/components/logseq-edit-link";
+import { getLogseqBlockUrl, getLogseqPageUrl } from "@/lib/logseq";
 
 type QuoteRecord = {
   id: string;
@@ -179,7 +180,7 @@ export function QuotesExplorer({ quotes, tags }: QuotesExplorerProps) {
                 <p>
                   <a
                     className="underline decoration-transparent underline-offset-4 transition hover:decoration-current hover:text-accent"
-                    href={getLogseqUrl(quote.originType, quote.originFile, quote.blockId)}
+                    href={getLogseqPageUrl(quote.originType, quote.originFile)}
                   >
                     {quote.sourceDisplay}
                   </a>
@@ -194,12 +195,14 @@ export function QuotesExplorer({ quotes, tags }: QuotesExplorerProps) {
                 >
                   Open with Echoes
                 </Link>
-                <a
+                <LogseqEditLink
+                  blockUrl={quote.blockId ? getLogseqBlockUrl(quote.blockId) : null}
                   className="rounded-full border border-line px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted transition hover:border-accent hover:text-accent"
-                  href={getLogseqUrl(quote.originType, quote.originFile, quote.blockId)}
+                  copyText={quote.text}
+                  pageUrl={getLogseqPageUrl(quote.originType, quote.originFile)}
                 >
                   Logseq
-                </a>
+                </LogseqEditLink>
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">

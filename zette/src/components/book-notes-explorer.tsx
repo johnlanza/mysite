@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { LogseqEditLink } from "@/components/logseq-edit-link";
 import type { BookNoteRecord } from "@/lib/book-notes-data";
-import { getLogseqUrl } from "@/lib/logseq";
+import { getLogseqBlockUrl, getLogseqPageUrl } from "@/lib/logseq";
 
 type BookNotesExplorerProps = {
   notes: BookNoteRecord[];
@@ -144,7 +145,7 @@ export function BookNotesExplorer({ notes, tags }: BookNotesExplorerProps) {
                 <p>
                   <a
                     className="underline decoration-transparent underline-offset-4 transition hover:decoration-current hover:text-accent"
-                    href={getLogseqUrl(note.originType, note.originFile, note.blockId)}
+                    href={getLogseqPageUrl(note.originType, note.originFile)}
                   >
                     {note.bookTitle}
                   </a>
@@ -159,12 +160,14 @@ export function BookNotesExplorer({ notes, tags }: BookNotesExplorerProps) {
                 >
                   Open with Echoes
                 </Link>
-                <a
+                <LogseqEditLink
+                  blockUrl={note.blockId ? getLogseqBlockUrl(note.blockId) : null}
                   className="rounded-full border border-line px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted transition hover:border-accent hover:text-accent"
-                  href={getLogseqUrl(note.originType, note.originFile, note.blockId)}
+                  copyText={note.text}
+                  pageUrl={getLogseqPageUrl(note.originType, note.originFile)}
                 >
                   Logseq
-                </a>
+                </LogseqEditLink>
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
