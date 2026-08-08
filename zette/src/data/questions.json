@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-03T12:56:27.688Z",
+  "generatedAt": "2026-08-08T14:49:29.249Z",
   "sourceDirectories": [
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/journals",
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages"
@@ -12,9 +12,9 @@
     "profound"
   ],
   "stats": {
-    "totalQuestions": 68,
-    "taggedQuestions": 26,
-    "newQuestions": 1
+    "totalQuestions": 70,
+    "taggedQuestions": 27,
+    "newQuestions": 2
   },
   "questions": [
     {
@@ -121,6 +121,21 @@
       "originFile": "2025_04_16.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2026_06_20.md:0",
+      "text": "How might this be easier? Is this supposed to be hard? Did I sign up for this to be easy?",
+      "sourceDisplay": "2026_06_20",
+      "sourcePageTitle": "2026_06_20",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2026_06_20.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -324,6 +339,23 @@
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2026_07_02.md:1",
+      "text": "That is, what is the smallest viable seed of civilization?",
+      "sourceDisplay": "2026_07_02",
+      "sourcePageTitle": "2026_07_02",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "profound"
+      ],
+      "originType": "journals",
+      "originFile": "2026_07_02.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -571,7 +603,7 @@
       }
     },
     {
-      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:23",
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:24",
       "text": "What do you think would be a good reminder for you tomorrow?",
       "sourceDisplay": "Tiny Habits",
       "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
@@ -581,7 +613,7 @@
       "originType": "pages",
       "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },

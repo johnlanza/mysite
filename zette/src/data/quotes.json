@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-03T12:56:25.369Z",
+  "generatedAt": "2026-08-08T14:49:28.070Z",
   "sourceDirectories": [
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/journals",
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages"
@@ -46,10 +46,10 @@
     "writing"
   ],
   "stats": {
-    "totalQuotes": 324,
-    "taggedQuotes": 144,
+    "totalQuotes": 326,
+    "taggedQuotes": 145,
     "suspiciousQuotes": 116,
-    "newQuotes": 7
+    "newQuotes": 2
   },
   "quotes": [
     {
@@ -1374,7 +1374,7 @@
       "originType": "pages",
       "originFile": "Finite and Infinte Games %7C James Carse — Progressive Summarization Test.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -3482,7 +3482,7 @@
       "originType": "journals",
       "originFile": "2026_07_01.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "journal-date-fallback"
         ]
@@ -4065,7 +4065,7 @@
       "originType": "pages",
       "originFile": "Finite and Infinte Games %7C James Carse — Progressive Summarization Test.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -4085,7 +4085,7 @@
       "originType": "pages",
       "originFile": "Finite and Infinte Games %7C James Carse — Progressive Summarization Test.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5128,6 +5128,24 @@
       }
     },
     {
+      "id": "journals:2026_08_02.md:0",
+      "text": "The writer must believe that what he is doing is the most important thing in the world. And he must hold to this illusion even when he knows it is not true",
+      "author": "John Steinbeck",
+      "source": "John Steinbeck",
+      "sourcePageTitle": "2026_08_02",
+      "sourceDisplay": "John Steinbeck",
+      "note": null,
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [],
+      "originType": "journals",
+      "originFile": "2026_08_02.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
       "id": "pages:Bird by Bird%3A Some Instructions on Writing and Life %7C Anne Lamott.md:0",
       "text": "There is ecstasy in paying attention",
       "author": "Anne Lamott",
@@ -5159,7 +5177,7 @@
       "originType": "pages",
       "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5425,7 +5443,7 @@
       "originType": "pages",
       "originFile": "Finite and Infinte Games %7C James Carse — Progressive Summarization Test.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -5877,7 +5895,7 @@
       "originType": "pages",
       "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": []
       }
     },
@@ -6176,6 +6194,26 @@
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "journals:2026_07_26.md:0",
+      "text": "Work is what horses die of. Everyone should know that",
+      "author": "Solzhenitsyn",
+      "source": "Your life is not a story",
+      "sourcePageTitle": "2026_07_26",
+      "sourceDisplay": "Your life is not a story",
+      "note": null,
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "article"
+      ],
+      "originType": "journals",
+      "originFile": "2026_07_26.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },

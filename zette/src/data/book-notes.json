@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-03T12:56:26.447Z",
+  "generatedAt": "2026-08-08T14:49:28.641Z",
   "sourceDirectories": [
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages"
   ],
@@ -57,11 +57,11 @@
     "writing"
   ],
   "stats": {
-    "totalNotes": 1044,
-    "taggedNotes": 1044,
-    "books": 82,
-    "suspiciousNotes": 142,
-    "newNotes": 1
+    "totalNotes": 1087,
+    "taggedNotes": 1087,
+    "books": 86,
+    "suspiciousNotes": 149,
+    "newNotes": 43
   },
   "notes": [
     {
@@ -574,6 +574,27 @@
       }
     },
     {
+      "id": "pages:Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md:771",
+      "text": "\"Solitude,” write psychologists Christopher R. Long and James R. Averill, “in contrast to loneliness, is often a positive state – one that may be sought rather than avoided.\"",
+      "note": "I appreciate this distinction — solitude vs loneliness.",
+      "bookTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "bookAuthor": "John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourcePageTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress | John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourceDisplay": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw",
+        "profound"
+      ],
+      "originType": "pages",
+      "originFile": "Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
       "id": "pages:Cloud Cuckoo Land %7C Anthony Doerr.md:58",
       "text": "“Some stories,” she says, “can be both false and true at the same time.”",
       "note": null,
@@ -631,6 +652,26 @@
       "originFile": "Brave New World %7C Aldous Huxley.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Seneca's Letters from a Stoic %7C Lucius Annaeus Seneca — Progressive Summarization Test.md:97",
+      "text": "\"The fool, with all his other faults, has this also, he is always getting ready to live.\" Reflect, my esteemed Lucilius, what this saying means, and you will see how revolting is the fickleness of men who lay down every day new foundations of life, and begin to build up fresh hopes even at the brink of the grave.",
+      "note": null,
+      "bookTitle": "Seneca's Letters from a Stoic",
+      "bookAuthor": "Lucius Annaeus Seneca",
+      "sourcePageTitle": "Seneca's Letters from a Stoic | Lucius Annaeus Seneca — Progressive Summarization Test",
+      "sourceDisplay": "Seneca's Letters from a Stoic",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "profound"
+      ],
+      "originType": "pages",
+      "originFile": "Seneca's Letters from a Stoic %7C Lucius Annaeus Seneca — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -1410,6 +1451,28 @@
       }
     },
     {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:88",
+      "text": "Add celebration to my talk",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "idea"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": [
+          "short-note"
+        ]
+      }
+    },
+    {
       "id": "pages:Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md:257",
       "text": "Adolf Hitler would end up doing nothing more than following his inner star, as countless college graduates are constantly enjoined to do.",
       "note": "Concern aligns with Scott Galloway's contention that follow your passion is bad advice. Although to Susan Cain's point, while follow your passion in work may be bad advice, following your passions in life is rarely bad advice in terms of fulfillment. You just might want to be wary of thinking your passion can pay the bills.",
@@ -1490,6 +1553,26 @@
       "originFile": "Enough%3A True Measures of Money, Business, and Life %7C John C. Bogle.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md:921",
+      "text": "Alison Gopnik, the developmental psychologist we encountered earlier, says, “It’s not that children are little scientists – it’s that scientists are big children. Scientists actually are the few people who, as adults, get to have this protected time when they can just explore, play, figure out what the world is like.\"",
+      "note": null,
+      "bookTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "bookAuthor": "John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourcePageTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress | John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourceDisplay": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "profound"
+      ],
+      "originType": "pages",
+      "originFile": "Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -2560,6 +2643,28 @@
       }
     },
     {
+      "id": "pages:Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md:514",
+      "text": "As Alex Soojung-Kim Pang points out in his book Rest: Why You Get More Done When You Work Less, research has shown that there are four major factors contributing to proper rest and recovery: Relaxation, or allowing our mind and body to wind down. Control, or deciding how to spend our time and attention. Mastery, or being challenged enough to get into a flow state. Detachment, or being so absorbed that we forget about work. If your definition of rest is limited to relaxation, then you’re ignoring three-quarters of the essential components of good rest.",
+      "note": "Which is probably different from a break, which is a chance for your brain to take a moment off from one of these things.",
+      "bookTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "bookAuthor": "John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourcePageTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress | John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourceDisplay": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": [
+          "long-note"
+        ]
+      }
+    },
+    {
       "id": "pages:Thinking Fast and Slow %7C Daniel Kahneman.md:62",
       "text": "As cognitive scientists have emphasized in recent years, cognition is embodied; you think with your body, not only with your brain.",
       "note": null,
@@ -2780,6 +2885,27 @@
       "originFile": "The English and Their History %7C Robert Tombs.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md:926",
+      "text": "As travel writer Rolf Potts remarks in his book Vagabonding, “If the clock appears to move faster than it did in sixth grade, it’s only because we haven’t actualized our power as adults to set our own recess schedule.",
+      "note": "I hate the thread that seemingly everyone uses — time goes so fast. Perhaps it's only because we're not living in the sense that we're not engaging ourselves in states of flow.",
+      "bookTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "bookAuthor": "John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourcePageTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress | John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourceDisplay": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw",
+        "profound"
+      ],
+      "originType": "pages",
+      "originFile": "Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -3298,6 +3424,27 @@
       }
     },
     {
+      "id": "pages:Ego Is the Enemy %7C Ryan Holiday.md:103",
+      "text": "Because we only seem to hear about the passion of successful people, we forget that failures shared the same trait.",
+      "note": "A point that I read over and over is that we forget the failures who share similar traits with and often outnumber successes.",
+      "bookTitle": "Ego Is the Enemy",
+      "bookAuthor": "Ryan Holiday",
+      "sourcePageTitle": "Ego Is the Enemy | Ryan Holiday",
+      "sourceDisplay": "Ego Is the Enemy",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw",
+        "profound"
+      ],
+      "originType": "pages",
+      "originFile": "Ego Is the Enemy %7C Ryan Holiday.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
       "id": "pages:Stumbling on Happiness %7C Dan Gilbert.md:174",
       "text": "Because we tend to remember the best of times and the worst of times instead of the most likely of times , the wealth of experience that young people admire does not always pay clear dividends .",
       "note": "Why it's important for us to have our OWN experiences.",
@@ -3489,6 +3636,29 @@
       }
     },
     {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:201",
+      "text": "better term than breaking",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "idea",
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": [
+          "short-note"
+        ]
+      }
+    },
+    {
       "id": "pages:Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md:231",
       "text": "Binary framing is as comfortable as it is passive.",
       "note": null,
@@ -3586,6 +3756,28 @@
       "originFile": "On Bullshit %7C Harry G. Frankfurt.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:76",
+      "text": "Businesses that help customers create habits will have a huge advantage over those that don’t.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "business",
+        "idea",
+        "profound"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -4556,6 +4748,46 @@
       }
     },
     {
+      "id": "pages:Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md:841",
+      "text": "Constant online companions and thousands of “friends” or followers don’t fill our inner void.",
+      "note": "And we ALL have an inner void we're trying to fill.",
+      "bookTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "bookAuthor": "John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourcePageTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress | John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourceDisplay": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:255",
+      "text": "Creating demotivators is easy. That’s probably why it’s such a popular technique. But if this was a winning plan, then very few people would have bad habits.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
       "id": "pages:Tiny Habits %7C BJ Fogg.md:160",
       "text": "Creating demotivators is easy. That’s probably why it’s such a popular technique. But if this was a winning plan, then very few people would have bad habits.",
       "note": "talk — if this worked, none of us would have bad habits",
@@ -4920,6 +5152,68 @@
       "originFile": "Amusing Ourselves to Death %7C Neil Postman.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:84",
+      "text": "DONE Include on website Add celebration to my talk",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "idea"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:53",
+      "text": "DONE Include on website Program the focus map.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "business",
+        "idea"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:196",
+      "text": "DONE Include on website untangling your unwanted habits",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "idea",
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -6167,6 +6461,26 @@
       }
     },
     {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:29",
+      "text": "Generated from the note text above; edit tags there, not in this metadata block.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "my questions"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
       "id": "pages:The Practice%3A Shipping Creative Work %7C Seth Godin.md:267",
       "text": "Generosity is the most direct way to find the practice. Generosity subverts resistance by focusing the work on someone else.",
       "note": "Makes sense. I'm making the work for myself and for others. I don't think, though, that you can lose the importance of creating for and writing for yourself. I think generosity and this go hand in hand. Lean in to doing good for others.",
@@ -6330,6 +6644,26 @@
       "originFile": "The Art of Spending Money%3A Simple Choices for a Richer Life %7C Morgan Housel.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md:177",
+      "text": "Graeber calls this “the paradox of modern work,” but from the Puritan point of view there is no paradox – it all makes perfect sense. If we see work as a character-forming tool, then the more we hate work, the better. We feel dignity and self-worth because we hate our jobs.",
+      "note": null,
+      "bookTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "bookAuthor": "John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourcePageTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress | John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourceDisplay": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "profound"
+      ],
+      "originType": "pages",
+      "originFile": "Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -6633,6 +6967,26 @@
       "originFile": "How to Raise an Adult%3A Break Free of the Overparenting Trap and Prepare Your Kid for Success %7C Julie Lythcott-Haims.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md:931",
+      "text": "Hesse might have been one of the first outspoken promoters of JOMO, the joy of missing out.",
+      "note": "When people talk about news, I'll say that I prefer the JOMO of not being immersed in such negativity. People seem to like having their panties in a bunch.",
+      "bookTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "bookAuthor": "John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourcePageTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress | John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourceDisplay": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -7029,6 +7383,26 @@
       }
     },
     {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:183",
+      "text": "I can have people repeat. It’s like an AA meeting. Hello, I’m X. And I see myself as then kind of person who…",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
       "id": "pages:The Power of Now%3A A Guide to Spiritual Enlightenment %7C Eckhart Tolle.md:100",
       "text": "I cannot believe that I could ever reach a point where I am completely free of my problems. You are right. You can never reach that point because you are at that point now. There is no salvation in time. You cannot be free in the future. Presence is the key to freedom, so you can only be free now.",
       "note": "Because I am",
@@ -7318,6 +7692,26 @@
       "originFile": "The Practice%3A Shipping Creative Work %7C Seth Godin.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:127",
+      "text": "I now understand why my Tiny Habits data showed so many breakthroughs. When people feel successful, even with small things, their overall level of motivation goes up dramatically, and with higher levels of motivation, people can do harder behaviors.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -7970,6 +8364,26 @@
       "originFile": "Thinking Fast and Slow %7C Daniel Kahneman.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:219",
+      "text": "If you focus only on the General Habit, you probably won’t make much progress, just like if you focus on the entire knot at once, you can’t untangle it. You need to focus on specific tangles in order to make progress.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -9735,7 +10149,7 @@
       "originType": "pages",
       "originFile": "Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md",
       "review": {
-        "isNew": true,
+        "isNew": false,
         "flags": [
           "long-note"
         ]
@@ -10096,6 +10510,28 @@
       }
     },
     {
+      "id": "pages:Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md:494",
+      "text": "Jot down a significant problem you are trying to solve and spend two hours thinking through only that. No distractions allowed. But don’t force it either. If you feel completely stuck with a problem, step away and let your subconscious work on it. We’re not talking procrastination, but good rest. You might be surprised by the ease with which you can solve the previously unsolvable problem after you’ve allowed your unconscious mind to take the reins.",
+      "note": null,
+      "bookTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "bookAuthor": "John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourcePageTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress | John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourceDisplay": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "profound"
+      ],
+      "originType": "pages",
+      "originFile": "Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": [
+          "long-note"
+        ]
+      }
+    },
+    {
       "id": "pages:Stumbling on Happiness %7C Dan Gilbert.md:26",
       "text": "Just as our eyes sometimes lead us to see things as they are not , our imaginations sometimes lead us to foresee things as they will not be .",
       "note": null,
@@ -10112,6 +10548,26 @@
       "originFile": "Stumbling on Happiness %7C Dan Gilbert.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md:786",
+      "text": "Just like idle hands were believed to do the work of the devil, idle minds and daydreaming were seen as equally sinful by many Puritans. And once visible busyness was added to the picture, solitude and contemplation started to look even worse.",
+      "note": "We live in a performative, \"hustle culture\" world in which the perception that we're busy is equated with great work.",
+      "bookTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "bookAuthor": "John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourcePageTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress | John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourceDisplay": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -10957,6 +11413,26 @@
       }
     },
     {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:124",
+      "text": "Moving from tiny to sustained, more powerful habits. Just focus becoming the person who does tiny habit X. That’s it. Then, when you feel like it, expand.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
       "id": "pages:Identity%3A The Demand for Dignity and the Politics of Resentment %7C Francis Fukuyama.md:217",
       "text": "Much of the agenda of modern feminism has been set not by working-class women hoping to get jobs as firefighters or Marine grunts, but by educated professional women seeking to rise closer to the top of the social hierarchy.",
       "note": "Liz Atlee",
@@ -11160,6 +11636,26 @@
       "originFile": "Zero to One%3A Notes on Startups, or How to Build the Future %7C Peter Thiel.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:237",
+      "text": "my talk. Focus on what we know works best. No minutiae.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -11405,6 +11901,26 @@
       "originFile": "On the Shortness of Life %7C Seneca.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:24",
+      "text": "No. I just thought I’d remember. But I forgot.” So you design a prompt for the next day by asking, “What do you think would be a good reminder for you tomorrow?” And she says that she is putting a to-do note on her phone. Guess what? She hands you the poster board with a smile the next day.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "my questions"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -12638,6 +13154,26 @@
       }
     },
     {
+      "id": "pages:Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md:886",
+      "text": "Pieper frequently references Aquinas in his book Leisure: The Basis of Culture. In it he also proclaims that “the ability to be ‘at leisure’ is one of the basic powers of the human soul.” As long as we attach a utilitarian goal to leisure, such as being refreshed for more work, we are missing out on its deepest benefits and joys. We are distracted from the essence of inner calm by focusing on external goals.",
+      "note": null,
+      "bookTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "bookAuthor": "John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourcePageTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress | John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourceDisplay": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "profound"
+      ],
+      "originType": "pages",
+      "originFile": "Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
       "id": "pages:Show Your Work!%3A 10 Ways to Share Your Creativity and Get Discovered %7C Austin Kleon.md:79",
       "text": "Plan a “Show Your Work!” night with colleagues or friends. Use this book as a guide — share works-in-progress and your curiosities, tell stories, and teach one another.",
       "note": null,
@@ -12802,6 +13338,29 @@
       "review": {
         "isNew": false,
         "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:57",
+      "text": "Program the focus map.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "business",
+        "idea"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": [
+          "short-note"
+        ]
       }
     },
     {
@@ -12994,6 +13553,26 @@
       }
     },
     {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:132",
+      "text": "Really the goal of my talk is for one person to come away with a habit that will last.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
       "id": "pages:On the Shortness of Life %7C Seneca.md:103",
       "text": "Reasons for anxiety will never be lacking, whether born of prosperity or of wretchedness; life pushes on in a succession of engrossments. We shall always pray for leisure, but never enjoy it.",
       "note": "We must embrace all feelings. The goal isn't to feel good. Is the goal simply absence of desire and working on whatever meaningful is in front of us?",
@@ -13173,6 +13752,26 @@
       "originFile": "The Daily Stoic %7C Ryan Holiday & Stephen Hanselman.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:232",
+      "text": "Removing the prompt is the simplest option for stopping an unwanted habit. And the best way to remove a prompt is to redesign your environment.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -14098,6 +14697,26 @@
       }
     },
     {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:45",
+      "text": "Step 7: Look in the upper right-hand corner. Those are your Golden Behaviors. (If nothing is in this corner, go back.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
       "id": "pages:Tiny Habits %7C BJ Fogg.md:31",
       "text": "Step 7: Look in the upper right-hand corner. Those are your Golden Behaviors. (If nothing is in this corner, go back.",
       "note": "Focus map above.",
@@ -14284,6 +14903,26 @@
       }
     },
     {
+      "id": "pages:Ego Is the Enemy %7C Ryan Holiday.md:23",
+      "text": "Sure, ego has worked for some. Many of history’s most famous men and women were notoriously egotistical. But so were many of its greatest failures. Far more of them, in fact. But here we are with a culture that urges us to roll the dice. To make the gamble, ignoring the stakes.",
+      "note": null,
+      "bookTitle": "Ego Is the Enemy",
+      "bookAuthor": "Ryan Holiday",
+      "sourcePageTitle": "Ego Is the Enemy | Ryan Holiday",
+      "sourceDisplay": "Ego Is the Enemy",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "bias"
+      ],
+      "originType": "pages",
+      "originFile": "Ego Is the Enemy %7C Ryan Holiday.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
       "id": "pages:Clear Thinking%3A Turning Ordinary Moments into Extraordinary Results %7C Shane Parrish.md:95",
       "text": "Sure, your high school friends might be great examples of character and acumen, but odds are they’re average.",
       "note": "This line has affected me because my best friends are my high school friends. Not my college friends. I think because I didn't lean into being around the people I truly love being around.",
@@ -14365,6 +15004,26 @@
       "originFile": "Gut Feelings%3A The Intelligence of the Unconscious %7C Gerd Gigerenzer.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:260",
+      "text": "talk — if this worked, none of us would have bad habits",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -14574,6 +15233,26 @@
       "originFile": "Scientific Advertising %7C Claude Hopkins.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md:836",
+      "text": "The alternative to solitude was never companionship,’’ writes Harris. “The alternative to solitude is loneliness.\"",
+      "note": null,
+      "bookTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "bookAuthor": "John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourcePageTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress | John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourceDisplay": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "profound"
+      ],
+      "originType": "pages",
+      "originFile": "Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -15657,6 +16336,26 @@
       }
     },
     {
+      "id": "pages:A Comedic Guide to Money %7C Colin Ryan — Progressive Summarization Test.md:167",
+      "text": "The key isn’t willpower at all; it’s to change your environment.",
+      "note": null,
+      "bookTitle": "A Comedic Guide to Money",
+      "bookAuthor": "Colin Ryan",
+      "sourcePageTitle": "A Comedic Guide to Money | Colin Ryan — Progressive Summarization Test",
+      "sourceDisplay": "A Comedic Guide to Money",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "habits"
+      ],
+      "originType": "pages",
+      "originFile": "A Comedic Guide to Money %7C Colin Ryan — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
       "id": "pages:Same as Ever%3A A Guide to What Never Changes %7C Morgan Housel.md:325",
       "text": "The key thing about evolution is that everything dies. Again awkward that works",
       "note": null,
@@ -15713,6 +16412,26 @@
       "originFile": "The Daily Stoic %7C Ryan Holiday & Stephen Hanselman.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md:554",
+      "text": "The Latin proverb otium est pulvinar diaboli [idleness is the devil’s pillow] is quite correct, but the devil does not find time to lay his head on this pillow if one is not bored. But since people believe that it is man’s destiny to work, the antithesis idleness/work is correct.",
+      "note": "People too often think work is the only (or at least primary) way to achieve control and mastery.",
+      "bookTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "bookAuthor": "John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourcePageTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress | John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourceDisplay": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -17277,6 +17996,29 @@
       }
     },
     {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:32",
+      "text": "Then we went to work. I focused our session on finding specific behaviors their customers could do in order to create an emergency fund, and these are a few of the ones we came up with. Call your cable company and scale back your service to the lowest level Empty your pocket change into an emergency-fund jar every evening Announce a garage sale, then put all the revenue into an emergency fund In the end, we came up with more than thirty different specific behaviors.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "idea",
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": [
+          "long-note"
+        ]
+      }
+    },
+    {
       "id": "pages:Tiny Habits %7C BJ Fogg.md:24",
       "text": "Then we went to work. I focused our session on finding specific behaviors their customers could do in order to create an emergency fund, and these are a few of the ones we came up with. Call your cable company and scale back your service to the lowest level Empty your pocket change into an emergency-fund jar every evening Announce a garage sale, then put all the revenue into an emergency fund In the end, we came up with more than thirty different specific behaviors.",
       "note": "Adolescents",
@@ -18080,6 +18822,46 @@
       }
     },
     {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:224",
+      "text": "This or a similar analogy might be useful for good habits too. Maybe call them add habits or something along those lines. Rather than judging the habits.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:178",
+      "text": "This phrase—I’m the kind of person who— kept coming up, so I decided to bake it into the Tiny Habits evaluation process by asking people at the end of my free five-day program to complete this phrase: ”After doing Tiny Habits, I now see myself as the kind of person who . . .”",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
       "id": "pages:Tiny Habits %7C BJ Fogg.md:117",
       "text": "This phrase—I’m the kind of person who— kept coming up, so I decided to bake it into the Tiny Habits evaluation process by asking people at the end of my free five-day program to complete this phrase: ”After doing Tiny Habits, I now see myself as the kind of person who . . .”",
       "note": "I can have people repeat. It’s like an AA meeting. Hello, I’m X. And I see myself as then kind of person who…",
@@ -18158,6 +18940,27 @@
       "originFile": "Stumbling on Happiness %7C Dan Gilbert.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:102",
+      "text": "This totally aligns with how money attitudes are imprinted.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw",
+        "profound"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -18622,6 +19425,28 @@
       }
     },
     {
+      "id": "pages:Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md:936",
+      "text": "Today, make it your goal to pause at least three times and notice something simple that brings a smile to your face. Kids playing in the park, a pretty flower, someone smiling back at you, or the sound of the wind in the trees. Even better if you make a written note of each. Then repeat the same thing tomorrow. And the next day. Do it until this micro habit of time off becomes entirely natural for you, and you see the “inexhaustible fun of daily life” everywhere you look. I just added this to my Habit Lab .",
+      "note": null,
+      "bookTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "bookAuthor": "John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourcePageTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress | John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourceDisplay": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "decision making"
+      ],
+      "originType": "pages",
+      "originFile": "Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": [
+          "long-note"
+        ]
+      }
+    },
+    {
       "id": "pages:The Daily Stoic %7C Ryan Holiday & Stephen Hanselman.md:406",
       "text": "Today, not tomorrow, is the day that we can start to be good.",
       "note": null,
@@ -18760,6 +19585,26 @@
       "originFile": "The Daily Stoic %7C Ryan Holiday & Stephen Hanselman.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md:1141",
+      "text": "Try to set artificial deadlines and restrict the time you give yourself to complete a certain task, less time than you think is doable. Then work backward and figure out how you can still get it done in the allotted time.",
+      "note": "AI can help with this, although I have to be wary of it blowing smoke.",
+      "bookTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "bookAuthor": "John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourcePageTitle": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress | John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test",
+      "sourceDisplay": "Time Off: A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Time Off%3A A Practical Guide to Building Your Rest Ethic and Finding Success Without the Stress %7C John Fitch, Max Frenzel, and Mariya Suzuki — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -20202,6 +21047,27 @@
       }
     },
     {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:97",
+      "text": "When I teach people about human behavior, I boil it down to three words to make the point crystal clear: Emotions create habits. Not repetition. Not frequency. Not fairy dust. Emotions.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw",
+        "profound"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
       "id": "pages:Tiny Habits %7C BJ Fogg.md:72",
       "text": "When I teach people about human behavior, I boil it down to three words to make the point crystal clear: Emotions create habits. Not repetition. Not frequency. Not fairy dust. Emotions.",
       "note": "This totally aligns with how money attitudes are imprinted.",
@@ -21122,6 +21988,26 @@
       "originFile": "The Simple Path to Wealth %7C JL Collins.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md:119",
+      "text": "You might ask: In the early days, how did Sukumar know when to plank for more than five seconds? Good question. We’ll dive into that more deeply soon, but for now, the short answer is: He did more when he wanted to do more.",
+      "note": null,
+      "bookTitle": "Tiny Habits",
+      "bookAuthor": "BJ Fogg — Progressive Summarization Test",
+      "sourcePageTitle": "Tiny Habits | BJ Fogg — Progressive Summarization Test",
+      "sourceDisplay": "Tiny Habits",
+      "sourceLocator": null,
+      "blockId": null,
+      "tags": [
+        "mw"
+      ],
+      "originType": "pages",
+      "originFile": "Tiny Habits %7C BJ Fogg — Progressive Summarization Test.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
