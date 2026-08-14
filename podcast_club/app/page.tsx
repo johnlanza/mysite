@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import AddToCalendar from '@/components/AddToCalendar';
 import MeetingSelectedPodcastCard from '@/components/MeetingSelectedPodcastCard';
+import { UpcomingPodcastLink } from '@/components/UpcomingPodcastLink';
 import { withBasePath } from '@/lib/base-path';
 import { getCarveOutTypeLabel } from '@/lib/carveout-meta';
 import { getMeetingPodcasts } from '@/lib/meeting-podcasts';
@@ -124,6 +125,10 @@ export default function HomePage() {
       .sort((a, b) => +new Date(a.date) - +new Date(b.date))[0];
   }, [meetings]);
   const podcastsById = useMemo(() => new Map(podcasts.map((podcast) => [podcast._id, podcast])), [podcasts]);
+  const nextMeetingPodcasts = useMemo(
+    () => (nextMeeting ? getMeetingPodcasts(nextMeeting, podcastsById) : []),
+    [nextMeeting, podcastsById]
+  );
 
   const pending = useMemo(() => podcasts.filter((podcast) => podcast.status === 'pending'), [podcasts]);
   const podcastsToDiscuss = useMemo(() => {
@@ -551,23 +556,52 @@ export default function HomePage() {
     );
   }
 
-  const nextMeetingPodcasts = nextMeeting ? getMeetingPodcasts(nextMeeting, podcastsById) : [];
-
   return (
     <section className="home-dashboard page-stack">
-      <div className="section-panel command-panel" data-tone={getActionTone(primaryAction.href)}>
-        <div>
-          <p className="section-kicker">{primaryAction.kicker}</p>
-          <div className="hero-heading-row">
-            <h2>{primaryAction.title}</h2>
-            <span className="badge">{primaryAction.count}</span>
+      {nextMeeting && nextMeetingPodcasts.length > 0 ? (
+        <div className="section-panel command-panel listen-next-panel" data-tone="meetings">
+          <div className="listen-next-heading">
+            <div>
+              <p className="section-kicker">For the next meeting</p>
+              <div className="hero-heading-row">
+                <h2>Listen next</h2>
+                <span className="badge">
+                  {nextMeetingPodcasts.length} podcast{nextMeetingPodcasts.length === 1 ? '' : 's'}
+                </span>
+              </div>
+              <p className="muted-line">
+                {formatDate(nextMeeting.date)} with {displayMemberName(nextMeeting.host)}.
+              </p>
+            </div>
           </div>
-          <p className="muted-line">{primaryAction.detail}</p>
+          <div className="upcoming-podcast-list" aria-label="Podcasts for the next meeting">
+            {nextMeetingPodcasts.map((podcast, index) => (
+              <UpcomingPodcastLink key={podcast._id} podcast={podcast} position={index + 1} />
+            ))}
+          </div>
+          <Link className="listen-next-meeting-link" href="/meetings">
+            <span>
+              <strong>View meeting details</strong>
+              <small>Host, location, calendar, and full notes</small>
+            </span>
+            <span aria-hidden="true">→</span>
+          </Link>
         </div>
-        <Link className="action-link full-width-action" href={primaryAction.href} data-tone={getActionTone(primaryAction.href)}>
-          {primaryAction.label}
-        </Link>
-      </div>
+      ) : (
+        <div className="section-panel command-panel" data-tone={getActionTone(primaryAction.href)}>
+          <div>
+            <p className="section-kicker">{primaryAction.kicker}</p>
+            <div className="hero-heading-row">
+              <h2>{primaryAction.title}</h2>
+              <span className="badge">{primaryAction.count}</span>
+            </div>
+            <p className="muted-line">{primaryAction.detail}</p>
+          </div>
+          <Link className="action-link full-width-action" href={primaryAction.href} data-tone={getActionTone(primaryAction.href)}>
+            {primaryAction.label}
+          </Link>
+        </div>
+      )}
 
       <div className="section-panel todo-panel">
         <div className="section-title-row">

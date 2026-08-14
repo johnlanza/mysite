@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { setSessionCookie } from '@/lib/auth';
 import { formatAddress } from '@/lib/address';
+import { isReadOnlyPreview } from '@/lib/preview-mode';
 import MemberModel from '@/models/Member';
 
 export async function POST(req: Request) {
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'Invalid email or password.' }, { status: 401 });
     }
 
-    if (member.accountStatus === 'pending') {
+    if (member.accountStatus === 'pending' && !isReadOnlyPreview()) {
       await MemberModel.findByIdAndUpdate(member._id, {
         accountStatus: 'claimed',
         claimCodeHash: null,

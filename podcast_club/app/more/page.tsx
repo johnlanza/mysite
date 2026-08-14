@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { PaletteSelector } from '@/components/PaletteSelector';
 import { useSession } from '@/lib/use-session';
 
 function MoreIcon({ name }: { name: 'members' | 'imports' | 'intelligence' }) {
@@ -94,6 +95,8 @@ export default function MorePage() {
           <span>Signed in as</span>
           <strong>{member.name}</strong>
         </div>
+
+        <PaletteSelector />
 
         <div className="more-menu-section">
           <p className="section-kicker">Club</p>

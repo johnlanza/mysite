@@ -1,3 +1,5 @@
+import type { PaletteId } from '@/lib/palettes';
+
 export type Member = {
   _id: string;
   name: string;
@@ -9,6 +11,7 @@ export type Member = {
   postalCode: string;
   address: string;
   isAdmin: boolean;
+  palette?: PaletteId;
   accountStatus?: 'pending' | 'claimed';
   adminRoast?: {
     headline: string;

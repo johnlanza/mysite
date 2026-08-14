@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import type { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { formatAddress } from '@/lib/address';
+import { isPaletteId } from '@/lib/palettes';
 import MemberModel from '@/models/Member';
 
 const SESSION_COOKIE = process.env.MYSITE_SESSION_COOKIE || 'mysite_session';
@@ -74,7 +75,7 @@ async function resolveSessionMember(token?: string) {
 
   await connectToDatabase();
   const member = await MemberModel.findById(payload.memberId)
-    .select('name email address addressLine1 addressLine2 city state postalCode isAdmin passwordChangedAt')
+    .select('name email address addressLine1 addressLine2 city state postalCode isAdmin palette passwordChangedAt')
     .lean();
   if (!member) return null;
   if (member.passwordChangedAt && new Date(member.passwordChangedAt).getTime() > payload.iat) {
@@ -106,6 +107,7 @@ async function resolveSessionMember(token?: string) {
     postalCode: member.postalCode || '',
     address: formatAddress(member),
     isAdmin: member.isAdmin,
+    palette: isPaletteId(member.palette) ? member.palette : undefined,
     isImpersonating: Boolean(payload.impersonatorId),
     impersonatorId: payload.impersonatorId ? String(payload.impersonatorId) : undefined,
     impersonatorName: payload.impersonatorId ? impersonatorName : undefined

@@ -1,3 +1,5 @@
+import { isReadOnlyPreview } from '@/lib/preview-mode';
+
 type SendPasswordResetEmailParams = {
   to: string;
   name: string;
@@ -60,10 +62,14 @@ function escapeHtml(value: string | number) {
 }
 
 export function isEmailDeliveryConfigured() {
-  return Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM);
+  return !isReadOnlyPreview() && Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM);
 }
 
 async function sendEmail({ to, subject, html }: SendEmailParams) {
+  if (isReadOnlyPreview()) {
+    return { delivered: false as const, reason: 'preview-read-only' as const };
+  }
+
   const resendApiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
 

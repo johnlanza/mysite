@@ -71,6 +71,18 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+### Read-only preview with live data
+
+For visual review against the live Podcast Club records, use the live database connection with read-only preview mode enabled:
+
+```bash
+PODCAST_CLUB_PREVIEW_READ_ONLY=true npm run dev
+```
+
+Read-only preview mode allows login, logout, and data reads. It blocks other API mutations with `403`, disables outbound email, reminder sweeps, and automatic database collection/index creation, and displays a visible preview banner. Render pull-request previews enable this mode automatically through Render's `IS_PULL_REQUEST` environment variable.
+
+For database-level protection, use a MongoDB credential with read-only access to the existing `podcast_club` database. Full submission, voting, editing, and deletion tests require a staging/test database.
+
 ## Deploying Under `/podcastclub`
 
 To deploy at `johnlanza.com/podcastclub`:

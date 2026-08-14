@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { connectToDatabase } from '@/lib/db';
 import { buildSessionCookieHeader } from '@/lib/auth';
 import { formatAddress } from '@/lib/address';
+import { isReadOnlyPreview } from '@/lib/preview-mode';
 import MemberModel from '@/models/Member';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -42,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ message: 'Invalid email or password.' });
     }
 
-    if (member.accountStatus === 'pending') {
+    if (member.accountStatus === 'pending' && !isReadOnlyPreview()) {
       await MemberModel.findByIdAndUpdate(member._id, {
         accountStatus: 'claimed',
         claimCodeHash: null,

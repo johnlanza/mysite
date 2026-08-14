@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { isReadOnlyPreview } from '@/lib/preview-mode';
 
 declare global {
   var mongooseCache: {
@@ -20,7 +21,13 @@ export async function connectToDatabase() {
     }
 
     cache.promise = mongoose.connect(mongoUri, {
-      dbName: process.env.MONGODB_DB || 'podcast_club'
+      dbName: process.env.MONGODB_DB || 'podcast_club',
+      ...(isReadOnlyPreview()
+        ? {
+            autoCreate: false,
+            autoIndex: false
+          }
+        : {})
     });
   }
 

@@ -1,5 +1,6 @@
 import mongoose, { Schema, type InferSchemaType, type Model } from 'mongoose';
 import { US_STATE_CODES } from '@/lib/address';
+import { DEFAULT_PALETTE, PALETTE_IDS } from '@/lib/palettes';
 
 const MemberSchema = new Schema(
   {
@@ -14,6 +15,7 @@ const MemberSchema = new Schema(
     postalCode: { type: String, required: true, trim: true },
     passwordChangedAt: { type: Date, default: null },
     isAdmin: { type: Boolean, default: false },
+    palette: { type: String, enum: PALETTE_IDS, default: DEFAULT_PALETTE },
     accountStatus: { type: String, enum: ['pending', 'claimed'], default: 'claimed' },
     claimCodeHash: { type: String, default: null, select: false },
     claimCodeExpiresAt: { type: Date, default: null },
