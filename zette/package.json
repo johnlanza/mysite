@@ -10,8 +10,10 @@
     "quotes:build": "node ./scripts/build-quotes-dataset.mjs",
     "books:build": "node ./scripts/build-book-notes-dataset.mjs",
     "questions:build": "node ./scripts/build-questions-dataset.mjs",
+    "brain:build": "node ./scripts/build-brain-dataset.mjs",
     "quotes:watch": "node ./scripts/watch-quotes.mjs",
-    "embeddings:build": "node ./scripts/build-embeddings.mjs"
+    "embeddings:build": "node ./scripts/build-embeddings.mjs",
+    "data:build": "npm run questions:build && npm run quotes:build && npm run books:build && npm run brain:build && npm run embeddings:build"
   },
   "dependencies": {
     "next": "^16.2.6",

@@ -19,6 +19,7 @@ type SyncStatusPayload = {
     quotes: SyncDatasetStatus;
     bookNotes: SyncDatasetStatus;
     questions: SyncDatasetStatus;
+    brain: SyncDatasetStatus;
     embeddings: SyncDatasetStatus;
   };
 };
@@ -65,7 +66,7 @@ export function RefreshQuotesButton({
       const counts = payload.datasets;
 
       setStatus(
-        `Updated ${formatUpdatedAt(payload.generatedAt)} · ${counts.quotes.count.toLocaleString()} quotes · ${counts.bookNotes.count.toLocaleString()} notes · ${counts.questions.count.toLocaleString()} questions`,
+        `Updated ${formatUpdatedAt(payload.generatedAt)} · ${counts.quotes.count.toLocaleString()} quotes · ${counts.bookNotes.count.toLocaleString()} notes · ${counts.questions.count.toLocaleString()} questions · ${counts.brain.count.toLocaleString()} brain records`,
       );
     } finally {
       setIsRefreshing(false);

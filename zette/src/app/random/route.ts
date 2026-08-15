@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 
 import { withBasePath } from "@/lib/base-path";
-import { getDailySeedKey, readAllPieces } from "@/lib/pieces";
+import { getDailySeedKey, readFeaturedPieces } from "@/lib/pieces";
 
 export const dynamic = "force-dynamic";
 
@@ -10,10 +10,10 @@ export async function GET(request: NextRequest) {
   const tags = request.nextUrl.searchParams.get("tags");
   const requestedPath = request.nextUrl.searchParams.get("path");
   const targetPath = requestedPath === "/now" ? "/now" : "/";
-  const pieces = await readAllPieces();
+  const pieces = await readFeaturedPieces();
 
   const eligible = pieces.filter(
-    (p) => p.text.length >= 60 && p.id !== from,
+    (p) => p.featuredEligible && p.text.length >= 60 && p.id !== from,
   );
   const pool = eligible.length > 0 ? eligible : pieces;
   const pick = pool[Math.floor(Math.random() * pool.length)];

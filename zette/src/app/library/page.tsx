@@ -2,6 +2,7 @@ import { QuotesExplorer } from "@/components/quotes-explorer";
 import { RefreshQuotesButton } from "@/components/refresh-quotes-button";
 import { getLogseqPageUrl } from "@/lib/logseq";
 import { readBookNotesDataset } from "@/lib/book-notes-data";
+import { readBrainDataset } from "@/lib/brain-data";
 import { readQuotesDataset } from "@/lib/quotes-data";
 import Link from "next/link";
 
@@ -28,9 +29,10 @@ function getDailyQuote(quotes: QuoteRecord[]) {
 }
 
 export default async function Home() {
-  const [{ quotes, tags, stats }, bookNotesDataset] = await Promise.all([
+  const [{ quotes, tags, stats }, bookNotesDataset, brainDataset] = await Promise.all([
     readQuotesDataset(),
     readBookNotesDataset(),
+    readBrainDataset(),
   ]);
   const dailyQuote = getDailyQuote(quotes);
 
@@ -89,7 +91,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="mb-6 grid gap-3 rounded-[2rem] border border-line bg-card/80 px-5 py-5 sm:grid-cols-2 lg:grid-cols-6 sm:px-6">
+      <section className="mb-6 grid gap-3 rounded-[2rem] border border-line bg-card/80 px-5 py-5 sm:grid-cols-2 lg:grid-cols-7 sm:px-6">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted">
             Quotes
@@ -113,6 +115,12 @@ export default async function Home() {
             Book Notes
           </p>
           <p className="mt-2 text-3xl font-semibold">{bookNotesDataset.stats.totalNotes}</p>
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted">
+            Brain
+          </p>
+          <p className="mt-2 text-3xl font-semibold">{brainDataset.stats.totalRecords}</p>
         </div>
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted">

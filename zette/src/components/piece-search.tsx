@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { PieceNoteBox } from "@/components/piece-note-box";
 import { RefreshQuotesButton } from "@/components/refresh-quotes-button";
+import { withBasePath } from "@/lib/base-path";
 import type { Piece } from "@/lib/pieces";
 
 type PieceSearchProps = {
@@ -21,38 +22,6 @@ const TAG_SORT_OPTIONS: { value: TagSortMode; label: string }[] = [
   { value: "alphabetical", label: "Alphabetical" },
   { value: "frequency", label: "Frequency" },
 ];
-
-function parseQuery(query: string): string[] {
-  const tokens = [];
-  const quotedPattern = /"([^"]+)"/g;
-  let remainder = query;
-
-  for (const match of query.matchAll(quotedPattern)) {
-    const phrase = match[1]?.trim().toLowerCase();
-    if (phrase) tokens.push(phrase);
-    remainder = remainder.replace(match[0], " ");
-  }
-
-  for (const token of remainder.toLowerCase().split(/\s+/)) {
-    const cleaned = token.trim();
-    if (cleaned) tokens.push(cleaned);
-  }
-
-  return tokens;
-}
-
-function pieceHaystack(piece: Piece): string {
-  return [
-    piece.text,
-    piece.note ?? "",
-    piece.attribution ?? "",
-    piece.context ?? "",
-    piece.sourceDisplay,
-    piece.tags.join(" "),
-  ]
-    .join(" ")
-    .toLowerCase();
-}
 
 function pieceHref(piece: Piece, selectedTags: string[], piecePath: string): string {
   const params = new URLSearchParams();
@@ -94,6 +63,8 @@ export function PieceSearch({
   const isBrowse = mode === "browse";
   const [showTags, setShowTags] = useState(isBrowse);
   const [tagSort, setTagSort] = useState<TagSortMode>("alphabetical");
+  const [remoteResults, setRemoteResults] = useState<Piece[] | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
   const normalizedQuery = query.trim();
   const resultLimit = isBrowse && selectedTags.length > 0
     ? null
@@ -132,10 +103,8 @@ export function PieceSearch({
     });
   }, [tagCounts, tagSort, tags]);
 
-  const results = useMemo(() => {
-    const tokens = parseQuery(normalizedQuery);
-
-    if (tokens.length === 0 && selectedTags.length === 0) {
+  const localResults = useMemo(() => {
+    if (selectedTags.length === 0) {
       return [];
     }
 
@@ -143,14 +112,64 @@ export function PieceSearch({
       const matchesTags = selectedTags.every((tag) => piece.tags.includes(tag));
       if (!matchesTags) return false;
 
-      if (tokens.length === 0) return true;
-
-      const haystack = pieceHaystack(piece);
-      return tokens.every((token) => haystack.includes(token));
+      return true;
     });
 
     return resultLimit === null ? filtered : filtered.slice(0, resultLimit);
-  }, [normalizedQuery, pieces, resultLimit, selectedTags]);
+  }, [pieces, resultLimit, selectedTags]);
+
+  useEffect(() => {
+    if (!normalizedQuery) {
+      setRemoteResults(null);
+      setIsSearching(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setRemoteResults(null);
+    const timer = window.setTimeout(async () => {
+      setIsSearching(true);
+
+      try {
+        const params = new URLSearchParams({
+          q: normalizedQuery,
+          limit: String(resultLimit ?? 80),
+        });
+
+        if (selectedTags.length > 0) {
+          params.set("tags", selectedTags.join(","));
+        }
+
+        const response = await fetch(withBasePath(`/api/search?${params.toString()}`), {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          setRemoteResults([]);
+          return;
+        }
+
+        const payload = (await response.json()) as { results?: Piece[] };
+        setRemoteResults(payload.results ?? []);
+      } catch (error) {
+        if ((error as DOMException).name !== "AbortError") {
+          setRemoteResults([]);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsSearching(false);
+        }
+      }
+    }, 220);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timer);
+    };
+  }, [normalizedQuery, resultLimit, selectedTags]);
+
+  const results = normalizedQuery ? remoteResults ?? [] : localResults;
 
   const showResults =
     normalizedQuery.length > 0 || (isBrowse && selectedTags.length > 0);
@@ -291,7 +310,11 @@ export function PieceSearch({
 
       {showResults ? (
         <div className="mt-4">
-          {results.length > 0 ? (
+          {isSearching && remoteResults === null ? (
+            <p className="rounded-[1.25rem] border border-line bg-card/78 px-5 py-4 text-sm text-muted">
+              Searching...
+            </p>
+          ) : results.length > 0 ? (
             <ul
               className={
                 isBrowse

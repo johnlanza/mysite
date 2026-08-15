@@ -8,7 +8,9 @@ import {
   getDailyCardTimeZone,
   getDailySeedKey,
   pickDailySeedForDateKey,
-  readAllPieces,
+  readBrowsePieces,
+  readFeaturedPieces,
+  readSearchPieces,
 } from "@/lib/pieces";
 
 export const dynamic = "force-dynamic";
@@ -19,16 +21,18 @@ type NowPageProps = {
 
 export default async function NowPage({ searchParams }: NowPageProps) {
   const params = await searchParams;
-  const [pieces, embeddings] = await Promise.all([
-    readAllPieces(),
+  const [searchPieces, browsePieces, featuredPieces, embeddings] = await Promise.all([
+    readSearchPieces(),
+    readBrowsePieces(),
+    readFeaturedPieces(),
     readEmbeddings(),
   ]);
 
-  if (pieces.length === 0) {
+  if (featuredPieces.length === 0) {
     notFound();
   }
 
-  const tags = [...new Set(pieces.flatMap((piece) => piece.tags))].sort();
+  const tags = [...new Set(browsePieces.flatMap((piece) => piece.tags))].sort();
   const selectedTags = (params.tags ?? "")
     .split(",")
     .map((tag) => tag.trim())
@@ -39,17 +43,17 @@ export default async function NowPage({ searchParams }: NowPageProps) {
   const hasStaleDraw =
     Boolean(params.p) && Boolean(drawDayKey) && drawDayKey !== dailySeedKey;
   const requested =
-    params.p && !hasStaleDraw ? findPieceById(pieces, params.p) : null;
-  const current = requested ?? pickDailySeedForDateKey(pieces, dailySeedKey);
+    params.p && !hasStaleDraw ? findPieceById(searchPieces, params.p) : null;
+  const current = requested ?? pickDailySeedForDateKey(featuredPieces, dailySeedKey);
   const isSeed = !requested;
   const echoesOpen = params.e === "1";
-  const echoes = findEchoes(current, pieces, embeddings, 3);
+  const echoes = findEchoes(current, searchPieces, embeddings, 3);
 
   return (
     <HeroView
       piece={current}
       echoes={echoes}
-      pieces={pieces}
+      pieces={browsePieces}
       tags={tags}
       selectedTags={selectedTags}
       isSeed={isSeed}

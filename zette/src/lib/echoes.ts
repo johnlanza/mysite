@@ -262,7 +262,7 @@ export function findEchoes(
   limit = 3,
 ): Piece[] {
   const candidates = all.filter(
-    (p) => p.id !== source.id && p.text.length >= 30,
+    (p) => p.id !== source.id && p.text.length >= 30 && p.echoEligible,
   );
 
   const ranked =
@@ -270,5 +270,9 @@ export function findEchoes(
       ? rankByEmbeddings(source, candidates, embeddings)
       : rankByKeywords(source, candidates);
 
-  return selectDiverseEchoes(source, ranked, limit);
+  return selectDiverseEchoes(
+    source,
+    ranked.length > 0 ? ranked : rankByKeywords(source, candidates),
+    limit,
+  );
 }

@@ -6,6 +6,8 @@ import path from "node:path";
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const QUOTES_FILE = path.join(ROOT, "src/data/quotes.json");
 const BOOK_NOTES_FILE = path.join(ROOT, "src/data/book-notes.json");
+const QUESTIONS_FILE = path.join(ROOT, "src/data/questions.json");
+const BRAIN_FILE = path.join(ROOT, "src/data/brain.json");
 const EMBEDDINGS_FILE = path.join(ROOT, "src/data/embeddings.json");
 
 const MODEL = "text-embedding-3-small";
@@ -54,6 +56,28 @@ function unifyNote(n) {
   };
 }
 
+function unifyQuestion(q) {
+  return {
+    id: `question:${q.id}`,
+    text: q.text,
+    note: null,
+    attribution: null,
+    context: q.sourceDisplay,
+    tags: q.tags ?? [],
+  };
+}
+
+function unifyBrainRecord(record) {
+  return {
+    id: `brain:${record.id}`,
+    text: record.text,
+    note: record.note,
+    attribution: null,
+    context: record.sourceDisplay,
+    tags: record.tags ?? [],
+  };
+}
+
 async function readJson(filePath, fallback = null) {
   try {
     const content = await fs.readFile(filePath, "utf8");
@@ -93,12 +117,20 @@ async function main() {
 
   const quotesDataset = await readJson(QUOTES_FILE);
   const notesDataset = await readJson(BOOK_NOTES_FILE);
+  const questionsDataset = await readJson(QUESTIONS_FILE);
+  const brainDataset = await readJson(BRAIN_FILE);
   if (!quotesDataset) die(`Missing ${QUOTES_FILE}`);
   if (!notesDataset) die(`Missing ${BOOK_NOTES_FILE}`);
+  if (!questionsDataset) die(`Missing ${QUESTIONS_FILE}`);
+  if (!brainDataset) die(`Missing ${BRAIN_FILE}`);
 
   const pieces = [
     ...quotesDataset.quotes.map(unifyQuote),
     ...notesDataset.notes.map(unifyNote),
+    ...questionsDataset.questions.map(unifyQuestion),
+    ...brainDataset.records
+      .filter((record) => record.search?.semanticEligible)
+      .map(unifyBrainRecord),
   ];
 
   const existing = await readJson(EMBEDDINGS_FILE, {

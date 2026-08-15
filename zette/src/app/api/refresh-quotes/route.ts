@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 
 import { readBookNotesDataset } from "@/lib/book-notes-data";
+import { readBrainDataset } from "@/lib/brain-data";
 import { EMBEDDINGS_DATA_FILE, type EmbeddingsFile } from "@/lib/embeddings";
 import { readQuestionsDataset } from "@/lib/questions-data";
 import { readQuotesDataset } from "@/lib/quotes-data";
@@ -34,16 +35,18 @@ async function readEmbeddingsFile(): Promise<EmbeddingsFile | null> {
 }
 
 export async function GET() {
-  const [quotes, bookNotes, questions, embeddings] = await Promise.all([
+  const [quotes, bookNotes, questions, brain, embeddings] = await Promise.all([
     readQuotesDataset(),
     readBookNotesDataset(),
     readQuestionsDataset(),
+    readBrainDataset(),
     readEmbeddingsFile(),
   ]);
   const generatedAt = latestGeneratedAt([
     quotes.generatedAt,
     bookNotes.generatedAt,
     questions.generatedAt,
+    brain.generatedAt,
     embeddings?.generatedAt,
   ]);
 
@@ -61,6 +64,10 @@ export async function GET() {
       questions: {
         count: questions.questions.length,
         generatedAt: questions.generatedAt,
+      },
+      brain: {
+        count: brain.records.length,
+        generatedAt: brain.generatedAt,
       },
       embeddings: {
         count: Object.keys(embeddings?.entries ?? {}).length,

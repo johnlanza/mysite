@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-08T18:08:16.075Z",
+  "generatedAt": "2026-08-15T14:32:07.560Z",
   "sourceDirectories": [
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/journals",
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages"
@@ -46,10 +46,10 @@
     "writing"
   ],
   "stats": {
-    "totalQuotes": 321,
+    "totalQuotes": 327,
     "taggedQuotes": 143,
     "suspiciousQuotes": 109,
-    "newQuotes": 72
+    "newQuotes": 78
   },
   "quotes": [
     {
@@ -293,6 +293,24 @@
       "originFile": "2023_01_21.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Ego Is the Enemy %7C Ryan Holiday.md:4",
+      "text": "All of us waste precious life doing things we don’t like, to prove ourselves to people we don’t respect, and to get things we don’t want",
+      "author": "Ryan Holiday",
+      "source": null,
+      "sourcePageTitle": "Ego Is the Enemy | Ryan Holiday",
+      "sourceDisplay": "Ego Is the Enemy | Ryan Holiday",
+      "note": null,
+      "sourceLocator": null,
+      "blockId": "c4206bcf-4ebf-5ff0-b67b-a148f6bc9e25",
+      "tags": [],
+      "originType": "pages",
+      "originFile": "Ego Is the Enemy %7C Ryan Holiday.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -1129,6 +1147,24 @@
       "tags": [],
       "originType": "pages",
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Ego Is the Enemy %7C Ryan Holiday.md:3",
+      "text": "Every man I meet is my master in some point, and in that I learn of him",
+      "author": "RALPH WALDO EMERSON",
+      "source": null,
+      "sourcePageTitle": "Ego Is the Enemy | Ryan Holiday",
+      "sourceDisplay": "Ego Is the Enemy | Ryan Holiday",
+      "note": null,
+      "sourceLocator": null,
+      "blockId": "34c7c791-b6c6-5f32-93cf-5dfd49a66fe6",
+      "tags": [],
+      "originType": "pages",
+      "originFile": "Ego Is the Enemy %7C Ryan Holiday.md",
       "review": {
         "isNew": true,
         "flags": []
@@ -3293,6 +3329,24 @@
       }
     },
     {
+      "id": "pages:Ego Is the Enemy %7C Ryan Holiday.md:0",
+      "text": "Mere gossip anticipates real talk, and to express what is still in thought weakens action by forestalling it",
+      "author": "Kierkegaard warned",
+      "source": null,
+      "sourcePageTitle": "Ego Is the Enemy | Ryan Holiday",
+      "sourceDisplay": "Ego Is the Enemy | Ryan Holiday",
+      "note": null,
+      "sourceLocator": null,
+      "blockId": "b05fd228-6582-5beb-a053-55ab14b14694",
+      "tags": [],
+      "originType": "pages",
+      "originFile": "Ego Is the Enemy %7C Ryan Holiday.md",
+      "review": {
+        "isNew": true,
+        "flags": []
+      }
+    },
+    {
       "id": "journals:2023_04_06.md:0",
       "text": "Money plays an important role in life, but it can't be the only filter for how you decide to spend your time. Nobody will ever pay you to go on a date with your spouse or take your kids to the park or grab coffee with your parents.",
       "author": null,
@@ -3486,6 +3540,24 @@
       "originFile": "Tao Te Ching %7C Lao Tzu %7C Ursula K. LeGuin.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Ego Is the Enemy %7C Ryan Holiday.md:1",
+      "text": "Never give reasons for what you think or do until you must. Maybe, after a while, a better reason will pop into your head",
+      "author": "Ryan Holiday",
+      "source": null,
+      "sourcePageTitle": "Ego Is the Enemy | Ryan Holiday",
+      "sourceDisplay": "Ego Is the Enemy | Ryan Holiday",
+      "note": null,
+      "sourceLocator": null,
+      "blockId": "a6c882de-c4e5-59f5-8e1e-d10710e9ae3f",
+      "tags": [],
+      "originType": "pages",
+      "originFile": "Ego Is the Enemy %7C Ryan Holiday.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -4368,6 +4440,24 @@
       "originFile": "Awareness%3A the Perils and Opportunities of Reality %7C Anthony DeMello.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Ego Is the Enemy %7C Ryan Holiday.md:2",
+      "text": "The first product of self-knowledge is humility,",
+      "author": "Ryan Holiday",
+      "source": null,
+      "sourcePageTitle": "Ego Is the Enemy | Ryan Holiday",
+      "sourceDisplay": "Ego Is the Enemy | Ryan Holiday",
+      "note": null,
+      "sourceLocator": null,
+      "blockId": "c35a5cc6-098a-5244-b8ea-ef16e5f4cc82",
+      "tags": [],
+      "originType": "pages",
+      "originFile": "Ego Is the Enemy %7C Ryan Holiday.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
@@ -5445,6 +5535,24 @@
         "flags": [
           "journal-date-fallback"
         ]
+      }
+    },
+    {
+      "id": "pages:Ego Is the Enemy %7C Ryan Holiday.md:5",
+      "text": "to see yourself as more than you are and to value yourself at less than your true worth",
+      "author": "Ryan Holiday",
+      "source": null,
+      "sourcePageTitle": "Ego Is the Enemy | Ryan Holiday",
+      "sourceDisplay": "Ego Is the Enemy | Ryan Holiday",
+      "note": null,
+      "sourceLocator": null,
+      "blockId": "d37f36fa-d6dc-5074-974d-4e362292a774",
+      "tags": [],
+      "originType": "pages",
+      "originFile": "Ego Is the Enemy %7C Ryan Holiday.md",
+      "review": {
+        "isNew": true,
+        "flags": []
       }
     },
     {

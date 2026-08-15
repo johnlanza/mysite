@@ -1,14 +1,22 @@
 import Link from "next/link";
 
 import { RefreshQuotesButton } from "@/components/refresh-quotes-button";
+import {
+  getCandidateBrainRecords,
+  readBrainDataset,
+} from "@/lib/brain-data";
 import { readQuotesDataset } from "@/lib/quotes-data";
 
 export const dynamic = "force-dynamic";
 
 export default async function ReviewPage() {
-  const dataset = await readQuotesDataset();
+  const [dataset, brainDataset] = await Promise.all([
+    readQuotesDataset(),
+    readBrainDataset(),
+  ]);
   const newQuotes = dataset.quotes.filter((quote) => quote.review.isNew);
   const flaggedQuotes = dataset.quotes.filter((quote) => quote.review.flags.length > 0);
+  const candidateBrainRecords = getCandidateBrainRecords(brainDataset).slice(0, 80);
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-5 py-6 sm:px-8 lg:px-10">
@@ -87,6 +95,55 @@ export default async function ReviewPage() {
                         className="rounded-full bg-accent-soft px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-accent"
                       >
                         {flag}
+                      </span>
+                    ))}
+                  </div>
+                </article>
+              ))
+            )}
+          </div>
+        </section>
+
+        <section className="mt-8">
+          <h2 className="font-serif text-3xl">Candidate wisdom</h2>
+          <p className="mt-2 text-sm text-muted">
+            {brainDataset.stats.candidateRecords.toLocaleString()} candidates from{" "}
+            {brainDataset.stats.totalRecords.toLocaleString()} hidden brain records.
+            Showing the strongest {candidateBrainRecords.length.toLocaleString()}.
+          </p>
+          <div className="mt-4 space-y-4">
+            {candidateBrainRecords.length === 0 ? (
+              <p className="text-sm text-muted">No uncurated candidates found.</p>
+            ) : (
+              candidateBrainRecords.map((record) => (
+                <article
+                  key={`candidate-${record.id}`}
+                  className="rounded-[1.5rem] border border-line bg-[#fffaf2] px-5 py-5"
+                >
+                  <blockquote className="font-serif text-2xl leading-tight">
+                    {record.text}
+                  </blockquote>
+                  <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <p className="text-sm text-muted">{record.sourceDisplay}</p>
+                    {record.sourceLocator ? (
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted/70">
+                        {record.sourceLocator}
+                      </p>
+                    ) : null}
+                    <Link
+                      className="text-sm font-semibold text-accent underline decoration-transparent underline-offset-4 transition hover:decoration-current"
+                      href={`/?p=${encodeURIComponent(`brain:${record.id}`)}`}
+                    >
+                      Open as card
+                    </Link>
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {record.search.reasons.map((reason) => (
+                      <span
+                        key={`${record.id}-${reason}`}
+                        className="rounded-full bg-accent-soft px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-accent"
+                      >
+                        {reason}
                       </span>
                     ))}
                   </div>

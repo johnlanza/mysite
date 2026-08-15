@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-08T15:29:46.439Z",
+  "generatedAt": "2026-08-15T14:32:09.883Z",
   "sourceDirectories": [
     "/Users/johnlanza/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages"
   ],
@@ -57,11 +57,11 @@
     "writing"
   ],
   "stats": {
-    "totalNotes": 1085,
-    "taggedNotes": 1085,
+    "totalNotes": 1086,
+    "taggedNotes": 1086,
     "books": 86,
     "suspiciousNotes": 150,
-    "newNotes": 41
+    "newNotes": 42
   },
   "notes": [
     {
@@ -3424,7 +3424,7 @@
       }
     },
     {
-      "id": "pages:Ego Is the Enemy %7C Ryan Holiday.md:104",
+      "id": "pages:Ego Is the Enemy %7C Ryan Holiday.md:107",
       "text": "Because we only seem to hear about the passion of successful people, we forget that failures shared the same trait.",
       "note": "A point that I read over and over is that we forget the failures who share similar traits with and often outnumber successes.",
       "bookTitle": "Ego Is the Enemy",
@@ -14843,7 +14843,7 @@
     {
       "id": "pages:Ego Is the Enemy %7C Ryan Holiday.md:23",
       "text": "Sure, ego has worked for some. Many of history’s most famous men and women were notoriously egotistical. But so were many of its greatest failures. Far more of them, in fact. But here we are with a culture that urges us to roll the dice. To make the gamble, ignoring the stakes.",
-      "note": null,
+      "note": "Survivorship bias",
       "bookTitle": "Ego Is the Enemy",
       "bookAuthor": "Ryan Holiday",
       "sourcePageTitle": "Ego Is the Enemy | Ryan Holiday",
@@ -14851,7 +14851,8 @@
       "sourceLocator": null,
       "blockId": "ec2bf7d2-6d99-528d-b98b-0779d0a34cba",
       "tags": [
-        "bias"
+        "bias",
+        "mw"
       ],
       "originType": "pages",
       "originFile": "Ego Is the Enemy %7C Ryan Holiday.md",
@@ -18328,6 +18329,26 @@
       "originFile": "Dead Wake%3A The Last Crossing of the Lusitania %7C Eric Larson.md",
       "review": {
         "isNew": false,
+        "flags": []
+      }
+    },
+    {
+      "id": "pages:Ego Is the Enemy %7C Ryan Holiday.md:71",
+      "text": "There’s a quip from the historian Will Durant, that a nation is born stoic and dies epicurean.",
+      "note": null,
+      "bookTitle": "Ego Is the Enemy",
+      "bookAuthor": "Ryan Holiday",
+      "sourcePageTitle": "Ego Is the Enemy | Ryan Holiday",
+      "sourceDisplay": "Ego Is the Enemy",
+      "sourceLocator": null,
+      "blockId": "6598353d-a2c5-53a0-925b-57dcf619e6ac",
+      "tags": [
+        "profound"
+      ],
+      "originType": "pages",
+      "originFile": "Ego Is the Enemy %7C Ryan Holiday.md",
+      "review": {
+        "isNew": true,
         "flags": []
       }
     },
