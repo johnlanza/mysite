@@ -133,12 +133,19 @@ export async function readSearchPieces(): Promise<Piece[]> {
     readQuestionsDataset(),
     readBrainDataset(),
   ]);
+  const curatedRecordIds = new Set([
+    ...quotesDataset.quotes.map((quote) => quote.id),
+    ...bookNotesDataset.notes.map((note) => note.id),
+    ...questionsDataset.questions.map((question) => question.id),
+  ]);
 
   return [
     ...quotesDataset.quotes.map(quoteToPiece),
     ...bookNotesDataset.notes.map(noteToPiece),
     ...questionsDataset.questions.map(questionToPiece),
-    ...brainDataset.records.map(brainToPiece),
+    ...brainDataset.records
+      .filter((record) => !curatedRecordIds.has(record.id))
+      .map(brainToPiece),
   ];
 }
 

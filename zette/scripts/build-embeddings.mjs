@@ -124,12 +124,21 @@ async function main() {
   if (!questionsDataset) die(`Missing ${QUESTIONS_FILE}`);
   if (!brainDataset) die(`Missing ${BRAIN_FILE}`);
 
+  const curatedRecordIds = new Set([
+    ...quotesDataset.quotes.map((quote) => quote.id),
+    ...notesDataset.notes.map((note) => note.id),
+    ...questionsDataset.questions.map((question) => question.id),
+  ]);
+
   const pieces = [
     ...quotesDataset.quotes.map(unifyQuote),
     ...notesDataset.notes.map(unifyNote),
     ...questionsDataset.questions.map(unifyQuestion),
     ...brainDataset.records
-      .filter((record) => record.search?.semanticEligible)
+      .filter(
+        (record) =>
+          record.search?.semanticEligible && !curatedRecordIds.has(record.id),
+      )
       .map(unifyBrainRecord),
   ];
 

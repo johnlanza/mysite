@@ -47,6 +47,8 @@ type ScoredPiece = {
   score: number;
   sharesSource: boolean;
   sourceKey: string;
+  contentKey: string;
+  recordKey: string;
 };
 
 function normalizeKey(value: string | null | undefined): string {
@@ -54,6 +56,43 @@ function normalizeKey(value: string | null | undefined): string {
     .toLowerCase()
     .replace(/[^\p{L}\p{N}]+/gu, " ")
     .trim();
+}
+
+function getContentKey(piece: Piece): string {
+  return normalizeKey([piece.text, piece.note].filter(Boolean).join(" "));
+}
+
+function getTextKey(piece: Piece): string {
+  return normalizeKey(piece.text);
+}
+
+function getRecordKey(piece: Piece): string {
+  return piece.id.replace(/^(?:q|n|brain|question):/, "");
+}
+
+function hasSameContent(left: Piece, right: Piece): boolean {
+  const leftContent = getContentKey(left);
+  const rightContent = getContentKey(right);
+  const leftText = getTextKey(left);
+  const rightText = getTextKey(right);
+
+  if (!leftContent || !rightContent) {
+    return false;
+  }
+
+  if (
+    leftContent === rightContent ||
+    (leftText && leftText === rightText) ||
+    (leftText && leftText === rightContent) ||
+    (rightText && rightText === leftContent)
+  ) {
+    return true;
+  }
+
+  return (
+    (leftContent.length >= 80 && rightContent.includes(leftContent)) ||
+    (rightContent.length >= 80 && leftContent.includes(rightContent))
+  );
 }
 
 function getSourceKey(piece: Piece): string {
@@ -168,6 +207,8 @@ function rankByEmbeddings(
       score: scoreWithSignals(sim, signals),
       sharesSource: signals.sharesSource,
       sourceKey: signals.sourceKey,
+      contentKey: getContentKey(piece),
+      recordKey: getRecordKey(piece),
     });
   }
   scored.sort((a, b) => b.score - a.score);
@@ -184,15 +225,19 @@ function rankByKeywords(source: Piece, candidates: Piece[]): ScoredPiece[] {
         score: scoreWithSignals(baseScore, signals),
         sharesSource: signals.sharesSource,
         sourceKey: signals.sourceKey,
+        contentKey: getContentKey(piece),
+        recordKey: getRecordKey(piece),
         tokenOverlap: signals.tokenOverlap,
       };
     })
     .filter((x) => x.tokenOverlap >= 2 || x.score >= 0.22)
-    .map(({ piece, score, sharesSource, sourceKey }) => ({
+    .map(({ piece, score, sharesSource, sourceKey, contentKey, recordKey }) => ({
       piece,
       score,
       sharesSource,
       sourceKey,
+      contentKey,
+      recordKey,
     }));
 
   scored.sort((a, b) => b.score - a.score);
@@ -206,12 +251,20 @@ function selectDiverseEchoes(
 ): Piece[] {
   const selected: ScoredPiece[] = [];
   const selectedIds = new Set<string>();
+  const selectedContentKeys = new Set<string>();
+  const selectedRecordKeys = new Set<string>();
   const selectedSourceKeys = new Set<string>();
   const bestSameSource = ranked.find((candidate) => candidate.sharesSource);
   const bestCrossSource = ranked.find((candidate) => !candidate.sharesSource);
 
   const add = (candidate: ScoredPiece, allowSourceRepeat = false): boolean => {
     if (selectedIds.has(candidate.piece.id)) return false;
+    if (candidate.recordKey && selectedRecordKeys.has(candidate.recordKey)) {
+      return false;
+    }
+    if (candidate.contentKey && selectedContentKeys.has(candidate.contentKey)) {
+      return false;
+    }
     if (
       !allowSourceRepeat &&
       candidate.sourceKey &&
@@ -222,6 +275,8 @@ function selectDiverseEchoes(
 
     selected.push(candidate);
     selectedIds.add(candidate.piece.id);
+    if (candidate.contentKey) selectedContentKeys.add(candidate.contentKey);
+    if (candidate.recordKey) selectedRecordKeys.add(candidate.recordKey);
     if (candidate.sourceKey) selectedSourceKeys.add(candidate.sourceKey);
     return true;
   };
@@ -262,7 +317,12 @@ export function findEchoes(
   limit = 3,
 ): Piece[] {
   const candidates = all.filter(
-    (p) => p.id !== source.id && p.text.length >= 30 && p.echoEligible,
+    (p) =>
+      p.id !== source.id &&
+      getRecordKey(p) !== getRecordKey(source) &&
+      p.text.length >= 30 &&
+      p.echoEligible &&
+      !hasSameContent(source, p),
   );
 
   const ranked =

@@ -5,18 +5,29 @@ import {
   getCandidateBrainRecords,
   readBrainDataset,
 } from "@/lib/brain-data";
+import { readBookNotesDataset } from "@/lib/book-notes-data";
+import { readQuestionsDataset } from "@/lib/questions-data";
 import { readQuotesDataset } from "@/lib/quotes-data";
 
 export const dynamic = "force-dynamic";
 
 export default async function ReviewPage() {
-  const [dataset, brainDataset] = await Promise.all([
+  const [dataset, bookNotesDataset, questionsDataset, brainDataset] = await Promise.all([
     readQuotesDataset(),
+    readBookNotesDataset(),
+    readQuestionsDataset(),
     readBrainDataset(),
   ]);
   const newQuotes = dataset.quotes.filter((quote) => quote.review.isNew);
   const flaggedQuotes = dataset.quotes.filter((quote) => quote.review.flags.length > 0);
-  const candidateBrainRecords = getCandidateBrainRecords(brainDataset).slice(0, 80);
+  const curatedRecordIds = new Set([
+    ...dataset.quotes.map((quote) => quote.id),
+    ...bookNotesDataset.notes.map((note) => note.id),
+    ...questionsDataset.questions.map((question) => question.id),
+  ]);
+  const candidateBrainRecords = getCandidateBrainRecords(brainDataset)
+    .filter((record) => !curatedRecordIds.has(record.id))
+    .slice(0, 80);
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-5 py-6 sm:px-8 lg:px-10">
