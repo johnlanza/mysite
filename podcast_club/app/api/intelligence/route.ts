@@ -6,6 +6,7 @@ import { formatPodcastForClient } from '@/lib/podcasts';
 import CarveOutModel from '@/models/CarveOut';
 import MeetingModel from '@/models/Meeting';
 import MemberModel from '@/models/Member';
+import MeetingFeedbackModel from '@/models/MeetingFeedback';
 import '@/models/Podcast';
 import PodcastModel from '@/models/Podcast';
 
@@ -61,7 +62,7 @@ export async function GET() {
   try {
     await connectToDatabase();
 
-    const [members, podcasts, meetings, carveOuts] = await Promise.all([
+    const [members, podcasts, meetings, carveOuts, meetingFeedback] = await Promise.all([
       MemberModel.find().select('name').sort({ name: 1 }).lean(),
       PodcastModel.find()
         .populate('submittedBy', 'name')
@@ -74,8 +75,20 @@ export async function GET() {
         .populate('meeting', 'date')
         .populate('fistBumps.member', 'name')
         .sort({ createdAt: -1 })
-        .lean()
+        .lean(),
+      MeetingFeedbackModel.find().select('podcast selections').lean()
     ]);
+
+    const feedbackByPodcastId = new Map<string, { greatListen: number; greatDiscussion: number; changedMind: number }>();
+    meetingFeedback.forEach((entry) => {
+      const podcastId = getId(entry.podcast);
+      if (!podcastId) return;
+      const current = feedbackByPodcastId.get(podcastId) || { greatListen: 0, greatDiscussion: 0, changedMind: 0 };
+      if (entry.selections.includes('listen')) current.greatListen += 1;
+      if (entry.selections.includes('discussion')) current.greatDiscussion += 1;
+      if (entry.selections.includes('surprise')) current.changedMind += 1;
+      feedbackByPodcastId.set(podcastId, current);
+    });
 
     const meetingNotesByPodcastId = new Map<string, string[]>();
     (meetings as ObjectRecord[]).forEach((meeting) => {
@@ -93,7 +106,8 @@ export async function GET() {
       const formatted = formatPodcastForClient(podcast, members);
       return {
         ...formatted,
-        meetingNotes: meetingNotesByPodcastId.get(formatted._id) || []
+        meetingNotes: meetingNotesByPodcastId.get(formatted._id) || [],
+        meetingFeedback: feedbackByPodcastId.get(formatted._id) || { greatListen: 0, greatDiscussion: 0, changedMind: 0 }
       };
     });
 

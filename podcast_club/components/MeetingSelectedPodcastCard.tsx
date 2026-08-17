@@ -1,5 +1,6 @@
 import type { Podcast, PodcastRating, SessionMember } from '@/lib/types';
 import type { MeetingPodcastSelection } from '@/lib/meeting-podcasts';
+import { MediaArtwork } from '@/components/MediaArtwork';
 
 type PodcastCardPerson = { _id: string; name: string };
 
@@ -50,8 +51,16 @@ export default function MeetingSelectedPodcastCard({
 
   return (
     <div className="library-podcast-row meeting-selected-podcast-card">
-      <div className="library-podcast-head">
-        <h3>{podcast.title}</h3>
+      <div className="library-podcast-head podcast-with-art">
+        <MediaArtwork
+          url={podcast.link}
+          title={podcast.title}
+          creator={podcast.host}
+          kind="podcast"
+          className="podcast-list-art"
+          fallback="🎧"
+        />
+        <div><h3>{podcast.title}</h3></div>
       </div>
       <div className="podcast-meta-row">
         {showScore ? <span className="badge ranking-score">Score {podcast.rankingScore}</span> : null}

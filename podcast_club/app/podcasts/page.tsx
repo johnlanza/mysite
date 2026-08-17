@@ -2,10 +2,11 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { MediaArtwork } from '@/components/MediaArtwork';
 import { withBasePath } from '@/lib/base-path';
 import { fetchJson, getRequestErrorMessage } from '@/lib/client-fetch';
 import { dedupePodcastsByContent } from '@/lib/podcast-dedupe';
-import type { Meeting, Podcast, SessionMember } from '@/lib/types';
+import type { Podcast, SessionMember } from '@/lib/types';
 import { RATING_OPTIONS } from '@/lib/ranking';
 
 type PodcastTab = 'rank' | 'submit' | 'library';
@@ -21,19 +22,16 @@ const initialForm = {
   notes: ''
 };
 
-function isCompletedMeeting(meeting: Meeting) {
-  if (meeting.status === 'completed') return true;
-  if (meeting.status === 'scheduled') return false;
-  if (meeting.completedAt) return true;
-  return false;
-}
-
-function getMeetingPodcastIds(meeting: Meeting) {
-  if (meeting.podcasts && meeting.podcasts.length > 0) {
-    return meeting.podcasts.map((podcast) => podcast._id);
-  }
-  return meeting.podcast?._id ? [meeting.podcast._id] : [];
-}
+type PodcastMetadata = {
+  provider?: string;
+  title?: string;
+  host?: string;
+  episodeNames?: string;
+  episodeCount?: number;
+  totalTimeMinutes?: number | null;
+  notes?: string;
+  artworkUrl?: string | null;
+};
 
 function getRatingDisplay(option: string) {
   switch (option) {
@@ -76,13 +74,14 @@ function getPodcastLinkHost(link: string) {
 export default function PodcastsPage() {
   const [member, setMember] = useState<SessionMember | null>(null);
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
-  const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [form, setForm] = useState(initialForm);
   const [savedRatings, setSavedRatings] = useState<Record<string, string>>({});
   const [draftRatings, setDraftRatings] = useState<Record<string, string>>({});
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [saving, setSaving] = useState(false);
+  const [fillingDetails, setFillingDetails] = useState(false);
+  const [metadataMessage, setMetadataMessage] = useState('');
   const [savingRatingId, setSavingRatingId] = useState<string | null>(null);
   const [ratingToast, setRatingToast] = useState('');
   const [recentlySavedRatings, setRecentlySavedRatings] = useState<
@@ -133,20 +132,11 @@ export default function PodcastsPage() {
     const mePayload = await meRes.json();
     setMember(mePayload.member);
 
-    const [podcastRes, meetingRes] = await Promise.all([
-      fetch(withBasePath('/api/podcasts')),
-      fetch(withBasePath('/api/meetings'))
-    ]);
+    const podcastRes = await fetch(withBasePath('/api/podcasts'));
     if (!podcastRes.ok) return;
 
     const podcastData = (await podcastRes.json()) as Podcast[];
     setPodcasts(podcastData);
-    if (meetingRes.ok) {
-      setMeetings((await meetingRes.json()) as Meeting[]);
-    } else {
-      setMeetings([]);
-    }
-
     const nextRatings: Record<string, string> = {};
     podcastData.forEach((podcast) => {
       const mine = podcast.ratings.find((rating) => rating.member._id === mePayload.member._id);
@@ -201,11 +191,42 @@ export default function PodcastsPage() {
 
       setForm(initialForm);
       await loadPageData();
-      setSuccess('Podcast submitted successfully. It now appears in Podcasts To Discuss.');
+      setSuccess('Podcast submitted successfully. It now appears on the active ballot.');
     } catch (error) {
       setError(getRequestErrorMessage(error, 'Unable to save podcast.'));
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function fillDetailsFromLink() {
+    if (!form.link.trim() || fillingDetails) return;
+    setError('');
+    setMetadataMessage('');
+    setFillingDetails(true);
+
+    try {
+      const response = await fetch(withBasePath(`/api/podcast-metadata?url=${encodeURIComponent(form.link.trim())}`));
+      const payload = (await response.json().catch(() => null)) as (PodcastMetadata & { message?: string }) | null;
+      if (!response.ok || !payload) {
+        setMetadataMessage(payload?.message || 'Unable to read that link. You can still enter the details manually.');
+        return;
+      }
+
+      setForm((current) => ({
+        ...current,
+        title: payload.title || current.title,
+        host: payload.host || current.host,
+        episodeNames: payload.episodeNames || current.episodeNames,
+        episodeCount: payload.episodeCount ? String(payload.episodeCount) : current.episodeCount,
+        totalTimeMinutes: payload.totalTimeMinutes ? String(payload.totalTimeMinutes) : current.totalTimeMinutes,
+        notes: payload.notes || current.notes
+      }));
+      setMetadataMessage(`Details filled from ${payload.provider || 'the episode link'}. Please review before adding.`);
+    } catch {
+      setMetadataMessage('Unable to read that link. You can still enter the details manually.');
+    } finally {
+      setFillingDetails(false);
     }
   }
 
@@ -342,22 +363,14 @@ export default function PodcastsPage() {
   }, [pending, recentlySavedRatings, savedRatings]);
   const savedRankCount = podcastsToRank.length - activeRankCount;
   const podcastsToDiscuss = useMemo(() => {
-    const assignedPodcastIds = new Set(
-      meetings
-        .filter((meeting) => !isCompletedMeeting(meeting))
-        .flatMap((meeting) => getMeetingPodcastIds(meeting))
-        .filter((podcastId): podcastId is string => Boolean(podcastId))
-    );
-
     return dedupePodcastsByContent(
       pending
-      .filter((podcast) => !assignedPodcastIds.has(podcast._id))
       .sort((a, b) => {
         if (b.rankingScore !== a.rankingScore) return b.rankingScore - a.rankingScore;
         return a.title.localeCompare(b.title);
       })
     );
-  }, [pending, meetings]);
+  }, [pending]);
   const recentPodcastsToDiscuss = useMemo(() => podcastsToDiscuss.slice(0, 3), [podcastsToDiscuss]);
   const recentDiscussed = useMemo(() => discussed.slice(0, 3), [discussed]);
   const displayMemberName = (person: { _id: string; name: string }) =>
@@ -595,7 +608,15 @@ export default function PodcastsPage() {
                   className={`rank-podcast-card${savedRating ? ' rating-saved' : ''}${savedRating?.fading ? ' item-fading-out' : ''}`}
                   key={podcast._id}
                 >
-                  <div className="rank-podcast-head">
+                  <div className="rank-podcast-head podcast-with-art">
+                    <MediaArtwork
+                      url={podcast.link}
+                      title={podcast.title}
+                      creator={podcast.host}
+                      kind="podcast"
+                      className="podcast-list-art"
+                      fallback="🎧"
+                    />
                     <div>
                       <h3>{podcast.title}</h3>
                       <p>
@@ -656,6 +677,16 @@ export default function PodcastsPage() {
                 required
               />
             </label>
+            <div className="podcast-import-helper">
+              <span>
+                <strong>Save some typing</strong>
+                <small>Paste an Apple Podcasts, Spotify, or YouTube episode link first.</small>
+              </span>
+              <button type="button" className="ghost" onClick={fillDetailsFromLink} disabled={!form.link.trim() || fillingDetails}>
+                {fillingDetails ? 'Reading link...' : 'Fill details from link'}
+              </button>
+            </div>
+            {metadataMessage ? <p className="metadata-message" role="status">{metadataMessage}</p> : null}
             <label>
               Host
               <input
@@ -711,15 +742,27 @@ export default function PodcastsPage() {
         <div className="podcast-library-stack">
           <div className="section-panel podcasts-to-discuss-page-card">
             <div className="section-title-row">
-              <h2>To Discuss</h2>
+              <h2>Active Ballot</h2>
               <span className="badge">{podcastsToDiscuss.length}</span>
             </div>
+            <p className="muted-line">Every podcast still up for consideration, highest-rated first. Use Rank to cast or update your vote.</p>
             <div className="library-list">
-              {recentPodcastsToDiscuss.length === 0 ? <p>No podcasts to discuss right now.</p> : null}
-              {(showAllPodcastsToDiscuss ? podcastsToDiscuss : recentPodcastsToDiscuss).map((podcast) => (
+              {recentPodcastsToDiscuss.length === 0 ? <p>No podcasts are on the active ballot right now.</p> : null}
+              {(showAllPodcastsToDiscuss ? podcastsToDiscuss : recentPodcastsToDiscuss).map((podcast, index) => (
                 <div className="library-podcast-row" key={`ranked-${podcast._id}`}>
-                  <div className="library-podcast-head">
-                    <h3>{podcast.title}</h3>
+                  <div className="library-podcast-head podcast-with-art">
+                    <MediaArtwork
+                      url={podcast.link}
+                      title={podcast.title}
+                      creator={podcast.host}
+                      kind="podcast"
+                      className="podcast-list-art"
+                      fallback="🎧"
+                    />
+                    <div>
+                      <small className="podcast-rank-number">#{index + 1}</small>
+                      <h3>{podcast.title}</h3>
+                    </div>
                   </div>
                   <div className="podcast-meta-row">
                     <span className="badge ranking-score">Score {podcast.rankingScore}</span>
@@ -748,15 +791,24 @@ export default function PodcastsPage() {
 
           <div className="section-panel podcasts-previously-discussed-card">
             <div className="section-title-row">
-              <h2>Discussed</h2>
+              <h2>Past Discussions</h2>
               <span className="badge">{discussed.length}</span>
             </div>
+            <p className="muted-line">The archive of episodes the club has already discussed.</p>
             <div className="library-list">
               {discussed.length === 0 ? <p>No previously discussed podcasts.</p> : null}
               {(showAllDiscussed ? discussed : recentDiscussed).map((podcast) => (
                 <div className="library-podcast-row" key={`discussed-${podcast._id}`}>
-                  <div className="library-podcast-head">
-                    <h3>{podcast.title}</h3>
+                  <div className="library-podcast-head podcast-with-art">
+                    <MediaArtwork
+                      url={podcast.link}
+                      title={podcast.title}
+                      creator={podcast.host}
+                      kind="podcast"
+                      className="podcast-list-art"
+                      fallback="🎧"
+                    />
+                    <div><h3>{podcast.title}</h3></div>
                   </div>
                   <div className="podcast-meta-row">
                     <span className="badge">Discussed</span>

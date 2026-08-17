@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import AddToCalendar from '@/components/AddToCalendar';
+import { MeetingFeedback } from '@/components/MeetingFeedback';
 import MeetingSelectedPodcastCard from '@/components/MeetingSelectedPodcastCard';
 import { withBasePath } from '@/lib/base-path';
 import { fetchJson, getRequestErrorMessage } from '@/lib/client-fetch';
@@ -160,6 +161,10 @@ export default function MeetingsPage() {
       .sort((a, b) => +new Date(b.date) - +new Date(a.date));
   }, [meetings, nextMeeting]);
   const recentPastMeetings = useMemo(() => pastMeetings.slice(0, 3), [pastMeetings]);
+  const latestCompletedMeeting = useMemo(
+    () => pastMeetings.find((meeting) => isCompletedMeeting(meeting) && getMeetingPodcasts(meeting, podcastsById).length > 0),
+    [pastMeetings, podcastsById]
+  );
   const selectedHostAddress = form.host ? getHostAddress(form.host, members) : '';
   const locationSource = form.host && form.location
     ? form.location === selectedHostAddress
@@ -712,6 +717,14 @@ export default function MeetingsPage() {
             <h2>Past Meetings</h2>
             <span className="badge">{pastMeetings.length}</span>
           </div>
+          {latestCompletedMeeting ? (
+            <div className="meeting-feedback-list">
+              <p className="muted-line">How did the latest discussion land? You can choose more than one.</p>
+              {getMeetingPodcasts(latestCompletedMeeting, podcastsById).map((podcast) => (
+                <MeetingFeedback key={podcast._id} podcast={podcast} meetingId={latestCompletedMeeting._id} />
+              ))}
+            </div>
+          ) : null}
           <div className="meeting-history-list">
             {recentPastMeetings.length === 0 ? <p>No past meetings yet.</p> : null}
             {(showAllPastMeetings ? pastMeetings : recentPastMeetings).map((meeting) => (

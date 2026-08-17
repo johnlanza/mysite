@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { ListeningStyles } from '@/components/ListeningStyles';
 import { PaletteSelector } from '@/components/PaletteSelector';
 import { useSession } from '@/lib/use-session';
 
@@ -96,6 +97,8 @@ export default function MorePage() {
           <strong>{member.name}</strong>
         </div>
 
+        <ListeningStyles member={member} />
+
         <PaletteSelector />
 
         <div className="more-menu-section">
@@ -106,8 +109,8 @@ export default function MorePage() {
                 <MoreIcon name="intelligence" />
               </span>
               <span className="more-row-copy">
-                <strong>Club Intelligence</strong>
-                <small>Episode and carve out discovery from club signals.</small>
+                <strong>Podcast Suggestions</strong>
+                <small>Find strong discussion candidates from club signals.</small>
               </span>
               <span className="mobile-menu-arrow" aria-hidden="true">
                 &gt;

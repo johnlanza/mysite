@@ -5496,3 +5496,654 @@ button {
     font-size: 1.08rem;
   }
 }
+
+/* Artwork shared by podcasts, recommendations, meetings, and carve outs. */
+.media-artwork {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid rgb(47 45 46 / 0.12);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgb(var(--podcasts-rgb) / 0.2), rgb(var(--blue-rgb) / 0.2));
+  color: var(--ink-soft);
+}
+
+.media-artwork > span {
+  position: relative;
+  z-index: 0;
+  font-size: 1.25rem;
+}
+
+.media-artwork img {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.media-artwork.is-loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 20%, rgb(255 255 255 / 0.44) 50%, transparent 80%);
+  animation: artwork-loading 1.2s linear infinite;
+}
+
+@keyframes artwork-loading {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+.podcast-with-art {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.podcast-list-art {
+  width: 4.5rem;
+}
+
+.podcast-with-art > div {
+  min-width: 0;
+}
+
+.podcast-rank-number {
+  display: block;
+  margin-bottom: 0.18rem;
+  color: var(--nav-podcasts);
+  font-weight: 850;
+}
+
+.podcast-import-helper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid rgb(var(--podcasts-rgb) / 0.2);
+  border-radius: 12px;
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.podcast-import-helper > span {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.podcast-import-helper small,
+.metadata-message {
+  color: var(--ink-soft);
+}
+
+.podcast-import-helper button {
+  flex: 0 0 auto;
+}
+
+.metadata-message {
+  margin: -0.2rem 0 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  background: rgb(var(--podcasts-rgb) / 0.08);
+  font-size: 0.88rem;
+}
+
+/* Carve-out browsing stays compact as the library grows. */
+.carveout-card-art {
+  width: 100%;
+  max-height: 14rem;
+  aspect-ratio: 16 / 8;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgb(var(--carveouts-rgb) / 0.18), rgb(var(--more-rgb) / 0.2));
+}
+
+.carveout-toolbar {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.7rem;
+  border: 1px solid rgb(var(--carveouts-rgb) / 0.2);
+  border-radius: 12px;
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.carveout-filter-list {
+  display: flex;
+  gap: 0.42rem;
+  overflow-x: auto;
+  padding-bottom: 0.15rem;
+  scrollbar-width: thin;
+}
+
+.carveout-filter-list button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 0 0 auto;
+  min-height: 2.35rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid rgb(var(--carveouts-rgb) / 0.24);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--nav-carveouts);
+}
+
+.carveout-filter-list button.selected {
+  background: var(--nav-carveouts);
+  color: var(--nav-carveouts-ink);
+}
+
+.carveout-filter-list button span {
+  font-size: 0.72rem;
+  opacity: 0.8;
+}
+
+.carveout-toolbar > p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+}
+
+.carveout-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.carveout-pagination button {
+  flex: 1 1 12rem;
+  min-height: 2.75rem;
+}
+
+.carveout-pagination button span {
+  margin-left: 0.25rem;
+  opacity: 0.7;
+}
+
+/* Listening profiles use one square portrait from a fixed, non-stretching sprite. */
+.listening-styles {
+  display: grid;
+  gap: 0.85rem;
+  padding: 0.85rem;
+  border: 1px solid rgb(var(--more-rgb) / 0.26);
+  border-radius: 14px;
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.listening-style-portrait {
+  position: relative;
+  display: block;
+  flex: 0 0 auto;
+  width: 3.5rem;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid rgb(var(--more-rgb) / 0.28);
+  border-radius: 50%;
+  background-repeat: no-repeat;
+  background-size: 300% 200%;
+  background-color: rgb(var(--more-rgb) / 0.12);
+  box-shadow: 0 6px 14px rgb(47 45 46 / 0.12);
+}
+
+.listening-style-portrait img {
+  position: absolute;
+  width: 300%;
+  height: 200%;
+  max-width: none;
+  object-fit: fill;
+}
+
+.listening-style-portrait-large {
+  width: clamp(6.5rem, 20vw, 8.25rem);
+}
+
+.listening-style-hero {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+}
+
+.listening-style-hero h3,
+.listening-style-summary h4,
+.listening-style-grid strong {
+  color: var(--ink);
+}
+
+.listening-style-hero h3 {
+  margin: 0.12rem 0 0.3rem;
+  font-family: var(--font-serif), serif;
+  font-size: clamp(1.35rem, 4vw, 1.8rem);
+}
+
+.listening-style-hero p:not(.section-kicker),
+.listening-style-summary p,
+.listening-style-note {
+  color: var(--ink-soft);
+}
+
+.listening-style-strength {
+  display: grid;
+  gap: 0.1rem;
+  margin-top: 0.55rem;
+}
+
+.listening-style-strength small,
+.listening-style-summary small,
+.listening-style-grid small {
+  color: var(--nav-more);
+  font-weight: 800;
+}
+
+.listening-style-summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.8rem;
+  align-items: start;
+  padding: 0.8rem;
+  border: 1px solid rgb(var(--more-rgb) / 0.22);
+  border-radius: 12px;
+  background: rgb(var(--more-rgb) / 0.07);
+}
+
+.listening-style-summary h4,
+.listening-style-summary p {
+  margin: 0.12rem 0 0.35rem;
+}
+
+.listening-style-summary dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 0.55rem 0 0;
+}
+
+.listening-style-summary dl div {
+  min-width: 0;
+  padding: 0.55rem;
+  border-radius: 9px;
+  background: rgb(255 255 255 / 0.72);
+}
+
+.listening-style-summary dt {
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.listening-style-summary dd {
+  margin: 0.15rem 0 0;
+  color: var(--ink);
+}
+
+.listening-style-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+  gap: 0.55rem;
+}
+
+.listening-style-grid article {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 0.55rem;
+  min-width: 0;
+  padding: 0.7rem;
+  border: 1px solid rgb(var(--more-rgb) / 0.2);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.listening-style-grid article.is-selected {
+  border-color: var(--nav-more);
+  box-shadow: inset 0 0 0 1px var(--nav-more);
+}
+
+.listening-style-grid article > div {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.listening-style-grid article > div span {
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+}
+
+.listening-style-grid button {
+  padding: 0;
+  background: transparent;
+  color: var(--nav-more);
+  font-weight: 800;
+}
+
+.listening-style-note {
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+/* Multi-select post-meeting reactions. */
+.meeting-feedback-list,
+.meeting-feedback-card {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.meeting-feedback-card {
+  padding: 0.8rem;
+  border: 1px solid rgb(var(--meetings-rgb) / 0.22);
+  border-radius: 12px;
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: inset 0.28rem 0 0 var(--nav-meetings);
+}
+
+.meeting-feedback-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.meeting-feedback-heading h3 {
+  margin: 0.15rem 0 0;
+  font-size: 1rem;
+}
+
+.meeting-feedback-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.meeting-feedback-options button {
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  min-width: 0;
+  min-height: 5rem;
+  padding: 0.6rem 0.35rem;
+  border: 1px solid rgb(var(--meetings-rgb) / 0.22);
+  background: rgb(var(--meetings-rgb) / 0.06);
+  color: var(--nav-meetings);
+}
+
+.meeting-feedback-options button.selected {
+  background: var(--nav-meetings);
+  color: var(--nav-meetings-ink);
+}
+
+.meeting-feedback-options button > span {
+  font-size: 1.1rem;
+}
+
+.meeting-feedback-options button small {
+  opacity: 0.72;
+}
+
+.meeting-feedback-note {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+}
+
+/* Recommendation controls preserve the live visual language while adding clear feedback. */
+.discovery-controls-panel,
+.discovery-top-card,
+.discovery-shortlist-section,
+.discovery-engine-note {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.discovery-mood-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.discovery-mood-grid button {
+  display: grid;
+  justify-items: start;
+  gap: 0.15rem;
+  min-width: 0;
+  min-height: 4.2rem;
+  padding: 0.7rem;
+  border: 1px solid rgb(var(--more-rgb) / 0.22);
+  background: var(--panel);
+  color: var(--ink);
+  text-align: left;
+}
+
+.discovery-mood-grid button small {
+  color: var(--ink-soft);
+}
+
+.discovery-mood-grid button.selected,
+.discovery-time-row button.selected,
+.discovery-feedback button.selected {
+  background: var(--nav-more);
+  color: var(--nav-more-ink);
+}
+
+.discovery-mood-grid button.selected small {
+  color: inherit;
+  opacity: 0.78;
+}
+
+.discovery-time-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  overflow-x: auto;
+  padding-bottom: 0.12rem;
+}
+
+.discovery-time-row > strong,
+.discovery-time-row button {
+  flex: 0 0 auto;
+}
+
+.discovery-time-row button,
+.discovery-feedback button {
+  padding: 0.48rem 0.7rem;
+  border: 1px solid rgb(var(--more-rgb) / 0.25);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--nav-more);
+}
+
+.discovery-filter-status {
+  margin: 0;
+  padding: 0.7rem;
+  border-radius: 10px;
+  background: rgb(var(--more-rgb) / 0.09);
+  color: var(--ink-soft) !important;
+}
+
+.discovery-filter-status strong {
+  color: var(--ink);
+}
+
+.more-page .discovery-top-card,
+.more-page .discovery-shortlist-section,
+.more-page .discovery-engine-note {
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.discovery-topline,
+.discovery-top-actions,
+.discovery-feedback,
+.discovery-feedback > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.discovery-top-art {
+  width: min(15rem, 72vw);
+  margin: 0 auto;
+  border-radius: 18px;
+  box-shadow: 0 16px 34px rgb(47 45 46 / 0.17);
+}
+
+.discovery-top-copy {
+  text-align: center;
+}
+
+.discovery-top-copy h2 {
+  margin: 0;
+  font-family: var(--font-serif), serif;
+}
+
+.discovery-top-copy p {
+  margin: 0.35rem 0 0;
+  color: var(--ink-soft);
+}
+
+.discovery-top-copy .podcast-meta-row {
+  justify-content: center;
+  margin-top: 0.6rem;
+}
+
+.discovery-top-actions > * {
+  flex: 1 1 10rem;
+  min-height: 2.8rem;
+}
+
+.discovery-why,
+.discovery-feedback {
+  padding: 0.8rem;
+  border: 1px solid rgb(var(--more-rgb) / 0.2);
+  border-radius: 12px;
+  background: rgb(var(--more-rgb) / 0.07);
+}
+
+.discovery-why h3,
+.discovery-why p,
+.discovery-why ul {
+  margin-top: 0;
+}
+
+.discovery-why p,
+.discovery-why li,
+.discovery-feedback small {
+  color: var(--ink-soft);
+}
+
+.discovery-feedback > span {
+  display: grid;
+  gap: 0.12rem;
+  flex: 1 1 15rem;
+}
+
+.discovery-feedback > div {
+  justify-content: flex-start;
+}
+
+.discovery-shortlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.65rem;
+}
+
+.discovery-shortlist-card {
+  display: grid;
+  align-content: start;
+  gap: 0.7rem;
+  min-width: 0;
+  padding: 0.75rem;
+  border: 1px solid rgb(var(--more-rgb) / 0.2);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.discovery-shortlist-art {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+}
+
+.discovery-shortlist-card h3 {
+  margin: 0.45rem 0 0.2rem;
+  font-size: 1rem;
+}
+
+.discovery-shortlist-card p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.discovery-shortlist-card button {
+  width: 100%;
+}
+
+.discovery-engine-note summary {
+  cursor: pointer;
+  color: var(--ink);
+  font-weight: 850;
+}
+
+.discovery-engine-note p {
+  margin-bottom: 0;
+  color: var(--ink-soft) !important;
+}
+
+@media (max-width: 620px) {
+  .podcast-with-art {
+    grid-template-columns: 3.9rem minmax(0, 1fr);
+  }
+
+  .podcast-list-art {
+    width: 3.9rem;
+  }
+
+  .podcast-import-helper,
+  .meeting-feedback-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .podcast-import-helper button {
+    width: 100%;
+  }
+
+  .listening-style-hero {
+    align-items: start;
+  }
+
+  .listening-style-summary dl {
+    grid-template-columns: 1fr;
+  }
+
+  .meeting-feedback-options {
+    grid-template-columns: 1fr;
+  }
+
+  .meeting-feedback-options button {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    justify-items: start;
+    min-height: 3.3rem;
+    padding-inline: 0.7rem;
+  }
+
+  .meeting-feedback-options button small {
+    justify-self: end;
+  }
+
+  .discovery-mood-grid {
+    grid-template-columns: 1fr;
+  }
+}

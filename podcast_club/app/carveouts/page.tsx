@@ -2,6 +2,7 @@
 
 import { Dispatch, FormEvent, SetStateAction, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { MediaArtwork } from '@/components/MediaArtwork';
 import { withBasePath } from '@/lib/base-path';
 import { fetchJson, getRequestErrorMessage } from '@/lib/client-fetch';
 import {
@@ -52,7 +53,8 @@ export default function CarveOutsPage() {
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [deletingCarveOutId, setDeletingCarveOutId] = useState<string | null>(null);
   const [fistBumpingId, setFistBumpingId] = useState<string | null>(null);
-  const [showAllCarveOuts, setShowAllCarveOuts] = useState(false);
+  const [carveOutFilter, setCarveOutFilter] = useState('all');
+  const [carveOutLimit, setCarveOutLimit] = useState(12);
   const [activeTab, setActiveTab] = useState<CarveOutTab>('library');
 
   async function loadPageData() {
@@ -98,8 +100,17 @@ export default function CarveOutsPage() {
     () => carveOuts.filter((carveOut) => carveOut.meeting && carveOut.member),
     [carveOuts]
   );
-  const recentCarveOuts = useMemo(() => visibleCarveOuts.slice(0, 3), [visibleCarveOuts]);
-  const displayedCarveOuts = showAllCarveOuts ? visibleCarveOuts : recentCarveOuts;
+  const carveOutTypes = useMemo(() => {
+    const counts = new Map<string, number>();
+    visibleCarveOuts.forEach((carveOut) => counts.set(carveOut.type, (counts.get(carveOut.type) || 0) + 1));
+    return [...counts.entries()].sort((a, b) => getCarveOutTypeLabel(a[0]).localeCompare(getCarveOutTypeLabel(b[0])));
+  }, [visibleCarveOuts]);
+  const filteredCarveOuts = useMemo(
+    () => carveOutFilter === 'all' ? visibleCarveOuts : visibleCarveOuts.filter((carveOut) => carveOut.type === carveOutFilter),
+    [carveOutFilter, visibleCarveOuts]
+  );
+  const displayedCarveOuts = useMemo(() => filteredCarveOuts.slice(0, carveOutLimit), [carveOutLimit, filteredCarveOuts]);
+  const remainingCarveOuts = Math.max(0, filteredCarveOuts.length - displayedCarveOuts.length);
   const displayMemberName = (person: { _id: string; name: string }) =>
     member && person._id === member._id ? 'You' : person.name;
   const canManageCarveOut = (carveOut: CarveOut) =>
@@ -371,6 +382,13 @@ export default function CarveOutsPage() {
   function renderCarveOutCard(carveOut: CarveOut) {
     return (
       <article className="carveout-library-card" key={carveOut._id}>
+        <MediaArtwork
+          url={carveOut.url}
+          title={carveOut.title}
+          kind={carveOut.type}
+          className="carveout-card-art"
+          fallback={carveOut.type === 'book' ? '▤' : carveOut.type === 'movie' || carveOut.type === 'video' ? '▶' : '✦'}
+        />
         <div className="carveout-card-head">
           <div>
             <h3>{carveOut.title}</h3>
@@ -488,6 +506,33 @@ export default function CarveOutsPage() {
           </div>
           <p className="muted-line">Browse what members shared and send a fist bump when something lands.</p>
 
+          {visibleCarveOuts.length > 0 ? (
+            <div className="carveout-toolbar">
+              <div className="carveout-filter-list" role="group" aria-label="Filter carve outs by type">
+                <button
+                  type="button"
+                  className={carveOutFilter === 'all' ? 'selected' : ''}
+                  aria-pressed={carveOutFilter === 'all'}
+                  onClick={() => { setCarveOutFilter('all'); setCarveOutLimit(12); }}
+                >
+                  All <span>{visibleCarveOuts.length}</span>
+                </button>
+                {carveOutTypes.map(([type, count]) => (
+                  <button
+                    type="button"
+                    key={type}
+                    className={carveOutFilter === type ? 'selected' : ''}
+                    aria-pressed={carveOutFilter === type}
+                    onClick={() => { setCarveOutFilter(type); setCarveOutLimit(12); }}
+                  >
+                    {getCarveOutTypeLabel(type)} <span>{count}</span>
+                  </button>
+                ))}
+              </div>
+              <p aria-live="polite">Showing {displayedCarveOuts.length} of {filteredCarveOuts.length}</p>
+            </div>
+          ) : null}
+
           {visibleCarveOuts.length === 0 ? (
             <div className="empty-state">
               <h3>No carve outs yet</h3>
@@ -500,11 +545,16 @@ export default function CarveOutsPage() {
             <>
               <div className="carveout-library-list">{displayedCarveOuts.map((carveOut) => renderCarveOutCard(carveOut))}</div>
 
-              {visibleCarveOuts.length > 3 ? (
-                <button type="button" className="ghost carveout-show-all" onClick={() => setShowAllCarveOuts((prev) => !prev)}>
-                  {showAllCarveOuts ? 'Show Recent' : `Show All (${visibleCarveOuts.length})`}
-                </button>
-              ) : null}
+              <div className="carveout-pagination">
+                {carveOutLimit > 12 ? (
+                  <button type="button" className="ghost" onClick={() => setCarveOutLimit(12)}>Back to first 12</button>
+                ) : null}
+                {remainingCarveOuts > 0 ? (
+                  <button type="button" className="ghost" onClick={() => setCarveOutLimit((limit) => limit + 12)}>
+                    Show {Math.min(12, remainingCarveOuts)} more <span>{remainingCarveOuts} remaining</span>
+                  </button>
+                ) : null}
+              </div>
             </>
           )}
         </div>

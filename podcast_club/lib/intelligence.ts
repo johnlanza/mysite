@@ -56,6 +56,11 @@ export type IntelligencePodcastInput = {
   createdAt?: string;
   discussedMeetingDate?: string | null;
   meetingNotes?: string[];
+  meetingFeedback?: {
+    greatListen: number;
+    greatDiscussion: number;
+    changedMind: number;
+  };
 };
 
 export type IntelligenceCarveOutInput = {
@@ -81,6 +86,7 @@ export type IntelligenceRecommendation = {
   badges: string[];
   themes: string[];
   reasons: string[];
+  sourceKey?: string;
   notesPreview?: string;
   credibility?: {
     level: CredibilityLevel;
@@ -106,6 +112,7 @@ export type IntelligenceReport = {
     pendingPodcastsWeighted: number;
     podcastNotesReviewed: number;
     meetingNotesReviewed: number;
+    meetingFeedbackResponses: number;
     carveOutsReviewed: number;
     fistBumpedCarveOutsWeighted: number;
   };
@@ -119,59 +126,157 @@ export type IntelligenceReport = {
 };
 
 const STOP_WORDS = new Set([
+  'able',
+  'across',
+  'all',
+  'almost',
+  'always',
+  'another',
   'about',
   'after',
   'again',
   'also',
   'and',
   'are',
+  'around',
+  'back',
   'because',
   'been',
+  'being',
+  'best',
+  'better',
+  'bit',
+  'both',
   'but',
   'can',
+  'club',
+  'com',
   'could',
+  'day',
   'did',
+  'discussion',
+  'discussions',
   'does',
+  'even',
+  'every',
+  'feel',
+  'few',
+  'first',
   'episode',
   'episodes',
   'for',
   'from',
+  'good',
+  'great',
+  'get',
+  'gets',
+  'getting',
+  'give',
+  'going',
+  'got',
   'had',
   'has',
   'have',
   'his',
+  'him',
+  'himself',
+  'her',
+  'herself',
+  'however',
+  'http',
+  'https',
   'how',
   'into',
+  'interesting',
+  'idea',
+  'ideas',
   'its',
   'just',
+  'know',
+  'last',
   'like',
+  'life',
+  'little',
+  'listen',
+  'listening',
+  'long',
+  'look',
+  'make',
+  'makes',
+  'many',
+  'may',
+  'maybe',
+  'meeting',
+  'meetings',
+  'member',
+  'members',
+  'might',
+  'most',
+  'much',
+  'must',
+  'never',
+  'new',
+  'next',
+  'often',
+  'only',
   'more',
   'not',
   'now',
   'one',
+  'other',
+  'others',
   'our',
   'out',
   'over',
+  'own',
+  'perhaps',
   'podcast',
   'podcasts',
   'show',
   'shows',
   'she',
+  'should',
+  'since',
+  'some',
+  'something',
+  'still',
+  'such',
+  'take',
   'that',
+  'than',
   'the',
   'their',
   'them',
   'then',
   'there',
+  'things',
+  'think',
   'this',
+  'those',
+  'though',
   'through',
+  'time',
+  'too',
+  'two',
+  'under',
+  'use',
+  'used',
+  'very',
   'was',
+  'way',
+  'well',
   'what',
   'when',
   'where',
+  'while',
   'who',
+  'whole',
   'why',
+  'will',
   'with',
+  'without',
+  'world',
+  'www',
   'you',
   'your'
 ]);
@@ -210,6 +315,17 @@ const THEME_RULES: ThemeRule[] = [
     terms: ['comedy', 'funny', 'humor', 'odd', 'strange', 'weird']
   }
 ];
+
+const THEME_DISCOVERY_QUERIES: Record<string, string> = {
+  'Human behavior': 'psychology human behavior',
+  'Story and culture': 'reported narrative culture',
+  'Business and work': 'business leadership work',
+  'Science and technology': 'science technology research',
+  'History and power': 'history politics power',
+  'Money and economics': 'economics money markets',
+  'Mystery and investigation': 'investigative mystery reporting',
+  'Comedy and offbeat': 'offbeat comedy culture'
+};
 
 const APPLE_SEARCH_LIMIT = 12;
 const MAX_DISCOVERY_QUERIES = 7;
@@ -318,6 +434,11 @@ const CREDIBILITY_RISK_RULES: CredibilityRule[] = [
     label: 'overheated claim language',
     terms: ['banned', 'cover up', 'cover-up', 'exposed', 'exposes', 'hidden truth', 'hoax', 'shocking truth', 'suppressed', 'truth about', 'wake up'],
     weight: 8
+  },
+  {
+    label: 'overstated authority or proof claims',
+    terms: ['here s the proof', 'top neuroscientist', 'top scientist', 'your whole life', 'is faking', 'changes everything', 'everything you know'],
+    weight: 20
   }
 ];
 
@@ -583,18 +704,22 @@ function getPodcastSignalWeight(podcast: IntelligencePodcastInput) {
   const positiveRatings = (podcast.ratings || []).filter((rating) => rating.points > 0);
   const loveCount = (podcast.ratings || []).filter((rating) => rating.value === 'I like it a lot.').length;
   const ratingScore = Math.max(0, podcast.rankingScore || 0);
+  const meetingFeedbackWeight =
+    (podcast.meetingFeedback?.greatListen || 0) * 2 +
+    (podcast.meetingFeedback?.greatDiscussion || 0) * 4 +
+    (podcast.meetingFeedback?.changedMind || 0) * 3;
 
   if (podcast.status === 'discussed') {
     const hasRatingEraSignal = (podcast.ratings || []).length > 0 || ratingScore > 0;
     const chosenByRoomWeight = hasRatingEraSignal ? 8 : 12;
-    return chosenByRoomWeight + ratingScore * 2 + positiveRatings.length * 2 + loveCount;
+    return chosenByRoomWeight + ratingScore * 2 + positiveRatings.length * 2 + loveCount + meetingFeedbackWeight;
   }
 
   if (ratingScore > 0 || positiveRatings.length > 0) {
-    return 2 + ratingScore + positiveRatings.length;
+    return 2 + ratingScore + positiveRatings.length + meetingFeedbackWeight;
   }
 
-  return 0.5;
+  return 0.5 + meetingFeedbackWeight;
 }
 
 function getPodcastText(podcast: IntelligencePodcastInput) {
@@ -659,7 +784,12 @@ function getProfileThemes(sourceTexts: WeightedText[]) {
     .map((theme) => theme.label);
 }
 
-function buildDiscoveryQueries(podcasts: IntelligencePodcastInput[], topTerms: string[], ignoredTerms: Set<string>) {
+function buildDiscoveryQueries(
+  podcasts: IntelligencePodcastInput[],
+  topTerms: string[],
+  ignoredTerms: Set<string>,
+  topThemes: string[]
+) {
   const queries = new Set<string>();
   const profileTermSet = new Set(topTerms);
   const addQuery = (query: string) => {
@@ -667,8 +797,9 @@ function buildDiscoveryQueries(podcasts: IntelligencePodcastInput[], topTerms: s
     if (normalized.length >= 3) queries.add(normalized);
   };
 
+  topThemes.forEach((theme) => addQuery(THEME_DISCOVERY_QUERIES[theme] || theme));
+
   if (topTerms.length >= 2) addQuery(topTerms.slice(0, 2).join(' '));
-  if (topTerms.length >= 4) addQuery(topTerms.slice(2, 4).join(' '));
 
   podcasts
     .filter((podcast) => podcast.status === 'discussed')
@@ -827,6 +958,7 @@ function buildAppleRecommendation({
     id: result.trackId ? String(result.trackId) : normalizeKey(`${result.trackName} ${result.collectionName || ''}`),
     title: result.trackName,
     subtitle: compactText([result.collectionName, result.artistName]) || 'Apple Podcasts episode',
+    sourceKey: normalizeKey(result.collectionName || result.artistName || result.trackName),
     href: result.trackViewUrl || result.collectionViewUrl || result.episodeUrl,
     score,
     confidence: getConfidence(score),
@@ -877,10 +1009,18 @@ async function buildPodcastDiscoveries({
     })
   );
 
+  const seenSources = new Set<string>();
+
   return [...resultsById.values()]
     .sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score;
       return a.title.localeCompare(b.title);
+    })
+    .filter((recommendation) => {
+      const sourceKey = recommendation.sourceKey || normalizeKey(recommendation.subtitle);
+      if (seenSources.has(sourceKey)) return false;
+      seenSources.add(sourceKey);
+      return true;
     })
     .slice(0, 8);
 }
@@ -933,7 +1073,7 @@ export async function buildClubIntelligenceReport({
   const sourceTexts = getSourceTexts(podcasts);
   const topTerms = getDiversifiedTopTerms(sourceTexts, 10, ignoredTerms);
   const topThemes = getProfileThemes(sourceTexts);
-  const discoveryQueries = buildDiscoveryQueries(podcasts, topTerms, ignoredTerms);
+  const discoveryQueries = buildDiscoveryQueries(podcasts, topTerms, ignoredTerms, topThemes);
   const podcastDiscoveries =
     discoveryQueries.length > 0
       ? await buildPodcastDiscoveries({ podcasts, profileTerms: topTerms, discoveryQueries, ignoredTerms })
@@ -955,6 +1095,14 @@ export async function buildClubIntelligenceReport({
       pendingPodcastsWeighted: podcasts.filter((podcast) => podcast.status === 'pending' && (podcast.rankingScore || 0) > 0).length,
       podcastNotesReviewed: podcasts.filter((podcast) => podcast.notes?.trim()).length,
       meetingNotesReviewed: podcasts.reduce((total, podcast) => total + (podcast.meetingNotes || []).filter(Boolean).length, 0),
+      meetingFeedbackResponses: podcasts.reduce(
+        (total, podcast) => total + Math.max(
+          podcast.meetingFeedback?.greatListen || 0,
+          podcast.meetingFeedback?.greatDiscussion || 0,
+          podcast.meetingFeedback?.changedMind || 0
+        ),
+        0
+      ),
       carveOutsReviewed: carveOuts.length,
       fistBumpedCarveOutsWeighted: carveOuts.filter((carveOut) => (carveOut.fistBumps?.length || 0) > 0).length
     },

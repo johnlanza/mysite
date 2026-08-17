@@ -97,3 +97,13 @@ export type CarveOut = {
   meeting: { _id: string; date: string };
   fistBumps?: { member: { _id: string; name: string }; createdAt?: string }[];
 };
+
+export type MeetingFeedbackSummary = {
+  selections: Array<'listen' | 'discussion' | 'surprise'>;
+  counts: {
+    listen: number;
+    discussion: number;
+    surprise: number;
+  };
+  responseCount: number;
+};
