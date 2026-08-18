@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import AddToCalendar from '@/components/AddToCalendar';
 import { MediaArtwork } from '@/components/MediaArtwork';
-import MeetingSelectedPodcastCard from '@/components/MeetingSelectedPodcastCard';
 import { UpcomingPodcastLink } from '@/components/UpcomingPodcastLink';
 import { withBasePath } from '@/lib/base-path';
 import { getCarveOutTypeLabel } from '@/lib/carveout-meta';
+import type { IntelligenceRecommendation, IntelligenceReport } from '@/lib/intelligence';
 import { getMeetingPodcasts } from '@/lib/meeting-podcasts';
 import { dedupePodcastsByContent } from '@/lib/podcast-dedupe';
 import type { CarveOut, Meeting, Podcast, SessionMember } from '@/lib/types';
@@ -55,7 +55,8 @@ export default function HomePage() {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [carveOuts, setCarveOuts] = useState<CarveOut[]>([]);
-  const [fistBumpingId, setFistBumpingId] = useState<string | null>(null);
+  const [topSuggestion, setTopSuggestion] = useState<IntelligenceRecommendation | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [showAllCarveOuts, setShowAllCarveOuts] = useState(false);
   const [showAllDiscussedPodcasts, setShowAllDiscussedPodcasts] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -77,6 +78,11 @@ export default function HomePage() {
           fetch(withBasePath('/api/carveouts'), { cache: 'no-store' })
         ]);
 
+        void fetch(withBasePath('/api/intelligence'), { cache: 'no-store' })
+          .then(async (response) => response.ok ? await response.json() as IntelligenceReport : null)
+          .then((report) => setTopSuggestion(report?.podcasts[0] || null))
+          .catch(() => setTopSuggestion(null));
+
         if (podcastRes.ok) {
           setPodcasts(await podcastRes.json());
         } else {
@@ -97,6 +103,7 @@ export default function HomePage() {
         setPublicLibraryLoading(false);
       } else {
         setMember(null);
+        setTopSuggestion(null);
         setMeetings([]);
         setLoading(false);
 
@@ -154,8 +161,6 @@ export default function HomePage() {
       })
     );
   }, [pending, meetings]);
-  const recentPodcastsToDiscuss = useMemo(() => podcastsToDiscuss.slice(0, 3), [podcastsToDiscuss]);
-
   const podcastsToRank = useMemo(() => {
     if (!member) return [];
     return pending.filter((podcast) => {
@@ -163,8 +168,6 @@ export default function HomePage() {
       return !myRating || myRating.value === 'No selection';
     });
   }, [pending, member]);
-  const recentPodcastsToRank = useMemo(() => podcastsToRank.slice(0, 3), [podcastsToRank]);
-
   const recentCarveOuts = useMemo(() => {
     return [...carveOuts]
       .sort((a, b) => +new Date(b.meeting.date) - +new Date(a.meeting.date))
@@ -191,6 +194,43 @@ export default function HomePage() {
     return allDiscussedPodcasts.slice(0, 3);
   }, [allDiscussedPodcasts]);
   const remainingDiscussedPodcasts = useMemo(() => allDiscussedPodcasts.slice(3), [allDiscussedPodcasts]);
+  const searchResults = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return [];
+
+    const podcastMatches = podcasts
+      .filter((podcast) => [podcast.title, podcast.host, podcast.episodeNames, podcast.notes].some((value) => value?.toLowerCase().includes(query)))
+      .map((podcast) => ({
+        id: `podcast-${podcast._id}`,
+        title: podcast.title,
+        detail: podcast.episodeNames || podcast.host || 'Podcast',
+        href: podcast.link,
+        external: true,
+        kind: 'podcast'
+      }));
+    const carveOutMatches = carveOuts
+      .filter((carveOut) => [carveOut.title, carveOut.notes, carveOut.service, carveOut.type].some((value) => value?.toLowerCase().includes(query)))
+      .map((carveOut) => ({
+        id: `carveout-${carveOut._id}`,
+        title: carveOut.title,
+        detail: getCarveOutTypeLabel(carveOut.type),
+        href: carveOut.url || '/carveouts',
+        external: Boolean(carveOut.url),
+        kind: carveOut.type
+      }));
+    const meetingMatches = meetings
+      .filter((meeting) => [meeting.location, meeting.host.name, meeting.notes].some((value) => value?.toLowerCase().includes(query)))
+      .map((meeting) => ({
+        id: `meeting-${meeting._id}`,
+        title: formatDate(meeting.date),
+        detail: `${meeting.host.name} · ${meeting.location}`,
+        href: '/meetings',
+        external: false,
+        kind: 'meeting'
+      }));
+
+    return [...podcastMatches, ...carveOutMatches, ...meetingMatches].slice(0, 8);
+  }, [carveOuts, meetings, podcasts, searchQuery]);
   const displayMemberName = (person: { _id: string; name: string }) =>
     member && person._id === member._id ? 'You' : person.name;
   const primaryAction: HomeAction = (() => {
@@ -239,29 +279,6 @@ export default function HomePage() {
       count: 'Next'
     };
   })();
-  const isCurrentMemberHost = (meeting: Meeting) => Boolean(member && meeting.host._id === member._id);
-  const hasFistBumped = (carveOut: CarveOut) =>
-    Boolean(member && carveOut.fistBumps?.some((entry) => entry.member._id === member._id));
-  const canFistBump = (carveOut: CarveOut) =>
-    Boolean(member && carveOut.member._id !== member._id && !hasFistBumped(carveOut));
-  const canRemoveFistBump = (carveOut: CarveOut) =>
-    Boolean(member && carveOut.member._id !== member._id && hasFistBumped(carveOut));
-  const getFistBumpNames = (carveOut: CarveOut) =>
-    (carveOut.fistBumps || []).map((entry) => displayMemberName(entry.member));
-  const getInitials = (name: string) =>
-    name
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase() || '')
-      .join('');
-  const formatFistBumps = (carveOut: CarveOut) => {
-    const names = getFistBumpNames(carveOut);
-    if (names.length === 0) return 'No fist bumps yet.';
-    if (names.length === 1) return `Fist bumped by ${names[0]}.`;
-    if (names.length === 2) return `Fist bumped by ${names[0]} and ${names[1]}.`;
-    return `Fist bumped by ${names[0]}, ${names[1]}, and ${names.length - 2} others.`;
-  };
   const formatPublicFistBumps = (carveOut: CarveOut) => {
     const count = carveOut.fistBumps?.length || 0;
     if (count === 0) return 'No fist bumps yet.';
@@ -275,90 +292,6 @@ export default function HomePage() {
       return value;
     }
   };
-  async function giveFistBump(carveOutId: string) {
-    setFistBumpingId(carveOutId);
-
-    try {
-      const res = await fetch(withBasePath(`/api/carveouts/${carveOutId}/fist-bump`), {
-        method: 'POST'
-      });
-
-      const payload = (await res.json().catch(() => null)) as (CarveOut & { message?: string }) | null;
-      if (!res.ok || !payload) return;
-
-      setCarveOuts((prev) => prev.map((carveOut) => (carveOut._id === carveOutId ? payload : carveOut)));
-    } finally {
-      setFistBumpingId(null);
-    }
-  }
-
-  async function removeFistBump(carveOutId: string) {
-    setFistBumpingId(carveOutId);
-
-    try {
-      const res = await fetch(withBasePath(`/api/carveouts/${carveOutId}/fist-bump`), {
-        method: 'DELETE'
-      });
-
-      const payload = (await res.json().catch(() => null)) as (CarveOut & { message?: string }) | null;
-      if (!res.ok || !payload) return;
-
-      setCarveOuts((prev) => prev.map((carveOut) => (carveOut._id === carveOutId ? payload : carveOut)));
-    } finally {
-      setFistBumpingId(null);
-    }
-  }
-
-  function renderFistBumpStrip(carveOut: CarveOut, interactive: boolean) {
-    const names = getFistBumpNames(carveOut);
-    const visibleNames = names.slice(0, 3);
-    const extraCount = Math.max(0, names.length - visibleNames.length);
-
-    return (
-      <div className="carveout-appreciation-strip">
-        {interactive ? (
-          carveOut.member._id !== member?._id ? (
-            <button
-              type="button"
-              className={`fist-bump-pill${hasFistBumped(carveOut) ? ' is-sent' : ''}`}
-              onClick={() => (hasFistBumped(carveOut) ? removeFistBump(carveOut._id) : giveFistBump(carveOut._id))}
-              disabled={(!canFistBump(carveOut) && !canRemoveFistBump(carveOut)) || fistBumpingId === carveOut._id}
-            >
-              <span className="fist-bump-pill-mark" aria-hidden="true">
-                👊
-              </span>
-              <span>
-                {fistBumpingId === carveOut._id
-                  ? 'Sending...'
-                  : hasFistBumped(carveOut)
-                    ? 'Undo fist bump'
-                    : 'Give fist bump'}
-              </span>
-            </button>
-          ) : (
-            <div className="fist-bump-owner-note">Your carve out</div>
-          )
-        ) : (
-          <div className="fist-bump-owner-note">Club appreciation</div>
-        )}
-
-        <div className="carveout-fist-bumps-meta">
-          {interactive && names.length > 0 ? (
-            <div className="fist-bump-avatar-row" aria-hidden="true">
-              {visibleNames.map((name) => (
-                <span key={`${carveOut._id}-${name}`} className="fist-bump-avatar">
-                  {getInitials(name)}
-                </span>
-              ))}
-              {extraCount > 0 ? <span className="fist-bump-avatar extra">+{extraCount}</span> : null}
-            </div>
-          ) : null}
-          <p>{interactive ? formatFistBumps(carveOut) : formatPublicFistBumps(carveOut)}</p>
-        </div>
-      </div>
-    );
-  }
-
   function renderPublicPodcastCard(podcast: Podcast, keyPrefix: string) {
     return (
       <article className="public-library-card" key={`${keyPrefix}-${podcast._id}`}>
@@ -617,27 +550,38 @@ export default function HomePage() {
 
   return (
     <section className="home-dashboard page-stack">
-      {nextMeeting && nextMeetingPodcasts.length > 0 ? (
+      {nextMeeting ? (
         <div className="section-panel command-panel listen-next-panel" data-tone="meetings">
           <div className="listen-next-heading">
             <div>
               <p className="section-kicker">For the next meeting</p>
               <div className="hero-heading-row">
                 <h2>Listen next</h2>
-                <span className="badge">
-                  {nextMeetingPodcasts.length} podcast{nextMeetingPodcasts.length === 1 ? '' : 's'}
-                </span>
+                <span className="badge">{nextMeetingPodcasts.length > 0 ? `${nextMeetingPodcasts.length} selected` : 'Picks coming soon'}</span>
               </div>
               <p className="muted-line">
                 {formatDate(nextMeeting.date)} with {displayMemberName(nextMeeting.host)}.
               </p>
             </div>
           </div>
-          <div className="upcoming-podcast-list" aria-label="Podcasts for the next meeting">
-            {nextMeetingPodcasts.map((podcast, index) => (
-              <UpcomingPodcastLink key={podcast._id} podcast={podcast} position={index + 1} />
-            ))}
+          {nextMeetingPodcasts.length > 0 ? (
+            <div className="upcoming-podcast-list" aria-label="Podcasts for the next meeting">
+              {nextMeetingPodcasts.map((podcast, index) => (
+                <UpcomingPodcastLink key={podcast._id} podcast={podcast} position={index + 1} />
+              ))}
+            </div>
+          ) : (
+            <div className="listen-next-empty">
+              <span aria-hidden="true">🎧</span>
+              <strong>The host has not selected the podcast yet.</strong>
+              <small>This card will become the fastest route to the episode as soon as it is chosen.</small>
+            </div>
+          )}
+          <div className="home-meeting-detail-grid">
+            <div><span>Host</span><strong>{displayMemberName(nextMeeting.host)}</strong></div>
+            <div><span>Location</span><strong>{nextMeeting.location}</strong></div>
           </div>
+          <AddToCalendar meeting={nextMeeting} podcastsById={podcastsById} />
           <Link className="listen-next-meeting-link" href="/meetings">
             <span>
               <strong>View meeting details</strong>
@@ -662,185 +606,81 @@ export default function HomePage() {
         </div>
       )}
 
-      <div className="section-panel todo-panel">
-        <div className="section-title-row">
-          <h2>Quick Actions</h2>
-          <span className="badge">{podcastsToRank.length} to rank</span>
-        </div>
-        <div className="todo-list">
-          <Link
-            className={`todo-row${podcastsToRank.length > 0 ? ' primary' : ''}`}
-            href={PODCAST_RANK_HREF}
-            data-tone="podcasts"
-          >
-            <span>
-              <strong>{podcastsToRank.length > 0 ? 'Rank podcasts' : 'Ranking complete'}</strong>
-              <small>
-                {podcastsToRank.length > 0
-                  ? `${podcastsToRank.length} podcast${podcastsToRank.length === 1 ? ' needs' : 's need'} your rating.`
-                  : 'Browse candidates or add something new.'}
-              </small>
-            </span>
-            <span aria-hidden="true">&gt;</span>
-          </Link>
-          <Link className="todo-row" href={MEETINGS_HREF} data-tone="meetings">
-            <span>
-              <strong>{nextMeeting ? 'View meeting' : 'Meetings'}</strong>
-              <small>{nextMeeting ? `${formatDate(nextMeeting.date)} is next.` : 'Review meeting history.'}</small>
-            </span>
-            <span aria-hidden="true">&gt;</span>
-          </Link>
-          <Link className="todo-row" href={PODCAST_SUBMIT_HREF} data-tone="podcasts">
-            <span>
-              <strong>Submit a podcast</strong>
-              <small>Add something for the club to consider.</small>
-            </span>
-            <span aria-hidden="true">&gt;</span>
-          </Link>
-          <Link className="todo-row" href={CARVE_OUT_SHARE_HREF} data-tone="carveouts">
-            <span>
-              <strong>Share a carve out</strong>
-              <small>Post something that made an impact.</small>
-            </span>
-            <span aria-hidden="true">&gt;</span>
-          </Link>
-        </div>
-      </div>
-
-      <div className="dashboard-hero section-panel">
-        <p className="section-kicker">Next Meeting</p>
-        {nextMeeting ? (
-          <>
-            <div className="hero-heading-row">
-              <h2>{formatDate(nextMeeting.date)}</h2>
-              {isCurrentMemberHost(nextMeeting) ? <span className="badge">Host</span> : null}
-            </div>
-            <div className="hero-meta-grid">
-              <div>
-                <span>Host</span>
-                <strong>{displayMemberName(nextMeeting.host)}</strong>
-              </div>
-              <div>
-                <span>Podcasts</span>
-                <strong>{nextMeetingPodcasts.length > 0 ? nextMeetingPodcasts.length : 'TBD'}</strong>
-              </div>
-            </div>
-            <p className="location-line">{nextMeeting.location}</p>
-            <AddToCalendar meeting={nextMeeting} podcastsById={podcastsById} />
-            {nextMeetingPodcasts.length > 0 ? (
-              <div className="meeting-selected-podcast-list">
-                {nextMeetingPodcasts.map((podcast) => (
-                  <MeetingSelectedPodcastCard key={podcast._id} podcast={podcast} currentMember={member} />
-                ))}
-              </div>
-            ) : (
-              <p className="muted-line">Awaiting host podcast picks.</p>
-            )}
-            <Link className="action-link full-width-action" href="/meetings" data-tone="meetings">
-              View Meeting
-            </Link>
-          </>
-        ) : (
-          <>
-            <h2>No meeting scheduled</h2>
-            <p className="muted-line">Check the meetings page for past discussions or schedule the next one.</p>
-            <Link className="action-link full-width-action" href="/meetings" data-tone="meetings">
-              View Meetings
-            </Link>
-          </>
-        )}
-      </div>
-
-      {podcastsToRank.length > 0 ? (
-        <div className="section-panel podcasts-to-rank-card">
-          <div className="section-title-row">
-            <h2>Up Next to Rank</h2>
-            <Link href={PODCAST_RANK_HREF}>Rank All</Link>
+      {topSuggestion ? (
+        <article className="section-panel home-suggestion-panel podcasts-to-discuss-card">
+          <div className="home-suggestion-heading">
+            <span className="section-kicker">Top Suggestion</span>
+            <span className="badge">{topSuggestion.confidence} confidence</span>
           </div>
-          <div className="compact-list">
-            {recentPodcastsToRank.map((podcast) => (
-              <Link key={`rank-queue-${podcast._id}`} className="compact-row" href={PODCAST_RANK_HREF}>
-                <span>
-                  <strong>{podcast.title}</strong>
-                  <small>
-                    {podcast.totalTimeMinutes ? `${podcast.totalTimeMinutes} min` : podcast.host || 'Unknown host'}
-                    {podcast.episodeNames ? ` | ${podcast.episodeNames}` : ''}
-                  </small>
-                </span>
-                <span aria-hidden="true">&gt;</span>
-              </Link>
-            ))}
+          <MediaArtwork
+            url={topSuggestion.href}
+            title={topSuggestion.title}
+            kind="podcast"
+            className="home-suggestion-art"
+            fallback="🎧"
+            eager
+          />
+          <div className="home-suggestion-copy">
+            <h2>{topSuggestion.title}</h2>
+            <p>{topSuggestion.subtitle}</p>
+            {topSuggestion.reasons[0] ? <small>{topSuggestion.reasons[0]}</small> : null}
           </div>
-        </div>
+          <Link className="home-suggestion-link" href="/episode-discovery">
+            <span>
+              <strong>See why it’s the top suggestion</strong>
+              <small>Adjust the mood, length, and club preferences</small>
+            </span>
+            <span aria-hidden="true">→</span>
+          </Link>
+        </article>
       ) : null}
 
-      <div className="section-panel carveouts-card">
+      <section className="section-panel home-search-panel">
         <div className="section-title-row">
-          <h2>Recent Carve Outs</h2>
-          <Link href="/carveouts">View All</Link>
+          <div><p className="section-kicker">Search</p><h2>Search Club History</h2></div>
+          <span className="badge">{podcasts.length + meetings.length + carveOuts.length} items</span>
         </div>
-        <div className="compact-list">
-          {recentCarveOuts.length === 0 ? <p>No recent carve outs.</p> : null}
-          {recentCarveOuts.map((carveOut) => (
-            <div className="compact-card" key={carveOut._id}>
-              <div className="compact-card-head">
-                <h3>{carveOut.title}</h3>
-                <div className="podcast-meta-row">
-                  <span className="badge">{getCarveOutTypeLabel(carveOut.type)}</span>
-                  {carveOut.service ? <span className="badge secondary-badge">{carveOut.service}</span> : null}
-                </div>
-              </div>
-              <p>
-                Shared by {displayMemberName(carveOut.member)} for {formatDate(carveOut.meeting.date)}
-              </p>
-              {carveOut.service ? <p>Found on {carveOut.service}.</p> : null}
-              {carveOut.notes ? <p>{carveOut.notes}</p> : null}
-              {renderFistBumpStrip(carveOut, true)}
-            </div>
-          ))}
-        </div>
-      </div>
+        <label className="home-search-field">
+          <span aria-hidden="true">⌕</span>
+          <span className="sr-only">Search podcasts, meetings, and carve outs</span>
+          <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} type="search" placeholder="Search podcasts, meetings, and carve outs" />
+        </label>
+        <p className="muted-line">Podcasts, meeting notes, and carve outs.</p>
+        {searchQuery.trim() ? (
+          <div className="home-search-results" aria-live="polite">
+            {searchResults.length === 0 ? <p>No matching club history.</p> : null}
+            {searchResults.map((result) => result.external ? (
+              <a key={result.id} href={result.href} target="_blank" rel="noreferrer"><span><strong>{result.title}</strong><small>{result.detail}</small></span><span aria-hidden="true">↗</span></a>
+            ) : (
+              <Link key={result.id} href="/meetings"><span><strong>{result.title}</strong><small>{result.detail}</small></span><span aria-hidden="true">→</span></Link>
+            ))}
+          </div>
+        ) : null}
+      </section>
 
-      <div className="section-panel podcasts-to-discuss-card">
-        <div className="section-title-row">
-          <h2>Top Podcast Candidates</h2>
-          <Link href={PODCAST_LIBRARY_HREF}>View All</Link>
-        </div>
-        <div className="compact-list">
-          {recentPodcastsToDiscuss.length === 0 ? <p>No podcasts to discuss yet.</p> : null}
-          {recentPodcastsToDiscuss.map((podcast) => (
-            <Link key={podcast._id} className="compact-row" href={PODCAST_LIBRARY_HREF}>
-              <span>
-                <strong>{podcast.title}</strong>
-                <small>
-                  Score {podcast.rankingScore}
-                  {podcast.missingVoters.length > 0 ? ` | Missing ${podcast.missingVoters.length}` : ' | Fully rated'}
-                </small>
-              </span>
-              <span aria-hidden="true">&gt;</span>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      <div className="section-panel discussed-card">
-        <div className="section-title-row">
-          <h2>Recently Discussed Podcasts</h2>
-          <Link href={PODCAST_LIBRARY_HREF}>View Library</Link>
-        </div>
-        <div className="compact-list">
-          {recentDiscussedPodcasts.length === 0 ? <p>No recent discussed podcasts yet.</p> : null}
-          {recentDiscussedPodcasts.map((podcast) => (
-            <Link key={`home-discussed-${podcast._id}`} className="compact-row" href={PODCAST_LIBRARY_HREF}>
-              <span>
-                <strong>{podcast.title}</strong>
-                <small>{podcast.discussedMeetingDate ? formatDate(podcast.discussedMeetingDate) : 'Meeting unknown'}</small>
-              </span>
-              <span aria-hidden="true">&gt;</span>
-            </Link>
-          ))}
-        </div>
-      </div>
+      <section className="home-preview-grid" aria-label="Club shortcuts">
+        <Link className="home-preview-card" href={PODCAST_RANK_HREF}>
+          <MediaArtwork url={podcastsToDiscuss[0]?.link} title={podcastsToDiscuss[0]?.title} creator={podcastsToDiscuss[0]?.host} kind="podcast" className="home-preview-card-art" fallback="🎧" />
+          <p className="section-kicker">Quick action</p>
+          <h3>Rank podcasts</h3>
+          <p>{podcastsToRank.length > 0 ? `${podcastsToRank.length} podcast${podcastsToRank.length === 1 ? ' needs' : 's need'} your rating.` : 'You’re caught up. Review the active ballot.'}</p>
+          <strong>Review the ballot →</strong>
+        </Link>
+        <Link className="home-preview-card carveout" href="/carveouts">
+          <MediaArtwork url={recentCarveOuts[0]?.url} title={recentCarveOuts[0]?.title} kind={recentCarveOuts[0]?.type || 'other'} className="home-preview-card-art" fallback="◇" />
+          <p className="section-kicker">Recent carve out</p>
+          <h3>{recentCarveOuts[0]?.title || 'See what members shared'}</h3>
+          <p>{recentCarveOuts[0]?.notes || 'Books, articles, films, and other finds from the club.'}</p>
+          <strong>See carve outs →</strong>
+        </Link>
+        <Link className="home-preview-card" href={PODCAST_LIBRARY_HREF}>
+          <MediaArtwork url={recentDiscussedPodcasts[0]?.link} title={recentDiscussedPodcasts[0]?.title} creator={recentDiscussedPodcasts[0]?.host} kind="podcast" className="home-preview-card-art" fallback="▶" />
+          <p className="section-kicker">Recently discussed</p>
+          <h3>{recentDiscussedPodcasts[0]?.title || 'Club podcast archive'}</h3>
+          <p>{recentDiscussedPodcasts[0]?.episodeNames || 'Return to past episodes and discussion notes without hunting.'}</p>
+          <strong>Search the archive →</strong>
+        </Link>
+      </section>
     </section>
   );
 }

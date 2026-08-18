@@ -2,6 +2,8 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import IntelligenceClient from '@/app/intelligence/IntelligenceClient';
+import { ListeningStyles } from '@/components/ListeningStyles';
 import { MediaArtwork } from '@/components/MediaArtwork';
 import { withBasePath } from '@/lib/base-path';
 import { fetchJson, getRequestErrorMessage } from '@/lib/client-fetch';
@@ -553,37 +555,20 @@ export default function PodcastsPage() {
         <div>
           <p className="section-kicker">Podcasts</p>
           <h2>Find the Next Discussion</h2>
-          <p className="muted-line">Vote on active candidates, add an episode, or revisit the club archive.</p>
+          <p className="muted-line">Suggestions based on club ratings and meeting history, followed by the active ballot and archive.</p>
         </div>
-        <Link className="page-intro-action" href="/episode-discovery">
-          View Suggestions <span aria-hidden="true">→</span>
-        </Link>
+        <button type="button" className="page-intro-action" onClick={() => setActiveTab(activeTab === 'submit' ? 'rank' : 'submit')}>
+          {activeTab === 'submit' ? 'Back to Podcasts' : 'Add a Podcast'} <span aria-hidden="true">→</span>
+        </button>
       </div>
 
-      <div className="podcast-tabs" role="tablist" aria-label="Podcast sections">
-        {[
-          { id: 'rank' as const, label: 'Rank', count: activeRankCount },
-          { id: 'submit' as const, label: 'Submit' },
-          { id: 'library' as const, label: 'Library', count: podcastsToDiscuss.length + discussed.length }
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            role="tab"
-            aria-selected={activeTab === tab.id}
-            className={activeTab === tab.id ? 'podcast-tab active' : 'podcast-tab'}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            <span>{tab.label}</span>
-            {typeof tab.count === 'number' ? <small>{tab.count}</small> : null}
-          </button>
-        ))}
-      </div>
+      {activeTab !== 'submit' ? <ListeningStyles member={member} compact /> : null}
+      {activeTab !== 'submit' ? <IntelligenceClient embedded /> : null}
 
-      {activeTab === 'rank' ? (
+      {activeTab !== 'submit' ? (
         <div className="section-panel podcasts-to-rank-card">
           <div className="section-title-row">
-            <h2>Rank Podcasts</h2>
+            <div><p className="section-kicker">Vote Next</p><h2>Rank Podcasts</h2></div>
             <span className="badge">{activeRankCount} left</span>
           </div>
           <div className="rank-flow-status" aria-live="polite">
@@ -669,7 +654,7 @@ export default function PodcastsPage() {
 
       {activeTab === 'submit' ? (
         <div className="section-panel submit-podcast-panel">
-          <h2>Submit Podcast</h2>
+          <div className="section-title-row"><h2>Submit Podcast</h2><button type="button" className="ghost" onClick={() => setActiveTab('rank')}>Close</button></div>
           <form className="form" onSubmit={onSubmit}>
             <label>
               Podcast Title
@@ -749,7 +734,7 @@ export default function PodcastsPage() {
         </div>
       ) : null}
 
-      {activeTab === 'library' ? (
+      {activeTab !== 'submit' ? (
         <div className="podcast-library-stack">
           <div className="section-panel podcasts-to-discuss-page-card">
             <div className="section-title-row">

@@ -64,7 +64,7 @@ function RecommendationCard({ item, onSelect }: { item: IntelligenceRecommendati
   );
 }
 
-export default function IntelligenceClient() {
+export default function IntelligenceClient({ embedded = false }: { embedded?: boolean }) {
   const { loading, member } = useSession();
   const [report, setReport] = useState<IntelligenceReport | null>(null);
   const [error, setError] = useState('');
@@ -144,20 +144,25 @@ export default function IntelligenceClient() {
     setFeedbackMessage('Saved to your member profile.');
   }
 
+  const Wrapper = embedded ? 'div' : 'section';
+  const wrapperClassName = embedded
+    ? 'intelligence-page podcast-discovery-embedded'
+    : 'more-page intelligence-page page-stack';
+
   if (loading) {
-    return <section className="more-page intelligence-page page-stack"><div className="section-panel"><h2>Podcast Suggestions</h2><p>Loading...</p></div></section>;
+    return <Wrapper className={wrapperClassName}><div className="section-panel"><h2>Podcast Suggestions</h2><p>Loading...</p></div></Wrapper>;
   }
 
   if (!member) {
     return (
-      <section className="more-page intelligence-page page-stack">
+      <Wrapper className={wrapperClassName}>
         <div className="section-panel"><h2>Podcast Suggestions</h2><p>Please login to view recommendations.</p><Link className="action-link" href="/login">Go to Login</Link></div>
-      </section>
+      </Wrapper>
     );
   }
 
   return (
-    <section className="more-page intelligence-page page-stack">
+    <Wrapper className={wrapperClassName}>
       <div className="section-panel intelligence-panel discovery-controls-panel">
         <div className="section-title-row"><h2>Podcast Suggestions</h2><span className="badge">Beta</span></div>
         <p className="muted-line">Suggestions use club ratings, past discussions, carve-out fist bumps, and meeting feedback.</p>
@@ -253,7 +258,7 @@ export default function IntelligenceClient() {
         <summary>How suggestions work</summary>
         <p>The engine uses ratings, selected podcasts, meeting history, fist bumps, and meeting feedback. It balances familiar interests with less obvious choices; listening styles never rank members.</p>
       </details>
-      <Link className="action-link full-width-action" href="/podcasts?tab=rank">Go to the active podcast ballot</Link>
-    </section>
+      {!embedded ? <Link className="action-link full-width-action" href="/podcasts?tab=rank">Go to the active podcast ballot</Link> : null}
+    </Wrapper>
   );
 }

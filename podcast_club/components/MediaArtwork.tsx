@@ -52,8 +52,13 @@ export function MediaArtwork({ url, title, kind, creator, fallback = '▶', clas
   }, [creator, hasLookup, kind, title, url]);
 
   const src = imageFailed ? '' : metadata?.imageUrl || '';
+  const artworkKind = kind?.trim().toLowerCase() || 'other';
   return (
-    <span className={`media-artwork ${src ? 'has-image' : ''} ${hasLookup && metadata === undefined ? 'is-loading' : ''} ${className}`.trim()} aria-hidden="true">
+    <span
+      className={`media-artwork ${src ? 'has-image' : ''} ${hasLookup && metadata === undefined ? 'is-loading' : ''} ${className}`.trim()}
+      data-artwork-kind={artworkKind}
+      aria-hidden="true"
+    >
       <span>{fallback}</span>
       {src ? (
         // External artwork comes from the linked publisher or public media catalog.

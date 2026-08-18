@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { withBasePath } from '@/lib/base-path';
 import type { Member, SessionMember } from '@/lib/types';
@@ -110,7 +111,7 @@ function Portrait({ style, large = false }: { style: ListeningStyle; large?: boo
   );
 }
 
-export function ListeningStyles({ member }: { member: SessionMember }) {
+export function ListeningStyles({ member, compact = false }: { member: SessionMember; compact?: boolean }) {
   const [members, setMembers] = useState<Member[]>([member]);
   const [selectedId, setSelectedId] = useState(member._id);
   const summaryRef = useRef<HTMLDivElement | null>(null);
@@ -133,6 +134,25 @@ export function ListeningStyles({ member }: { member: SessionMember }) {
   function showDetails(id: string) {
     setSelectedId(id);
     window.requestAnimationFrame(() => summaryRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
+  }
+
+  if (compact) {
+    return (
+      <section className="listening-styles listening-styles-compact" aria-labelledby="compact-listening-style-title">
+        <div className="listening-style-hero">
+          <Portrait style={current} large />
+          <div>
+            <p className="section-kicker">Your Listening Style</p>
+            <h3 id="compact-listening-style-title">{current.title}</h3>
+            <p>{current.shorthand}.</p>
+            <Link href="/more">View profile →</Link>
+          </div>
+        </div>
+        <div className="listening-style-compact-roster" aria-label="Club listening styles">
+          {styles.map((style) => <Portrait key={style.id} style={style} />)}
+        </div>
+      </section>
+    );
   }
 
   return (
