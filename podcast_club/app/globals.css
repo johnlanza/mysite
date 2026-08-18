@@ -6648,7 +6648,7 @@ body {
   margin-top: 16px;
 }
 
-:is(.home-dashboard, .public-home, .podcasts-page, .meetings-page, .carveouts-page, .more-page, .members-page, .imports-page, .intelligence-page) .section-panel {
+:is(.home-dashboard, .public-home, .auth-page, .podcasts-page, .meetings-page, .carveouts-page, .more-page, .members-page, .imports-page, .intelligence-page) .section-panel {
   border: 1px solid rgb(255 255 255 / 0.86) !important;
   border-radius: 18px;
   background: var(--paper) !important;
@@ -6674,8 +6674,8 @@ body {
   --section-muted: var(--podcasts-muted);
 }
 
-:is(.home-dashboard, .public-home, .podcasts-page, .meetings-page, .carveouts-page, .more-page, .members-page, .imports-page, .intelligence-page) .section-panel .muted-line,
-:is(.home-dashboard, .public-home, .podcasts-page, .meetings-page, .carveouts-page, .more-page, .members-page, .imports-page, .intelligence-page) .section-panel > p {
+:is(.home-dashboard, .public-home, .auth-page, .podcasts-page, .meetings-page, .carveouts-page, .more-page, .members-page, .imports-page, .intelligence-page) .section-panel .muted-line,
+:is(.home-dashboard, .public-home, .auth-page, .podcasts-page, .meetings-page, .carveouts-page, .more-page, .members-page, .imports-page, .intelligence-page) .section-panel > p {
   color: var(--ink-soft) !important;
 }
 
@@ -6976,7 +6976,7 @@ body {
     width: 100%;
   }
 
-  :is(.home-dashboard, .public-home, .podcasts-page, .meetings-page, .carveouts-page, .more-page, .members-page, .imports-page, .intelligence-page) .section-panel {
+  :is(.home-dashboard, .public-home, .auth-page, .podcasts-page, .meetings-page, .carveouts-page, .more-page, .members-page, .imports-page, .intelligence-page) .section-panel {
     padding: 17px;
     border-radius: 16px;
   }
