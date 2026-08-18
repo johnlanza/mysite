@@ -10,6 +10,11 @@ export function createPasswordResetToken() {
   return { token, tokenHash: hashToken(token) };
 }
 
+export function createEmailLoginToken() {
+  const token = randomBytes(TOKEN_BYTES).toString('base64url');
+  return { token, tokenHash: hashToken(token) };
+}
+
 export function hashToken(value: string) {
   return createHash('sha256').update(String(value || '')).digest('hex');
 }

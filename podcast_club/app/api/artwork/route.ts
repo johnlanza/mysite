@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
-import { requireSession } from '@/lib/auth';
+import { getSessionMember } from '@/lib/auth';
+import { connectToDatabase } from '@/lib/db';
+import CarveOutModel from '@/models/CarveOut';
+import PodcastModel from '@/models/Podcast';
 
 export const dynamic = 'force-dynamic';
 
@@ -207,16 +210,34 @@ async function searchApple(title: string, kind: string, creator: string) {
   };
 }
 
-export async function GET(request: Request) {
-  const session = await requireSession();
-  if (!session.ok) return NextResponse.json({ message: session.message }, { status: session.status });
+async function isKnownPublicArtwork(rawUrl: string, title: string) {
+  try {
+    await connectToDatabase();
+    const [podcast, carveOut] = await Promise.all([
+      PodcastModel.exists({
+        status: 'discussed',
+        ...(rawUrl ? { link: rawUrl } : { title })
+      }),
+      CarveOutModel.exists(rawUrl ? { url: rawUrl } : { title })
+    ]);
+    return Boolean(podcast || carveOut);
+  } catch {
+    return false;
+  }
+}
 
+export async function GET(request: Request) {
   const url = new URL(request.url);
   const rawUrl = (url.searchParams.get('url') || '').trim().slice(0, 2000);
   const title = (url.searchParams.get('title') || '').trim().slice(0, 180);
   const kind = (url.searchParams.get('kind') || '').trim().slice(0, 40);
   const creator = (url.searchParams.get('creator') || '').trim().slice(0, 120);
   const target = rawUrl ? safeExternalUrl(rawUrl) : null;
+
+  const session = await getSessionMember();
+  if (!session && !(await isKnownPublicArtwork(rawUrl, title))) {
+    return NextResponse.json({ message: 'Authentication required.' }, { status: 401 });
+  }
 
   if (rawUrl && !target) return NextResponse.json({ imageUrl: null, message: 'Use a public web link.' }, { status: 400 });
   if (!target && !title) return NextResponse.json({ imageUrl: null, message: 'Provide a title or public web link.' }, { status: 400 });

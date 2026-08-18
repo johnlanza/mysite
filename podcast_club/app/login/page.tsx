@@ -33,7 +33,10 @@ export default function LoginPage() {
   const [loginForm, setLoginForm] = useState(loginInitial);
   const [registerForm, setRegisterForm] = useState(registerInitial);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [saving, setSaving] = useState(false);
+  const [linkSaving, setLinkSaving] = useState(false);
+  const [emailSignInAvailable, setEmailSignInAvailable] = useState<boolean | null>(null);
 
   useEffect(() => {
     async function loadSetup() {
@@ -46,8 +49,10 @@ export default function LoginPage() {
 
         const payload = await res.json();
         setHasUsers(Boolean(payload.hasUsers));
+        setEmailSignInAvailable(Boolean(payload.emailSignInAvailable));
         setMode(payload.hasUsers ? 'login' : 'register');
       } catch {
+        setEmailSignInAvailable(false);
         setError('Could not load setup status. Check server logs and environment variables.');
       }
     }
@@ -55,9 +60,34 @@ export default function LoginPage() {
     void loadSetup();
   }, []);
 
+  async function requestEmailLink(event: FormEvent) {
+    event.preventDefault();
+    setError('');
+    setMessage('');
+    setLinkSaving(true);
+    try {
+      const res = await fetch(withBasePath('/api/auth/email-link'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: loginForm.email, remember: loginForm.remember })
+      });
+      const payload = (await res.json().catch(() => null)) as { message?: string } | null;
+      if (!res.ok) {
+        setError(payload?.message || 'Unable to send a sign-in link.');
+        return;
+      }
+      setMessage(payload?.message || 'Check your email for a secure sign-in link.');
+    } catch {
+      setError('Unable to send a sign-in link.');
+    } finally {
+      setLinkSaving(false);
+    }
+  }
+
   async function submitLogin(event: FormEvent) {
     event.preventDefault();
     setError('');
+    setMessage('');
     setSaving(true);
     try {
       const res = await fetch(withBasePath('/api/auth/login-legacy'), {
@@ -84,6 +114,7 @@ export default function LoginPage() {
   async function submitRegister(event: FormEvent) {
     event.preventDefault();
     setError('');
+    setMessage('');
     setSaving(true);
     try {
       const res = await fetch(withBasePath('/api/auth/register-legacy'), {
@@ -108,62 +139,85 @@ export default function LoginPage() {
   }
 
   return (
-    <section className="grid" style={{ marginTop: '1rem' }}>
-      <div className="card" style={{ maxWidth: '520px' }}>
-        <h2>{mode === 'login' ? 'Login' : hasUsers ? 'Register With Join Code' : 'Create First Admin Account'}</h2>
+    <section className="auth-page page-stack">
+      <div className="card auth-card">
+        <p className="section-kicker">Member access</p>
+        <h2>{mode === 'login' ? 'Welcome back' : hasUsers ? 'Register With Join Code' : 'Create First Admin Account'}</h2>
         <p>
           {mode === 'login'
-            ? 'Sign in with your Royal Podcast Society email and keep this device signed in if you want a faster return.'
+            ? 'Use a secure email link—no password to remember. Your existing password still works if you prefer it.'
             : hasUsers
               ? 'Enter your one-time join code to create your member account.'
               : 'Registration is only open for first-time setup.'}
         </p>
 
         {mode === 'login' ? (
-          <form className="form" onSubmit={submitLogin}>
-            <label>
-              Email
-              <input
-                type="email"
-                value={loginForm.email}
-                onChange={(event) => setLoginForm((prev) => ({ ...prev, email: event.target.value }))}
-                autoComplete="username"
-                required
-              />
-            </label>
-            <label>
-              Password
-              <input
-                type="password"
-                value={loginForm.password}
-                onChange={(event) => setLoginForm((prev) => ({ ...prev, password: event.target.value }))}
-                autoComplete="current-password"
-                required
-              />
-            </label>
-            <label className="checkbox-row remember-row">
-              <input
-                type="checkbox"
-                checked={loginForm.remember}
-                onChange={(event) => setLoginForm((prev) => ({ ...prev, remember: event.target.checked }))}
-              />
-              <span>Keep me signed in on this device</span>
-            </label>
-            <p className="muted-form-note">
-              On supported phones and browsers, saved passwords can also use biometric unlock like Face ID.
-            </p>
-            <button disabled={saving}>{saving ? 'Signing in...' : 'Sign In'}</button>
-            <p>
-              <Link className="nav-link" href="/forgot-password">
-                Forgot password?
-              </Link>
-            </p>
-            <p>
-              <Link className="nav-link" href="/claim-account">
-                Claim account with admin code
-              </Link>
-            </p>
-          </form>
+          <div className="auth-methods">
+            <form className="form email-link-form" onSubmit={requestEmailLink}>
+              <div className="auth-method-heading">
+                <span className="auth-method-icon" aria-hidden="true">✉</span>
+                <span>
+                  <strong>Email me a sign-in link</strong>
+                  <small>Fastest on a phone. The link works once and expires in 15 minutes.</small>
+                </span>
+              </div>
+              <label>
+                Email
+                <input
+                  type="email"
+                  value={loginForm.email}
+                  onChange={(event) => setLoginForm((prev) => ({ ...prev, email: event.target.value }))}
+                  autoComplete="email"
+                  required
+                />
+              </label>
+              <label className="checkbox-row remember-row">
+                <input
+                  type="checkbox"
+                  checked={loginForm.remember}
+                  onChange={(event) => setLoginForm((prev) => ({ ...prev, remember: event.target.checked }))}
+                />
+                <span>Keep me signed in on this device</span>
+              </label>
+              <button disabled={linkSaving || emailSignInAvailable !== true}>
+                {linkSaving
+                  ? 'Sending…'
+                  : emailSignInAvailable === false
+                    ? 'Email sign-in temporarily unavailable'
+                    : 'Send Sign-In Link'}
+              </button>
+            </form>
+
+            <details className="password-login-details">
+              <summary>Use a password instead</summary>
+              <form className="form" onSubmit={submitLogin}>
+                <label>
+                  Email
+                  <input
+                    type="email"
+                    value={loginForm.email}
+                    onChange={(event) => setLoginForm((prev) => ({ ...prev, email: event.target.value }))}
+                    autoComplete="username"
+                    required
+                  />
+                </label>
+                <label>
+                  Password
+                  <input
+                    type="password"
+                    value={loginForm.password}
+                    onChange={(event) => setLoginForm((prev) => ({ ...prev, password: event.target.value }))}
+                    autoComplete="current-password"
+                    required
+                  />
+                </label>
+                <button disabled={saving}>{saving ? 'Signing in…' : 'Sign In With Password'}</button>
+                <p className="auth-help-link"><Link className="nav-link" href="/forgot-password">Forgot password?</Link></p>
+              </form>
+            </details>
+
+            <p className="auth-help-link"><Link className="nav-link" href="/claim-account">Claim account with admin code</Link></p>
+          </div>
         ) : (
           <form className="form" onSubmit={submitRegister}>
             <label>
@@ -274,8 +328,24 @@ export default function LoginPage() {
           </div>
         ) : null}
 
-        {error ? <p className="error">{error}</p> : null}
+        {message ? <p className="success auth-message">{message}</p> : null}
+        {error ? <p className="error auth-message">{error}</p> : null}
       </div>
+
+      {mode === 'login' ? (
+        <div className="section-panel login-update-panel">
+          <div className="section-title-row">
+            <h2>New around the Society</h2>
+            <span className="badge">Member update</span>
+          </div>
+          <div className="login-update-grid">
+            <article><span aria-hidden="true">🎧</span><strong>Listen next</strong><small>Meeting picks and artwork are easy to find and tap in the car.</small></article>
+            <article><span aria-hidden="true">↕</span><strong>Clearer ballot</strong><small>Active candidates are separated from the discussion archive.</small></article>
+            <article><span aria-hidden="true">✦</span><strong>Smarter suggestions</strong><small>Filter ideas and see why the top episode fits the club.</small></article>
+            <article><span aria-hidden="true">👊</span><strong>Better feedback</strong><small>Use fist bumps and choose more than one reaction after a meeting.</small></article>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

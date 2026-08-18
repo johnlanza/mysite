@@ -6,6 +6,12 @@ type SendPasswordResetEmailParams = {
   resetUrl: string;
 };
 
+type SendEmailLoginLinkParams = {
+  to: string;
+  name: string;
+  loginUrl: string;
+};
+
 type SendEmailParams = {
   to: string;
   subject: string;
@@ -49,7 +55,7 @@ type SendPodcastEmailReportParams = {
 };
 
 function getBaseUrl() {
-  return process.env.APP_BASE_URL || 'http://localhost:3000';
+  return (process.env.APP_BASE_URL || 'http://localhost:3000').replace(/\/+$/, '');
 }
 
 function escapeHtml(value: string | number) {
@@ -63,6 +69,16 @@ function escapeHtml(value: string | number) {
 
 export function isEmailDeliveryConfigured() {
   return !isReadOnlyPreview() && Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM);
+}
+
+export function isEmailLoginConfigured() {
+  if (!isEmailDeliveryConfigured() || !process.env.APP_BASE_URL) return false;
+  try {
+    const url = new URL(process.env.APP_BASE_URL);
+    return url.protocol === 'https:' || url.hostname === 'localhost';
+  } catch {
+    return false;
+  }
 }
 
 async function sendEmail({ to, subject, html }: SendEmailParams) {
@@ -103,6 +119,10 @@ export function buildPasswordResetUrl(token: string) {
   return `${getBaseUrl()}/reset-password?token=${encodeURIComponent(token)}`;
 }
 
+export function buildEmailLoginUrl(token: string) {
+  return `${getBaseUrl()}/email-login?token=${encodeURIComponent(token)}`;
+}
+
 export async function sendPasswordResetEmail({ to, name, resetUrl }: SendPasswordResetEmailParams) {
   const result = await sendEmail({
     to,
@@ -114,6 +134,19 @@ export async function sendPasswordResetEmail({ to, name, resetUrl }: SendPasswor
     // Fallback for local/dev when email provider is not configured.
     console.log(`[password-reset] Email fallback for ${to}: ${resetUrl}`);
   }
+}
+
+export async function sendEmailLoginLink({ to, name, loginUrl }: SendEmailLoginLinkParams) {
+  return sendEmail({
+    to,
+    subject: 'Your Royal Podcast Society sign-in link',
+    html: [
+      `<p>Hi ${escapeHtml(name || 'there')},</p>`,
+      '<p>Use this secure link to sign in to the Royal Podcast Society. No password is required.</p>',
+      `<p><a href="${escapeHtml(loginUrl)}" style="display:inline-block;padding:12px 18px;border-radius:10px;background:#2f2d2e;color:#fff;text-decoration:none;font-weight:700">Sign in to the Royal Podcast Society</a></p>`,
+      '<p>This link expires in 15 minutes and can only be used once. If you did not request it, you can ignore this email.</p>'
+    ].join('')
+  });
 }
 
 export async function sendNewPodcastEmail({

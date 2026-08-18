@@ -8,11 +8,11 @@
 - Render staging model: full `mysite` service, with Podcast Club served at `/podcastclub`
 - `/Users/johnlanza/Dev/podcast_club` should resolve to this folder; do not create or deploy from a separate standalone copy.
 
-Podcast Club web app with email/password auth, ranked voting, admin-managed meetings, and carve outs.
+Podcast Club web app with passwordless email-link auth, password fallback, ranked voting, admin-managed meetings, and carve outs.
 
 ## Features
 
-- Email/password authentication with secure HTTP-only session cookies
+- One-time email-link authentication with secure HTTP-only session cookies and password fallback
 - First-user bootstrap registration creates the initial admin account
 - Admin-managed member creation (with address and admin flag)
 - Podcast submission by authenticated members
@@ -57,9 +57,9 @@ Optional:
 
 - `MONGODB_DB` (defaults to `podcast_club`)
 - `MYSITE_SESSION_COOKIE` (defaults to `mysite_session`)
-- `APP_BASE_URL` (defaults to `http://localhost:3000`; used for password reset links)
+- `APP_BASE_URL` (must be the public HTTPS Podcast Club URL in production; used for sign-in and password-reset links)
 - `NEXT_PUBLIC_BASE_PATH` (set to `/podcastclub` when deploying under a subpath like `johnlanza.com/podcastclub`)
-- `RESEND_API_KEY` (if set, sends password reset emails through Resend)
+- `RESEND_API_KEY` (if set with `EMAIL_FROM` and `APP_BASE_URL`, enables email sign-in and password-reset delivery through Resend)
 - `EMAIL_FROM` (required with `RESEND_API_KEY`, e.g. `Podcast Club <no-reply@yourdomain.com>`)
 - `OWNER_RECOVERY_CODE` (one-time emergency admin recovery code; rotate after use)
 

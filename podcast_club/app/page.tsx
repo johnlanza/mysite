@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import AddToCalendar from '@/components/AddToCalendar';
+import { MediaArtwork } from '@/components/MediaArtwork';
 import MeetingSelectedPodcastCard from '@/components/MeetingSelectedPodcastCard';
 import { UpcomingPodcastLink } from '@/components/UpcomingPodcastLink';
 import { withBasePath } from '@/lib/base-path';
@@ -58,10 +59,12 @@ export default function HomePage() {
   const [showAllCarveOuts, setShowAllCarveOuts] = useState(false);
   const [showAllDiscussedPodcasts, setShowAllDiscussedPodcasts] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [publicLibraryLoading, setPublicLibraryLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       setLoading(true);
+      setPublicLibraryLoading(true);
 
       const me = await fetch(withBasePath('/api/auth/me'), { cache: 'no-store' });
       if (me.ok) {
@@ -91,9 +94,11 @@ export default function HomePage() {
         } else {
           setCarveOuts([]);
         }
+        setPublicLibraryLoading(false);
       } else {
         setMember(null);
         setMeetings([]);
+        setLoading(false);
 
         const [podcastRes, carveOutRes] = await Promise.all([
           fetch(withBasePath('/api/podcasts'), { cache: 'no-store' }),
@@ -111,6 +116,7 @@ export default function HomePage() {
         } else {
           setCarveOuts([]);
         }
+        setPublicLibraryLoading(false);
       }
 
       setLoading(false);
@@ -356,6 +362,14 @@ export default function HomePage() {
   function renderPublicPodcastCard(podcast: Podcast, keyPrefix: string) {
     return (
       <article className="public-library-card" key={`${keyPrefix}-${podcast._id}`}>
+        <MediaArtwork
+          url={podcast.link}
+          title={podcast.title}
+          kind="podcast"
+          creator={podcast.host}
+          className="public-card-artwork"
+          fallback="🎧"
+        />
         <div className="public-card-head">
           <div>
             <h3>{podcast.title}</h3>
@@ -407,6 +421,13 @@ export default function HomePage() {
   function renderPublicCarveOutCard(carveOut: CarveOut, keyPrefix: string) {
     return (
       <article className="public-library-card" key={`${keyPrefix}-${carveOut._id}`}>
+        <MediaArtwork
+          url={carveOut.url}
+          title={carveOut.title}
+          kind={carveOut.type}
+          className="public-card-artwork"
+          fallback="✦"
+        />
         <div className="public-card-head">
           <div>
             <h3>{carveOut.title}</h3>
@@ -471,21 +492,49 @@ export default function HomePage() {
       <section className="public-home page-stack">
         <div className="section-panel command-panel public-welcome-panel">
           <div>
-            <p className="section-kicker">Royal Podcast Society</p>
+            <p className="section-kicker">The Society, upgraded</p>
             <div className="hero-heading-row">
-              <h2>Podcast notes and shared finds</h2>
-              <span className="badge">{allDiscussedPodcasts.length} discussed</span>
+              <h2>Find the next great conversation</h2>
+              <span className="badge">New member experience</span>
             </div>
             <p className="muted-line">
-              Browse the episodes the club has already discussed and the carve outs members shared along the way.
+              Meeting picks, voting, recommendations, listening styles, and the club archive now work together in one easier place.
             </p>
           </div>
-          <Link className="action-link full-width-action" href="/login">
-            Member Login
-          </Link>
+          <div className="public-entry-actions">
+            <Link className="action-link full-width-action" href="/login">
+              Sign in with an email link
+            </Link>
+            <a className="ghost public-secondary-action" href="#club-archive">Explore the public archive</a>
+          </div>
         </div>
 
-        <div className="section-panel public-library-panel discussed-card">
+        <div className="section-panel public-update-panel">
+          <div className="section-title-row">
+            <h2>What’s new</h2>
+            <span className="badge">Built from member feedback</span>
+          </div>
+          <div className="public-update-grid">
+            <article>
+              <span className="public-update-icon" aria-hidden="true">🎧</span>
+              <div><strong>Listen next</strong><small>Upcoming meeting episodes are prominent, pictured, and easy to tap on the go.</small></div>
+            </article>
+            <article>
+              <span className="public-update-icon" aria-hidden="true">↕</span>
+              <div><strong>Vote with confidence</strong><small>The active ballot now has a clear home, separate from past discussions.</small></div>
+            </article>
+            <article>
+              <span className="public-update-icon" aria-hidden="true">✦</span>
+              <div><strong>Find better episodes</strong><small>Suggestions explain the match and learn from each member’s reactions.</small></div>
+            </article>
+            <article>
+              <span className="public-update-icon" aria-hidden="true">👊</span>
+              <div><strong>Share what landed</strong><small>Artwork, carve-out filters, fist bumps, and flexible meeting feedback keep ideas moving.</small></div>
+            </article>
+          </div>
+        </div>
+
+        <div id="club-archive" className="section-panel public-library-panel discussed-card">
           <div className="section-title-row">
             <h2>Discussed Podcasts</h2>
             <span className="badge">{allDiscussedPodcasts.length}</span>
@@ -493,7 +542,12 @@ export default function HomePage() {
           <p className="muted-line">Only completed discussions are public. Candidate podcasts stay private to members.</p>
 
           <div className="public-library-list">
-            {recentDiscussedPodcasts.length === 0 ? (
+            {publicLibraryLoading ? (
+              <div className="empty-state">
+                <span className="empty-state-kicker">Club archive</span>
+                <h3>Loading discussed podcasts…</h3>
+              </div>
+            ) : recentDiscussedPodcasts.length === 0 ? (
               <div className="empty-state">
                 <span className="empty-state-kicker">No archive yet</span>
                 <h3>No discussed podcasts</h3>
@@ -529,7 +583,12 @@ export default function HomePage() {
           <p className="muted-line">Resources and ideas shared after meetings. Member names stay private; appreciation counts are public.</p>
 
           <div className="public-library-list">
-            {recentCarveOuts.length === 0 ? (
+            {publicLibraryLoading ? (
+              <div className="empty-state">
+                <span className="empty-state-kicker">Shared finds</span>
+                <h3>Loading carve outs…</h3>
+              </div>
+            ) : recentCarveOuts.length === 0 ? (
               <div className="empty-state">
                 <span className="empty-state-kicker">No shared finds yet</span>
                 <h3>No carve outs</h3>
