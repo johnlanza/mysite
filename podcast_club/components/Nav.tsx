@@ -48,10 +48,9 @@ function MobileNavIcon({ href }: { href: Route }) {
   if (href === '/podcasts') {
     return (
       <svg {...iconProps}>
-        <rect x="9" y="4" width="6" height="10" rx="3" />
-        <path d="M5.5 10.5v1A6.5 6.5 0 0 0 12 18a6.5 6.5 0 0 0 6.5-6.5v-1" />
-        <path d="M12 18v3" />
-        <path d="M9 21h6" />
+        <path d="M4 13v-2a8 8 0 0 1 16 0v2" />
+        <path d="M4 13h2.5v6H5.5A1.5 1.5 0 0 1 4 17.5Z" />
+        <path d="M20 13h-2.5v6h1a1.5 1.5 0 0 0 1.5-1.5Z" />
       </svg>
     );
   }
@@ -105,8 +104,10 @@ export function Nav() {
       {desktopLinks.map((link) => {
         const active =
           currentPath === link.href ||
-          (link.href === '/podcasts' && currentPath.startsWith('/podcasts')) ||
-          (link.href === '/more' && (currentPath.startsWith('/intelligence') || currentPath.startsWith('/episode-discovery')));
+          (link.href === '/podcasts' &&
+            (currentPath.startsWith('/podcasts') ||
+              currentPath.startsWith('/intelligence') ||
+              currentPath.startsWith('/episode-discovery')));
         return (
           <Link
             key={link.href}
@@ -141,8 +142,10 @@ export function MobileNav() {
       {visibleLinks.map((link) => {
         const active =
           currentPath === link.href ||
-          (link.href === '/podcasts' && currentPath.startsWith('/podcasts')) ||
-          (link.href === '/more' && (currentPath.startsWith('/intelligence') || currentPath.startsWith('/episode-discovery')));
+          (link.href === '/podcasts' &&
+            (currentPath.startsWith('/podcasts') ||
+              currentPath.startsWith('/intelligence') ||
+              currentPath.startsWith('/episode-discovery')));
         return (
           <Link
             key={link.href}

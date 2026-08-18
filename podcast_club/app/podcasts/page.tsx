@@ -549,6 +549,17 @@ export default function PodcastsPage() {
       {ratingToast ? <div className="toast-banner">{ratingToast}</div> : null}
       {error ? <div className="error-banner">{error}</div> : null}
 
+      <div className="section-panel page-intro-panel">
+        <div>
+          <p className="section-kicker">Podcasts</p>
+          <h2>Find the Next Discussion</h2>
+          <p className="muted-line">Vote on active candidates, add an episode, or revisit the club archive.</p>
+        </div>
+        <Link className="page-intro-action" href="/episode-discovery">
+          View Suggestions <span aria-hidden="true">→</span>
+        </Link>
+      </div>
+
       <div className="podcast-tabs" role="tablist" aria-label="Podcast sections">
         {[
           { id: 'rank' as const, label: 'Rank', count: activeRankCount },

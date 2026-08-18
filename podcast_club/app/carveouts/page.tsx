@@ -479,6 +479,14 @@ export default function CarveOutsPage() {
       {error ? <div className="error-banner">{error}</div> : null}
       {success ? <div className="toast-banner">{success}</div> : null}
 
+      <div className="section-panel page-intro-panel">
+        <div>
+          <p className="section-kicker">Carve Outs</p>
+          <h2>Member Recommendations</h2>
+          <p className="muted-line">Browse the full club library and fist bump the finds that land with you.</p>
+        </div>
+      </div>
+
       <div className="podcast-tabs carveout-tabs" role="tablist" aria-label="Carve out sections">
         {[
           { id: 'library' as const, label: 'Library', count: visibleCarveOuts.length },

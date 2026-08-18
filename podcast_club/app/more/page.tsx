@@ -87,9 +87,16 @@ export default function MorePage() {
 
   return (
     <section className="more-page page-stack">
+      <div className="section-panel page-intro-panel">
+        <div>
+          <p className="section-kicker">More</p>
+          <h2>Club Profile and Settings</h2>
+          <p className="muted-line">Listening styles, color theme, and member tools.</p>
+        </div>
+      </div>
       <div className="section-panel more-panel">
         <div className="section-title-row">
-          <h2>More</h2>
+          <h2>Your Club Profile</h2>
           <span className="badge">{member.isAdmin ? 'Admin' : 'Member'}</span>
         </div>
         <div className="more-account-card">

@@ -450,6 +450,14 @@ export default function MeetingsPage() {
     <section className="meetings-page page-stack">
       {error ? <div className="error-banner">{error}</div> : null}
 
+      <div className="section-panel page-intro-panel">
+        <div>
+          <p className="section-kicker">Meetings</p>
+          <h2>Meeting Details</h2>
+          <p className="muted-line">Next meeting information, listening picks, and discussion history.</p>
+        </div>
+      </div>
+
       <div className="podcast-tabs meeting-tabs" role="tablist" aria-label="Meeting sections">
         {[
           { id: 'next' as const, label: 'Next', count: nextMeeting ? 1 : 0 },
