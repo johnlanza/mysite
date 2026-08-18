@@ -150,13 +150,13 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
     : 'more-page intelligence-page page-stack';
 
   if (loading) {
-    return <Wrapper className={wrapperClassName}><div className="section-panel"><h2>Podcast Suggestions</h2><p>Loading...</p></div></Wrapper>;
+    return <Wrapper className={wrapperClassName}><div className="section-panel"><h2>Discovery Lab <span className="badge discovery-beta-badge">BETA</span></h2><p>Loading...</p></div></Wrapper>;
   }
 
   if (!member) {
     return (
       <Wrapper className={wrapperClassName}>
-        <div className="section-panel"><h2>Podcast Suggestions</h2><p>Please login to view recommendations.</p><Link className="action-link" href="/login">Go to Login</Link></div>
+        <div className="section-panel"><h2>Discovery Lab <span className="badge discovery-beta-badge">BETA</span></h2><p>Please login to view discoveries.</p><Link className="action-link" href="/login">Go to Login</Link></div>
       </Wrapper>
     );
   }
@@ -164,8 +164,11 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
   return (
     <Wrapper className={wrapperClassName}>
       <div className="section-panel intelligence-panel discovery-controls-panel">
-        <div className="section-title-row"><h2>Podcast Suggestions</h2><span className="badge">Beta</span></div>
-        <p className="muted-line">Suggestions use club ratings, past discussions, carve-out fist bumps, and meeting feedback.</p>
+        <div className="section-title-row"><h2>Discovery Lab</h2><span className="badge discovery-beta-badge">BETA</span></div>
+        <p className="muted-line">This beta looks beyond podcasts members have already submitted to uncover new shows and episodes the club may like.</p>
+        <p className="discovery-beta-note">
+          <strong>Member picks stay first.</strong> These discoveries are not on the active ballot. A discovery becomes a club candidate only after a member submits it.
+        </p>
         {loadingReport ? <p className="muted-line">Finding strong episode candidates...</p> : null}
         {error ? <p className="warning-banner">{error}</p> : null}
 
@@ -206,7 +209,7 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
 
       {topSuggestion ? (
         <article className="section-panel discovery-top-card" aria-live="polite">
-          <div className="discovery-topline"><span className="section-kicker">Top Suggestion</span><span className="badge">{topSuggestion.confidence} confidence</span></div>
+          <div className="discovery-topline"><span className="section-kicker">Top beta discovery</span><span className="badge">{topSuggestion.confidence} match</span></div>
           <MediaArtwork url={topSuggestion.href} title={topSuggestion.title} kind="podcast" className="discovery-top-art" fallback="🎧" eager />
           <div className="discovery-top-copy">
             <h2>{topSuggestion.title}</h2>
@@ -221,12 +224,12 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
             {ranked.length > 1 ? <button type="button" className="ghost" onClick={() => setSelectedId(shortlist[0]?.id || '')}>Try another</button> : null}
           </div>
           <div className="discovery-why">
-            <h3>Why this is the top suggestion</h3>
-            <p>It is the strongest current match for {selectedMood.label.toLowerCase()} and {selectedTime.label.toLowerCase()}, based on the club signals above.</p>
+            <h3>Why this discovery stands out</h3>
+            <p>It is the strongest current beta match for {selectedMood.label.toLowerCase()} and {selectedTime.label.toLowerCase()}, based on the club signals above.</p>
             <ul>{topSuggestion.reasons.slice(0, 3).map((reason) => <li key={reason}>{reason}</li>)}</ul>
           </div>
           <div className="discovery-feedback">
-            <span><strong>Tune your suggestions</strong><small>These choices update this list and stay with your member account. They are separate from podcast voting.</small></span>
+            <span><strong>Tune beta discoveries</strong><small>These choices update this discovery list and stay with your member account. They do not change the active ballot.</small></span>
             <div>
               {([['listen', 'More like this'], ['discuss', 'Strong discussion'], ['less', 'Less like this']] as Array<[TasteReaction, string]>).map(([reaction, label]) => (
                 <button
@@ -247,7 +250,7 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
 
       {shortlist.length > 0 ? (
         <section className="section-panel discovery-shortlist-section">
-          <div className="section-title-row"><h2>More Suggestions</h2><span className="badge">{shortlist.length}</span></div>
+          <div className="section-title-row"><h2>More Beta Discoveries</h2><span className="badge">{shortlist.length}</span></div>
           <div className="discovery-shortlist-grid">
             {shortlist.map((item) => <RecommendationCard key={item.id} item={item} onSelect={() => setSelectedId(item.id)} />)}
           </div>
@@ -255,8 +258,8 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
       ) : null}
 
       <details className="section-panel discovery-engine-note">
-        <summary>How suggestions work</summary>
-        <p>The engine uses ratings, selected podcasts, meeting history, fist bumps, and meeting feedback. It balances familiar interests with less obvious choices; listening styles never rank members.</p>
+        <summary>How beta discovery works</summary>
+        <p>The engine excludes podcasts already submitted by members, then uses ratings, selected podcasts, meeting history, fist bumps, and meeting feedback to look for new possibilities. It balances familiar interests with less obvious choices; listening styles never rank members.</p>
       </details>
       {!embedded ? <Link className="action-link full-width-action" href="/podcasts?tab=rank">Go to the active podcast ballot</Link> : null}
     </Wrapper>

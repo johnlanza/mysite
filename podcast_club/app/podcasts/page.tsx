@@ -555,7 +555,7 @@ export default function PodcastsPage() {
         <div>
           <p className="section-kicker">Podcasts</p>
           <h2>Find the Next Discussion</h2>
-          <p className="muted-line">Suggestions based on club ratings and meeting history, followed by the active ballot and archive.</p>
+          <p className="muted-line">Member submissions and voting come first. Beta discovery follows with new podcasts from beyond the club’s current list.</p>
         </div>
         <button type="button" className="page-intro-action" onClick={() => setActiveTab(activeTab === 'submit' ? 'rank' : 'submit')}>
           {activeTab === 'submit' ? 'Back to Podcasts' : 'Add a Podcast'} <span aria-hidden="true">→</span>
@@ -563,7 +563,6 @@ export default function PodcastsPage() {
       </div>
 
       {activeTab !== 'submit' ? <ListeningStyles member={member} compact /> : null}
-      {activeTab !== 'submit' ? <IntelligenceClient embedded /> : null}
 
       {activeTab !== 'submit' ? (
         <div className="section-panel podcasts-to-rank-card">
@@ -784,6 +783,8 @@ export default function PodcastsPage() {
               </button>
             ) : null}
           </div>
+
+          <IntelligenceClient embedded />
 
           <div className="section-panel podcasts-previously-discussed-card">
             <div className="section-title-row">

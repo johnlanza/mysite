@@ -458,7 +458,7 @@ export default function HomePage() {
             </article>
             <article>
               <span className="public-update-icon" aria-hidden="true">✦</span>
-              <div><strong>Find better episodes</strong><small>Suggestions explain the match and learn from each member’s reactions.</small></div>
+              <div><strong>Beta discovery</strong><small>Uncovers new possibilities beyond the member ballot, which always stays first.</small></div>
             </article>
             <article>
               <span className="public-update-icon" aria-hidden="true">👊</span>
@@ -606,11 +606,60 @@ export default function HomePage() {
         </div>
       )}
 
+      <section className="section-panel home-member-priority-panel podcasts-to-discuss-card">
+        <div className="section-title-row">
+          <div>
+            <p className="section-kicker">Member picks come first</p>
+            <h2>Active Ballot</h2>
+          </div>
+          <span className="badge">{podcastsToDiscuss.length}</span>
+        </div>
+        <p className="muted-line">
+          Podcasts submitted by members and ranked by the club. These take priority over beta discoveries.
+        </p>
+        {podcastsToDiscuss.length > 0 ? (
+          <div className="home-ballot-list">
+            {podcastsToDiscuss.slice(0, 3).map((podcast, index) => (
+              <article className="home-ballot-row" key={`home-ballot-${podcast._id}`}>
+                <MediaArtwork
+                  url={podcast.link}
+                  title={podcast.title}
+                  creator={podcast.host}
+                  kind="podcast"
+                  className="home-ballot-art"
+                  fallback="🎧"
+                />
+                <div>
+                  <span className="section-kicker">#{index + 1} member pick</span>
+                  <h3>{podcast.title}</h3>
+                  <small>{podcast.host || 'Podcast'} · Score {podcast.rankingScore}</small>
+                </div>
+                <span className="badge">
+                  {podcast.missingVoters.length > 0 ? `${podcast.missingVoters.length} to vote` : 'Fully rated'}
+                </span>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="empty-state">
+            <h3>No member picks are awaiting a vote.</h3>
+            <p>Add a podcast when you find something the club should consider.</p>
+          </div>
+        )}
+        <Link className="home-ballot-link" href={podcastsToDiscuss.length > 0 ? PODCAST_RANK_HREF : PODCAST_SUBMIT_HREF}>
+          <span>
+            <strong>{podcastsToDiscuss.length > 0 ? 'Review and vote on member picks' : 'Submit a podcast'}</strong>
+            <small>{podcastsToDiscuss.length > 0 ? 'The club’s official candidate list' : 'Start the next active ballot'}</small>
+          </span>
+          <span aria-hidden="true">→</span>
+        </Link>
+      </section>
+
       {topSuggestion ? (
-        <article className="section-panel home-suggestion-panel podcasts-to-discuss-card">
+        <article className="section-panel home-suggestion-panel discovery-beta-card podcasts-to-discuss-card">
           <div className="home-suggestion-heading">
-            <span className="section-kicker">Top Suggestion</span>
-            <span className="badge">{topSuggestion.confidence} confidence</span>
+            <span className="section-kicker">Top beta discovery</span>
+            <span className="badge discovery-beta-badge">BETA</span>
           </div>
           <MediaArtwork
             url={topSuggestion.href}
@@ -625,10 +674,13 @@ export default function HomePage() {
             <p>{topSuggestion.subtitle}</p>
             {topSuggestion.reasons[0] ? <small>{topSuggestion.reasons[0]}</small> : null}
           </div>
+          <p className="discovery-beta-note">
+            <strong>New to the club’s submitted list.</strong> This beta looks beyond member picks to uncover podcasts we may like. It is not part of the active ballot unless a member submits it.
+          </p>
           <Link className="home-suggestion-link" href="/episode-discovery">
             <span>
-              <strong>See why it’s the top suggestion</strong>
-              <small>Adjust the mood, length, and club preferences</small>
+              <strong>Explore this beta discovery</strong>
+              <small>See why it surfaced and tune future discoveries</small>
             </span>
             <span aria-hidden="true">→</span>
           </Link>
