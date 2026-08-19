@@ -216,7 +216,7 @@ function HistoricalPortrait({ style, large = false }: { style: ListeningStyle; l
       className={`listening-style-historical-portrait${large ? ' listening-style-historical-portrait-large' : ''}`}
     >
       <Image
-        src={style.historicalFigure.portrait}
+        src={withBasePath(style.historicalFigure.portrait)}
         alt={`Pen-and-ink portrait of ${style.historicalFigure.name}, the historical counterpart for ${style.name}`}
         width={900}
         height={900}
