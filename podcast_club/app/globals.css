@@ -5685,21 +5685,57 @@ button {
   flex: 0 0 auto;
   width: 3.5rem;
   aspect-ratio: 1;
-  overflow: hidden;
-  border: 1px solid rgb(var(--more-rgb) / 0.28);
   border-radius: 50%;
-  background-repeat: no-repeat;
-  background-size: 300% 200%;
-  background-color: rgb(var(--more-rgb) / 0.12);
-  box-shadow: 0 6px 14px rgb(47 45 46 / 0.12);
 }
 
-.listening-style-portrait img {
+.listening-style-portrait-crop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border: 2px solid color-mix(in srgb, var(--nav-more) 48%, #d0ae62);
+  border-radius: 50%;
+  background-color: rgb(var(--more-rgb) / 0.12);
+  box-shadow:
+    0 0 0 2px rgb(255 255 255 / 0.9),
+    0 0 0 4px color-mix(in srgb, var(--nav-more) 24%, #d0ae62),
+    0 7px 16px rgb(47 45 46 / 0.15);
+}
+
+.listening-style-portrait-crop img {
   position: absolute;
   width: 300%;
   height: 200%;
   max-width: none;
   object-fit: fill;
+}
+
+.listening-style-monogram {
+  position: absolute;
+  right: -0.28rem;
+  bottom: -0.2rem;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  min-width: 1.45rem;
+  height: 1.45rem;
+  padding: 0 0.23rem;
+  border: 2px solid #fffaf0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--nav-more) 72%, #8b5f24);
+  color: var(--nav-more-ink);
+  box-shadow: 0 4px 10px rgb(47 45 46 / 0.2);
+  font-family: var(--font-serif), serif;
+  font-size: 0.56rem;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+}
+
+.listening-style-portrait-large .listening-style-monogram {
+  right: -0.15rem;
+  bottom: -0.05rem;
+  min-width: 1.85rem;
+  height: 1.85rem;
+  font-size: 0.68rem;
 }
 
 .listening-style-portrait-large {
@@ -5913,19 +5949,45 @@ button {
 
 .discovery-mood-grid button {
   display: grid;
-  justify-items: start;
-  gap: 0.15rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.7rem;
   min-width: 0;
-  min-height: 4.2rem;
-  padding: 0.7rem;
+  min-height: 5.25rem;
+  padding: 0.8rem;
   border: 1px solid rgb(var(--more-rgb) / 0.22);
   background: var(--panel);
   color: var(--ink);
   text-align: left;
 }
 
-.discovery-mood-grid button small {
+.discovery-mode-number {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-family: var(--font-serif), serif;
+  font-size: 0.7rem;
+  font-weight: 900;
+  opacity: 0.56;
+}
+
+.discovery-mode-copy {
+  display: grid;
+  align-content: center;
+  gap: 0.16rem;
+  min-width: 0;
+}
+
+.discovery-mode-copy strong {
+  line-height: 1.15;
+}
+
+.discovery-mode-copy small {
   color: var(--ink-soft);
+  line-height: 1.3;
 }
 
 .discovery-mood-grid button.selected,
@@ -5938,6 +6000,14 @@ button {
 .discovery-mood-grid button.selected small {
   color: inherit;
   opacity: 0.78;
+}
+
+.discovery-top-card {
+  scroll-margin-top: 1rem;
+}
+
+.discovery-top-card:focus {
+  outline: none;
 }
 
 .discovery-time-row {
@@ -7370,13 +7440,30 @@ body {
 .listening-style-compact-roster {
   display: flex;
   justify-content: flex-end;
-  padding-right: 0.2rem;
+  gap: 0.65rem;
+  overflow-x: auto;
+  padding: 0.25rem 0.35rem 0.2rem;
+}
+
+.listening-style-roster-member {
+  display: grid;
+  flex: 0 0 auto;
+  justify-items: center;
+  gap: 0.28rem;
 }
 
 .listening-style-compact-roster .listening-style-portrait {
   width: 2.65rem;
-  margin-left: -0.45rem;
-  border: 3px solid var(--paper);
+}
+
+.listening-style-roster-member > small {
+  max-width: 4.5rem;
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .podcast-discovery-embedded {

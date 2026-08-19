@@ -658,7 +658,7 @@ export default function HomePage() {
       {topSuggestion ? (
         <article className="section-panel home-suggestion-panel discovery-beta-card podcasts-to-discuss-card">
           <div className="home-suggestion-heading">
-            <span className="section-kicker">Top beta discovery</span>
+            <span className="section-kicker">NEW! Discovery BETA</span>
             <span className="badge discovery-beta-badge">BETA</span>
           </div>
           <MediaArtwork
@@ -675,7 +675,7 @@ export default function HomePage() {
             {topSuggestion.reasons[0] ? <small>{topSuggestion.reasons[0]}</small> : null}
           </div>
           <p className="discovery-beta-note">
-            <strong>New to the club’s submitted list.</strong> This beta looks beyond member picks to uncover podcasts we may like. It is not part of the active ballot unless a member submits it.
+            This beta uses our past history to uncover podcasts we may like. An episode becomes part of the Active Ballot above only when a member submits it.
           </p>
           <Link className="home-suggestion-link" href="/episode-discovery">
             <span>

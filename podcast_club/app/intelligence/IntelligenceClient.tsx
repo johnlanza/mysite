@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { MediaArtwork } from '@/components/MediaArtwork';
 import { withBasePath } from '@/lib/base-path';
 import { fetchJson } from '@/lib/client-fetch';
@@ -59,7 +59,7 @@ function RecommendationCard({ item, onSelect }: { item: IntelligenceRecommendati
           {getDuration(item) ? <span className="badge">{getDuration(item)} min</span> : null}
         </div>
       </div>
-      <button type="button" className="ghost" onClick={onSelect}>View recommendation</button>
+      <button type="button" className="ghost" onClick={onSelect}>View details ↑</button>
     </article>
   );
 }
@@ -74,6 +74,7 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
   const [selectedId, setSelectedId] = useState('');
   const [reactions, setReactions] = useState<Record<string, TasteReaction>>({});
   const [feedbackMessage, setFeedbackMessage] = useState('');
+  const topCardRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!member) return;
@@ -122,6 +123,14 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
   const selectedMood = MOODS.find((option) => option.id === mood) || MOODS[0];
   const selectedTime = TIMES.find((option) => option.id === timeBudget) || TIMES[0];
 
+  function showRecommendation(id: string) {
+    setSelectedId(id);
+    window.requestAnimationFrame(() => {
+      topCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      topCardRef.current?.focus({ preventScroll: true });
+    });
+  }
+
   async function saveReaction(item: IntelligenceRecommendation, reaction: TasteReaction) {
     const nextReaction = reactions[item.id] === reaction ? undefined : reaction;
     const previous = reactions;
@@ -165,7 +174,7 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
     <Wrapper className={wrapperClassName}>
       <div className="section-panel intelligence-panel discovery-controls-panel">
         <div className="section-title-row"><h2>Discovery Lab</h2><span className="badge discovery-beta-badge">BETA</span></div>
-        <p className="muted-line">This beta looks beyond podcasts members have already submitted to uncover new shows and episodes the club may like.</p>
+        <p className="muted-line">This beta uses our past history to uncover new shows and episodes the club may like.</p>
         <p className="discovery-beta-note">
           <strong>Member picks stay first.</strong> These discoveries are not on the active ballot. A discovery becomes a club candidate only after a member submits it.
         </p>
@@ -175,7 +184,7 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
         {report ? (
           <>
             <div className="discovery-mood-grid" role="group" aria-label="What kind of podcast are you looking for?">
-              {MOODS.map((option) => (
+              {MOODS.map((option, index) => (
                 <button
                   type="button"
                   key={option.id}
@@ -183,7 +192,8 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
                   aria-pressed={mood === option.id}
                   onClick={() => { setMood(option.id); setSelectedId(''); }}
                 >
-                  <strong>{option.label}</strong><small>{option.detail}</small>
+                  <span className="discovery-mode-number" aria-hidden="true">0{index + 1}</span>
+                  <span className="discovery-mode-copy"><strong>{option.label}</strong><small>{option.detail}</small></span>
                 </button>
               ))}
             </div>
@@ -208,8 +218,8 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
       </div>
 
       {topSuggestion ? (
-        <article className="section-panel discovery-top-card" aria-live="polite">
-          <div className="discovery-topline"><span className="section-kicker">Top beta discovery</span><span className="badge">{topSuggestion.confidence} match</span></div>
+        <article ref={topCardRef} id="top-beta-discovery" className="section-panel discovery-top-card" aria-live="polite" tabIndex={-1}>
+          <div className="discovery-topline"><span className="section-kicker">NEW! Discovery BETA</span><span className="badge">{topSuggestion.confidence} match</span></div>
           <MediaArtwork url={topSuggestion.href} title={topSuggestion.title} kind="podcast" className="discovery-top-art" fallback="🎧" eager />
           <div className="discovery-top-copy">
             <h2>{topSuggestion.title}</h2>
@@ -221,7 +231,7 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
           </div>
           <div className="discovery-top-actions">
             {topSuggestion.href ? <a className="action-link" href={topSuggestion.href} target="_blank" rel="noreferrer">Listen now</a> : null}
-            {ranked.length > 1 ? <button type="button" className="ghost" onClick={() => setSelectedId(shortlist[0]?.id || '')}>Try another</button> : null}
+            {ranked.length > 1 ? <button type="button" className="ghost" onClick={() => showRecommendation(shortlist[0]?.id || '')}>Try another</button> : null}
           </div>
           <div className="discovery-why">
             <h3>Why this discovery stands out</h3>
@@ -252,7 +262,7 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
         <section className="section-panel discovery-shortlist-section">
           <div className="section-title-row"><h2>More Beta Discoveries</h2><span className="badge">{shortlist.length}</span></div>
           <div className="discovery-shortlist-grid">
-            {shortlist.map((item) => <RecommendationCard key={item.id} item={item} onSelect={() => setSelectedId(item.id)} />)}
+            {shortlist.map((item) => <RecommendationCard key={item.id} item={item} onSelect={() => showRecommendation(item.id)} />)}
           </div>
         </section>
       ) : null}

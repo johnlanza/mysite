@@ -91,6 +91,15 @@ function buildStyle(member: Pick<Member, '_id' | 'name'>): ListeningStyle {
   };
 }
 
+function getInitials(name: string) {
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('');
+}
+
 function Portrait({ style, large = false }: { style: ListeningStyle; large?: boolean }) {
   const column = style.portraitIndex % 3;
   const row = Math.floor(style.portraitIndex / 3);
@@ -98,15 +107,18 @@ function Portrait({ style, large = false }: { style: ListeningStyle; large?: boo
     <span
       className={`listening-style-portrait${large ? ' listening-style-portrait-large' : ''}`}
       role="img"
-      aria-label={`Illustration for ${style.title}`}
+      aria-label={`Society portrait for ${style.name}: ${style.title}`}
     >
-      {/* The source is a five-portrait sprite; the wrapper crops one square without stretching it. */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={withBasePath('/listening-style-portraits.webp')}
-        alt=""
-        style={{ left: `${column * -100}%`, top: `${row * -100}%` }}
-      />
+      <span className="listening-style-portrait-crop">
+        {/* The source is a five-portrait sprite; the wrapper crops one square without stretching it. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={withBasePath('/listening-style-portraits.webp')}
+          alt=""
+          style={{ left: `${column * -100}%`, top: `${row * -100}%` }}
+        />
+      </span>
+      <span className="listening-style-monogram" aria-hidden="true">{getInitials(style.name)}</span>
     </span>
   );
 }
@@ -142,14 +154,19 @@ export function ListeningStyles({ member, compact = false }: { member: SessionMe
         <div className="listening-style-hero">
           <Portrait style={current} large />
           <div>
-            <p className="section-kicker">Your Listening Style</p>
+            <p className="section-kicker">Your Society Portrait</p>
             <h3 id="compact-listening-style-title">{current.title}</h3>
             <p>{current.shorthand}.</p>
             <Link href="/more">View profile →</Link>
           </div>
         </div>
         <div className="listening-style-compact-roster" aria-label="Club listening styles">
-          {styles.map((style) => <Portrait key={style.id} style={style} />)}
+          {styles.map((style) => (
+            <span className="listening-style-roster-member" key={style.id}>
+              <Portrait style={style} />
+              <small>{style.id === member._id ? 'You' : style.name.split(' ')[0]}</small>
+            </span>
+          ))}
         </div>
       </section>
     );
@@ -160,7 +177,7 @@ export function ListeningStyles({ member, compact = false }: { member: SessionMe
       <div className="listening-style-hero">
         <Portrait style={current} large />
         <div>
-          <p className="section-kicker">Your Listening Style</p>
+          <p className="section-kicker">Your Society Portrait</p>
           <h3 id="listening-style-title">{current.title}</h3>
           <p>{current.description}</p>
           <span className="listening-style-strength"><small>Club strength</small><strong>{current.strength}</strong></span>
@@ -170,7 +187,7 @@ export function ListeningStyles({ member, compact = false }: { member: SessionMe
       <div className="listening-style-summary" ref={summaryRef} aria-live="polite">
         <Portrait style={selected} />
         <div>
-          <small>{selected.id === member._id ? 'You' : selected.name}</small>
+          <small>{selected.id === member._id ? 'You' : selected.name} · Royal Podcast Society</small>
           <h4>{selected.title}</h4>
           <p>{selected.description}</p>
           <dl>
@@ -195,7 +212,7 @@ export function ListeningStyles({ member, compact = false }: { member: SessionMe
           </article>
         ))}
       </div>
-      <p className="listening-style-note">A playful snapshot of how each member adds to the conversation—not a personality test.</p>
+      <p className="listening-style-note">Society portraits pair each member’s name and initials with a playful snapshot of how he adds to the conversation—not a personality test.</p>
     </section>
   );
 }
