@@ -86,11 +86,11 @@ const NAMED_STYLES: Record<string, Omit<ListeningStyle, 'id' | 'name'>> = {
     description: 'Finds the strongest case and the detail others may have missed.',
     strength: 'Clarifies the argument',
     historicalFigure: {
-      name: 'Jane Addams',
-      years: '1860–1935',
-      portrait: '/listening-portraits/jane-addams.webp',
-      rationale: 'A pragmatic reformer who paired humane optimism with careful inquiry and practical action.',
-      sourceUrl: 'https://www.nps.gov/people/jane-addams.htm'
+      name: 'William James',
+      years: '1842–1910',
+      portrait: '/listening-portraits/william-james.webp',
+      rationale: 'A humane pragmatist who tested ideas by their practical consequences while keeping an open mind about how people experience the world.',
+      sourceUrl: 'https://psychology.fas.harvard.edu/people/william-james'
     },
     writeup: {
       headline: 'Patron Saint of “I Like It.”',
@@ -112,11 +112,11 @@ const NAMED_STYLES: Record<string, Omit<ListeningStyle, 'id' | 'name'>> = {
     description: 'Brings books, films, and podcasts from outside the usual lanes.',
     strength: "Expands the club's range",
     historicalFigure: {
-      name: 'Zora Neale Hurston',
-      years: '1891–1960',
-      portrait: '/listening-portraits/zora-neale-hurston.webp',
-      rationale: 'Writer, anthropologist, and folklorist who crossed disciplines and places to bring overlooked stories into view.',
-      sourceUrl: 'https://dos.fl.gov/cultural/programs/florida-artists-hall-of-fame/zora-neale-hurston/'
+      name: 'Alain Locke',
+      years: '1885–1954',
+      portrait: '/listening-portraits/alain-locke.webp',
+      rationale: 'A cosmopolitan philosopher, editor, and cultural scout who brought overlooked artists and ideas into a much wider conversation.',
+      sourceUrl: 'https://nmaahc.si.edu/alain-locke'
     },
     writeup: {
       headline: 'Critic-at-Large, Contributor-in-Spirit',
@@ -138,11 +138,11 @@ const NAMED_STYLES: Record<string, Omit<ListeningStyle, 'id' | 'name'>> = {
     description: 'Tests the evidence and gives a strong episode a fair hearing.',
     strength: 'Tests whether ideas hold up',
     historicalFigure: {
-      name: 'Frances Glessner Lee',
-      years: '1878–1962',
-      portrait: '/listening-portraits/frances-glessner-lee.webp',
-      rationale: 'A forensic pioneer who trained investigators to notice the telling detail and let evidence survive skeptical scrutiny.',
-      sourceUrl: 'https://www.nlm.nih.gov/exhibition/visibleproofs/galleries/biographies/lee.html'
+      name: 'Edmond Locard',
+      years: '1877–1966',
+      portrait: '/listening-portraits/edmond-locard.webp',
+      rationale: 'A forensic pioneer who built one of Europe’s first police laboratories around the idea that careful observation lets evidence speak.',
+      sourceUrl: 'https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=960722'
     },
     writeup: {
       headline: 'Selective Enthusiasm, Mildly Armed',
