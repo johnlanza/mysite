@@ -1,11 +1,20 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
-import { type CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { withBasePath } from '@/lib/base-path';
 import type { Member, SessionMember } from '@/lib/types';
 
 type PortraitWriteup = NonNullable<Member['adminRoast']>;
+
+type HistoricalFigure = {
+  name: string;
+  years: string;
+  portrait: string;
+  rationale: string;
+  sourceUrl: string;
+};
 
 type ListeningStyle = {
   id: string;
@@ -14,8 +23,7 @@ type ListeningStyle = {
   shorthand: string;
   description: string;
   strength: string;
-  crestMark: string;
-  crestColor: string;
+  historicalFigure: HistoricalFigure;
   writeup: PortraitWriteup;
 };
 
@@ -25,8 +33,13 @@ const NAMED_STYLES: Record<string, Omit<ListeningStyle, 'id' | 'name'>> = {
     shorthand: 'Curious, organized, selective',
     description: 'Connects ideas across episodes and keeps the club moving.',
     strength: 'Finds useful connections',
-    crestMark: '⌘',
-    crestColor: '#8f2446',
+    historicalFigure: {
+      name: 'Henry Oldenburg',
+      years: 'c. 1619–1677',
+      portrait: '/listening-portraits/henry-oldenburg.webp',
+      rationale: 'The Royal Society’s first secretary connected its far-flung thinkers, managed the correspondence, and turned a flood of ideas into a durable institution.',
+      sourceUrl: 'https://royalsociety.org/journals/publishing-activities/publishing350/history-philosophical-transactions/'
+    },
     writeup: {
       headline: 'Chairman of the Leisure Bureau',
       body: [
@@ -46,8 +59,13 @@ const NAMED_STYLES: Record<string, Omit<ListeningStyle, 'id' | 'name'>> = {
     shorthand: 'Thoughtful, generous, challenging',
     description: 'Brings thoughtful picks and asks questions that improve the discussion.',
     strength: 'Raises the level of discussion',
-    crestMark: '?',
-    crestColor: '#2f6f74',
+    historicalFigure: {
+      name: 'Bayard Rustin',
+      years: '1912–1987',
+      portrait: '/listening-portraits/bayard-rustin.webp',
+      rationale: 'A humane strategist who sharpened ideas, challenged assumptions, and did the organizing that moved a larger conversation forward.',
+      sourceUrl: 'https://www.nps.gov/subjects/civilrights/bayard-rustin.htm'
+    },
     writeup: {
       headline: 'Dean of Gentle Improvement',
       body: [
@@ -67,8 +85,13 @@ const NAMED_STYLES: Record<string, Omit<ListeningStyle, 'id' | 'name'>> = {
     shorthand: 'Measured, humane, open-minded',
     description: 'Finds the strongest case and the detail others may have missed.',
     strength: 'Clarifies the argument',
-    crestMark: '☼',
-    crestColor: '#8c6921',
+    historicalFigure: {
+      name: 'Jane Addams',
+      years: '1860–1935',
+      portrait: '/listening-portraits/jane-addams.webp',
+      rationale: 'A pragmatic reformer who paired humane optimism with careful inquiry and practical action.',
+      sourceUrl: 'https://www.nps.gov/people/jane-addams.htm'
+    },
     writeup: {
       headline: 'Patron Saint of “I Like It.”',
       body: [
@@ -88,8 +111,13 @@ const NAMED_STYLES: Record<string, Omit<ListeningStyle, 'id' | 'name'>> = {
     shorthand: 'Wide-ranging, discerning, unexpected',
     description: 'Brings books, films, and podcasts from outside the usual lanes.',
     strength: "Expands the club's range",
-    crestMark: '✦',
-    crestColor: '#513b78',
+    historicalFigure: {
+      name: 'Zora Neale Hurston',
+      years: '1891–1960',
+      portrait: '/listening-portraits/zora-neale-hurston.webp',
+      rationale: 'Writer, anthropologist, and folklorist who crossed disciplines and places to bring overlooked stories into view.',
+      sourceUrl: 'https://dos.fl.gov/cultural/programs/florida-artists-hall-of-fame/zora-neale-hurston/'
+    },
     writeup: {
       headline: 'Critic-at-Large, Contributor-in-Spirit',
       body: [
@@ -109,8 +137,13 @@ const NAMED_STYLES: Record<string, Omit<ListeningStyle, 'id' | 'name'>> = {
     shorthand: 'Open-minded, exacting, questioning',
     description: 'Tests the evidence and gives a strong episode a fair hearing.',
     strength: 'Tests whether ideas hold up',
-    crestMark: '§',
-    crestColor: '#355f3f',
+    historicalFigure: {
+      name: 'Frances Glessner Lee',
+      years: '1878–1962',
+      portrait: '/listening-portraits/frances-glessner-lee.webp',
+      rationale: 'A forensic pioneer who trained investigators to notice the telling detail and let evidence survive skeptical scrutiny.',
+      sourceUrl: 'https://www.nlm.nih.gov/exhibition/visibleproofs/galleries/biographies/lee.html'
+    },
     writeup: {
       headline: 'Selective Enthusiasm, Mildly Armed',
       body: [
@@ -133,24 +166,21 @@ const FALLBACK_STYLES = [
     shorthand: 'Curious and quick to spot a good topic',
     description: 'Notices ideas that can support a strong discussion.',
     strength: 'Finds promising topics early',
-    crestMark: '⌁',
-    crestColor: '#8f2446'
+    historicalFigure: NAMED_STYLES['john lanza'].historicalFigure
   },
   {
     title: 'The Thoughtful Contrarian',
     shorthand: 'Open, discerning, constructively skeptical',
     description: 'Makes sure an interesting claim can stand up to questions.',
     strength: 'Creates productive friction',
-    crestMark: '?',
-    crestColor: '#2f6f74'
+    historicalFigure: NAMED_STYLES['danny corwin'].historicalFigure
   },
   {
     title: 'The Rabbit-Hole Guide',
     shorthand: 'Wide-ranging, playful, unexpected',
     description: "Finds useful material outside the club's usual subjects.",
     strength: 'Makes curiosity contagious',
-    crestMark: '✦',
-    crestColor: '#513b78'
+    historicalFigure: NAMED_STYLES['babak dadvand'].historicalFigure
   }
 ];
 
@@ -180,30 +210,18 @@ function buildStyle(member: Pick<Member, '_id' | 'name'>): ListeningStyle {
   };
 }
 
-function getInitials(name: string) {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join('');
-}
-
-function crestStyle(style: ListeningStyle) {
-  return { '--crest-color': style.crestColor } as CSSProperties;
-}
-
-function SocietyCrest({ style, large = false }: { style: ListeningStyle; large?: boolean }) {
+function HistoricalPortrait({ style, large = false }: { style: ListeningStyle; large?: boolean }) {
   return (
     <span
-      className={`listening-style-crest${large ? ' listening-style-crest-large' : ''}`}
-      role="img"
-      aria-label={`Society crest for ${style.name}: ${style.title}`}
-      style={crestStyle(style)}
+      className={`listening-style-historical-portrait${large ? ' listening-style-historical-portrait-large' : ''}`}
     >
-      <span className="listening-style-crest-mark" aria-hidden="true">{style.crestMark}</span>
-      <strong>{getInitials(style.name)}</strong>
-      <small>RPS</small>
+      <Image
+        src={style.historicalFigure.portrait}
+        alt={`Pen-and-ink portrait of ${style.historicalFigure.name}, the historical counterpart for ${style.name}`}
+        width={900}
+        height={900}
+        sizes={large ? '(max-width: 540px) 88px, 152px' : '68px'}
+      />
     </span>
   );
 }
@@ -239,18 +257,19 @@ export function ListeningStyles({ member, compact = false }: { member: SessionMe
     return (
       <section className="listening-styles listening-styles-compact" aria-labelledby="compact-listening-style-title">
         <div className="listening-style-hero">
-          <SocietyCrest style={current} large />
+          <HistoricalPortrait style={current} large />
           <div>
             <p className="section-kicker">NEW! Your Society Portrait</p>
             <h3 id="compact-listening-style-title">{current.title}</h3>
             <p>{current.shorthand}.</p>
+            <span className="listening-style-counterpart">Paired with <strong>{current.historicalFigure.name}</strong></span>
             <Link href="/more">Read your full portrait →</Link>
           </div>
         </div>
         <div className="listening-style-compact-roster" aria-label="Club listening styles">
           {styles.map((style) => (
             <span className="listening-style-roster-member" key={style.id}>
-              <SocietyCrest style={style} />
+              <HistoricalPortrait style={style} />
               <small>{style.id === member._id ? 'You' : style.name.split(' ')[0]}</small>
             </span>
           ))}
@@ -262,22 +281,23 @@ export function ListeningStyles({ member, compact = false }: { member: SessionMe
   return (
     <section className="listening-styles" aria-labelledby="listening-style-title">
       <div className="listening-style-hero">
-        <SocietyCrest style={current} large />
+        <HistoricalPortrait style={current} large />
         <div>
           <p className="section-kicker">NEW! Your Society Portrait</p>
           <h3 id="listening-style-title">{current.title}</h3>
           <p>{current.description}</p>
           <span className="listening-style-strength"><small>Club strength</small><strong>{current.strength}</strong></span>
+          <span className="listening-style-counterpart">Historical counterpart · <strong>{current.historicalFigure.name}</strong></span>
         </div>
       </div>
 
       <div className="listening-style-method">
         <span className="new-feature-badge">NEW!</span>
-        <p><strong>What is this?</strong> AI helped turn each member&apos;s activity already in the club—submissions, ratings, selected episodes, and carve outs—into a playful Society Portrait. The crest is symbolic, not a likeness, and the write-up is a conversation starter, not a personality test. Open any member below to read the full portrait, including the good-natured evidence against him.</p>
+        <p><strong>What is this?</strong> AI helped turn each member&apos;s activity already in the club—submissions, ratings, selected episodes, and carve outs—into a playful Society Portrait, then matched that working style with a real historical figure. The sketch depicts the historical figure, not the member. The pairing is about habits and temperament, not the figure&apos;s entire biography or beliefs.</p>
       </div>
 
       <div className="listening-style-summary" ref={summaryRef} aria-live="polite">
-        <SocietyCrest style={selected} large />
+        <HistoricalPortrait style={selected} large />
         <div className="listening-style-overview">
           <small>{selected.id === member._id ? 'You' : selected.name} · Royal Podcast Society</small>
           <h4>{selected.title}</h4>
@@ -286,6 +306,12 @@ export function ListeningStyles({ member, compact = false }: { member: SessionMe
             <div><dt>Style</dt><dd>{selected.shorthand}</dd></div>
             <div><dt>Strength</dt><dd>{selected.strength}</dd></div>
           </dl>
+          <div className="listening-style-figure-match">
+            <small>Historical counterpart</small>
+            <strong>{selected.historicalFigure.name} <span>{selected.historicalFigure.years}</span></strong>
+            <p>{selected.historicalFigure.rationale}</p>
+            <a href={selected.historicalFigure.sourceUrl} target="_blank" rel="noreferrer">Meet {selected.historicalFigure.name} ↗</a>
+          </div>
         </div>
         <div className="listening-style-writeup">
           <p className="section-kicker">The Full, AI-Assisted Portrait</p>
@@ -305,20 +331,21 @@ export function ListeningStyles({ member, compact = false }: { member: SessionMe
       <div className="listening-style-grid">
         {styles.map((style) => (
           <article key={style.id} className={style.id === selected.id ? 'is-selected' : ''}>
-            <SocietyCrest style={style} />
+            <HistoricalPortrait style={style} />
             <div>
               <small>{style.id === member._id ? 'You · ' : ''}Royal Podcast Society</small>
               <b>{style.name}</b>
               <strong>{style.title}</strong>
               <span>{style.shorthand}</span>
+              <span className="listening-style-card-counterpart">With {style.historicalFigure.name}</span>
             </div>
             <button type="button" aria-pressed={style.id === selected.id} onClick={() => showDetails(style.id)}>
-              {style.id === selected.id ? 'Full portrait shown above ↑' : 'Read full portrait →'}
+              {style.id === selected.id ? 'Shown above ↑' : 'Read full portrait →'}
             </button>
           </article>
         ))}
       </div>
-      <p className="listening-style-note"><strong>Why crests?</strong> Each symbolic crest gives a member an individual visual identity without pretending an invented face is his likeness. Initials identify the member; the mark and color distinguish his club role.</p>
+      <p className="listening-style-note"><strong>Why historical counterparts?</strong> A real life gives each portrait more character than an invented avatar. The match is intentionally narrow and playful: shared club habits, not identical lives.</p>
     </section>
   );
 }

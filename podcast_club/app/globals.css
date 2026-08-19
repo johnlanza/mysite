@@ -5668,7 +5668,7 @@ button {
   opacity: 0.7;
 }
 
-/* Listening profiles use one square portrait from a fixed, non-stretching sprite. */
+/* Listening profiles pair each member with a real historical counterpart. */
 .listening-styles {
   display: grid;
   gap: 0.85rem;
@@ -5677,69 +5677,6 @@ button {
   border-radius: 14px;
   background: var(--panel);
   color: var(--ink);
-}
-
-.listening-style-portrait {
-  position: relative;
-  display: block;
-  flex: 0 0 auto;
-  width: 3.5rem;
-  aspect-ratio: 1;
-  border-radius: 50%;
-}
-
-.listening-style-portrait-crop {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  border: 2px solid color-mix(in srgb, var(--nav-more) 48%, #d0ae62);
-  border-radius: 50%;
-  background-color: rgb(var(--more-rgb) / 0.12);
-  box-shadow:
-    0 0 0 2px rgb(255 255 255 / 0.9),
-    0 0 0 4px color-mix(in srgb, var(--nav-more) 24%, #d0ae62),
-    0 7px 16px rgb(47 45 46 / 0.15);
-}
-
-.listening-style-portrait-crop img {
-  position: absolute;
-  width: 300%;
-  height: 200%;
-  max-width: none;
-  object-fit: fill;
-}
-
-.listening-style-monogram {
-  position: absolute;
-  right: -0.28rem;
-  bottom: -0.2rem;
-  z-index: 2;
-  display: grid;
-  place-items: center;
-  min-width: 1.45rem;
-  height: 1.45rem;
-  padding: 0 0.23rem;
-  border: 2px solid #fffaf0;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--nav-more) 72%, #8b5f24);
-  color: var(--nav-more-ink);
-  box-shadow: 0 4px 10px rgb(47 45 46 / 0.2);
-  font-family: var(--font-serif), serif;
-  font-size: 0.56rem;
-  font-weight: 900;
-  letter-spacing: 0.03em;
-}
-
-.listening-style-portrait-large .listening-style-monogram {
-  right: -0.15rem;
-  bottom: -0.05rem;
-  min-width: 1.85rem;
-  height: 1.85rem;
-  font-size: 0.68rem;
-}
-
-.listening-style-portrait-large {
-  width: clamp(6.5rem, 20vw, 8.25rem);
 }
 
 .listening-style-hero {
@@ -5856,10 +5793,20 @@ button {
 }
 
 .listening-style-grid button {
-  padding: 0;
-  background: transparent;
+  width: 100%;
+  margin-top: auto;
+  padding: 0.5rem 0.55rem;
+  border: 1px solid rgb(var(--more-rgb) / 0.2);
+  border-radius: 9px;
+  background: rgb(var(--more-rgb) / 0.08) !important;
   color: var(--nav-more);
   font-weight: 800;
+  text-align: center;
+}
+
+.listening-style-grid article.is-selected button {
+  background: var(--nav-more) !important;
+  color: var(--nav-more-ink);
 }
 
 .listening-style-note {
@@ -7428,7 +7375,7 @@ body {
   box-shadow: inset 6px 0 0 var(--nav-podcasts), var(--preview-shadow);
 }
 
-.listening-styles-compact .listening-style-portrait-large {
+.listening-styles-compact .listening-style-historical-portrait-large {
   width: clamp(5.5rem, 18vw, 7rem);
 }
 
@@ -7452,8 +7399,9 @@ body {
   gap: 0.28rem;
 }
 
-.listening-style-compact-roster .listening-style-portrait {
+.listening-style-compact-roster .listening-style-historical-portrait {
   width: 2.65rem;
+  border-radius: 11px;
 }
 
 .listening-style-roster-member > small {
@@ -7607,81 +7555,86 @@ body {
   }
 }
 
-/* Society crests give each member an individual identity without inventing a face. */
-.listening-style-crest {
-  --crest-color: #8f2446;
+/* Separate square sketches remain crisp and crop safely at every display size. */
+.listening-style-historical-portrait {
   position: relative;
-  display: grid;
-  grid-template-rows: 1fr auto;
-  place-items: center;
+  display: block;
   flex: 0 0 auto;
-  width: 3.5rem;
+  width: 4.25rem;
   aspect-ratio: 1;
   overflow: hidden;
-  border: 2px solid color-mix(in srgb, var(--crest-color) 72%, #d6bb75);
-  border-radius: 50% 50% 44% 44%;
-  background:
-    radial-gradient(circle at 50% 31%, rgb(255 255 255 / 0.25), transparent 32%),
-    linear-gradient(145deg, color-mix(in srgb, var(--crest-color) 72%, #fff), var(--crest-color));
-  background-color: var(--crest-color) !important;
-  color: #fff;
+  border: 1px solid color-mix(in srgb, var(--nav-more) 34%, #c4a86f);
+  border-radius: 16px;
+  background-color: #f4ede0 !important;
   box-shadow:
-    0 0 0 2px rgb(255 255 255 / 0.9),
-    0 0 0 4px color-mix(in srgb, var(--crest-color) 24%, #d0ae62),
-    0 8px 18px rgb(47 45 46 / 0.17);
-  isolation: isolate;
+    0 0 0 3px rgb(255 255 255 / 0.8),
+    0 9px 20px rgb(47 45 46 / 0.16);
 }
 
-.listening-style-crest::before {
-  position: absolute;
-  inset: 0.28rem;
-  z-index: -1;
-  border: 1px solid rgb(255 255 255 / 0.52);
-  border-radius: 50% 50% 42% 42%;
-  content: '';
+.listening-style-historical-portrait img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
 }
 
-.listening-style-crest-mark {
-  align-self: end;
+.listening-style-historical-portrait-large {
+  width: clamp(7.5rem, 22vw, 9.5rem);
+  border-radius: 22px;
+}
+
+.listening-style-counterpart {
+  display: block;
+  margin: 0.45rem 0;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+}
+
+.listening-style-counterpart strong {
+  color: var(--nav-more);
+}
+
+.listening-style-figure-match {
+  display: grid;
+  gap: 0.22rem;
+  margin-top: 0.7rem;
+  padding: 0.7rem;
+  border: 1px solid rgb(var(--more-rgb) / 0.2);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 0.7);
+}
+
+.listening-style-figure-match > strong {
+  color: var(--ink);
   font-family: var(--font-serif), serif;
-  font-size: 1.55rem;
-  line-height: 0.86;
+  font-size: 1.05rem;
 }
 
-.listening-style-crest > strong {
-  align-self: end;
-  font-family: var(--font-serif), serif;
-  font-size: 0.58rem;
-  letter-spacing: 0.08em;
-  line-height: 1;
+.listening-style-figure-match > strong span {
+  color: var(--ink-soft);
+  font-family: var(--font-sans), sans-serif;
+  font-size: 0.7rem;
+  font-weight: 750;
 }
 
-.listening-style-crest > small {
-  position: absolute;
-  right: 0.3rem;
-  bottom: 0.25rem;
-  font-size: 0.35rem;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  opacity: 0.72;
+.listening-style-figure-match p {
+  margin: 0.12rem 0;
+  font-size: 0.82rem;
+  line-height: 1.42;
 }
 
-.listening-style-crest-large {
-  width: clamp(6.5rem, 20vw, 8.25rem);
+.listening-style-figure-match a {
+  color: var(--nav-more);
+  font-size: 0.76rem;
+  font-weight: 850;
 }
 
-.listening-style-crest-large .listening-style-crest-mark {
-  font-size: clamp(2.65rem, 8vw, 3.6rem);
-}
-
-.listening-style-crest-large > strong {
-  font-size: 0.8rem;
-}
-
-.listening-style-crest-large > small {
-  right: 0.7rem;
-  bottom: 0.55rem;
-  font-size: 0.48rem;
+.listening-style-card-counterpart {
+  margin-top: 0.2rem;
+  color: var(--nav-more) !important;
+  font-size: 0.72rem !important;
+  font-weight: 800;
 }
 
 .listening-style-method {
@@ -7921,8 +7874,9 @@ body {
     grid-template-columns: 5.5rem minmax(0, 1fr);
   }
 
-  .listening-style-crest-large {
+  .listening-style-historical-portrait-large {
     width: 5.5rem;
+    border-radius: 16px;
   }
 
   .listening-style-summary {
