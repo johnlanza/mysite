@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { MediaArtwork } from '@/components/MediaArtwork';
+import { PodcastListenChooser } from '@/components/PodcastListenChooser';
 import { withBasePath } from '@/lib/base-path';
 import { fetchJson } from '@/lib/client-fetch';
 import type { IntelligenceRecommendation, IntelligenceReport } from '@/lib/intelligence';
@@ -325,7 +326,16 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
             </div>
           </div>
           <div className="discovery-top-actions">
-            {topSuggestion.href ? <a className="action-link" href={topSuggestion.href} target="_blank" rel="noreferrer">Listen now</a> : null}
+            {topSuggestion.href ? (
+              <PodcastListenChooser
+                className="action-link"
+                title={topSuggestion.subtitle || topSuggestion.title}
+                episodeNames={topSuggestion.title}
+                link={topSuggestion.href}
+              >
+                Choose where to listen
+              </PodcastListenChooser>
+            ) : null}
             {ranked.length > 1 ? <button type="button" className="ghost" onClick={() => showRecommendation(shortlist[0]?.id || '')}>Try another</button> : null}
           </div>
           <div className="discovery-why">

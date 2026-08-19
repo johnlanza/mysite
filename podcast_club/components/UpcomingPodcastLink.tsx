@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { PodcastListenChooser } from '@/components/PodcastListenChooser';
 import type { MeetingPodcastSelection } from '@/lib/meeting-podcasts';
 
 type ApplePodcastResult = {
@@ -26,18 +27,6 @@ function getApplePodcastCountry(link: string) {
     return url.pathname.match(/^\/([a-z]{2})\/podcast\//i)?.[1]?.toLowerCase() || 'us';
   } catch {
     return null;
-  }
-}
-
-function getPodcastDestination(link: string) {
-  try {
-    const host = new URL(link).hostname.replace(/^www\./, '');
-    if (host === 'podcasts.apple.com') return 'Apple Podcasts';
-    if (host === 'open.spotify.com') return 'Spotify';
-    if (host === 'youtube.com' || host === 'youtu.be') return 'YouTube';
-    return host;
-  } catch {
-    return 'podcast';
   }
 }
 
@@ -103,10 +92,15 @@ export function UpcomingPodcastLink({ podcast, position }: { podcast: MeetingPod
 
   const timeLabel = podcast.totalTimeMinutes ? `${podcast.totalTimeMinutes} min` : null;
   const hostLabel = podcast.host || null;
-  const destination = getPodcastDestination(podcast.link);
 
   return (
-    <a className="upcoming-podcast-link" href={podcast.link} target="_blank" rel="noreferrer">
+    <PodcastListenChooser
+      className="upcoming-podcast-link"
+      title={podcast.title}
+      episodeNames={podcast.episodeNames}
+      host={podcast.host}
+      link={podcast.link}
+    >
       <span className="upcoming-podcast-cover">
         {artworkUrl ? (
           // The artwork URL is supplied dynamically by Apple's catalog API, so a native image is the appropriate fallback-safe renderer.
@@ -128,10 +122,10 @@ export function UpcomingPodcastLink({ podcast, position }: { podcast: MeetingPod
             <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
             <path d="m10 8 6 4-6 4V8Z" fill="currentColor" />
           </svg>
-          Open in {destination}
-          <span aria-hidden="true">↗</span>
+          Choose where to listen
+          <span aria-hidden="true">→</span>
         </span>
       </span>
-    </a>
+    </PodcastListenChooser>
   );
 }

@@ -1,6 +1,7 @@
 import type { Podcast, PodcastRating, SessionMember } from '@/lib/types';
 import type { MeetingPodcastSelection } from '@/lib/meeting-podcasts';
 import { MediaArtwork } from '@/components/MediaArtwork';
+import { PodcastListenChooser } from '@/components/PodcastListenChooser';
 
 type PodcastCardPerson = { _id: string; name: string };
 
@@ -137,13 +138,19 @@ export default function MeetingSelectedPodcastCard({
               <p className="podcast-detail-copy">{podcast.notes || 'No description yet.'}</p>
             </section>
 
-            <a className="podcast-link-card" href={podcast.link} target="_blank" rel="noreferrer">
+            <PodcastListenChooser
+              className="podcast-link-card"
+              title={podcast.title}
+              episodeNames={podcast.episodeNames}
+              host={podcast.host}
+              link={podcast.link}
+            >
               <span>
-                <strong>Open podcast</strong>
+                <strong>Choose where to listen</strong>
                 <small>{getPodcastLinkHost(podcast.link)}</small>
               </span>
               <span aria-hidden="true">&gt;</span>
-            </a>
+            </PodcastListenChooser>
 
             {hasRichPodcastMeta(podcast) && missingVoters.length > 0 ? (
               <p className="warning-banner">

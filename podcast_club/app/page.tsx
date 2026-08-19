@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import AddToCalendar from '@/components/AddToCalendar';
 import { MediaArtwork } from '@/components/MediaArtwork';
+import { PodcastListenChooser } from '@/components/PodcastListenChooser';
 import { UpcomingPodcastLink } from '@/components/UpcomingPodcastLink';
 import { withBasePath } from '@/lib/base-path';
 import { getCarveOutTypeLabel } from '@/lib/carveout-meta';
@@ -340,13 +341,19 @@ export default function HomePage() {
           </section>
         ) : null}
 
-        <a className="podcast-link-card" href={podcast.link} target="_blank" rel="noreferrer">
+        <PodcastListenChooser
+          className="podcast-link-card"
+          title={podcast.title}
+          episodeNames={podcast.episodeNames}
+          host={podcast.host}
+          link={podcast.link}
+        >
           <span>
-            <strong>Open podcast</strong>
+            <strong>Choose where to listen</strong>
             <small>{getUrlLabel(podcast.link)}</small>
           </span>
           <span aria-hidden="true">&gt;</span>
-        </a>
+        </PodcastListenChooser>
       </article>
     );
   }
