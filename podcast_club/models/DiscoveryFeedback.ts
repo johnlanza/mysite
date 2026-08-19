@@ -8,7 +8,9 @@ const DiscoveryFeedbackSchema = new Schema(
     recommendationKey: { type: String, required: true, trim: true, maxlength: 240 },
     title: { type: String, required: true, trim: true, maxlength: 240 },
     href: { type: String, trim: true, maxlength: 2000 },
-    reaction: { type: String, enum: DISCOVERY_REACTIONS, required: true }
+    reaction: { type: String, enum: DISCOVERY_REACTIONS, required: true },
+    themes: [{ type: String, trim: true, maxlength: 120 }],
+    discussionSignals: { type: Number, min: 0, max: 3, default: 0 }
   },
   { timestamps: true }
 );

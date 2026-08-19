@@ -21,46 +21,43 @@ export async function GET() {
     .sort({ name: 1 })
     .lean();
 
-  const roastsByMember =
-    session.member.isAdmin
-      ? buildAdminRoasts({
-          members: members.map((member) => ({
-            _id: String(member._id),
-            name: member.name,
-            email: member.email,
-            isAdmin: Boolean(member.isAdmin)
-          })),
-          podcasts: (
-            await PodcastModel.find()
-              .select('title host notes episodeNames totalTimeMinutes submittedBy ratings')
-              .lean()
-          ).map((podcast) => ({
-            title: podcast.title,
-            host: podcast.host || '',
-            notes: podcast.notes || '',
-            episodeNames: podcast.episodeNames || '',
-            totalTimeMinutes: podcast.totalTimeMinutes || 0,
-            submittedBy: String(podcast.submittedBy),
-            ratings: (podcast.ratings || []).map((rating) => ({
-              member: String(rating.member),
-              value: rating.value,
-              points: rating.points
-            }))
-          })),
-          carveOuts: (
-            await CarveOutModel.find()
-              .select('title type service notes member fistBumps')
-              .lean()
-          ).map((carveOut) => ({
-            title: carveOut.title,
-            type: carveOut.type || 'other',
-            service: carveOut.service || '',
-            notes: carveOut.notes || '',
-            member: String(carveOut.member),
-            fistBumps: (carveOut.fistBumps || []).map((entry) => ({ member: String(entry.member) }))
-          }))
-        })
-      : null;
+  const roastsByMember = buildAdminRoasts({
+    members: members.map((member) => ({
+      _id: String(member._id),
+      name: member.name,
+      email: member.email,
+      isAdmin: Boolean(member.isAdmin)
+    })),
+    podcasts: (
+      await PodcastModel.find()
+        .select('title host notes episodeNames totalTimeMinutes submittedBy ratings')
+        .lean()
+    ).map((podcast) => ({
+      title: podcast.title,
+      host: podcast.host || '',
+      notes: podcast.notes || '',
+      episodeNames: podcast.episodeNames || '',
+      totalTimeMinutes: podcast.totalTimeMinutes || 0,
+      submittedBy: String(podcast.submittedBy),
+      ratings: (podcast.ratings || []).map((rating) => ({
+        member: String(rating.member),
+        value: rating.value,
+        points: rating.points
+      }))
+    })),
+    carveOuts: (
+      await CarveOutModel.find()
+        .select('title type service notes member fistBumps')
+        .lean()
+    ).map((carveOut) => ({
+      title: carveOut.title,
+      type: carveOut.type || 'other',
+      service: carveOut.service || '',
+      notes: carveOut.notes || '',
+      member: String(carveOut.member),
+      fistBumps: (carveOut.fistBumps || []).map((entry) => ({ member: String(entry.member) }))
+    }))
+  });
 
   return NextResponse.json(
     members.map((member) => ({
@@ -75,7 +72,7 @@ export async function GET() {
       address: formatAddress(member),
       isAdmin: member.isAdmin,
       accountStatus: member.accountStatus || 'claimed',
-      ...(roastsByMember ? { adminRoast: roastsByMember[String(member._id)] } : {})
+      adminRoast: roastsByMember[String(member._id)]
     }))
   );
 }

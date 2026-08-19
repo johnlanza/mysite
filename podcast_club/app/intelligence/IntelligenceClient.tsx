@@ -11,6 +11,11 @@ import { useSession } from '@/lib/use-session';
 type DiscoveryMood = 'conversation' | 'story' | 'learn' | 'wildcard';
 type TimeBudget = 'any' | 'short' | 'standard' | 'deep';
 type TasteReaction = 'listen' | 'discuss' | 'less';
+type TasteHistoryRecord = {
+  reaction: TasteReaction;
+  themes: string[];
+  discussionSignals: number;
+};
 
 const MOODS: Array<{ id: DiscoveryMood; label: string; detail: string; terms: string[] }> = [
   { id: 'conversation', label: 'Discussion', detail: 'Ideas with room for disagreement', terms: ['behavior', 'history', 'power', 'money', 'investigation'] },
@@ -24,6 +29,12 @@ const TIMES: Array<{ id: TimeBudget; label: string }> = [
   { id: 'short', label: 'Under 45 min' },
   { id: 'standard', label: '45–75 min' },
   { id: 'deep', label: 'Over 75 min' }
+];
+
+const REACTION_OPTIONS: Array<{ id: TasteReaction; label: string; detail: string }> = [
+  { id: 'listen', label: 'More like this', detail: 'Raise this episode and give related themes a modest future boost.' },
+  { id: 'discuss', label: 'Strong discussion', detail: 'Raise it most and favor similar discussion themes in later discoveries.' },
+  { id: 'less', label: 'Less like this', detail: 'Lower this episode and reduce the weight of its themes later.' }
 ];
 
 function getDuration(item: IntelligenceRecommendation) {
@@ -73,6 +84,7 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
   const [timeBudget, setTimeBudget] = useState<TimeBudget>('any');
   const [selectedId, setSelectedId] = useState('');
   const [reactions, setReactions] = useState<Record<string, TasteReaction>>({});
+  const [history, setHistory] = useState<Record<string, TasteHistoryRecord>>({});
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const topCardRef = useRef<HTMLElement | null>(null);
 
@@ -91,8 +103,12 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
         if (!reportResponse.ok) throw new Error(payload?.message || `Request failed with status ${reportResponse.status}.`);
         setReport(payload as IntelligenceReport);
         if (feedbackResponse.ok) {
-          const feedback = await feedbackResponse.json() as { reactions?: Record<string, TasteReaction> };
+          const feedback = await feedbackResponse.json() as {
+            reactions?: Record<string, TasteReaction>;
+            history?: Record<string, TasteHistoryRecord>;
+          };
           setReactions(feedback.reactions || {});
+          setHistory(feedback.history || {});
         }
       })
       .catch((requestError) => {
@@ -105,6 +121,35 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
     return () => controller.abort();
   }, [member]);
 
+  const themeSignals = useMemo(() => {
+    const signals = new Map<string, { label: string; score: number }>();
+    Object.entries(history).forEach(([recommendationKey, record]) => {
+      const weight = record.reaction === 'discuss'
+        ? 4 + Math.min(2, record.discussionSignals)
+        : record.reaction === 'listen'
+          ? 2
+          : -3;
+      const themes = record.themes.length
+        ? record.themes
+        : report?.podcasts.find((item) => item.id === recommendationKey)?.themes || [];
+      themes.forEach((theme) => {
+        const key = theme.trim().toLowerCase();
+        if (!key) return;
+        const current = signals.get(key);
+        signals.set(key, { label: theme, score: (current?.score || 0) + weight });
+      });
+    });
+    return signals;
+  }, [history, report]);
+
+  const visibleThemeSignals = useMemo(
+    () => [...themeSignals.values()]
+      .filter((signal) => signal.score !== 0)
+      .sort((a, b) => Math.abs(b.score) - Math.abs(a.score) || a.label.localeCompare(b.label))
+      .slice(0, 3),
+    [themeSignals]
+  );
+
   const ranked = useMemo(() => {
     if (!report) return [];
     return report.podcasts
@@ -112,11 +157,18 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
       .map((item) => {
         const reaction = reactions[item.id];
         const feedbackBonus = reaction === 'discuss' ? 12 : reaction === 'listen' ? 7 : reaction === 'less' ? -30 : 0;
-        return { item, adjustedScore: item.score + moodBonus(item, mood) + feedbackBonus };
+        const learnedThemeBonus = item.themes.reduce(
+          (total, theme) => total + (themeSignals.get(theme.trim().toLowerCase())?.score || 0),
+          0
+        );
+        return {
+          item,
+          adjustedScore: item.score + moodBonus(item, mood) + feedbackBonus + Math.max(-12, Math.min(12, learnedThemeBonus))
+        };
       })
       .sort((a, b) => b.adjustedScore - a.adjustedScore)
       .map(({ item }) => item);
-  }, [mood, reactions, report, timeBudget]);
+  }, [mood, reactions, report, themeSignals, timeBudget]);
 
   const topSuggestion = ranked.find((item) => item.id === selectedId) || ranked[0];
   const shortlist = ranked.filter((item) => item.id !== topSuggestion?.id).slice(0, 6);
@@ -133,24 +185,57 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
 
   async function saveReaction(item: IntelligenceRecommendation, reaction: TasteReaction) {
     const nextReaction = reactions[item.id] === reaction ? undefined : reaction;
-    const previous = reactions;
-    const next = { ...reactions };
-    if (nextReaction) next[item.id] = nextReaction;
-    else delete next[item.id];
-    setReactions(next);
+    const previousReactions = reactions;
+    const previousHistory = history;
+    const previousSelectedId = selectedId;
+    const nextReactions = { ...reactions };
+    const nextHistory = { ...history };
+    if (nextReaction) {
+      nextReactions[item.id] = nextReaction;
+      nextHistory[item.id] = {
+        reaction: nextReaction,
+        themes: item.themes,
+        discussionSignals: Math.min(3, item.reasons.length)
+      };
+    } else {
+      delete nextReactions[item.id];
+      delete nextHistory[item.id];
+    }
+    setReactions(nextReactions);
+    setHistory(nextHistory);
+    setSelectedId('');
     setFeedbackMessage('');
 
-    const result = await fetchJson<{ reactions: Record<string, TasteReaction> }>(withBasePath('/api/discovery-feedback'), {
+    const result = await fetchJson<{
+      reactions: Record<string, TasteReaction>;
+      history: Record<string, TasteHistoryRecord>;
+    }>(withBasePath('/api/discovery-feedback'), {
       method: 'PUT',
-      body: { recommendationKey: item.id, title: item.title, href: item.href || '', reaction: nextReaction || null }
+      body: {
+        recommendationKey: item.id,
+        title: item.title,
+        href: item.href || '',
+        reaction: nextReaction || null,
+        themes: item.themes,
+        discussionSignals: Math.min(3, item.reasons.length)
+      }
     });
     if (!result.ok) {
-      setReactions(previous);
+      setReactions(previousReactions);
+      setHistory(previousHistory);
+      setSelectedId(previousSelectedId);
       setFeedbackMessage(result.message || 'Unable to save this preference.');
       return;
     }
     setReactions(result.data.reactions);
-    setFeedbackMessage('Saved to your member profile.');
+    setHistory(result.data.history);
+    setFeedbackMessage(!nextReaction
+      ? `Undone. ${item.title} no longer shapes your personal beta ranking.`
+      : nextReaction === 'less'
+        ? `Saved to your account. ${item.title} moves down now, and its themes receive less weight in later beta discoveries.`
+        : nextReaction === 'discuss'
+          ? `Saved to your account. ${item.title} receives the strongest boost, and its themes gain extra weight in later discoveries.`
+          : `Saved to your account. ${item.title} moves up, and its themes receive a modest boost in later beta discoveries.`);
   }
 
   const Wrapper = embedded ? 'div' : 'section';
@@ -159,13 +244,13 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
     : 'more-page intelligence-page page-stack';
 
   if (loading) {
-    return <Wrapper className={wrapperClassName}><div className="section-panel"><h2>Discovery Lab <span className="badge discovery-beta-badge">BETA</span></h2><p>Loading...</p></div></Wrapper>;
+    return <Wrapper className={wrapperClassName}><div className="section-panel"><h2>Discovery Lab <span className="badge discovery-beta-badge">NEW · BETA</span></h2><p>Loading...</p></div></Wrapper>;
   }
 
   if (!member) {
     return (
       <Wrapper className={wrapperClassName}>
-        <div className="section-panel"><h2>Discovery Lab <span className="badge discovery-beta-badge">BETA</span></h2><p>Please login to view discoveries.</p><Link className="action-link" href="/login">Go to Login</Link></div>
+        <div className="section-panel"><h2>Discovery Lab <span className="badge discovery-beta-badge">NEW · BETA</span></h2><p>Please login to view discoveries.</p><Link className="action-link" href="/login">Go to Login</Link></div>
       </Wrapper>
     );
   }
@@ -173,11 +258,16 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
   return (
     <Wrapper className={wrapperClassName}>
       <div className="section-panel intelligence-panel discovery-controls-panel">
-        <div className="section-title-row"><h2>Discovery Lab</h2><span className="badge discovery-beta-badge">BETA</span></div>
+        <div className="section-title-row"><h2>Discovery Lab</h2><span className="badge discovery-beta-badge">NEW · BETA</span></div>
         <p className="muted-line">This beta uses our past history to uncover new shows and episodes the club may like.</p>
         <p className="discovery-beta-note">
           <strong>Member picks stay first.</strong> These discoveries are not on the active ballot. A discovery becomes a club candidate only after a member submits it.
         </p>
+        <div className="discovery-learning-note" aria-label="How to use Discovery BETA">
+          <span>1</span><p><strong>Choose a listening goal.</strong> The four choices reorder discoveries for the kind of episode you want now.</p>
+          <span>2</span><p><strong>React after reviewing one.</strong> Your choice moves that episode and teaches your personal beta which themes to favor later.</p>
+          <span>3</span><p><strong>Your ballot stays untouched.</strong> Only a member submission can place an episode on the Active Ballot. Tap a selected reaction again to undo it.</p>
+        </div>
         {loadingReport ? <p className="muted-line">Finding strong episode candidates...</p> : null}
         {error ? <p className="warning-banner">{error}</p> : null}
 
@@ -209,10 +299,15 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
                 >{option.label}</button>
               ))}
             </div>
-            <p className="discovery-filter-status" aria-live="polite">
+            <div className="discovery-filter-status" aria-live="polite">
               <strong>{ranked.length} matching suggestion{ranked.length === 1 ? '' : 's'}.</strong>{' '}
               {selectedMood.label} changes the order; {selectedTime.label.toLowerCase()} filters the list.
-            </p>
+              <span className="discovery-learning-summary">
+                {visibleThemeSignals.length
+                  ? <>Your learning so far: {visibleThemeSignals.map((signal) => `${signal.label} ${signal.score > 0 ? '↑' : '↓'}`).join(' · ')}</>
+                  : <>No personal signals yet. React to a discovery below and this line will show what your beta is learning.</>}
+              </span>
+            </div>
           </>
         ) : null}
       </div>
@@ -239,19 +334,19 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
             <ul>{topSuggestion.reasons.slice(0, 3).map((reason) => <li key={reason}>{reason}</li>)}</ul>
           </div>
           <div className="discovery-feedback">
-            <span><strong>Tune beta discoveries</strong><small>These choices update this discovery list and stay with your member account. They do not change the active ballot.</small></span>
-            <div>
-              {([['listen', 'More like this'], ['discuss', 'Strong discussion'], ['less', 'Less like this']] as Array<[TasteReaction, string]>).map(([reaction, label]) => (
+            <span><span className="new-feature-badge">NEW!</span><strong>Teach your Discovery BETA</strong><small>Choose the single best signal. It saves to your member account and follows you across devices. It never changes the Active Ballot.</small></span>
+            <div className="discovery-feedback-options">
+              {REACTION_OPTIONS.map((option) => (
                 <button
                   type="button"
-                  key={reaction}
-                  className={reactions[topSuggestion.id] === reaction ? 'selected' : ''}
-                  aria-pressed={reactions[topSuggestion.id] === reaction}
-                  onClick={() => saveReaction(topSuggestion, reaction)}
-                >{label}</button>
+                  key={option.id}
+                  className={reactions[topSuggestion.id] === option.id ? 'selected' : ''}
+                  aria-pressed={reactions[topSuggestion.id] === option.id}
+                  onClick={() => saveReaction(topSuggestion, option.id)}
+                ><strong>{option.label}</strong><small>{option.detail}</small></button>
               ))}
             </div>
-            {feedbackMessage ? <small role="status">{feedbackMessage}</small> : null}
+            {feedbackMessage ? <small role="status" className="discovery-feedback-message">{feedbackMessage}</small> : null}
           </div>
         </article>
       ) : report && !loadingReport ? (
@@ -268,8 +363,13 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
       ) : null}
 
       <details className="section-panel discovery-engine-note">
-        <summary>How beta discovery works</summary>
-        <p>The engine excludes podcasts already submitted by members, then uses ratings, selected podcasts, meeting history, fist bumps, and meeting feedback to look for new possibilities. It balances familiar interests with less obvious choices; listening styles never rank members.</p>
+        <summary>Exactly what Discovery BETA learns</summary>
+        <div className="discovery-engine-copy">
+          <p><strong>Starts outside the ballot.</strong> It excludes podcasts already submitted by members, then looks for new possibilities using club ratings, selected episodes, meeting history, fist bumps, and meeting feedback.</p>
+          <p><strong>Learns personally.</strong> More like this modestly favors an episode and its themes. Strong discussion gives the largest boost to that episode and similar discussion themes. Less like this lowers both.</p>
+          <p><strong>Remains reversible.</strong> Tap your selected reaction again to undo it. Each member&apos;s choices stay with his own account across sign-in and devices.</p>
+          <p><strong>Never votes for you.</strong> Discovery reactions cannot add, rank, or vote on the Active Ballot. A member must submit an episode before the club can vote on it.</p>
+        </div>
       </details>
       {!embedded ? <Link className="action-link full-width-action" href="/podcasts?tab=rank">Go to the active podcast ballot</Link> : null}
     </Wrapper>
