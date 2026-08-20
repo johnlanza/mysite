@@ -3,7 +3,6 @@
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { MediaArtwork } from '@/components/MediaArtwork';
-import { withBasePath } from '@/lib/base-path';
 
 type PodcastListenChooserProps = {
   title: string;
@@ -13,8 +12,6 @@ type PodcastListenChooserProps = {
   className?: string;
   children?: ReactNode;
 };
-
-const castroEpisodeRequests = new Map<string, Promise<string | null>>();
 
 function safeWebUrl(value: string) {
   try {
@@ -30,39 +27,6 @@ function getProvider(value: string) {
   if (hostname === 'podcasts.apple.com') return 'apple';
   if (hostname === 'open.spotify.com') return 'spotify';
   return 'other';
-}
-
-async function resolveCastroEpisodeUrl(title: string, episodeNames: string, link: string) {
-  const cacheKey = `${title}|${episodeNames}|${link}`;
-  const cached = castroEpisodeRequests.get(cacheKey);
-  if (cached) return cached;
-
-  const request = (async () => {
-    try {
-      const query = new URLSearchParams({
-        title,
-        episodeNames,
-        link
-      });
-      const response = await fetch(withBasePath(`/api/castro-episode?${query.toString()}`), {
-        signal: AbortSignal.timeout(18000)
-      });
-      if (!response.ok) return null;
-      const payload = (await response.json()) as { available?: boolean; url?: string };
-      const resolvedUrl = safeWebUrl(payload.url || '');
-      return payload.available && resolvedUrl?.hostname === 'castro.fm' && resolvedUrl.pathname.startsWith('/episode/')
-        ? resolvedUrl.toString()
-        : null;
-    } catch {
-      return null;
-    }
-  })().then((url) => {
-    if (!url) castroEpisodeRequests.delete(cacheKey);
-    return url;
-  });
-
-  castroEpisodeRequests.set(cacheKey, request);
-  return request;
 }
 
 function SpotifyMark() {
@@ -85,16 +49,6 @@ function ApplePodcastsMark() {
   );
 }
 
-function CastroMark() {
-  return (
-    <svg viewBox="0 0 32 32" aria-hidden="true">
-      <circle cx="16" cy="16" r="15" fill="currentColor" />
-      <path d="M20.9 11.6a7 7 0 1 0 .2 8.6" fill="none" stroke="white" strokeWidth="3.1" strokeLinecap="round" />
-      <path d="M15 12.3a4.3 4.3 0 1 0 .1 7.5" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 export function PodcastListenChooser({
   title,
   episodeNames = '',
@@ -104,7 +58,6 @@ export function PodcastListenChooser({
   children
 }: PodcastListenChooserProps) {
   const [open, setOpen] = useState(false);
-  const [castroUrl, setCastroUrl] = useState<string | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const titleId = `listen-choice-${useId().replace(/:/g, '')}`;
@@ -118,17 +71,6 @@ export function PodcastListenChooser({
     ? submittedUrl
     : `https://podcasts.apple.com/us/search?term=${encodeURIComponent(searchTerms)}`;
   const showSubmittedFallback = Boolean(submittedUrl && provider === 'other');
-
-  useEffect(() => {
-    setCastroUrl(null);
-    if (!open || !episodeNames) return;
-    let cancelled = false;
-    void resolveCastroEpisodeUrl(title, episodeNames, link).then((url) => {
-      if (cancelled) return;
-      setCastroUrl(url);
-    });
-    return () => { cancelled = true; };
-  }, [episodeNames, link, open, title]);
 
   useEffect(() => {
     if (!open) return;
@@ -182,18 +124,10 @@ export function PodcastListenChooser({
             <span><strong>Apple Podcasts</strong><small>{provider === 'apple' ? 'Open the submitted episode' : 'Search for this episode'}</small></span>
             <span aria-hidden="true">→</span>
           </a>
-          {castroUrl ? (
-            <a className="listen-choice-option" data-player="castro" href={castroUrl} target="_blank" rel="noreferrer" onClick={closeDialog}>
-              <span className="listen-choice-mark"><CastroMark /></span>
-              <span><strong>Castro</strong><small>Open this episode</small></span>
-              <span aria-hidden="true">→</span>
-            </a>
-          ) : null}
         </div>
 
         <p className="listen-choice-note">
           Apple and Spotify use exact episode links when available; otherwise they open a focused search.
-          Castro only appears when it can open this episode directly.
         </p>
         {showSubmittedFallback ? (
           <a className="listen-choice-original" href={submittedUrl || '#'} target="_blank" rel="noreferrer" onClick={closeDialog}>

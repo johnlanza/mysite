@@ -8072,11 +8072,6 @@ button.listen-choice-close {
   background: rgb(139 92 246 / 0.1);
 }
 
-.listen-choice-option[data-player='castro'] .listen-choice-mark {
-  color: #f0a51a;
-  background: rgb(240 165 26 / 0.11);
-}
-
 .listen-choice-option > span:last-child {
   display: grid;
   place-items: center;
