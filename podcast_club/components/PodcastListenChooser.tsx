@@ -3,14 +3,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { MediaArtwork } from '@/components/MediaArtwork';
-
-type ApplePodcastResult = {
-  artistName?: string;
-  collectionId?: number;
-  collectionName?: string;
-  trackId?: number;
-  trackName?: string;
-};
+import { withBasePath } from '@/lib/base-path';
 
 type PodcastListenChooserProps = {
   title: string;
@@ -21,38 +14,7 @@ type PodcastListenChooserProps = {
   children?: ReactNode;
 };
 
-const appleIdRequests = new Map<string, Promise<string | null>>();
-
-function normalizeMatchText(value: string) {
-  return value
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/&/g, ' and ')
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
-}
-
-function meaningfulTokens(value: string) {
-  const stopWords = new Set(['a', 'an', 'and', 'at', 'for', 'from', 'in', 'of', 'on', 'the', 'to', 'with']);
-  return normalizeMatchText(value).split(' ').filter((token) => token.length > 1 && !stopWords.has(token));
-}
-
-function matchScore(query: string, candidate: string) {
-  const normalizedQuery = normalizeMatchText(query);
-  const normalizedCandidate = normalizeMatchText(candidate);
-  if (!normalizedQuery || !normalizedCandidate) return 0;
-  if (normalizedQuery === normalizedCandidate) return 1;
-
-  const queryTokens = new Set(meaningfulTokens(query));
-  const candidateTokens = new Set(meaningfulTokens(candidate));
-  if (!queryTokens.size || !candidateTokens.size) return 0;
-  const overlap = [...queryTokens].filter((token) => candidateTokens.has(token)).length;
-  const coverage = overlap / queryTokens.size;
-  const precision = overlap / candidateTokens.size;
-  const contained = normalizedQuery.includes(normalizedCandidate) || normalizedCandidate.includes(normalizedQuery);
-  return Math.max(coverage * 0.72 + precision * 0.28, contained ? 0.86 : 0);
-}
+const castroEpisodeRequests = new Map<string, Promise<string | null>>();
 
 function safeWebUrl(value: string) {
   try {
@@ -63,12 +25,6 @@ function safeWebUrl(value: string) {
   }
 }
 
-function getApplePodcastId(value: string) {
-  const url = safeWebUrl(value);
-  if (!url || url.hostname.replace(/^www\./, '') !== 'podcasts.apple.com') return null;
-  return url.pathname.match(/\/id(\d+)(?:\/|$)/i)?.[1] || null;
-}
-
 function getProvider(value: string) {
   const hostname = safeWebUrl(value)?.hostname.replace(/^www\./, '').toLowerCase() || '';
   if (hostname === 'podcasts.apple.com') return 'apple';
@@ -76,43 +32,36 @@ function getProvider(value: string) {
   return 'other';
 }
 
-async function resolveApplePodcastId(title: string, host: string) {
-  const cacheKey = normalizeMatchText(`${title}|${host}`);
-  const cached = appleIdRequests.get(cacheKey);
+async function resolveCastroEpisodeUrl(title: string, episodeNames: string, link: string) {
+  const cacheKey = `${title}|${episodeNames}|${link}`;
+  const cached = castroEpisodeRequests.get(cacheKey);
   if (cached) return cached;
 
   const request = (async () => {
     try {
       const query = new URLSearchParams({
-        term: [title, host].filter(Boolean).join(' '),
-        country: 'US',
-        media: 'podcast',
-        entity: 'podcast',
-        limit: '8'
+        title,
+        episodeNames,
+        link
       });
-      const response = await fetch(`https://itunes.apple.com/search?${query.toString()}`, {
-        signal: AbortSignal.timeout(8000)
+      const response = await fetch(withBasePath(`/api/castro-episode?${query.toString()}`), {
+        signal: AbortSignal.timeout(18000)
       });
       if (!response.ok) return null;
-      const payload = (await response.json()) as { results?: ApplePodcastResult[] };
-      const ranked = (payload.results || [])
-        .map((result) => {
-          const candidateTitle = result.collectionName || result.trackName || '';
-          const titleScore = matchScore(title, candidateTitle);
-          const hostScore = host ? matchScore(host, result.artistName || '') : 0;
-          return { result, titleScore, score: titleScore * 0.9 + hostScore * 0.1 };
-        })
-        .sort((a, b) => b.score - a.score);
-      const match = ranked[0];
-      if (!match || match.titleScore < 0.58) return null;
-      const id = match.result.collectionId || match.result.trackId;
-      return id ? String(id) : null;
+      const payload = (await response.json()) as { available?: boolean; url?: string };
+      const resolvedUrl = safeWebUrl(payload.url || '');
+      return payload.available && resolvedUrl?.hostname === 'castro.fm' && resolvedUrl.pathname.startsWith('/episode/')
+        ? resolvedUrl.toString()
+        : null;
     } catch {
       return null;
     }
-  })();
+  })().then((url) => {
+    if (!url) castroEpisodeRequests.delete(cacheKey);
+    return url;
+  });
 
-  appleIdRequests.set(cacheKey, request);
+  castroEpisodeRequests.set(cacheKey, request);
   return request;
 }
 
@@ -155,13 +104,11 @@ export function PodcastListenChooser({
   children
 }: PodcastListenChooserProps) {
   const [open, setOpen] = useState(false);
-  const [resolvedAppleId, setResolvedAppleId] = useState<string | null>(null);
-  const [castroStatus, setCastroStatus] = useState<'idle' | 'loading' | 'ready' | 'unavailable'>('idle');
+  const [castroUrl, setCastroUrl] = useState<string | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const titleId = `listen-choice-${useId().replace(/:/g, '')}`;
   const provider = useMemo(() => getProvider(link), [link]);
-  const directAppleId = useMemo(() => getApplePodcastId(link), [link]);
   const submittedUrl = useMemo(() => safeWebUrl(link)?.toString() || null, [link]);
   const searchTerms = [episodeNames, title, host].filter(Boolean).join(' ');
   const spotifyUrl = provider === 'spotify' && submittedUrl
@@ -170,26 +117,18 @@ export function PodcastListenChooser({
   const appleUrl = provider === 'apple' && submittedUrl
     ? submittedUrl
     : `https://podcasts.apple.com/us/search?term=${encodeURIComponent(searchTerms)}`;
-  const applePodcastId = directAppleId || resolvedAppleId;
-  const castroUrl = applePodcastId ? `https://castro.fm/itunes/${applePodcastId}` : null;
   const showSubmittedFallback = Boolean(submittedUrl && provider === 'other');
 
   useEffect(() => {
-    setResolvedAppleId(null);
-    setCastroStatus(directAppleId ? 'ready' : 'idle');
-  }, [directAppleId, link]);
-
-  useEffect(() => {
-    if (!open || directAppleId) return;
+    setCastroUrl(null);
+    if (!open || !episodeNames) return;
     let cancelled = false;
-    setCastroStatus('loading');
-    void resolveApplePodcastId(title, host).then((id) => {
+    void resolveCastroEpisodeUrl(title, episodeNames, link).then((url) => {
       if (cancelled) return;
-      setResolvedAppleId(id);
-      setCastroStatus(id ? 'ready' : 'unavailable');
+      setCastroUrl(url);
     });
     return () => { cancelled = true; };
-  }, [directAppleId, host, open, title]);
+  }, [episodeNames, link, open, title]);
 
   useEffect(() => {
     if (!open) return;
@@ -246,23 +185,15 @@ export function PodcastListenChooser({
           {castroUrl ? (
             <a className="listen-choice-option" data-player="castro" href={castroUrl} target="_blank" rel="noreferrer" onClick={closeDialog}>
               <span className="listen-choice-mark"><CastroMark /></span>
-              <span><strong>Castro</strong><small>Open the show, then choose this episode</small></span>
+              <span><strong>Castro</strong><small>Open this episode</small></span>
               <span aria-hidden="true">→</span>
             </a>
-          ) : (
-            <div className="listen-choice-option is-disabled" data-player="castro" aria-live="polite">
-              <span className="listen-choice-mark"><CastroMark /></span>
-              <span>
-                <strong>Castro</strong>
-                <small>{castroStatus === 'unavailable' ? 'No confident catalog match found' : 'Finding this podcast in Castro…'}</small>
-              </span>
-              <span aria-hidden="true">{castroStatus === 'loading' ? '···' : '—'}</span>
-            </div>
-          )}
+          ) : null}
         </div>
 
         <p className="listen-choice-note">
-          Exact episode links are used when available. Other choices open a focused search; Castro opens the matching show.
+          Apple and Spotify use exact episode links when available; otherwise they open a focused search.
+          Castro only appears when it can open this episode directly.
         </p>
         {showSubmittedFallback ? (
           <a className="listen-choice-original" href={submittedUrl || '#'} target="_blank" rel="noreferrer" onClick={closeDialog}>

@@ -8005,17 +8005,17 @@ button.listen-choice-close {
 
 .listen-choice-option {
   display: grid;
-  grid-template-columns: 2.7rem minmax(0, 1fr) auto;
+  grid-template-columns: 2.45rem minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.75rem;
-  min-height: 4.25rem;
-  padding: 0.65rem 0.75rem;
-  border: 1px solid rgb(24 18 25 / 0.12);
+  gap: 0.8rem;
+  min-height: 4.1rem;
+  padding: 0.68rem 0.72rem;
+  border: 1px solid rgb(24 18 25 / 0.1);
   border-radius: 14px;
-  background: rgb(255 255 255 / 0.86);
+  background: rgb(255 255 255 / 0.78);
   color: var(--ink);
   text-decoration: none;
-  box-shadow: 0 8px 18px rgb(18 8 25 / 0.06);
+  box-shadow: 0 4px 14px rgb(18 8 25 / 0.045);
   transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
 }
 
@@ -8024,7 +8024,7 @@ button.listen-choice-close {
   border-color: rgb(var(--podcasts-rgb) / 0.65);
   outline: none;
   transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgb(18 8 25 / 0.11);
+  box-shadow: 0 10px 22px rgb(18 8 25 / 0.09);
 }
 
 .listen-choice-option > span:nth-child(2) {
@@ -8047,27 +8047,44 @@ button.listen-choice-close {
 .listen-choice-mark,
 .listen-choice-mark svg {
   display: block;
-  width: 2.7rem;
-  height: 2.7rem;
+}
+
+.listen-choice-mark {
+  display: grid;
+  place-items: center;
+  width: 2.45rem;
+  height: 2.45rem;
+  border-radius: 12px;
+}
+
+.listen-choice-mark svg {
+  width: 2rem;
+  height: 2rem;
 }
 
 .listen-choice-option[data-player='spotify'] .listen-choice-mark {
   color: #1db954;
+  background: rgb(29 185 84 / 0.1);
 }
 
 .listen-choice-option[data-player='apple'] .listen-choice-mark {
   color: #8b5cf6;
+  background: rgb(139 92 246 / 0.1);
 }
 
 .listen-choice-option[data-player='castro'] .listen-choice-mark {
   color: #f0a51a;
+  background: rgb(240 165 26 / 0.11);
 }
 
-.listen-choice-option.is-disabled {
-  border-style: dashed;
-  background: rgb(255 255 255 / 0.48);
-  opacity: 0.72;
-  box-shadow: none;
+.listen-choice-option > span:last-child {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  background: rgb(24 18 25 / 0.045);
+  color: var(--ink-soft);
 }
 
 .listen-choice-note {
