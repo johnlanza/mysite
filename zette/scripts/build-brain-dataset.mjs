@@ -19,7 +19,7 @@ const TAG_PATTERN = /(?:^|\s)#(?:\[\[([^\]]+)\]\]|([a-zA-Z0-9/_-]+))/g;
 const PAGE_REF_PATTERN = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g;
 const CURATED_MARKER_PATTERN = /#?\[\[(?:My Quotes|My Questions)\]\]/i;
 const MY_WORDS_PATTERN =
-  /(?<![\p{L}\p{N}_])(?:#(?:\[\[(?:mw|mywords)\]\]|mw|mywords)\b|\[\[(?:mw|mywords)\]\])/iu;
+  /(?<![\p{L}\p{N}_])(?:#(?:\[\[(?:mw|mywords)\]\]|mw|mywords)\b|\[\[(?:mw|mywords)\]\]|mw\s*:)/iu;
 const SIGNAL_TAGS = new Set([
   "bias",
   "business",
@@ -52,6 +52,25 @@ const SOURCE_REF_ALLOWLIST = new Set([
 ]);
 const SENSITIVE_PATTERN =
   /\b(?:api key|door code|password|passcode|pin|private key|schlage code|secret|ssn|token)\b|(?:^|\s)code:/i;
+const MARKDOWN_LINK_PATTERN = /!?\[([^\]]+)\]\(([^)]+)\)/g;
+
+function normalizeSourceTitle(value) {
+  return String(value)
+    .replace(/\.(?:pdf|docx?|pptx?|xlsx?)$/i, "")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function isGenericSourceLinkTitle(value) {
+  const normalized = normalizeSourceTitle(value).toLowerCase();
+
+  return (
+    /^read more(?:\s+at)?\s+location\s+\d+$/.test(normalized) ||
+    /^location\s+\d+$/.test(normalized) ||
+    /^read more$/.test(normalized)
+  );
+}
 
 function decodeFileName(fileName) {
   return decodeURIComponent(fileName.replace(/\.md$/i, ""));
@@ -63,7 +82,9 @@ function cleanupInlineMarkup(value) {
     .replace(/\{\{renderer [^}]+\}\}/g, " ")
     .replace(/\{\{[^}]+\}\}/g, " ")
     .replace(/!\[[^\]]*\]\([^)]+\)/g, " ")
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, title) =>
+      isGenericSourceLinkTitle(title) ? " " : title,
+    )
     .replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, "$2")
     .replace(/\[\[([^\]]+)\]\]/g, "$1")
     .replace(/(?:\*\*|__|`|~~)/g, "")
@@ -127,6 +148,35 @@ function stripBrainMarkers(value) {
   );
 }
 
+function cleanupMyWordsNote(value) {
+  return stripBrainMarkers(value)
+    .replace(/^[\s:;,.!?–—-]+/, "")
+    .trim();
+}
+
+function splitInlineMyWords(rawLine) {
+  const match = rawLine.match(MY_WORDS_PATTERN);
+
+  if (!match || match.index === undefined) {
+    return { rawText: rawLine, note: null };
+  }
+
+  const before = rawLine.slice(0, match.index);
+  const after = rawLine.slice(match.index + match[0].length);
+  const textBeforeMarker = stripBrainMarkers(before);
+  const noteAfterMarker = cleanupMyWordsNote(after);
+
+  if (textBeforeMarker && noteAfterMarker) {
+    return { rawText: before, note: noteAfterMarker };
+  }
+
+  if (!textBeforeMarker && noteAfterMarker) {
+    return { rawText: after, note: null };
+  }
+
+  return { rawText: before || rawLine, note: null };
+}
+
 function sourceDisplayFor(originType, originFile) {
   const pageTitle = decodeFileName(originFile);
 
@@ -135,6 +185,104 @@ function sourceDisplayFor(originType, originFile) {
   }
 
   return pageTitle.split(" | ")[0]?.trim() ?? pageTitle;
+}
+
+function formatSourceDisplay(sourceTitle, sourceAttribution) {
+  if (!sourceAttribution) return sourceTitle;
+
+  const normalizedTitle = sourceTitle.toLowerCase();
+  const normalizedAttribution = sourceAttribution.toLowerCase();
+
+  return normalizedTitle.includes(normalizedAttribution)
+    ? sourceTitle
+    : `${sourceTitle} | ${sourceAttribution}`;
+}
+
+function inferSourceAttribution(sourceTitle, rawLine) {
+  const source = `${sourceTitle} ${rawLine}`.toLowerCase();
+
+  if (source.includes("big five personality test")) {
+    return "Truity";
+  }
+
+  return null;
+}
+
+function cleanAttachmentTitle(title, target) {
+  const fallback = path.basename(target.split("#")[0]?.split("?")[0] ?? target);
+  const candidate = normalizeSourceTitle(title || fallback);
+
+  if (isGenericSourceLinkTitle(candidate)) {
+    return null;
+  }
+
+  return candidate || null;
+}
+
+function inferSourceFromLine(rawLine) {
+  for (const match of rawLine.matchAll(MARKDOWN_LINK_PATTERN)) {
+    const title = cleanAttachmentTitle(match[1], match[2]);
+
+    if (!title) {
+      continue;
+    }
+
+    const target = match[2] ?? "";
+    const sourceText = `${title} ${target} ${rawLine}`;
+
+    if (
+      /\.(?:pdf|docx?|pptx?)($|[?#])/i.test(target) ||
+      /\b(?:report|assessment|test|article|paper|essay|book|interview|transcript)\b/i.test(sourceText)
+    ) {
+      const sourceAttribution = inferSourceAttribution(title, rawLine);
+
+      return {
+        sourceTitle: title,
+        sourceAttribution,
+        sourceDisplay: formatSourceDisplay(title, sourceAttribution),
+      };
+    }
+  }
+
+  return null;
+}
+
+function getIndentWidth(line) {
+  const match = line.match(/^\s*/);
+  return (match?.[0] ?? "").replace(/\t/g, "  ").length;
+}
+
+function trimOutlineMarker(line) {
+  return line
+    .trim()
+    .replace(/^[>*\s-]+/, "")
+    .replace(/^\s*(?:TODO|DOING|DONE|NOW|LATER|WAITING|CANCELED)\s+/i, "")
+    .trim();
+}
+
+function shouldTrackOutlineLine(rawLine) {
+  const trimmed = rawLine.trim();
+
+  return (
+    Boolean(trimmed) &&
+    !isMetaLine(rawLine) &&
+    !/#\+BEGIN|#\+END/i.test(rawLine)
+  );
+}
+
+function inferParentSource(outlineStack) {
+  for (let index = outlineStack.length - 1; index >= 0; index -= 1) {
+    const inferred = inferSourceFromLine(outlineStack[index].rawLine);
+
+    if (inferred) {
+      return {
+        ...inferred,
+        parentLineIndex: outlineStack[index].lineIndex,
+      };
+    }
+  }
+
+  return null;
 }
 
 function isMetaLine(line) {
@@ -193,6 +341,14 @@ function getExistingBlockId(lines, lineIndex) {
 
 function getSourceLocator(originType, lineIndex) {
   return originType === "journals" ? null : `Line ${lineIndex + 1}`;
+}
+
+function getInferredSourceLocator(originType, defaultSourceDisplay, lineIndex) {
+  if (originType === "journals") {
+    return `${defaultSourceDisplay} · Line ${lineIndex + 1}`;
+  }
+
+  return `Line ${lineIndex + 1}`;
 }
 
 function scoreCandidate(rawLine, text, tags, refs) {
@@ -307,9 +463,31 @@ async function main() {
       const sourcePageTitle = decodeFileName(originFile);
       const sourceDisplay = sourceDisplayFor(source.type, originFile);
       const lines = content.split("\n");
+      const outlineStack = [];
 
       for (let index = 0; index < lines.length; index += 1) {
         const rawLine = lines[index];
+        const indent = getIndentWidth(rawLine);
+
+        while (
+          outlineStack.length > 0 &&
+          outlineStack[outlineStack.length - 1].indent >= indent
+        ) {
+          outlineStack.pop();
+        }
+
+        const inferredSource =
+          inferParentSource(outlineStack) ?? inferSourceFromLine(rawLine);
+        const trackCurrentOutlineLine = shouldTrackOutlineLine(rawLine);
+        const pushCurrentOutlineLine = () => {
+          if (trackCurrentOutlineLine) {
+            outlineStack.push({
+              indent,
+              lineIndex: index,
+              rawLine: trimOutlineMarker(rawLine),
+            });
+          }
+        };
 
         if (
           !rawLine.trim() ||
@@ -317,17 +495,21 @@ async function main() {
           /#\+BEGIN|#\+END/i.test(rawLine) ||
           CURATED_MARKER_PATTERN.test(rawLine)
         ) {
+          pushCurrentOutlineLine();
           continue;
         }
 
         if (SENSITIVE_PATTERN.test(rawLine)) {
           skippedSensitive += 1;
+          pushCurrentOutlineLine();
           continue;
         }
 
-        const text = stripBrainMarkers(rawLine);
+        const { rawText, note } = splitInlineMyWords(rawLine);
+        const text = stripBrainMarkers(rawText);
 
         if (isNoiseLine(text)) {
+          pushCurrentOutlineLine();
           continue;
         }
 
@@ -337,6 +519,7 @@ async function main() {
         const dedupeKey = `${source.type}:${originFile}:${text.toLowerCase()}`;
 
         if (seen.has(dedupeKey)) {
+          pushCurrentOutlineLine();
           continue;
         }
 
@@ -344,10 +527,14 @@ async function main() {
         allRecords.push({
           id: buildId(source.type, originFile, index),
           text,
-          note: null,
+          note,
           sourcePageTitle,
-          sourceDisplay,
-          sourceLocator: getSourceLocator(source.type, index),
+          sourceTitle: inferredSource?.sourceTitle ?? null,
+          sourceAttribution: inferredSource?.sourceAttribution ?? null,
+          sourceDisplay: inferredSource?.sourceDisplay ?? sourceDisplay,
+          sourceLocator: inferredSource
+            ? getInferredSourceLocator(source.type, sourceDisplay, index)
+            : getSourceLocator(source.type, index),
           blockId: getExistingBlockId(lines, index),
           tags,
           refs,
@@ -356,6 +543,7 @@ async function main() {
           lineIndex: index,
           search,
         });
+        pushCurrentOutlineLine();
       }
     }
   }

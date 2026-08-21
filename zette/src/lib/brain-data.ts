@@ -10,6 +10,8 @@ export type BrainRecord = {
   text: string;
   note: string | null;
   sourcePageTitle: string;
+  sourceTitle?: string | null;
+  sourceAttribution?: string | null;
   sourceDisplay: string;
   sourceLocator?: string | null;
   blockId?: string | null;

@@ -72,8 +72,8 @@ function unifyBrainRecord(record) {
     id: `brain:${record.id}`,
     text: record.text,
     note: record.note,
-    attribution: null,
-    context: record.sourceDisplay,
+    attribution: record.sourceAttribution || null,
+    context: record.sourceTitle || record.sourceDisplay,
     tags: record.tags ?? [],
   };
 }
