@@ -6,6 +6,7 @@ import { Manrope, Spectral } from 'next/font/google';
 import { MobileNav, Nav } from '@/components/Nav';
 import { AuthStatus } from '@/components/AuthStatus';
 import { PalettePreferenceSync } from '@/components/PalettePreferenceSync';
+import { PwaRuntime } from '@/components/PwaRuntime';
 import { withBasePath } from '@/lib/base-path';
 import { DEFAULT_PALETTE, PALETTE_IDS, PALETTE_STORAGE_KEY } from '@/lib/palettes';
 import { isReadOnlyPreview, READ_ONLY_PREVIEW_MESSAGE } from '@/lib/preview-mode';
@@ -16,13 +17,24 @@ const serif = Spectral({ subsets: ['latin'], weight: ['500', '600', '700'], vari
 
 export const metadata: Metadata = {
   title: 'Royal Podcast Society',
-  description: 'Monthly podcast club planner with voting and meeting history.'
+  description: 'Monthly podcast club planner with voting and meeting history.',
+  applicationName: 'Royal Podcast Society',
+  manifest: withBasePath('/manifest.webmanifest'),
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Podcast Society'
+  },
+  icons: {
+    apple: [{ url: withBasePath('/icons/rps-apple-touch.png'), sizes: '180x180', type: 'image/png' }]
+  }
 };
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  viewportFit: 'cover'
+  viewportFit: 'cover',
+  themeColor: '#071a36'
 };
 
 const suppressInjectedWalletErrors = `
@@ -83,6 +95,7 @@ export default function RootLayout({
       <body className={`${sans.variable} ${serif.variable}`}>
         <script dangerouslySetInnerHTML={{ __html: suppressInjectedWalletErrors }} />
         <PalettePreferenceSync />
+        <PwaRuntime />
         <BrandIntro />
         <div className="page-bg" />
         <main className="shell">

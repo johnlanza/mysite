@@ -10,6 +10,7 @@ type SendEmailLoginLinkParams = {
   to: string;
   name: string;
   loginUrl: string;
+  loginCode: string;
 };
 
 type SendEmailParams = {
@@ -136,7 +137,7 @@ export async function sendPasswordResetEmail({ to, name, resetUrl }: SendPasswor
   }
 }
 
-export async function sendEmailLoginLink({ to, name, loginUrl }: SendEmailLoginLinkParams) {
+export async function sendEmailLoginLink({ to, name, loginUrl, loginCode }: SendEmailLoginLinkParams) {
   return sendEmail({
     to,
     subject: 'Your Royal Podcast Society sign-in link',
@@ -144,7 +145,9 @@ export async function sendEmailLoginLink({ to, name, loginUrl }: SendEmailLoginL
       `<p>Hi ${escapeHtml(name || 'there')},</p>`,
       '<p>Use this secure link to sign in to the Royal Podcast Society. No password is required.</p>',
       `<p><a href="${escapeHtml(loginUrl)}" style="display:inline-block;padding:12px 18px;border-radius:10px;background:#2f2d2e;color:#fff;text-decoration:none;font-weight:700">Sign in to the Royal Podcast Society</a></p>`,
-      '<p>This link expires in 15 minutes and can only be used once. If you did not request it, you can ignore this email.</p>'
+      '<p>If you are signing in from the Society app on your Home Screen, enter this one-time code inside the app:</p>',
+      `<p style="font-size:22px;font-weight:800;letter-spacing:0.08em">${escapeHtml(loginCode)}</p>`,
+      '<p>The link and code expire in 15 minutes. Using either one invalidates both. If you did not request them, you can ignore this email.</p>'
     ].join('')
   });
 }

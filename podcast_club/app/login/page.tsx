@@ -36,6 +36,9 @@ export default function LoginPage() {
   const [message, setMessage] = useState('');
   const [saving, setSaving] = useState(false);
   const [linkSaving, setLinkSaving] = useState(false);
+  const [codeSaving, setCodeSaving] = useState(false);
+  const [loginCode, setLoginCode] = useState('');
+  const [standalone, setStandalone] = useState(false);
   const [emailSignInAvailable, setEmailSignInAvailable] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -58,6 +61,17 @@ export default function LoginPage() {
     }
 
     void loadSetup();
+  }, []);
+
+  useEffect(() => {
+    const displayMode = window.matchMedia('(display-mode: standalone)');
+    const updateDisplayMode = () => {
+      const navigatorWithStandalone = window.navigator as Navigator & { standalone?: boolean };
+      setStandalone(displayMode.matches || navigatorWithStandalone.standalone === true);
+    };
+    updateDisplayMode();
+    displayMode.addEventListener('change', updateDisplayMode);
+    return () => displayMode.removeEventListener('change', updateDisplayMode);
   }, []);
 
   async function requestEmailLink(event: FormEvent) {
@@ -108,6 +122,31 @@ export default function LoginPage() {
     } catch {
       setError('Unable to login. Check server logs and environment variables.');
       setSaving(false);
+    }
+  }
+
+  async function submitEmailCode(event: FormEvent) {
+    event.preventDefault();
+    setError('');
+    setMessage('');
+    setCodeSaving(true);
+    try {
+      const response = await fetch(withBasePath('/api/auth/email-link/verify'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: loginForm.email, code: loginCode })
+      });
+      const payload = (await response.json().catch(() => null)) as { message?: string } | null;
+      if (!response.ok) {
+        setError(payload?.message || 'Unable to use this sign-in code.');
+        return;
+      }
+      router.replace('/');
+      router.refresh();
+    } catch {
+      setError('Unable to use this sign-in code.');
+    } finally {
+      setCodeSaving(false);
     }
   }
 
@@ -187,6 +226,41 @@ export default function LoginPage() {
                     : 'Send Sign-In Link'}
               </button>
             </form>
+
+            <details className="password-login-details pwa-code-login-details" open={standalone || undefined}>
+              <summary>{standalone ? 'Enter the code from your email' : 'Use the email code instead'}</summary>
+              <form className="form" onSubmit={submitEmailCode}>
+                <p className="auth-method-note">
+                  {standalone
+                    ? 'Keep this app open, check your email, then return here and enter the one-time code.'
+                    : 'Useful when the email link opens outside the installed Home Screen app.'}
+                </p>
+                <label>
+                  Email
+                  <input
+                    type="email"
+                    value={loginForm.email}
+                    onChange={(event) => setLoginForm((prev) => ({ ...prev, email: event.target.value }))}
+                    autoComplete="email"
+                    required
+                  />
+                </label>
+                <label>
+                  One-Time Sign-In Code
+                  <input
+                    value={loginCode}
+                    onChange={(event) => setLoginCode(event.target.value.toUpperCase())}
+                    placeholder="ABCD-EFGH-JKLM"
+                    autoComplete="one-time-code"
+                    autoCapitalize="characters"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    required
+                  />
+                </label>
+                <button disabled={codeSaving}>{codeSaving ? 'Signing in…' : 'Sign In With Code'}</button>
+              </form>
+            </details>
 
             <details className="password-login-details">
               <summary>Use a password instead</summary>

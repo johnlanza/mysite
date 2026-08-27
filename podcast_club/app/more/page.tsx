@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { ListeningStyles } from '@/components/ListeningStyles';
 import { PaletteSelector } from '@/components/PaletteSelector';
+import { PwaInstallCard } from '@/components/PwaInstallCard';
 import { useSession } from '@/lib/use-session';
 
 function MoreIcon({ name }: { name: 'members' | 'imports' | 'intelligence' }) {
@@ -107,6 +108,8 @@ export default function MorePage() {
         <ListeningStyles member={member} />
 
         <PaletteSelector />
+
+        <PwaInstallCard />
 
         <div className="more-menu-section">
           <p className="section-kicker">Club</p>

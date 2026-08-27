@@ -4,6 +4,7 @@ const EmailLoginTokenSchema = new Schema(
   {
     member: { type: Schema.Types.ObjectId, ref: 'Member', required: true, index: true },
     tokenHash: { type: String, required: true, unique: true, trim: true },
+    codeHash: { type: String, unique: true, sparse: true, trim: true },
     expiresAt: { type: Date, required: true },
     usedAt: { type: Date, default: null },
     requestedIpHash: { type: String, default: null, trim: true },

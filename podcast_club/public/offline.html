@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="theme-color" content="#071a36" />
+    <title>Royal Podcast Society — Offline</title>
+    <style>
+      :root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      * { box-sizing: border-box; }
+      body {
+        min-height: 100vh;
+        min-height: 100dvh;
+        margin: 0;
+        padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom));
+        display: grid;
+        place-items: center;
+        background: radial-gradient(circle at 50% 18%, #7749b4 0%, #402268 38%, #071a36 100%);
+        color: #16111b;
+      }
+      main {
+        width: min(34rem, 100%);
+        padding: clamp(1.5rem, 6vw, 2.5rem);
+        border: 2px solid rgba(255, 255, 255, 0.55);
+        border-radius: 22px;
+        background: #fffdf7;
+        text-align: center;
+        box-shadow: 0 26px 70px rgba(0, 0, 0, 0.28);
+      }
+      .mark {
+        width: 5rem;
+        height: 5rem;
+        margin: 0 auto 1rem;
+        display: grid;
+        place-items: center;
+        border: 4px double #071a36;
+        border-radius: 50% 50% 45% 45%;
+        background: #dbeaff;
+        color: #071a36;
+        font-family: Georgia, serif;
+        font-size: 1.2rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+      }
+      .kicker { margin: 0 0 0.6rem; font-size: 0.74rem; font-weight: 850; letter-spacing: 0.12em; text-transform: uppercase; }
+      h1 { margin: 0; font-family: Georgia, serif; font-size: clamp(1.8rem, 7vw, 2.6rem); line-height: 1.08; }
+      p:last-child { max-width: 28rem; margin: 1rem auto 0; color: #655e69; font-size: 1rem; line-height: 1.55; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="mark" aria-hidden="true">RPS</div>
+      <p class="kicker">The signal dropped</p>
+      <h1>The Society will reconvene when you are online.</h1>
+      <p>Member information, voting, and meeting details stay live and private, so they are not stored for offline use. Reconnect, then reopen the app.</p>
+    </main>
+  </body>
+</html>

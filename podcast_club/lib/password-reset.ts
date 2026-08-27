@@ -15,6 +15,10 @@ export function createEmailLoginToken() {
   return { token, tokenHash: hashToken(token) };
 }
 
+export function createEmailLoginCode() {
+  return createPasswordResetCode();
+}
+
 export function hashToken(value: string) {
   return createHash('sha256').update(String(value || '')).digest('hex');
 }

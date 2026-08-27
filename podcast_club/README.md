@@ -283,3 +283,22 @@ Notes:
 - Missing optional values are filled with safe defaults.
 - Mapping accepts either CSV header names or zero-based column indexes.
 - To rollback an import, call `DELETE /api/imports/legacy-meetings` with `{ \"batchId\": \"...\", \"confirmText\": \"DELETE\" }`.
+
+## Installable App (PWA)
+
+Podcast Club can be installed from a supported browser without a separate App Store release. The manifest uses `NEXT_PUBLIC_BASE_PATH`, so the installed app opens correctly at both `/` in local/preview environments and `/podcastclub` in production.
+
+- The install card appears under **More** after sign-in. Installing while signed in gives iPhone/iPad the best chance to carry the current session into the Home Screen app.
+- Email sign-in sends both a one-use link and a one-use code. A member can enter the code inside the installed app if the link opens in the regular browser instead.
+- The service worker caches only a self-contained offline screen, app icons, the logo, and versioned Next.js static assets.
+- API responses and page documents are always network-only. Votes, meetings, member data, and other personalized content are never cached for offline use.
+- When a new service worker is waiting, the app shows a small reload prompt instead of interrupting an active form or vote.
+
+Test the production-mode PWA locally:
+
+```bash
+npm run build
+npm run start -- -p 3100
+```
+
+Browser installability and service-worker behavior require `localhost` or HTTPS.

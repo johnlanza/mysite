@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { buildEmailLoginUrl, isEmailLoginConfigured, sendEmailLoginLink } from '@/lib/email';
-import { createEmailLoginToken, hashIp } from '@/lib/password-reset';
+import { createEmailLoginCode, createEmailLoginToken, hashIp } from '@/lib/password-reset';
 import { isReadOnlyPreview } from '@/lib/preview-mode';
 import EmailLoginTokenModel from '@/models/EmailLoginToken';
 import MemberModel from '@/models/Member';
 
 const GENERIC_RESPONSE = {
-  message: 'If that email belongs to a member, a sign-in link is on its way.'
+  message: 'If that email belongs to a member, a sign-in link and one-time code are on the way.'
 };
 
 function getRequestIp(request: Request) {
@@ -58,9 +58,11 @@ export async function POST(request: Request) {
     );
 
     const { token, tokenHash } = createEmailLoginToken();
+    const { code: loginCode, tokenHash: codeHash } = createEmailLoginCode();
     await EmailLoginTokenModel.create({
       member: member._id,
       tokenHash,
+      codeHash,
       expiresAt: new Date(Date.now() + 15 * 60 * 1000),
       requestedIpHash: ipHash,
       persistent: body?.remember !== false
@@ -69,7 +71,8 @@ export async function POST(request: Request) {
     const delivery = await sendEmailLoginLink({
       to: member.email,
       name: member.name,
-      loginUrl: buildEmailLoginUrl(token)
+      loginUrl: buildEmailLoginUrl(token),
+      loginCode
     });
     if (!delivery.delivered) {
       await EmailLoginTokenModel.updateOne({ tokenHash }, { $set: { usedAt: new Date() } });

@@ -8117,3 +8117,187 @@ button.listen-choice-close {
     min-height: 4.5rem;
   }
 }
+
+/* Installable Society app shell. Member pages and API data remain network-only. */
+.pwa-install-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 5.25rem minmax(0, 1fr);
+  gap: 1rem;
+  overflow: hidden;
+  padding: 1rem;
+  border: 1px solid rgb(255 255 255 / 0.2);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 95% 5%, rgb(var(--more-rgb) / 0.4), transparent 42%),
+    linear-gradient(145deg, #071a36 0%, #162b50 100%);
+  color: #fff;
+  box-shadow: 0 18px 36px rgb(7 26 54 / 0.24);
+}
+
+.pwa-install-art {
+  display: grid;
+  place-items: center;
+  align-self: start;
+  width: 5.25rem;
+  aspect-ratio: 1;
+  border: 1px solid rgb(255 255 255 / 0.28);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 50% 38%, rgb(255 255 255 / 0.22), transparent 44%),
+    var(--nav-more);
+  color: var(--gold-ink);
+  font-family: var(--font-serif), serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  box-shadow: inset 0 0 0 5px rgb(255 255 255 / 0.12), 0 14px 28px rgb(0 0 0 / 0.22);
+}
+
+.pwa-install-copy,
+.pwa-install-heading {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.pwa-install-card .section-kicker {
+  width: fit-content;
+  margin: 0;
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
+  background: var(--nav-more);
+  color: var(--gold-ink);
+  font-size: 0.68rem;
+}
+
+.pwa-install-card h3,
+.pwa-install-card p {
+  margin: 0;
+}
+
+.pwa-install-card h3 {
+  color: #fff;
+  font-family: var(--font-serif), serif;
+  font-size: clamp(1.15rem, 3.5vw, 1.45rem);
+  line-height: 1.12;
+}
+
+.pwa-install-copy > p:not(.section-kicker) {
+  color: rgb(255 255 255 / 0.82);
+  line-height: 1.45;
+}
+
+button.pwa-install-button {
+  margin-top: 0.35rem;
+  border: 1px solid rgb(255 255 255 / 0.24);
+  background: var(--nav-more) !important;
+  color: var(--gold-ink) !important;
+  font-weight: 850;
+  box-shadow: 0 10px 22px rgb(0 0 0 / 0.2);
+}
+
+.pwa-install-steps {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.35rem 0 0;
+  padding-left: 1.25rem;
+  color: #fff;
+  line-height: 1.4;
+}
+
+.pwa-install-instruction {
+  margin-top: 0.35rem !important;
+}
+
+.pwa-install-card .pwa-install-note {
+  margin-top: 0.25rem;
+  color: rgb(255 255 255 / 0.62) !important;
+  font-size: 0.78rem;
+}
+
+.pwa-installed-status {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: fit-content;
+  margin-top: 0.35rem !important;
+  padding: 0.48rem 0.65rem;
+  border: 1px solid rgb(255 255 255 / 0.18);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.1);
+  color: #fff !important;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.pwa-installed-status span {
+  display: grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 999px;
+  background: var(--nav-more);
+  color: var(--gold-ink);
+}
+
+.pwa-update-toast {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: min(24rem, calc(100vw - 2rem));
+  padding: 0.75rem;
+  border: 1px solid rgb(255 255 255 / 0.18);
+  border-radius: 15px;
+  background: #071a36;
+  color: #fff;
+  box-shadow: 0 18px 44px rgb(0 0 0 / 0.3);
+}
+
+.pwa-update-toast > span {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.pwa-update-toast small {
+  color: rgb(255 255 255 / 0.68);
+}
+
+.pwa-update-toast button {
+  flex: 0 0 auto;
+  background: var(--nav-more);
+  color: var(--gold-ink);
+  font-weight: 800;
+}
+
+.pwa-code-login-details .auth-method-note {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 680px) {
+  .pwa-install-card {
+    grid-template-columns: 4.25rem minmax(0, 1fr);
+    gap: 0.8rem;
+    padding: 0.85rem;
+  }
+
+  .pwa-install-art {
+    width: 4.25rem;
+    border-radius: 18px;
+    font-size: 1rem;
+  }
+
+  .pwa-update-toast {
+    right: 0.75rem;
+    bottom: calc(5.7rem + env(safe-area-inset-bottom));
+    width: calc(100vw - 1.5rem);
+  }
+}
