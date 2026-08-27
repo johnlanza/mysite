@@ -152,7 +152,7 @@ export function PodcastListenChooser({
         aria-haspopup="dialog"
         aria-label={`Choose where to listen${submittedHostname ? ` ${submittedHostname}` : ''}: ${episodeNames || title}`}
       >
-        {children || <>Choose where to listen <span aria-hidden="true">→</span></>}
+        {children || <>Choose where to listen <span className="listen-trigger-chevron" aria-hidden="true" /></>}
       </button>
       {typeof document !== 'undefined' && dialog ? createPortal(dialog, document.body) : null}
     </>

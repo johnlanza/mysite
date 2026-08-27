@@ -123,7 +123,7 @@ export function UpcomingPodcastLink({ podcast, position }: { podcast: MeetingPod
             <path d="m10 8 6 4-6 4V8Z" fill="currentColor" />
           </svg>
           Choose where to listen
-          <span aria-hidden="true">→</span>
+          <span className="listen-trigger-chevron" aria-hidden="true" />
         </span>
       </span>
     </PodcastListenChooser>

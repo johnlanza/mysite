@@ -8192,6 +8192,16 @@ button.podcast-listen-trigger.action-link {
   text-align: center;
 }
 
+.listen-trigger-chevron {
+  display: inline-block;
+  width: 0.52rem;
+  height: 0.52rem;
+  flex: 0 0 auto;
+  border-top: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  transform: rotate(45deg);
+}
+
 .listen-choice-backdrop {
   z-index: 80;
   background: rgb(17 13 18 / 0.62);

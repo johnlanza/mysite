@@ -352,7 +352,7 @@ export default function HomePage() {
             <strong>Choose where to listen</strong>
             <small>{getUrlLabel(podcast.link)}</small>
           </span>
-          <span aria-hidden="true">&gt;</span>
+          <span className="listen-trigger-chevron" aria-hidden="true" />
         </PodcastListenChooser>
       </article>
     );

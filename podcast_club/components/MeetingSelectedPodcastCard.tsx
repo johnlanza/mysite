@@ -149,7 +149,7 @@ export default function MeetingSelectedPodcastCard({
                 <strong>Choose where to listen</strong>
                 <small>{getPodcastLinkHost(podcast.link)}</small>
               </span>
-              <span aria-hidden="true">&gt;</span>
+              <span className="listen-trigger-chevron" aria-hidden="true" />
             </PodcastListenChooser>
 
             {hasRichPodcastMeta(podcast) && missingVoters.length > 0 ? (
