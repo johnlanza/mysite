@@ -75,7 +75,10 @@ export function PodcastListenChooser({
   useEffect(() => {
     if (!open) return;
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
+      if (event.key === 'Escape') {
+        setOpen(false);
+        window.setTimeout(() => triggerRef.current?.focus(), 0);
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     const focusTimer = window.setTimeout(() => closeRef.current?.focus(), 0);
@@ -146,6 +149,7 @@ export function PodcastListenChooser({
         className={`podcast-listen-trigger ${className}`.trim()}
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
+        aria-label={`Choose where to listen: ${episodeNames || title}`}
       >
         {children || <>Choose where to listen <span aria-hidden="true">→</span></>}
       </button>
