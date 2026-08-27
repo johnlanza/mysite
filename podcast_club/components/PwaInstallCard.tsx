@@ -16,6 +16,7 @@ export function PwaInstallCard() {
   const [installed, setInstalled] = useState(false);
   const [installReady, setInstallReady] = useState(false);
   const [installing, setInstalling] = useState(false);
+  const [instructionsOpen, setInstructionsOpen] = useState(false);
   const [platform, setPlatform] = useState<'ios' | 'android' | 'desktop'>('desktop');
 
   const refreshState = useCallback(() => {
@@ -51,37 +52,88 @@ export function PwaInstallCard() {
     refreshState();
   };
 
+  const handleInstallAction = async () => {
+    if (installReady) {
+      await install();
+      return;
+    }
+    setInstructionsOpen((current) => !current);
+  };
+
+  const overviewContent = (
+    <>
+      <span className="pwa-install-art" aria-hidden="true">
+        <span>RPS</span>
+      </span>
+      <span className="pwa-install-copy">
+        <span className="pwa-install-heading">
+          <span className="section-kicker">NEW!</span>
+          <span className="pwa-install-title" id="pwa-install-title">Put the Society on your Home Screen</span>
+        </span>
+        <span className="pwa-install-description">Open it like an app, with the same private club account and the full current site.</span>
+        {!installed ? (
+          <span className="pwa-install-card-cta">
+            {installing
+              ? 'Opening install…'
+              : installReady
+                ? 'Install Society App'
+                : instructionsOpen
+                  ? 'Hide instructions'
+                  : 'Show me how'}
+            <span aria-hidden="true">{instructionsOpen && !installReady ? '−' : '›'}</span>
+          </span>
+        ) : null}
+      </span>
+    </>
+  );
+
   return (
     <section className="pwa-install-card" aria-labelledby="pwa-install-title">
-      <div className="pwa-install-art" aria-hidden="true">
-        <span>RPS</span>
-      </div>
-      <div className="pwa-install-copy">
-        <div className="pwa-install-heading">
-          <p className="section-kicker">NEW!</p>
-          <h3 id="pwa-install-title">Put the Society on your Home Screen</h3>
-        </div>
-        <p>Open it like an app, with the same private club account and the full current site.</p>
+      {installed ? (
+        <div className="pwa-install-overview is-installed">{overviewContent}</div>
+      ) : (
+        <button
+          className="pwa-install-overview"
+          type="button"
+          onClick={() => void handleInstallAction()}
+          disabled={installing}
+          aria-expanded={installReady ? undefined : instructionsOpen}
+          aria-controls={installReady ? undefined : 'pwa-install-guide'}
+        >
+          {overviewContent}
+        </button>
+      )}
 
-        {installed ? (
-          <p className="pwa-installed-status"><span aria-hidden="true">✓</span> Installed on this device</p>
-        ) : installReady ? (
-          <button className="pwa-install-button" type="button" onClick={() => void install()} disabled={installing}>
-            {installing ? 'Opening install…' : 'Install Society App'}
-          </button>
-        ) : platform === 'ios' ? (
+      {installed ? (
+        <p className="pwa-installed-status"><span aria-hidden="true">✓</span> Installed on this device</p>
+      ) : instructionsOpen && !installReady ? (
+        <div className="pwa-install-guide" id="pwa-install-guide" role="region" aria-label="Installation instructions">
+          <strong>
+            {platform === 'ios'
+              ? 'Install on iPhone or iPad'
+              : platform === 'android'
+                ? 'Install on Android'
+                : 'Install on this computer'}
+          </strong>
+          {platform === 'ios' ? (
           <ol className="pwa-install-steps">
-            <li>Tap the <strong>Share</strong> button in Safari.</li>
+            <li>Open this preview in <strong>Safari</strong>.</li>
+            <li>Tap the <strong>Share</strong> button.</li>
             <li>Choose <strong>Add to Home Screen</strong>, then <strong>Add</strong>.</li>
           </ol>
         ) : platform === 'android' ? (
-          <p className="pwa-install-instruction">In Chrome, open the menu and choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.</p>
+          <ol className="pwa-install-steps">
+            <li>Open this preview in <strong>Chrome</strong>.</li>
+            <li>Open the browser menu.</li>
+            <li>Choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.</li>
+          </ol>
         ) : (
-          <p className="pwa-install-instruction">Use your browser’s install icon or menu and choose <strong>Install Royal Podcast Society</strong>.</p>
+          <p className="pwa-install-instruction">Use Chrome or Edge, open the browser’s install icon or menu, and choose <strong>Install Royal Podcast Society</strong>.</p>
         )}
+        </div>
+      ) : null}
 
-        <p className="pwa-install-note">Best done while signed in. Installing adds an icon; membership still controls access.</p>
-      </div>
+      <p className="pwa-install-note">Best done while signed in. Installing adds an icon; membership still controls access.</p>
     </section>
   );
 }
