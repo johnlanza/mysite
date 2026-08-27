@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'rps-shell-';
-const CACHE_NAME = `${CACHE_PREFIX}v2`;
+const CACHE_NAME = `${CACHE_PREFIX}v3`;
 const scopeUrl = new URL(self.registration.scope);
 const scopePath = scopeUrl.pathname.replace(/\/$/, '');
 const scopedUrl = (path) => new URL(path.replace(/^\//, ''), scopeUrl).toString();
@@ -7,7 +7,8 @@ const OFFLINE_URL = scopedUrl('offline.html');
 const PRECACHE_URLS = [
   OFFLINE_URL,
   scopedUrl('icons/rps-192.png'),
-  scopedUrl('icons/rps-512.png')
+  scopedUrl('icons/rps-512.png'),
+  scopedUrl('audio/rps-mouret-rondeau-opening.mp3')
 ];
 
 self.addEventListener('install', (event) => {
@@ -48,6 +49,7 @@ self.addEventListener('fetch', (event) => {
   const safeStaticAsset =
     relativePath.startsWith('/_next/static/') ||
     relativePath.startsWith('/icons/') ||
+    relativePath.startsWith('/audio/') ||
     relativePath === '/royal-podcast-society-logo.png' ||
     relativePath === '/royal-podcast-society-logo-transparent.png';
   if (!safeStaticAsset) return;

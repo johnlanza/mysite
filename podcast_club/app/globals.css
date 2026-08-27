@@ -175,12 +175,38 @@ body {
   position: fixed;
   inset: 0;
   z-index: 60;
-  pointer-events: none;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 1.5rem;
+  color: #fff;
+  pointer-events: auto;
+  isolation: isolate;
+}
+
+.brand-intro-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 50% 35%, rgb(var(--gold-rgb) / 0.2), transparent 32%),
+    radial-gradient(circle at 18% 18%, rgb(var(--plum-rgb) / 0.18), transparent 38%),
+    radial-gradient(circle at 85% 82%, rgb(var(--blue-rgb) / 0.24), transparent 40%),
+    linear-gradient(155deg, #071a36 0%, #1c0d2a 54%, #0a2341 100%);
+  opacity: 0;
+  transition: opacity 420ms ease;
+}
+
+.brand-intro-idle::before,
+.brand-intro-enter::before,
+.brand-intro-playing::before {
+  opacity: 0.985;
 }
 
 .brand-intro-mark {
   position: absolute;
-  top: 50%;
+  top: 40%;
   left: 50%;
   width: min(82vw, 34rem);
   aspect-ratio: 1 / 1;
@@ -205,8 +231,144 @@ body {
   transform: translate(-50%, -50%) scale(1);
 }
 
+.brand-intro-playing .brand-intro-mark {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.025);
+  animation: brand-intro-glow 1.8s ease-in-out infinite alternate;
+}
+
+.brand-intro-copy {
+  position: absolute;
+  left: 50%;
+  bottom: max(2.25rem, 8vh);
+  width: min(92vw, 40rem);
+  transform: translate(-50%, 0.8rem);
+  opacity: 0;
+  text-align: center;
+  transition:
+    transform 380ms ease,
+    opacity 300ms ease;
+}
+
+.brand-intro-enter .brand-intro-copy,
+.brand-intro-playing .brand-intro-copy {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
+.brand-intro-kicker {
+  margin: 0 0 0.35rem;
+  color: #ffe5a3;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.brand-intro-copy h2 {
+  margin: 0;
+  font-family: var(--font-serif), serif;
+  font-size: clamp(1.75rem, 5vw, 2.65rem);
+  line-height: 1.06;
+}
+
+.brand-intro-copy > p:not(.brand-intro-kicker) {
+  margin: 0.45rem auto 0;
+  color: rgb(255 255 255 / 0.82);
+  font-size: 0.94rem;
+  line-height: 1.4;
+}
+
+.brand-intro-copy small {
+  display: block;
+  margin-top: 0.75rem;
+  color: rgb(255 255 255 / 0.58);
+  font-size: 0.69rem;
+  letter-spacing: 0.025em;
+}
+
+.brand-intro-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.brand-intro-actions button,
+.brand-intro-skip {
+  min-height: 2.85rem;
+  border-radius: 999px;
+  padding: 0.7rem 1.15rem;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+
+.brand-intro-actions button:hover,
+.brand-intro-skip:hover {
+  transform: translateY(-1px);
+}
+
+.brand-intro-actions button:focus-visible,
+.brand-intro-skip:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+.brand-intro-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid #ffe7a8;
+  background: #ffcf5a;
+  color: #241c00;
+  box-shadow: 0 10px 28px rgb(0 0 0 / 0.25);
+}
+
+.brand-intro-primary span {
+  font-size: 1.05rem;
+}
+
+.brand-intro-secondary,
+.brand-intro-skip {
+  border: 1px solid rgb(255 255 255 / 0.42);
+  background: rgb(255 255 255 / 0.09);
+  color: #fff;
+}
+
+.brand-intro-status {
+  font-family: var(--font-serif), serif;
+  font-size: 1.05rem !important;
+}
+
+.brand-intro-skip {
+  margin-top: 0.9rem;
+}
+
+@keyframes brand-intro-glow {
+  from {
+    filter: drop-shadow(0 20px 40px rgb(19 39 75 / 0.18));
+  }
+  to {
+    filter: drop-shadow(0 22px 58px rgb(var(--gold-rgb) / 0.3));
+  }
+}
+
 .brand-intro-settle::before {
   opacity: 0;
+}
+
+.brand-intro-settle .brand-intro-copy {
+  transform: translate(-50%, 0.75rem);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .brand-intro-settle .brand-intro-mark {
@@ -216,7 +378,37 @@ body {
 
 @media (max-width: 640px) {
   .brand-intro-mark {
+    top: 36%;
     width: min(68vw, 24rem);
+  }
+
+  .brand-intro-copy {
+    bottom: max(1.35rem, 4vh);
+  }
+
+  .brand-intro-actions {
+    flex-direction: column;
+    width: min(100%, 20rem);
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .brand-intro-actions button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-intro-overlay::before,
+  .brand-intro-mark,
+  .brand-intro-copy,
+  .brand-intro-actions button,
+  .brand-intro-skip {
+    transition-duration: 80ms;
+  }
+
+  .brand-intro-playing .brand-intro-mark {
+    animation: none;
   }
 }
 
