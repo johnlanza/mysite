@@ -391,7 +391,7 @@ export default function CarveOutsPage() {
         />
         <div className="carveout-card-head">
           <div>
-            <h3>{carveOut.title}</h3>
+            <h3 title={carveOut.title}>{carveOut.title}</h3>
           </div>
         </div>
 

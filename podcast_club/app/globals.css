@@ -2938,9 +2938,14 @@ button:disabled {
 }
 
 .carveout-card-head h3 {
+  display: -webkit-box;
   margin: 0;
   font-family: var(--font-sans), sans-serif;
   font-size: 1.05rem;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .carveout-card-head p,
