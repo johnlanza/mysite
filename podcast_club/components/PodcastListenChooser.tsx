@@ -63,7 +63,6 @@ export function PodcastListenChooser({
   const titleId = `listen-choice-${useId().replace(/:/g, '')}`;
   const provider = useMemo(() => getProvider(link), [link]);
   const submittedUrl = useMemo(() => safeWebUrl(link)?.toString() || null, [link]);
-  const submittedHostname = submittedUrl ? new URL(submittedUrl).hostname.replace(/^www\./, '') : '';
   const searchTerms = [episodeNames, title, host].filter(Boolean).join(' ');
   const spotifyUrl = provider === 'spotify' && submittedUrl
     ? submittedUrl
@@ -150,9 +149,9 @@ export function PodcastListenChooser({
         className={`podcast-listen-trigger ${className}`.trim()}
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
-        aria-label={`Choose where to listen${submittedHostname ? ` ${submittedHostname}` : ''}: ${episodeNames || title}`}
       >
         {children || <>Choose where to listen <span className="listen-trigger-chevron" aria-hidden="true" /></>}
+        <span className="sr-only"> for {episodeNames || title}</span>
       </button>
       {typeof document !== 'undefined' && dialog ? createPortal(dialog, document.body) : null}
     </>
