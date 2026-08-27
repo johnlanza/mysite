@@ -21,7 +21,7 @@
     "react-dom": "^19.2.6"
   },
   "overrides": {
-    "postcss": "8.5.15"
+    "postcss": "8.5.26"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
