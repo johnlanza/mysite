@@ -188,7 +188,7 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   background:
     radial-gradient(circle at 50% 35%, rgb(var(--gold-rgb) / 0.2), transparent 32%),
     radial-gradient(circle at 18% 18%, rgb(var(--plum-rgb) / 0.18), transparent 38%),
@@ -208,6 +208,7 @@ body {
   position: absolute;
   top: 40%;
   left: 50%;
+  z-index: 1;
   width: min(82vw, 34rem);
   aspect-ratio: 1 / 1;
   transform: translate(-50%, -50%) scale(0.88);
@@ -241,6 +242,7 @@ body {
   position: absolute;
   left: 50%;
   bottom: max(2.25rem, 8vh);
+  z-index: 1;
   width: min(92vw, 40rem);
   transform: translate(-50%, 0.8rem);
   opacity: 0;
