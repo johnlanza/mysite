@@ -21,12 +21,13 @@ function getIntroLayout() {
   if (typeof window === 'undefined') return { width: 0, centerY: 0 };
   const rootFontSize = Number.parseFloat(window.getComputedStyle(document.documentElement).fontSize) || 16;
   const mobile = window.matchMedia('(max-width: 640px)').matches;
+  const compactLandscape = window.matchMedia('(max-height: 500px) and (orientation: landscape)').matches;
   return {
     width: Math.min(
-      window.innerWidth * (mobile ? 0.68 : 0.82),
-      rootFontSize * (mobile ? INTRO_MAX_WIDTH_REM_MOBILE : INTRO_MAX_WIDTH_REM)
+      window.innerWidth * (compactLandscape ? 0.42 : mobile ? 0.68 : 0.82),
+      rootFontSize * (compactLandscape ? 18 : mobile ? INTRO_MAX_WIDTH_REM_MOBILE : INTRO_MAX_WIDTH_REM)
     ),
-    centerY: window.innerHeight * (mobile ? 0.36 : 0.4)
+    centerY: window.innerHeight * (compactLandscape ? 0.5 : mobile ? 0.36 : 0.4)
   };
 }
 

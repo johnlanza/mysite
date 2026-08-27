@@ -401,6 +401,73 @@ body {
   }
 }
 
+@media (max-height: 500px) and (orientation: landscape) {
+  .brand-intro-overlay {
+    padding:
+      max(0.65rem, env(safe-area-inset-top))
+      max(1rem, env(safe-area-inset-right))
+      max(0.65rem, env(safe-area-inset-bottom))
+      max(1rem, env(safe-area-inset-left));
+  }
+
+  .brand-intro-mark {
+    top: 50%;
+    left: 25%;
+    width: min(42vw, 18rem);
+  }
+
+  .brand-intro-copy {
+    top: 50%;
+    bottom: auto;
+    left: 70%;
+    width: min(52vw, 30rem);
+    transform: translate(-50%, calc(-50% + 0.5rem));
+  }
+
+  .brand-intro-enter .brand-intro-copy,
+  .brand-intro-playing .brand-intro-copy {
+    transform: translate(-50%, -50%);
+  }
+
+  .brand-intro-kicker {
+    margin-bottom: 0.2rem;
+    font-size: 0.62rem;
+  }
+
+  .brand-intro-copy h2 {
+    font-size: clamp(1.35rem, 3.2vw, 2rem);
+  }
+
+  .brand-intro-copy > p:not(.brand-intro-kicker) {
+    margin-top: 0.25rem;
+    font-size: 0.78rem;
+  }
+
+  .brand-intro-actions {
+    flex-direction: row;
+    width: auto;
+    gap: 0.4rem;
+    margin-top: 0.55rem;
+  }
+
+  .brand-intro-actions button,
+  .brand-intro-skip {
+    width: auto;
+    min-height: 2.4rem;
+    padding: 0.48rem 0.8rem;
+    font-size: 0.75rem;
+  }
+
+  .brand-intro-copy small {
+    margin-top: 0.4rem;
+    font-size: 0.6rem;
+  }
+
+  .brand-intro-settle .brand-intro-copy {
+    transform: translate(-50%, calc(-50% + 0.5rem));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .brand-intro-overlay::before,
   .brand-intro-mark,
