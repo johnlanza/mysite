@@ -4,11 +4,18 @@ import { CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { withBasePath } from '@/lib/base-path';
 
-const INTRO_STORAGE_KEY = 'royal-podcast-society-brand-intro-v3';
+const INTRO_STORAGE_KEY = 'royal-podcast-society-brand-intro-v4';
 const INTRO_MAX_WIDTH_REM = 34;
 const INTRO_MAX_WIDTH_REM_MOBILE = 24;
 
 type Phase = 'idle' | 'enter' | 'playing' | 'settle' | 'done';
+type LaunchState = 'choice' | 'attempting' | 'blocked';
+
+function isStandaloneApp() {
+  if (typeof window === 'undefined') return false;
+  const standaloneNavigator = window.navigator as Navigator & { standalone?: boolean };
+  return window.matchMedia('(display-mode: standalone)').matches || standaloneNavigator.standalone === true;
+}
 
 function getIntroLayout() {
   if (typeof window === 'undefined') return { width: 0, centerY: 0 };
@@ -25,6 +32,7 @@ function getIntroLayout() {
 
 export function BrandIntro() {
   const [phase, setPhase] = useState<Phase>('idle');
+  const [launchState, setLaunchState] = useState<LaunchState>('choice');
   const [settleTransform, setSettleTransform] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const primaryActionRef = useRef<HTMLButtonElement>(null);
@@ -54,10 +62,29 @@ export function BrandIntro() {
       }
     }
 
-    const enterTimer = window.setTimeout(() => setPhase('enter'), 40);
+    let disposed = false;
     const audio = audioRef.current;
+    const enterTimer = window.setTimeout(() => {
+      setPhase('enter');
+      if (!isStandaloneApp()) return;
+
+      setLaunchState('attempting');
+      if (!audio) {
+        setLaunchState('blocked');
+        return;
+      }
+
+      audio.currentTime = 0;
+      audio.volume = 0.72;
+      void audio.play().then(() => {
+        if (!disposed) setPhase('playing');
+      }).catch(() => {
+        if (!disposed) setLaunchState('blocked');
+      });
+    }, 40);
 
     return () => {
+      disposed = true;
       window.clearTimeout(enterTimer);
       if (doneTimerRef.current !== null) window.clearTimeout(doneTimerRef.current);
       audio?.pause();
@@ -65,9 +92,9 @@ export function BrandIntro() {
   }, []);
 
   useEffect(() => {
-    if (phase !== 'enter') return;
+    if (phase !== 'enter' || launchState === 'attempting') return;
     primaryActionRef.current?.focus({ preventScroll: true });
-  }, [phase]);
+  }, [launchState, phase]);
 
   const finishIntro = useCallback((stopAudio = true) => {
     if (stopAudio && audioRef.current) {
@@ -93,7 +120,7 @@ export function BrandIntro() {
       await audio.play();
       setPhase('playing');
     } catch {
-      finishIntro();
+      setLaunchState('blocked');
     }
   };
 
@@ -142,16 +169,30 @@ export function BrandIntro() {
           </>
         ) : (
           <>
-            <p id="brand-intro-description">Begin with Mouret’s 1729 <em>Rondeau</em> or enter quietly.</p>
-            <div className="brand-intro-actions">
-              <button ref={primaryActionRef} className="brand-intro-primary" type="button" onClick={() => void enterWithMusic()}>
-                <span aria-hidden="true">♪</span>
-                Enter with music
-              </button>
+            <p id="brand-intro-description" aria-live="polite">
+              {launchState === 'attempting' ? (
+                'Opening with music…'
+              ) : launchState === 'blocked' ? (
+                'Your phone needs one tap before a web app can make sound.'
+              ) : (
+                <>Begin with Mouret’s 1729 <em>Rondeau</em> or enter quietly.</>
+              )}
+            </p>
+            {launchState === 'attempting' ? (
               <button className="brand-intro-secondary" type="button" onClick={() => finishIntro()}>
                 Enter quietly
               </button>
-            </div>
+            ) : (
+              <div className="brand-intro-actions">
+                <button ref={primaryActionRef} className="brand-intro-primary" type="button" onClick={() => void enterWithMusic()}>
+                  <span aria-hidden="true">♪</span>
+                  {launchState === 'blocked' ? 'Tap for opening music' : 'Enter with music'}
+                </button>
+                <button className="brand-intro-secondary" type="button" onClick={() => finishIntro()}>
+                  Enter quietly
+                </button>
+              </div>
+            )}
           </>
         )}
         <small>New Royal Podcast Society performance · Jean-Joseph Mouret</small>
