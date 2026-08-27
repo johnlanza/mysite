@@ -190,7 +190,7 @@ body {
   inset: 0;
   z-index: 0;
   background-color: #0b1732;
-  background:
+  background-image:
     radial-gradient(circle at 50% 35%, rgb(var(--gold-rgb) / 0.2), transparent 32%),
     radial-gradient(circle at 18% 18%, rgb(var(--plum-rgb) / 0.18), transparent 38%),
     radial-gradient(circle at 85% 82%, rgb(var(--blue-rgb) / 0.24), transparent 40%),
