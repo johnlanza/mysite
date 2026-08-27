@@ -152,6 +152,7 @@ export function BrandIntro() {
           alt=""
           width={1254}
           height={1254}
+          sizes="(max-width: 720px) 82vw, 34rem"
           priority
           fetchPriority="high"
           style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}

@@ -115,6 +115,7 @@ export default function RootLayout({
                   alt=""
                   width={1254}
                   height={1254}
+                  sizes="(max-width: 720px) 4rem, 4.5rem"
                   priority
                 />
               </div>
