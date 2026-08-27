@@ -1,8 +1,9 @@
 const CACHE_PREFIX = 'rps-shell-';
-const CACHE_NAME = `${CACHE_PREFIX}v3`;
+const CACHE_NAME = `${CACHE_PREFIX}v4`;
 const scopeUrl = new URL(self.registration.scope);
 const scopePath = scopeUrl.pathname.replace(/\/$/, '');
-const scopedUrl = (path) => new URL(path.replace(/^\//, ''), scopeUrl).toString();
+const scopeRootUrl = new URL(`${scopePath}/`, scopeUrl.origin);
+const scopedUrl = (path) => new URL(path.replace(/^\//, ''), scopeRootUrl).toString();
 const OFFLINE_URL = scopedUrl('offline.html');
 const PRECACHE_URLS = [
   OFFLINE_URL,

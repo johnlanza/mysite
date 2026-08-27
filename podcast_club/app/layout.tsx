@@ -26,6 +26,7 @@ export const metadata: Metadata = {
     title: 'Podcast Society'
   },
   icons: {
+    icon: [{ url: withBasePath('/icons/rps-192.png'), sizes: '192x192', type: 'image/png' }],
     apple: [{ url: withBasePath('/icons/rps-apple-touch.png'), sizes: '180x180', type: 'image/png' }]
   }
 };

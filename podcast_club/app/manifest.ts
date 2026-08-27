@@ -2,13 +2,15 @@ import type { MetadataRoute } from 'next';
 import { withBasePath } from '@/lib/base-path';
 
 export default function manifest(): MetadataRoute.Manifest {
+  const appRoot = withBasePath('');
+
   return {
-    id: withBasePath('/'),
+    id: appRoot,
     name: 'Royal Podcast Society',
     short_name: 'Podcast Society',
     description: 'The private home for Royal Podcast Society listening, voting, and meetings.',
-    start_url: withBasePath('/'),
-    scope: withBasePath('/'),
+    start_url: appRoot,
+    scope: appRoot,
     display: 'standalone',
     background_color: '#071a36',
     theme_color: '#071a36',

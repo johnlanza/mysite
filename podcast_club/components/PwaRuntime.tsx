@@ -50,8 +50,9 @@ export function PwaRuntime() {
 
     const registerWorker = async () => {
       try {
+        const appScope = withBasePath('');
         const registration = await navigator.serviceWorker.register(withBasePath('/sw.js'), {
-          scope: withBasePath('/')
+          scope: appScope
         });
         if (disposed) return;
         if (registration.waiting && navigator.serviceWorker.controller) setUpdateReady(true);
@@ -93,7 +94,7 @@ export function PwaRuntime() {
   }, []);
 
   const applyUpdate = async () => {
-    const registration = await navigator.serviceWorker.getRegistration(withBasePath('/'));
+    const registration = await navigator.serviceWorker.getRegistration(withBasePath(''));
     if (!registration?.waiting) {
       window.location.reload();
       return;

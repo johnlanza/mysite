@@ -12,6 +12,19 @@ const rootDir = path.dirname(fileURLToPath(import.meta.url));
 const nextConfig = {
   ...(basePath ? { basePath } : {}),
   typedRoutes: true,
+  async headers() {
+    return [
+      {
+        source: '/sw.js',
+        headers: [
+          {
+            key: 'Service-Worker-Allowed',
+            value: basePath || '/'
+          }
+        ]
+      }
+    ];
+  },
   turbopack: {
     root: rootDir
   }
