@@ -153,6 +153,7 @@ export function BrandIntro() {
           width={1254}
           height={1254}
           priority
+          fetchPriority="high"
           style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
         />
       </div>
