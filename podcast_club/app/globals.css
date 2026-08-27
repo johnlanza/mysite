@@ -6928,6 +6928,12 @@ body {
   color: var(--ink-soft) !important;
 }
 
+.public-home .public-secondary-action {
+  border-color: rgb(var(--home-rgb) / 0.42) !important;
+  background: rgb(var(--home-rgb) / 0.1);
+  color: var(--ink) !important;
+}
+
 .page-intro-panel {
   display: flex;
   align-items: center;
