@@ -17,6 +17,15 @@ type SendEmailParams = {
   to: string;
   subject: string;
   html: string;
+  scheduledAt?: string;
+  idempotencyKey?: string;
+};
+
+type SendMemberAppAnnouncementEmailParams = {
+  to: string;
+  recipientName: string;
+  scheduledAt: string;
+  idempotencyKey: string;
 };
 
 type PodcastEmailDetails = {
@@ -82,7 +91,13 @@ export function isEmailLoginConfigured() {
   }
 }
 
-async function sendEmail({ to, subject, html }: SendEmailParams) {
+async function sendEmail({
+  to,
+  subject,
+  html,
+  scheduledAt,
+  idempotencyKey
+}: SendEmailParams) {
   if (isReadOnlyPreview()) {
     return { delivered: false as const, reason: 'preview-read-only' as const };
   }
@@ -98,13 +113,15 @@ async function sendEmail({ to, subject, html }: SendEmailParams) {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${resendApiKey}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      ...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {})
     },
     body: JSON.stringify({
       from,
       to: [to],
       subject,
-      html
+      html,
+      ...(scheduledAt ? { scheduled_at: scheduledAt } : {})
     })
   });
 
@@ -113,7 +130,8 @@ async function sendEmail({ to, subject, html }: SendEmailParams) {
     throw new Error(`Email provider failed: ${response.status} ${payload}`);
   }
 
-  return { delivered: true as const };
+  const payload = (await response.json()) as { id?: string };
+  return { delivered: true as const, emailId: payload.id || null };
 }
 
 export function buildPasswordResetUrl(token: string) {
@@ -206,6 +224,30 @@ export async function sendWeeklyReviewReminderEmail({
       `<p>${podcasts.length === 1 ? 'This podcast is' : 'These podcasts are'} still waiting for your review:</p>`,
       `<ul>${podcastItems}</ul>`,
       `<p><a href="${escapeHtml(`${getBaseUrl()}/podcasts`)}">Review your pending podcasts</a></p>`
+    ].join('')
+  });
+}
+
+export async function sendMemberAppAnnouncementEmail({
+  to,
+  recipientName,
+  scheduledAt,
+  idempotencyKey
+}: SendMemberAppAnnouncementEmailParams) {
+  const appUrl = getBaseUrl();
+  const moreUrl = `${appUrl}/more`;
+
+  return sendEmail({
+    to,
+    scheduledAt,
+    idempotencyKey,
+    subject: 'The Royal Podcast Society is now a web app',
+    html: [
+      `<p>Hi ${escapeHtml(recipientName || 'there')},</p>`,
+      '<p><strong>The Royal Podcast Society is now a web app you can install on your phone—complete with our new theme music, per Steve’s request.</strong> 👑🎧</p>',
+      `<p>To add it to your phone, visit <a href="${escapeHtml(appUrl)}">${escapeHtml(appUrl)}</a> while signed in, open <strong>More</strong>, and tap <strong>NEW! Put the Society on Your Home Screen</strong>. Choose <strong>Show me how</strong> or <strong>Install Society App</strong> for instructions tailored to your iPhone or Android.</p>`,
+      `<p><a href="${escapeHtml(moreUrl)}" style="display:inline-block;padding:12px 18px;border-radius:10px;background:#2f2d2e;color:#fff;text-decoration:none;font-weight:700">Open the Royal Podcast Society</a></p>`,
+      '<p>And a reminder to explore the recently added Discovery BETA and your Society Portrait. Be sure to open the full portrait—the detailed AI-written profile is the funny part.</p>'
     ].join('')
   });
 }
