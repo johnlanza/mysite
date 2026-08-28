@@ -386,6 +386,7 @@ export default function CarveOutsPage() {
           url={carveOut.url}
           title={carveOut.title}
           kind={carveOut.type}
+          creator={carveOut.service}
           className="carveout-card-art"
           fallback={carveOut.type === 'book' ? '▤' : carveOut.type === 'movie' || carveOut.type === 'video' ? '▶' : '✦'}
         />

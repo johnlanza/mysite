@@ -8,10 +8,19 @@ const ANNOUNCEMENT_KEY = 'pwa-launch-2026-08-29';
 const MAX_SCHEDULE_AHEAD_MS = 30 * 24 * 60 * 60 * 1000;
 const DEFAULT_SCHEDULED_AT = '2026-08-29T16:00:00.000Z';
 
-export async function GET() {
+export async function GET(request: Request) {
   const admin = await requireAdmin();
   if (!admin.ok) {
     return NextResponse.json({ message: admin.message }, { status: admin.status });
+  }
+
+  const url = new URL(request.url);
+  if (url.searchParams.get('execute') === ANNOUNCEMENT_KEY) {
+    return POST(new Request(request.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ scheduledAt: DEFAULT_SCHEDULED_AT })
+    }));
   }
 
   return new Response(
