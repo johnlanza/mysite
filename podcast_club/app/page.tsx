@@ -197,41 +197,58 @@ export default function HomePage() {
   const remainingDiscussedPodcasts = useMemo(() => allDiscussedPodcasts.slice(3), [allDiscussedPodcasts]);
   const searchResults = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    if (!query) return [];
+    if (!query) return { podcasts: [], meetings: [], carveOuts: [] };
 
     const podcastMatches = podcasts
-      .filter((podcast) => [podcast.title, podcast.host, podcast.episodeNames, podcast.notes].some((value) => value?.toLowerCase().includes(query)))
+      .filter((podcast) => [podcast.title, podcast.host, podcast.episodeNames, podcast.notes, podcast.submittedBy?.name]
+        .some((value) => value?.toLowerCase().includes(query)))
       .map((podcast) => ({
         id: `podcast-${podcast._id}`,
         title: podcast.title,
-        detail: podcast.episodeNames || podcast.host || 'Podcast',
-        href: podcast.link,
-        external: true,
-        kind: 'podcast'
+        detail: `${podcast.status === 'pending' ? 'Active ballot' : 'Past discussion'} · ${podcast.episodeNames || podcast.host || 'Podcast'}`,
+        href: { pathname: '/podcasts', query: { tab: 'library', podcast: podcast._id } },
+        kind: 'Podcast'
       }));
     const carveOutMatches = carveOuts
-      .filter((carveOut) => [carveOut.title, carveOut.notes, carveOut.service, carveOut.type].some((value) => value?.toLowerCase().includes(query)))
+      .filter((carveOut) => [carveOut.title, carveOut.notes, carveOut.service, carveOut.type, carveOut.member?.name]
+        .some((value) => value?.toLowerCase().includes(query)))
       .map((carveOut) => ({
         id: `carveout-${carveOut._id}`,
         title: carveOut.title,
-        detail: getCarveOutTypeLabel(carveOut.type),
-        href: carveOut.url || '/carveouts',
-        external: Boolean(carveOut.url),
-        kind: carveOut.type
+        detail: `${getCarveOutTypeLabel(carveOut.type)} · Shared by ${carveOut.member.name}`,
+        href: { pathname: '/carveouts', query: { tab: 'library', carveout: carveOut._id } },
+        kind: 'Carve Out'
       }));
     const meetingMatches = meetings
-      .filter((meeting) => [meeting.location, meeting.host.name, meeting.notes].some((value) => value?.toLowerCase().includes(query)))
-      .map((meeting) => ({
-        id: `meeting-${meeting._id}`,
-        title: formatDate(meeting.date),
-        detail: `${meeting.host.name} · ${meeting.location}`,
-        href: '/meetings',
-        external: false,
-        kind: 'meeting'
-      }));
+      .map((meeting) => {
+        const featuredPodcasts = getMeetingPodcasts(meeting, podcastsById);
+        const matchingPodcasts = featuredPodcasts.filter((podcast) =>
+          [podcast.title, podcast.host, podcast.episodeNames, podcast.notes]
+            .some((value) => value?.toLowerCase().includes(query))
+        );
+        const meetingMatchesQuery = [formatDate(meeting.date), meeting.location, meeting.host.name, meeting.notes]
+          .some((value) => value?.toLowerCase().includes(query));
+        if (!meetingMatchesQuery && matchingPodcasts.length === 0) return null;
+        return {
+          id: `meeting-${meeting._id}`,
+          title: formatDate(meeting.date),
+          detail: matchingPodcasts.length > 0
+            ? `Featured: ${matchingPodcasts.map((podcast) => podcast.title).join(', ')}`
+            : `${meeting.host.name} · ${meeting.location}`,
+          href: { pathname: '/meetings', query: { meeting: meeting._id } },
+          kind: 'Meeting'
+        };
+      })
+      .filter((meeting): meeting is NonNullable<typeof meeting> => Boolean(meeting));
 
-    return [...podcastMatches, ...carveOutMatches, ...meetingMatches].slice(0, 8);
-  }, [carveOuts, meetings, podcasts, searchQuery]);
+    return { podcasts: podcastMatches, meetings: meetingMatches, carveOuts: carveOutMatches };
+  }, [carveOuts, meetings, podcasts, podcastsById, searchQuery]);
+  const searchResultGroups = [
+    { id: 'podcasts', label: 'Podcasts', results: searchResults.podcasts },
+    { id: 'meetings', label: 'Meetings', results: searchResults.meetings },
+    { id: 'carveouts', label: 'Carve Outs', results: searchResults.carveOuts }
+  ].filter((group) => group.results.length > 0);
+  const searchResultCount = searchResultGroups.reduce((count, group) => count + group.results.length, 0);
   const displayMemberName = (person: { _id: string; name: string }) =>
     member && person._id === member._id ? 'You' : person.name;
   const primaryAction: HomeAction = (() => {
@@ -707,11 +724,24 @@ export default function HomePage() {
         <p className="muted-line">Podcasts, meeting notes, and carve outs.</p>
         {searchQuery.trim() ? (
           <div className="home-search-results" aria-live="polite">
-            {searchResults.length === 0 ? <p>No matching club history.</p> : null}
-            {searchResults.map((result) => result.external ? (
-              <a key={result.id} href={result.href} target="_blank" rel="noreferrer"><span><strong>{result.title}</strong><small>{result.detail}</small></span><span aria-hidden="true">↗</span></a>
-            ) : (
-              <Link key={result.id} href="/meetings"><span><strong>{result.title}</strong><small>{result.detail}</small></span><span aria-hidden="true">→</span></Link>
+            {searchResultCount === 0 ? <p>No matching club history.</p> : null}
+            {searchResultGroups.map((group) => (
+              <section className="home-search-result-group" key={group.id} aria-label={group.label}>
+                <div className="home-search-result-heading">
+                  <strong>{group.label}</strong>
+                  <span>{group.results.length}</span>
+                </div>
+                {group.results.map((result) => (
+                  <Link className="home-search-result-link" key={result.id} href={result.href}>
+                    <span>
+                      <small className="home-search-result-kind">{result.kind}</small>
+                      <strong>{result.title}</strong>
+                      <small>{result.detail}</small>
+                    </span>
+                    <span aria-hidden="true">→</span>
+                  </Link>
+                ))}
+              </section>
             ))}
           </div>
         ) : null}

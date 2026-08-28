@@ -56,6 +56,7 @@ export default function CarveOutsPage() {
   const [carveOutFilter, setCarveOutFilter] = useState('all');
   const [carveOutLimit, setCarveOutLimit] = useState(12);
   const [activeTab, setActiveTab] = useState<CarveOutTab>('library');
+  const [targetCarveOutId, setTargetCarveOutId] = useState<string | null>(null);
 
   async function loadPageData() {
     const meRes = await fetch(withBasePath('/api/auth/me'), { cache: 'no-store' });
@@ -90,9 +91,15 @@ export default function CarveOutsPage() {
   }, []);
 
   useEffect(() => {
-    const requestedTab = new URLSearchParams(window.location.search).get('tab') as CarveOutTab | null;
+    const params = new URLSearchParams(window.location.search);
+    const requestedTab = params.get('tab') as CarveOutTab | null;
     if (requestedTab && CARVE_OUT_TABS.has(requestedTab)) {
       setActiveTab(requestedTab);
+    }
+    const requestedCarveOut = params.get('carveout');
+    if (requestedCarveOut) {
+      setTargetCarveOutId(requestedCarveOut);
+      setActiveTab('library');
     }
   }, []);
 
@@ -111,6 +118,22 @@ export default function CarveOutsPage() {
   );
   const displayedCarveOuts = useMemo(() => filteredCarveOuts.slice(0, carveOutLimit), [carveOutLimit, filteredCarveOuts]);
   const remainingCarveOuts = Math.max(0, filteredCarveOuts.length - displayedCarveOuts.length);
+  useEffect(() => {
+    if (!targetCarveOutId || visibleCarveOuts.length === 0) return;
+    const targetIndex = visibleCarveOuts.findIndex((carveOut) => carveOut._id === targetCarveOutId);
+    if (targetIndex < 0) return;
+
+    setActiveTab('library');
+    setCarveOutFilter('all');
+    setCarveOutLimit((current) => Math.max(current, targetIndex + 1));
+
+    const timer = window.setTimeout(() => {
+      const target = document.getElementById(`carveout-${targetCarveOutId}`);
+      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target?.focus({ preventScroll: true });
+    }, 120);
+    return () => window.clearTimeout(timer);
+  }, [activeTab, carveOutFilter, carveOutLimit, targetCarveOutId, visibleCarveOuts]);
   const displayMemberName = (person: { _id: string; name: string }) =>
     member && person._id === member._id ? 'You' : person.name;
   const canManageCarveOut = (carveOut: CarveOut) =>
@@ -381,7 +404,13 @@ export default function CarveOutsPage() {
 
   function renderCarveOutCard(carveOut: CarveOut) {
     return (
-      <article className="carveout-library-card" key={carveOut._id}>
+      <article
+        id={`carveout-${carveOut._id}`}
+        className={`carveout-library-card${targetCarveOutId === carveOut._id ? ' history-search-target' : ''}`}
+        key={carveOut._id}
+        tabIndex={targetCarveOutId === carveOut._id ? -1 : undefined}
+      >
+        {targetCarveOutId === carveOut._id ? <span className="history-search-arrival">Found in club history</span> : null}
         <MediaArtwork
           url={carveOut.url}
           title={carveOut.title}

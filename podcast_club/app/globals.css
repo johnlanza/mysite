@@ -7558,10 +7558,40 @@ body {
 
 .home-search-results {
   display: grid;
+  gap: 0.85rem;
+}
+
+.home-search-result-group {
+  display: grid;
   gap: 0.45rem;
 }
 
-.home-search-results > a {
+.home-search-result-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0 0.2rem;
+}
+
+.home-search-result-heading strong {
+  font-family: var(--font-serif), serif;
+  font-size: 0.94rem;
+}
+
+.home-search-result-heading span {
+  display: inline-grid;
+  min-width: 1.6rem;
+  min-height: 1.6rem;
+  place-items: center;
+  border-radius: 999px;
+  background: rgb(var(--blue-rgb) / 0.1);
+  color: var(--ink-soft);
+  font-size: 0.74rem;
+  font-weight: 850;
+}
+
+.home-search-result-link {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -7574,7 +7604,12 @@ body {
   text-decoration: none;
 }
 
-.home-search-results > a > span:first-child {
+.home-search-result-link:hover {
+  border-color: rgb(var(--blue-rgb) / 0.28);
+  transform: translateY(-1px);
+}
+
+.home-search-result-link > span:first-child {
   display: grid;
   gap: 0.1rem;
   min-width: 0;
@@ -7582,6 +7617,51 @@ body {
 
 .home-search-results small {
   color: var(--ink-soft);
+}
+
+.home-search-result-kind {
+  color: var(--accent-strong) !important;
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.podcasts-page {
+  --history-search-accent: var(--nav-podcasts);
+}
+
+.meetings-page {
+  --history-search-accent: var(--nav-meetings);
+}
+
+.carveouts-page {
+  --history-search-accent: var(--nav-carveouts);
+}
+
+.history-search-target {
+  scroll-margin-top: 6.5rem;
+  outline: 3px solid color-mix(in srgb, var(--history-search-accent, var(--accent)) 68%, white);
+  outline-offset: 3px;
+}
+
+.history-search-target:focus {
+  outline: 3px solid color-mix(in srgb, var(--history-search-accent, var(--accent)) 78%, white);
+}
+
+.history-search-arrival {
+  display: inline-flex;
+  justify-self: start;
+  width: fit-content;
+  margin-bottom: 0.2rem;
+  padding: 0.24rem 0.58rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--history-search-accent, var(--accent)) 18%, white);
+  color: color-mix(in srgb, var(--history-search-accent, var(--accent)) 62%, #172033);
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .home-preview-grid {

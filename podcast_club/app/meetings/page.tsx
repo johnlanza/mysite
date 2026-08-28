@@ -86,6 +86,7 @@ export default function MeetingsPage() {
   const [deleteModalMeeting, setDeleteModalMeeting] = useState<Meeting | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [activeTab, setActiveTab] = useState<MeetingTab>('next');
+  const [targetMeetingId, setTargetMeetingId] = useState<string | null>(null);
   const [podcastPickerOpen, setPodcastPickerOpen] = useState(false);
   const dateInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -132,6 +133,11 @@ export default function MeetingsPage() {
     void loadPageData();
   }, []);
 
+  useEffect(() => {
+    const requestedMeeting = new URLSearchParams(window.location.search).get('meeting');
+    if (requestedMeeting) setTargetMeetingId(requestedMeeting);
+  }, []);
+
   const nextMeeting = useMemo(() => {
     return meetings
       .filter((meeting) => !isCompletedMeeting(meeting))
@@ -171,6 +177,22 @@ export default function MeetingsPage() {
       ? 'Host address'
       : 'Custom'
     : '';
+
+  useEffect(() => {
+    if (!targetMeetingId || meetings.length === 0) return;
+    const targetMeeting = meetings.find((meeting) => meeting._id === targetMeetingId);
+    if (!targetMeeting) return;
+    const isNextMeeting = targetMeeting._id === nextMeeting?._id;
+    setActiveTab(isNextMeeting ? 'next' : 'history');
+    if (!isNextMeeting) setShowAllPastMeetings(true);
+
+    const timer = window.setTimeout(() => {
+      const target = document.getElementById(`meeting-${targetMeetingId}`);
+      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target?.focus({ preventScroll: true });
+    }, 120);
+    return () => window.clearTimeout(timer);
+  }, [activeTab, meetings, nextMeeting, showAllPastMeetings, targetMeetingId]);
 
   function resetFormToCreate() {
     setEditingMeetingId(null);
@@ -479,9 +501,14 @@ export default function MeetingsPage() {
       </div>
 
       {activeTab === 'next' ? (
-        <div className="section-panel meeting-hero-panel">
+        <div
+          id={nextMeeting ? `meeting-${nextMeeting._id}` : undefined}
+          className={`section-panel meeting-hero-panel${nextMeeting && targetMeetingId === nextMeeting._id ? ' history-search-target' : ''}`}
+          tabIndex={nextMeeting && targetMeetingId === nextMeeting._id ? -1 : undefined}
+        >
           {nextMeeting ? (
             <>
+              {targetMeetingId === nextMeeting._id ? <span className="history-search-arrival">Found in club history</span> : null}
               <div className="hero-heading-row">
                 <div>
                   <p className="section-kicker">Next Meeting</p>
@@ -736,7 +763,13 @@ export default function MeetingsPage() {
           <div className="meeting-history-list">
             {recentPastMeetings.length === 0 ? <p>No past meetings yet.</p> : null}
             {(showAllPastMeetings ? pastMeetings : recentPastMeetings).map((meeting) => (
-              <div className="meeting-history-card" key={meeting._id}>
+              <div
+                id={`meeting-${meeting._id}`}
+                className={`meeting-history-card${targetMeetingId === meeting._id ? ' history-search-target' : ''}`}
+                key={meeting._id}
+                tabIndex={targetMeetingId === meeting._id ? -1 : undefined}
+              >
+                {targetMeetingId === meeting._id ? <span className="history-search-arrival">Found in club history</span> : null}
                 <div className="library-podcast-head">
                   <h3>{formatDate(meeting.date)}</h3>
                   <div className="podcast-meta-row">
@@ -746,7 +779,7 @@ export default function MeetingsPage() {
                 </div>
                 {renderMeetingMeta(meeting)}
                 {renderMeetingLocation(meeting)}
-                <details className="podcast-details">
+                <details className="podcast-details" open={targetMeetingId === meeting._id || undefined}>
                   <summary>Podcasts and notes</summary>
                   <div className="podcast-details-body">
                     <div className="podcast-detail-stack">

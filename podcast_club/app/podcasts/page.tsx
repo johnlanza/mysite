@@ -96,6 +96,7 @@ export default function PodcastsPage() {
   const [showAllPodcastsToDiscuss, setShowAllPodcastsToDiscuss] = useState(false);
   const [showAllDiscussed, setShowAllDiscussed] = useState(false);
   const [activeTab, setActiveTab] = useState<PodcastTab>('rank');
+  const [targetPodcastId, setTargetPodcastId] = useState<string | null>(null);
   const ratingFadeTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const ratingRemoveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const ratingToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -154,9 +155,15 @@ export default function PodcastsPage() {
   }, []);
 
   useEffect(() => {
-    const requestedTab = new URLSearchParams(window.location.search).get('tab') as PodcastTab | null;
+    const params = new URLSearchParams(window.location.search);
+    const requestedTab = params.get('tab') as PodcastTab | null;
     if (requestedTab && PODCAST_TABS.has(requestedTab)) {
       setActiveTab(requestedTab);
+    }
+    const requestedPodcast = params.get('podcast');
+    if (requestedPodcast) {
+      setTargetPodcastId(requestedPodcast);
+      setActiveTab('library');
     }
   }, []);
 
@@ -376,6 +383,22 @@ export default function PodcastsPage() {
   }, [pending]);
   const recentPodcastsToDiscuss = useMemo(() => podcastsToDiscuss.slice(0, 3), [podcastsToDiscuss]);
   const recentDiscussed = useMemo(() => discussed.slice(0, 3), [discussed]);
+  useEffect(() => {
+    if (!targetPodcastId || podcasts.length === 0) return;
+    const targetPodcast = podcasts.find((podcast) => podcast._id === targetPodcastId);
+    if (!targetPodcast) return;
+
+    setActiveTab('library');
+    if (targetPodcast.status === 'pending') setShowAllPodcastsToDiscuss(true);
+    if (targetPodcast.status === 'discussed') setShowAllDiscussed(true);
+
+    const timer = window.setTimeout(() => {
+      const target = document.getElementById(`podcast-${targetPodcastId}`);
+      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target?.focus({ preventScroll: true });
+    }, 120);
+    return () => window.clearTimeout(timer);
+  }, [activeTab, podcasts, showAllDiscussed, showAllPodcastsToDiscuss, targetPodcastId]);
   const displayMemberName = (person: { _id: string; name: string }) =>
     member && person._id === member._id ? 'You' : person.name;
   const annotateSelfInList = (name: string) =>
@@ -751,7 +774,13 @@ export default function PodcastsPage() {
             <div className="library-list">
               {recentPodcastsToDiscuss.length === 0 ? <p>No podcasts are on the active ballot right now.</p> : null}
               {(showAllPodcastsToDiscuss ? podcastsToDiscuss : recentPodcastsToDiscuss).map((podcast, index) => (
-                <div className="library-podcast-row" key={`ranked-${podcast._id}`}>
+                <div
+                  id={`podcast-${podcast._id}`}
+                  className={`library-podcast-row${targetPodcastId === podcast._id ? ' history-search-target' : ''}`}
+                  key={`ranked-${podcast._id}`}
+                  tabIndex={targetPodcastId === podcast._id ? -1 : undefined}
+                >
+                  {targetPodcastId === podcast._id ? <span className="history-search-arrival">Found in club history</span> : null}
                   <div className="library-podcast-head podcast-with-art">
                     <MediaArtwork
                       url={podcast.link}
@@ -802,7 +831,13 @@ export default function PodcastsPage() {
             <div className="library-list">
               {discussed.length === 0 ? <p>No previously discussed podcasts.</p> : null}
               {(showAllDiscussed ? discussed : recentDiscussed).map((podcast) => (
-                <div className="library-podcast-row" key={`discussed-${podcast._id}`}>
+                <div
+                  id={`podcast-${podcast._id}`}
+                  className={`library-podcast-row${targetPodcastId === podcast._id ? ' history-search-target' : ''}`}
+                  key={`discussed-${podcast._id}`}
+                  tabIndex={targetPodcastId === podcast._id ? -1 : undefined}
+                >
+                  {targetPodcastId === podcast._id ? <span className="history-search-arrival">Found in club history</span> : null}
                   <div className="library-podcast-head podcast-with-art">
                     <MediaArtwork
                       url={podcast.link}
