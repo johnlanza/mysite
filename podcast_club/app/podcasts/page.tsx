@@ -99,6 +99,20 @@ export default function PodcastsPage() {
   const ratingFadeTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const ratingRemoveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const ratingToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const libraryHeadingRef = useRef<HTMLHeadingElement | null>(null);
+
+  function browseLibrary() {
+    setActiveTab('library');
+    window.requestAnimationFrame(() => {
+      const heading = libraryHeadingRef.current;
+      if (!heading) return;
+      heading.focus({ preventScroll: true });
+      heading.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'start'
+      });
+    });
+  }
 
   function clearRatingTimers(podcastId: string) {
     const fadeTimer = ratingFadeTimers.current[podcastId];
@@ -594,7 +608,7 @@ export default function PodcastsPage() {
                 <h3>Ranking complete</h3>
                 <p>You are caught up on pending podcast ratings. Browse the library or add something new for the group to consider.</p>
                 <div className="empty-state-actions">
-                  <button type="button" onClick={() => setActiveTab('library')}>
+                  <button type="button" aria-controls="podcast-library" onClick={browseLibrary}>
                     Browse Library
                   </button>
                   <button type="button" className="ghost" onClick={() => setActiveTab('submit')}>
@@ -741,10 +755,10 @@ export default function PodcastsPage() {
       ) : null}
 
       {activeTab !== 'submit' ? (
-        <div className="podcast-library-stack">
+        <div id="podcast-library" className="podcast-library-stack">
           <div className="section-panel podcasts-to-discuss-page-card">
             <div className="section-title-row">
-              <h2>Active Ballot</h2>
+              <h2 ref={libraryHeadingRef} tabIndex={-1}>Active Ballot</h2>
               <span className="badge">{podcastsToDiscuss.length}</span>
             </div>
             <p className="muted-line">Every podcast still up for consideration, highest-rated first. Use Rank to cast or update your vote.</p>

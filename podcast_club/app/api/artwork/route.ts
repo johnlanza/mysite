@@ -16,6 +16,15 @@ type AppleSearchResult = {
   artworkUrl100?: string;
 };
 
+type ImdbSuggestionResult = {
+  id?: string;
+  i?: { imageUrl?: string };
+};
+
+const imdbLandscapeArtwork: Record<string, string> = {
+  tt1341338: 'https://images.contentstack.io/v3/assets/blt13adb7e2033fcee5/blt74478adb52ed41b1/69ab7906f6ace70008c3af14/GoodLuckHaveFunDontDie_keyart_mobile_3840x2160.jpg?width=1600'
+};
+
 function decodeHtml(value: string) {
   return value
     .replace(/&#(\d+);/g, (_, code: string) => String.fromCodePoint(Number(code)))
@@ -167,6 +176,7 @@ async function fetchPage(target: URL) {
         readMeta(html, 'name', 'twitter:image') || readMeta(html, 'name', 'twitter:image:src') || readLikelyPageImage(html);
       const imageTarget = safeExternalUrl(source, currentUrl);
       if (!imageTarget || !(await resolvesToPublicAddress(imageTarget))) return null;
+      if (imageTarget.toString() === currentUrl.toString()) return null;
       return { imageUrl: imageTarget.toString(), provider: currentUrl.hostname.replace(/^www\./, '') };
     } catch {
       return null;
@@ -175,6 +185,21 @@ async function fetchPage(target: URL) {
     }
   }
   return null;
+}
+
+async function lookupImdbArtwork(target: URL) {
+  const titleId = target.pathname.match(/\/title\/(tt\d+)/i)?.[1];
+  if (!titleId) return null;
+  const preferredImage = safeExternalUrl(imdbLandscapeArtwork[titleId] || '')?.toString() || null;
+  if (preferredImage) return { imageUrl: preferredImage, provider: 'Universal Pictures' };
+  const response = await fetch(`https://v2.sg.media-imdb.com/suggestion/t/${titleId}.json`, {
+    headers: { Accept: 'application/json' },
+    next: { revalidate: 21600 }
+  });
+  if (!response.ok) return null;
+  const payload = (await response.json()) as { d?: ImdbSuggestionResult[] };
+  const imageUrl = safeExternalUrl(payload.d?.find((item) => item.id === titleId)?.i?.imageUrl || '')?.toString() || null;
+  return imageUrl ? { imageUrl, provider: 'IMDb' } : null;
 }
 
 function appleSearchConfig(kind: string) {
@@ -244,6 +269,14 @@ export async function GET(request: Request) {
 
   if (target) {
     const hostname = target.hostname.replace(/^www\./, '').toLowerCase();
+    if (hostname === 'imdb.com') {
+      try {
+        const imdb = await lookupImdbArtwork(target);
+        if (imdb?.imageUrl) return NextResponse.json(imdb, { headers: { 'Cache-Control': 'private, max-age=21600' } });
+      } catch {
+        // Continue to linked-page and catalog fallbacks.
+      }
+    }
     if (hostname === 'open.spotify.com' || hostname === 'youtube.com' || hostname === 'youtu.be') {
       const endpoint = hostname === 'open.spotify.com'
         ? `https://open.spotify.com/oembed?url=${encodeURIComponent(target.toString())}`

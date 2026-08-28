@@ -29,6 +29,7 @@ function publicArtworkUrl(value?: string) {
 
 function loadArtwork(props: ArtworkProps) {
   const params = new URLSearchParams();
+  params.set('v', '2');
   const artworkUrl = publicArtworkUrl(props.url);
   if (artworkUrl) params.set('url', artworkUrl);
   if (props.title) params.set('title', props.title);
