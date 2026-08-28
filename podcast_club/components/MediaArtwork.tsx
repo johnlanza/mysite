@@ -16,9 +16,21 @@ type ArtworkProps = {
 
 const artworkRequests = new Map<string, Promise<ArtworkMetadata | null>>();
 
+function publicArtworkUrl(value?: string) {
+  const candidate = value?.trim();
+  if (!candidate) return '';
+  try {
+    const parsed = new URL(candidate);
+    return ['http:', 'https:'].includes(parsed.protocol) ? candidate : '';
+  } catch {
+    return '';
+  }
+}
+
 function loadArtwork(props: ArtworkProps) {
   const params = new URLSearchParams();
-  if (props.url) params.set('url', props.url);
+  const artworkUrl = publicArtworkUrl(props.url);
+  if (artworkUrl) params.set('url', artworkUrl);
   if (props.title) params.set('title', props.title);
   if (props.kind) params.set('kind', props.kind);
   if (props.creator) params.set('creator', props.creator);
@@ -33,7 +45,8 @@ function loadArtwork(props: ArtworkProps) {
 }
 
 export function MediaArtwork({ url, title, kind, creator, fallback = '▶', className = '', eager = false }: ArtworkProps) {
-  const hasLookup = Boolean(url || title);
+  const artworkUrl = publicArtworkUrl(url);
+  const hasLookup = Boolean(artworkUrl || title);
   const [metadata, setMetadata] = useState<ArtworkMetadata | null | undefined>(hasLookup ? undefined : null);
   const [imageFailed, setImageFailed] = useState(false);
 
@@ -45,11 +58,11 @@ export function MediaArtwork({ url, title, kind, creator, fallback = '▶', clas
       return () => { cancelled = true; };
     }
     setMetadata(undefined);
-    void loadArtwork({ url, title, kind, creator }).then((result) => {
+    void loadArtwork({ url: artworkUrl, title, kind, creator }).then((result) => {
       if (!cancelled) setMetadata(result);
     });
     return () => { cancelled = true; };
-  }, [creator, hasLookup, kind, title, url]);
+  }, [artworkUrl, creator, hasLookup, kind, title]);
 
   const src = imageFailed ? '' : metadata?.imageUrl || '';
   const artworkKind = kind?.trim().toLowerCase() || 'other';
