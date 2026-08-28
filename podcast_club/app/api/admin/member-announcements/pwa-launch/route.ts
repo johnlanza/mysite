@@ -6,6 +6,30 @@ import MemberModel from '@/models/Member';
 
 const ANNOUNCEMENT_KEY = 'pwa-launch-2026-08-29';
 const MAX_SCHEDULE_AHEAD_MS = 30 * 24 * 60 * 60 * 1000;
+const DEFAULT_SCHEDULED_AT = '2026-08-29T16:00:00.000Z';
+
+export async function GET() {
+  const admin = await requireAdmin();
+  if (!admin.ok) {
+    return NextResponse.json({ message: admin.message }, { status: admin.status });
+  }
+
+  return new Response(
+    [
+      '<!doctype html><html lang="en"><head><meta charset="utf-8">',
+      '<meta name="viewport" content="width=device-width,initial-scale=1">',
+      '<title>Schedule member announcement</title></head>',
+      '<body style="font-family:system-ui,sans-serif;max-width:36rem;margin:3rem auto;padding:0 1rem">',
+      '<h1>Schedule member announcement</h1>',
+      '<p>Schedule the approved Royal Podcast Society app announcement for every member at 9:00 AM Pacific on August 29, 2026.</p>',
+      '<form method="post">',
+      `<input type="hidden" name="scheduledAt" value="${DEFAULT_SCHEDULED_AT}">`,
+      '<button type="submit" style="font:inherit;padding:.75rem 1rem;cursor:pointer">Schedule member emails</button>',
+      '</form></body></html>'
+    ].join(''),
+    { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+  );
+}
 
 export async function POST(req: Request) {
   const admin = await requireAdmin();
@@ -18,7 +42,10 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { scheduledAt } = await req.json();
+    const contentType = req.headers.get('content-type') || '';
+    const scheduledAt = contentType.includes('application/json')
+      ? String((await req.json()).scheduledAt || '')
+      : String((await req.formData()).get('scheduledAt') || '');
     const scheduledDate = new Date(String(scheduledAt || ''));
     const delay = scheduledDate.getTime() - Date.now();
 
