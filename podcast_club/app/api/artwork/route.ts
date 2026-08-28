@@ -44,8 +44,18 @@ type ImdbSuggestionResult = {
   i?: { imageUrl?: string };
 };
 
+type YouTubeSearchResult = {
+  type: 'channel' | 'video';
+  title: string;
+  imageUrl: string;
+};
+
 const imdbLandscapeArtwork: Record<string, string> = {
   tt1341338: 'https://images.contentstack.io/v3/assets/blt13adb7e2033fcee5/blt74478adb52ed41b1/69ab7906f6ace70008c3af14/GoodLuckHaveFunDontDie_keyart_mobile_3840x2160.jpg?width=1600'
+};
+
+const linkedImdbTitles: Record<string, string> = {
+  'paramountplus.com/shows/you-dont-know-where-im-from-dawg': 'tt41772400'
 };
 
 function decodeHtml(value: string) {
@@ -86,8 +96,31 @@ function normalize(value: string) {
 }
 
 function meaningfulTokens(value: string) {
-  const stopWords = new Set(['a', 'an', 'and', 'at', 'for', 'from', 'in', 'of', 'on', 'the', 'to', 'with']);
+  const stopWords = new Set(['a', 'an', 'and', 'at', 'for', 'from', 'in', 'of', 'on', 'our', 'that', 'the', 'this', 'to', 'we', 'with', 'you', 'your']);
   return normalize(value).split(' ').filter((token) => token.length > 1 && !stopWords.has(token));
+}
+
+function looseTokenMatch(left: string, right: string) {
+  if (left === right) return true;
+  if (left.length >= 4 && right.length >= 4 && (left.includes(right) || right.includes(left))) return true;
+  if (left.length !== right.length || left.length < 5) return false;
+  let differences = 0;
+  for (let index = 0; index < left.length; index += 1) {
+    if (left[index] !== right[index]) differences += 1;
+  }
+  return differences <= 2;
+}
+
+function looseTitleMatchScore(query: string, candidate: string) {
+  const strictScore = titleMatchScore(query, candidate);
+  const queryTokens = meaningfulTokens(query).map((token) => token.replace(/(?:ing|es|s)$/i, ''));
+  const candidateTokens = meaningfulTokens(candidate).map((token) => token.replace(/(?:ing|es|s)$/i, ''));
+  if (!queryTokens.length || !candidateTokens.length) return strictScore;
+  const matchedQueryTokens = queryTokens.filter((token) => candidateTokens.some((candidateToken) => looseTokenMatch(token, candidateToken)));
+  const matchedCandidateTokens = candidateTokens.filter((token) => queryTokens.some((queryToken) => looseTokenMatch(token, queryToken)));
+  const coverage = matchedQueryTokens.length / queryTokens.length;
+  const precision = matchedCandidateTokens.length / candidateTokens.length;
+  return Math.max(strictScore, coverage * 0.78 + precision * 0.22);
 }
 
 function cleanCatalogTitle(value: string) {
@@ -133,6 +166,8 @@ function catalogQueries(title: string, target: URL | null) {
     }
   }
   const cleaned = candidates[0];
+  const namedMedia = cleaned.replace(/\s+(?:podcast|interview)\s*:.*$/i, '').trim();
+  if (namedMedia && namedMedia !== cleaned) candidates.push(namedMedia);
   if (cleaned.includes(':')) {
     candidates.push(cleaned.replace(/:/g, ' '));
     candidates.push(cleaned.split(':')[0]);
@@ -235,6 +270,14 @@ function readLikelyPageImage(html: string) {
   return best && best.score >= 3 ? best.source : '';
 }
 
+function readYouTubeChannelImage(html: string) {
+  const encoded = html.match(/"avatar":\{"thumbnails":\[\{"url":"([^"]+)/)?.[1] || '';
+  if (!encoded) return '';
+  const decoded = encoded.replace(/\\u0026/g, '&').replace(/\\\//g, '/');
+  const absolute = decoded.startsWith('//') ? `https:${decoded}` : decoded;
+  return absolute.replace(/=s\d+(?=-c-)/, '=s900');
+}
+
 async function fetchPage(target: URL) {
   let currentUrl = target;
   for (let redirectCount = 0; redirectCount <= 3; redirectCount += 1) {
@@ -257,9 +300,12 @@ async function fetchPage(target: URL) {
       const contentType = response.headers.get('content-type') || '';
       if (contentType.startsWith('image/')) return { imageUrl: currentUrl.toString(), provider: currentUrl.hostname };
       if (!contentType.includes('text/html') && !contentType.includes('application/xhtml+xml')) return null;
-      const html = (await response.text()).slice(0, 500_000);
+      const htmlLimit = currentUrl.hostname.replace(/^www\./, '') === 'youtube.com' ? 2_500_000 : 500_000;
+      const html = (await response.text()).slice(0, htmlLimit);
       const source = readMeta(html, 'property', 'og:image:secure_url') || readMeta(html, 'property', 'og:image') ||
-        readMeta(html, 'name', 'twitter:image') || readMeta(html, 'name', 'twitter:image:src') || readLikelyPageImage(html);
+        readMeta(html, 'name', 'twitter:image') || readMeta(html, 'name', 'twitter:image:src') ||
+        (currentUrl.hostname.replace(/^www\./, '') === 'youtube.com' ? readYouTubeChannelImage(html) : '') ||
+        readLikelyPageImage(html);
       const imageTarget = safeExternalUrl(source, currentUrl);
       if (!imageTarget || !(await resolvesToPublicAddress(imageTarget))) return null;
       if (imageTarget.toString() === currentUrl.toString()) return null;
@@ -280,7 +326,7 @@ async function lookupImdbArtwork(target: URL) {
   if (preferredImage) return { imageUrl: preferredImage, provider: 'Universal Pictures' };
   const response = await fetch(`https://v2.sg.media-imdb.com/suggestion/t/${titleId}.json`, {
     headers: { Accept: 'application/json' },
-    next: { revalidate: 21600 }
+    cache: 'no-store'
   });
   if (!response.ok) return null;
   const payload = (await response.json()) as { d?: ImdbSuggestionResult[] };
@@ -288,17 +334,18 @@ async function lookupImdbArtwork(target: URL) {
   return imageUrl ? { imageUrl, provider: 'IMDb' } : null;
 }
 
-async function searchImdbArtwork(queries: string[], kind: string, creator: string) {
+async function searchImdbArtwork(queries: string[], kind: string, creator: string, hasLinkedTarget: boolean) {
   const clues = normalize(`${queries.join(' ')} ${kind} ${creator}`);
   const hasScreenClue = /(?:movie|video|tv)/.test(normalize(kind)) || /\b(?:netflix|apple tv|peacock|hulu|documentary|series|show|season)\b/.test(clues);
-  const exactTitleFallback = normalize(kind) === 'other' && meaningfulTokens(queries[0] || '').length >= 2;
+  const hasNonScreenClue = /\b(?:album|book|music|novel|podcast|song|songs|spotify)\b/.test(clues);
+  const exactTitleFallback = !hasLinkedTarget && !hasNonScreenClue && normalize(kind) === 'other' && meaningfulTokens(queries[0] || '').length >= 2;
   if (!hasScreenClue && !exactTitleFallback) return null;
   let best: { result: ImdbSuggestionResult; score: number } | null = null;
 
   for (const query of queries) {
     const response = await fetch(`https://v2.sg.media-imdb.com/suggestion/x/${encodeURIComponent(query)}.json`, {
       headers: { Accept: 'application/json' },
-      next: { revalidate: 21600 }
+      cache: 'no-store'
     });
     if (!response.ok) continue;
     const payload = (await response.json()) as { d?: ImdbSuggestionResult[] };
@@ -315,6 +362,67 @@ async function searchImdbArtwork(queries: string[], kind: string, creator: strin
   if (!best || best.score < (exactTitleFallback && !hasScreenClue ? 1 : 0.76)) return null;
   const imageUrl = safeExternalUrl(best.result.i?.imageUrl || '')?.toString() || null;
   return imageUrl ? { imageUrl, provider: 'IMDb' } : null;
+}
+
+function findYouTubeInitialData(html: string) {
+  for (const marker of ['var ytInitialData = ', 'ytInitialData = ']) {
+    const markerIndex = html.indexOf(marker);
+    if (markerIndex < 0) continue;
+    const start = html.indexOf('{', markerIndex + marker.length);
+    const end = html.indexOf(';</script>', start);
+    if (start < 0 || end <= start) continue;
+    try {
+      return JSON.parse(html.slice(start, end)) as unknown;
+    } catch {
+      // Try the next known assignment shape.
+    }
+  }
+  return null;
+}
+
+function collectYouTubeResults(value: unknown, results: YouTubeSearchResult[] = []): YouTubeSearchResult[] {
+  if (!value || typeof value !== 'object' || results.length >= 30) return results;
+  const record = value as Record<string, unknown>;
+  const channel = record.channelRenderer as Record<string, unknown> | undefined;
+  if (channel) {
+    const title = ((channel.title as { simpleText?: string } | undefined)?.simpleText || '').trim();
+    const thumbnails = (channel.thumbnail as { thumbnails?: Array<{ url?: string }> } | undefined)?.thumbnails || [];
+    const source = thumbnails.at(-1)?.url || '';
+    const imageUrl = source.startsWith('//') ? `https:${source}` : source;
+    if (title && imageUrl) results.push({ type: 'channel', title, imageUrl: imageUrl.replace(/=s\d+(?=-c-)/, '=s900') });
+  }
+  const video = record.videoRenderer as Record<string, unknown> | undefined;
+  if (video) {
+    const videoId = typeof video.videoId === 'string' ? video.videoId : '';
+    const title = ((video.title as { runs?: Array<{ text?: string }> } | undefined)?.runs || []).map((run) => run.text || '').join('').trim();
+    if (videoId && title) results.push({ type: 'video', title, imageUrl: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` });
+  }
+  for (const child of Object.values(record)) collectYouTubeResults(child, results);
+  return results;
+}
+
+async function searchYouTubeArtwork(queries: string[]) {
+  const query = queries[0] || '';
+  const queryTokens = meaningfulTokens(query);
+  if (!queryTokens.length) return null;
+  const endpoint = new URL('https://www.youtube.com/results');
+  endpoint.searchParams.set('search_query', query);
+  const response = await fetch(endpoint, {
+    headers: { Accept: 'text/html', 'User-Agent': 'RoyalPodcastSociety/1.0' }
+  });
+  if (!response.ok) return null;
+  const results = collectYouTubeResults(findYouTubeInitialData((await response.text()).slice(0, 2_500_000)));
+  const exactChannel = results.find((result) => result.type === 'channel' && normalize(result.title) === normalize(query));
+  if (exactChannel && normalize(query).replace(/\s/g, '').length >= 6) {
+    return { imageUrl: exactChannel.imageUrl, provider: 'YouTube' };
+  }
+  if (queryTokens.length < 3) return null;
+  const bestVideo = results
+    .filter((result) => result.type === 'video')
+    .map((result, index) => ({ result, score: looseTitleMatchScore(query, result.title) + Math.max(0, 0.05 - index * 0.01) }))
+    .sort((left, right) => right.score - left.score)[0];
+  if (!bestVideo || bestVideo.score < 0.72) return null;
+  return { imageUrl: bestVideo.result.imageUrl, provider: 'YouTube' };
 }
 
 function appleSearchConfigs(title: string, kind: string, creator: string) {
@@ -487,6 +595,15 @@ export async function GET(request: Request) {
 
   if (target) {
     const hostname = target.hostname.replace(/^www\./, '').toLowerCase();
+    const linkedImdbId = linkedImdbTitles[`${hostname}${target.pathname.replace(/\/$/, '')}`];
+    if (linkedImdbId) {
+      try {
+        const linkedImdb = await lookupImdbArtwork(new URL(`https://www.imdb.com/title/${linkedImdbId}`));
+        if (linkedImdb?.imageUrl) return NextResponse.json(linkedImdb, { headers: { 'Cache-Control': 'private, max-age=21600' } });
+      } catch {
+        // Continue to linked-page and catalog fallbacks.
+      }
+    }
     if (hostname === 'imdb.com') {
       try {
         const imdb = await lookupImdbArtwork(target);
@@ -512,11 +629,20 @@ export async function GET(request: Request) {
     }
     const linked = await fetchPage(target);
     if (linked?.imageUrl) return NextResponse.json(linked, { headers: { 'Cache-Control': 'private, max-age=21600' } });
+    const linkedSlug = cleanCatalogTitle(decodeURIComponent(target.pathname.split('/').filter(Boolean).at(-1) || '').replace(/[-_]+/g, ' '));
+    if (meaningfulTokens(linkedSlug).length >= 2) {
+      try {
+        const linkedCatalog = await searchImdbArtwork([linkedSlug], kind, creator, true);
+        if (linkedCatalog?.imageUrl) return NextResponse.json(linkedCatalog, { headers: { 'Cache-Control': 'private, max-age=21600' } });
+      } catch {
+        // Continue to the title and general catalog searches.
+      }
+    }
   }
 
   const queries = catalogQueries(title, target);
   try {
-    const imdb = await searchImdbArtwork(queries, kind, creator);
+    const imdb = await searchImdbArtwork(queries, kind, creator, Boolean(target));
     if (imdb?.imageUrl) return NextResponse.json(imdb, { headers: { 'Cache-Control': 'private, max-age=21600' } });
   } catch {
     // Continue to other public catalogs.
@@ -542,6 +668,12 @@ export async function GET(request: Request) {
   try {
     const knowledge = await searchWikipedia(queries);
     if (knowledge?.imageUrl) return NextResponse.json(knowledge, { headers: { 'Cache-Control': 'private, max-age=21600' } });
+  } catch {
+    // Continue to a carefully scored public-video fallback.
+  }
+  try {
+    const video = await searchYouTubeArtwork(queries);
+    if (video?.imageUrl) return NextResponse.json(video, { headers: { 'Cache-Control': 'private, max-age=21600' } });
   } catch {
     // Artwork is an enhancement; callers retain their designed fallback.
   }
