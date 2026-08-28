@@ -2292,9 +2292,14 @@ button:disabled {
   width: 100%;
 }
 
-.empty-state-actions button {
+.empty-state-actions button,
+.empty-state-actions .action-link {
   flex: 1 1 9rem;
   min-height: 2.9rem;
+}
+
+#podcast-library {
+  scroll-margin-top: 1rem;
 }
 
 .rank-podcast-head,
