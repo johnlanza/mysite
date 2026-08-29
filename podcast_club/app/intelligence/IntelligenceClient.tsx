@@ -2,21 +2,21 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { DiscoveryReview } from '@/components/DiscoveryReview';
 import { MediaArtwork } from '@/components/MediaArtwork';
 import { PodcastListenChooser } from '@/components/PodcastListenChooser';
 import { withBasePath } from '@/lib/base-path';
-import { fetchJson } from '@/lib/client-fetch';
+import {
+  getDiscoveryEpisodeFeedbackScore,
+  getDiscoverySourceFeedbackScore,
+  getDiscoveryThemeFeedbackScore,
+  type DiscoveryFeedbackRecord
+} from '@/lib/discovery-feedback';
 import type { IntelligenceRecommendation, IntelligenceReport } from '@/lib/intelligence';
 import { useSession } from '@/lib/use-session';
 
 type DiscoveryMood = 'conversation' | 'story' | 'learn' | 'wildcard';
 type TimeBudget = 'any' | 'short' | 'standard' | 'deep';
-type TasteReaction = 'listen' | 'discuss' | 'less';
-type TasteHistoryRecord = {
-  reaction: TasteReaction;
-  themes: string[];
-  discussionSignals: number;
-};
 
 const MOODS: Array<{ id: DiscoveryMood; label: string; detail: string; terms: string[] }> = [
   { id: 'conversation', label: 'Discussion', detail: 'Ideas with room for disagreement', terms: ['behavior', 'history', 'power', 'money', 'investigation'] },
@@ -30,12 +30,6 @@ const TIMES: Array<{ id: TimeBudget; label: string }> = [
   { id: 'short', label: 'Under 45 min' },
   { id: 'standard', label: '45–75 min' },
   { id: 'deep', label: 'Over 75 min' }
-];
-
-const REACTION_OPTIONS: Array<{ id: TasteReaction; label: string; detail: string }> = [
-  { id: 'listen', label: 'More like this', detail: 'Raise this episode and give related themes a modest future boost.' },
-  { id: 'discuss', label: 'Strong discussion', detail: 'Raise it most and favor similar discussion themes in later discoveries.' },
-  { id: 'less', label: 'Less like this', detail: 'Lower this episode and reduce the weight of its themes later.' }
 ];
 
 function getDuration(item: IntelligenceRecommendation) {
@@ -84,9 +78,8 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
   const [mood, setMood] = useState<DiscoveryMood>('conversation');
   const [timeBudget, setTimeBudget] = useState<TimeBudget>('any');
   const [selectedId, setSelectedId] = useState('');
-  const [reactions, setReactions] = useState<Record<string, TasteReaction>>({});
-  const [history, setHistory] = useState<Record<string, TasteHistoryRecord>>({});
-  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [history, setHistory] = useState<Record<string, DiscoveryFeedbackRecord>>({});
+  const [reviewCounts, setReviewCounts] = useState<Record<string, number>>({});
   const topCardRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -105,11 +98,11 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
         setReport(payload as IntelligenceReport);
         if (feedbackResponse.ok) {
           const feedback = await feedbackResponse.json() as {
-            reactions?: Record<string, TasteReaction>;
-            history?: Record<string, TasteHistoryRecord>;
+            history?: Record<string, DiscoveryFeedbackRecord>;
+            reviewCounts?: Record<string, number>;
           };
-          setReactions(feedback.reactions || {});
           setHistory(feedback.history || {});
+          setReviewCounts(feedback.reviewCounts || {});
         }
       })
       .catch((requestError) => {
@@ -125,11 +118,7 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
   const themeSignals = useMemo(() => {
     const signals = new Map<string, { label: string; score: number }>();
     Object.entries(history).forEach(([recommendationKey, record]) => {
-      const weight = record.reaction === 'discuss'
-        ? 4 + Math.min(2, record.discussionSignals)
-        : record.reaction === 'listen'
-          ? 2
-          : -3;
+      const weight = getDiscoveryThemeFeedbackScore(record);
       const themes = record.themes.length
         ? record.themes
         : report?.podcasts.find((item) => item.id === recommendationKey)?.themes || [];
@@ -142,6 +131,16 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
     });
     return signals;
   }, [history, report]);
+
+  const sourceSignals = useMemo(() => {
+    const signals = new Map<string, number>();
+    Object.values(history).forEach((record) => {
+      const key = record.sourceKey?.trim().toLowerCase();
+      if (!key) return;
+      signals.set(key, (signals.get(key) || 0) + getDiscoverySourceFeedbackScore(record));
+    });
+    return signals;
+  }, [history]);
 
   const visibleThemeSignals = useMemo(
     () => [...themeSignals.values()]
@@ -156,20 +155,21 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
     return report.podcasts
       .filter((item) => fitsTime(item, timeBudget))
       .map((item) => {
-        const reaction = reactions[item.id];
-        const feedbackBonus = reaction === 'discuss' ? 12 : reaction === 'listen' ? 7 : reaction === 'less' ? -30 : 0;
+        const record = history[item.id];
+        const feedbackBonus = record ? getDiscoveryEpisodeFeedbackScore(record) : 0;
         const learnedThemeBonus = item.themes.reduce(
           (total, theme) => total + (themeSignals.get(theme.trim().toLowerCase())?.score || 0),
           0
         );
+        const sourceBonus = item.sourceKey ? sourceSignals.get(item.sourceKey.trim().toLowerCase()) || 0 : 0;
         return {
           item,
-          adjustedScore: item.score + moodBonus(item, mood) + feedbackBonus + Math.max(-12, Math.min(12, learnedThemeBonus))
+          adjustedScore: item.score + moodBonus(item, mood) + feedbackBonus + sourceBonus + Math.max(-14, Math.min(14, learnedThemeBonus))
         };
       })
       .sort((a, b) => b.adjustedScore - a.adjustedScore)
       .map(({ item }) => item);
-  }, [mood, reactions, report, themeSignals, timeBudget]);
+  }, [history, mood, report, sourceSignals, themeSignals, timeBudget]);
 
   const topSuggestion = ranked.find((item) => item.id === selectedId) || ranked[0];
   const shortlist = ranked.filter((item) => item.id !== topSuggestion?.id).slice(0, 6);
@@ -182,61 +182,6 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
       topCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       topCardRef.current?.focus({ preventScroll: true });
     });
-  }
-
-  async function saveReaction(item: IntelligenceRecommendation, reaction: TasteReaction) {
-    const nextReaction = reactions[item.id] === reaction ? undefined : reaction;
-    const previousReactions = reactions;
-    const previousHistory = history;
-    const previousSelectedId = selectedId;
-    const nextReactions = { ...reactions };
-    const nextHistory = { ...history };
-    if (nextReaction) {
-      nextReactions[item.id] = nextReaction;
-      nextHistory[item.id] = {
-        reaction: nextReaction,
-        themes: item.themes,
-        discussionSignals: Math.min(3, item.reasons.length)
-      };
-    } else {
-      delete nextReactions[item.id];
-      delete nextHistory[item.id];
-    }
-    setReactions(nextReactions);
-    setHistory(nextHistory);
-    setSelectedId('');
-    setFeedbackMessage('');
-
-    const result = await fetchJson<{
-      reactions: Record<string, TasteReaction>;
-      history: Record<string, TasteHistoryRecord>;
-    }>(withBasePath('/api/discovery-feedback'), {
-      method: 'PUT',
-      body: {
-        recommendationKey: item.id,
-        title: item.title,
-        href: item.href || '',
-        reaction: nextReaction || null,
-        themes: item.themes,
-        discussionSignals: Math.min(3, item.reasons.length)
-      }
-    });
-    if (!result.ok) {
-      setReactions(previousReactions);
-      setHistory(previousHistory);
-      setSelectedId(previousSelectedId);
-      setFeedbackMessage(result.message || 'Unable to save this preference.');
-      return;
-    }
-    setReactions(result.data.reactions);
-    setHistory(result.data.history);
-    setFeedbackMessage(!nextReaction
-      ? `Undone. ${item.title} no longer shapes your personal beta ranking.`
-      : nextReaction === 'less'
-        ? `Saved to your account. ${item.title} moves down now, and its themes receive less weight in later beta discoveries.`
-        : nextReaction === 'discuss'
-          ? `Saved to your account. ${item.title} receives the strongest boost, and its themes gain extra weight in later discoveries.`
-          : `Saved to your account. ${item.title} moves up, and its themes receive a modest boost in later beta discoveries.`);
   }
 
   const Wrapper = embedded ? 'div' : 'section';
@@ -266,8 +211,8 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
         </p>
         <div className="discovery-learning-note" aria-label="How to use Discovery BETA">
           <span>1</span><p><strong>Choose a listening goal.</strong> The four choices reorder discoveries for the kind of episode you want now.</p>
-          <span>2</span><p><strong>React after reviewing one.</strong> Your choice moves that episode and teaches your personal beta which themes to favor later.</p>
-          <span>3</span><p><strong>Your ballot stays untouched.</strong> Only a member submission can place an episode on the Active Ballot. Tap a selected reaction again to undo it.</p>
+          <span>2</span><p><strong>Review after listening.</strong> Separate the subject, guest, host, and discussion value—even if you stopped early.</p>
+          <span>3</span><p><strong>Shared learning waits.</strong> Your scoring remains personal until three members independently review the same episode. The ballot stays untouched.</p>
         </div>
         {loadingReport ? <p className="muted-line">Finding strong episode candidates...</p> : null}
         {error ? <p className="warning-banner">{error}</p> : null}
@@ -306,7 +251,7 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
               <span className="discovery-learning-summary">
                 {visibleThemeSignals.length
                   ? <>Your learning so far: {visibleThemeSignals.map((signal) => `${signal.label} ${signal.score > 0 ? '↑' : '↓'}`).join(' · ')}</>
-                  : <>No personal signals yet. React to a discovery below and this line will show what your beta is learning.</>}
+                  : <>No personal signals yet. Review an episode after listening and this line will show what your beta is learning.</>}
               </span>
             </div>
           </>
@@ -343,21 +288,16 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
             <p>It is the strongest current beta match for {selectedMood.label.toLowerCase()} and {selectedTime.label.toLowerCase()}, based on the club signals above.</p>
             <ul>{topSuggestion.reasons.slice(0, 3).map((reason) => <li key={reason}>{reason}</li>)}</ul>
           </div>
-          <div className="discovery-feedback">
-            <span><span className="new-feature-badge">NEW!</span><strong>Teach your Discovery BETA</strong><small>Choose the single best signal. It saves to your member account and follows you across devices. It never changes the Active Ballot.</small></span>
-            <div className="discovery-feedback-options">
-              {REACTION_OPTIONS.map((option) => (
-                <button
-                  type="button"
-                  key={option.id}
-                  className={reactions[topSuggestion.id] === option.id ? 'selected' : ''}
-                  aria-pressed={reactions[topSuggestion.id] === option.id}
-                  onClick={() => saveReaction(topSuggestion, option.id)}
-                ><strong>{option.label}</strong><small>{option.detail}</small></button>
-              ))}
-            </div>
-            {feedbackMessage ? <small role="status" className="discovery-feedback-message">{feedbackMessage}</small> : null}
-          </div>
+          <DiscoveryReview
+            item={topSuggestion}
+            record={history[topSuggestion.id]}
+            reviewCount={reviewCounts[topSuggestion.id] || 0}
+            onUpdated={(payload) => {
+              setSelectedId(topSuggestion.id);
+              setHistory(payload.history);
+              setReviewCounts(payload.reviewCounts);
+            }}
+          />
         </article>
       ) : report && !loadingReport ? (
         <div className="section-panel empty-state"><h3>No matches for this listening time</h3><p>Try Any length or another discussion style.</p><button type="button" className="ghost" onClick={() => setTimeBudget('any')}>Show every length</button></div>
@@ -376,9 +316,10 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
         <summary>Exactly what Discovery BETA learns</summary>
         <div className="discovery-engine-copy">
           <p><strong>Starts outside the ballot.</strong> It excludes podcasts already submitted by members, then looks for new possibilities using club ratings, selected episodes, meeting history, fist bumps, and meeting feedback.</p>
-          <p><strong>Learns personally.</strong> More like this modestly favors an episode and its themes. Strong discussion gives the largest boost to that episode and similar discussion themes. Less like this lowers both.</p>
-          <p><strong>Remains reversible.</strong> Tap your selected reaction again to undo it. Each member&apos;s choices stay with his own account across sign-in and devices.</p>
-          <p><strong>Never votes for you.</strong> Discovery reactions cannot add, rank, or vote on the Active Ballot. A member must submit an episode before the club can vote on it.</p>
+          <p><strong>Separates the signals.</strong> Subject and guest scores can shape related themes; host quality applies only to that show. “Find this guest elsewhere” keeps the guest without rewarding the original host.</p>
+          <p><strong>Learns personally first.</strong> Reviews stay with each member&apos;s account. An episode needs three independent reviews before it is even eligible for future shared Society learning.</p>
+          <p><strong>Remains reversible and private.</strong> A member can update or remove his review. Counts may be shared, but individual scores and notes are not.</p>
+          <p><strong>Never votes for you.</strong> Discovery reviews cannot add, rank, or vote on the Active Ballot. A member must submit an episode before the club can vote on it.</p>
         </div>
       </details>
       {!embedded ? <Link className="action-link full-width-action" href="/podcasts?tab=rank">Go to the active podcast ballot</Link> : null}

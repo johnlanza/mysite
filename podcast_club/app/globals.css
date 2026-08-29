@@ -8733,3 +8733,276 @@ button.pwa-install-overview:focus-visible .pwa-install-art {
     width: calc(100vw - 1.5rem);
   }
 }
+
+/* Discovery listening reviews keep personal taste, host quality, and Society value separate. */
+.discovery-review {
+  --discovery-review-accent: var(--nav-more);
+  --discovery-review-ink: var(--nav-more-ink);
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 0.8rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgb(var(--more-rgb) / 0.18);
+}
+
+.podcast-discovery-embedded .discovery-review {
+  --discovery-review-accent: var(--nav-podcasts);
+  --discovery-review-ink: var(--podcasts-ink);
+}
+
+.discovery-review-heading {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.discovery-review-heading > span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.discovery-review-heading > small,
+.discovery-review-prompt {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.discovery-review-start {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.intelligence-page .discovery-review-start button {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+  padding: 0.75rem;
+  border: 1px solid rgb(var(--more-rgb) / 0.24);
+  border-radius: 13px;
+  background: var(--panel) !important;
+  color: var(--ink) !important;
+  text-align: left;
+  box-shadow: none;
+}
+
+.intelligence-page .discovery-review-start button small {
+  color: var(--ink-soft);
+}
+
+.intelligence-page .discovery-review-start button.selected {
+  border-color: transparent;
+  background: var(--discovery-review-accent) !important;
+  color: var(--discovery-review-ink) !important;
+}
+
+.intelligence-page .discovery-review-start button.selected small {
+  color: inherit;
+  opacity: 0.78;
+}
+
+.discovery-review-form {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.85rem;
+  border: 1px solid rgb(var(--more-rgb) / 0.18);
+  border-radius: 14px;
+  background: rgb(var(--more-rgb) / 0.035);
+}
+
+.discovery-review-row {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.8fr) minmax(15rem, 1.2fr);
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.discovery-review-row legend {
+  display: contents;
+  color: var(--ink);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.discovery-review-row > div {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.intelligence-page .discovery-review-row button {
+  min-width: 0;
+  padding: 0.52rem 0.42rem;
+  border: 1px solid rgb(var(--more-rgb) / 0.22);
+  border-radius: 10px;
+  background: var(--panel) !important;
+  color: var(--ink) !important;
+  font-size: 0.76rem;
+  font-weight: 800;
+  box-shadow: none;
+}
+
+.intelligence-page .discovery-review-row button.selected {
+  border-color: transparent;
+  background: var(--discovery-review-accent) !important;
+  color: var(--discovery-review-ink) !important;
+}
+
+.discovery-guest-toggle {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.65rem;
+  padding: 0.7rem;
+  border-radius: 11px;
+  background: var(--panel);
+  cursor: pointer;
+}
+
+.discovery-guest-toggle input {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-top: 0.1rem;
+  accent-color: var(--discovery-review-accent);
+}
+
+.discovery-guest-toggle span,
+.discovery-guest-search,
+.discovery-review-note {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.discovery-guest-toggle small,
+.discovery-guest-search > small,
+.discovery-society-threshold small {
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+.discovery-guest-search > label,
+.discovery-review-note > span {
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.discovery-guest-search > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.45rem;
+}
+
+.discovery-guest-search input,
+.discovery-review-note textarea {
+  width: 100%;
+  border-color: rgb(var(--more-rgb) / 0.22);
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.discovery-guest-results {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.discovery-guest-results article {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem;
+  border: 1px solid rgb(var(--more-rgb) / 0.15);
+  border-radius: 11px;
+  background: var(--panel);
+}
+
+.discovery-guest-results .media-artwork {
+  width: 3.25rem;
+  aspect-ratio: 1;
+  border-radius: 9px;
+}
+
+.discovery-guest-results article > div {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.discovery-guest-results article > div strong,
+.discovery-guest-results article > div small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.discovery-guest-results article > div small,
+.discovery-guest-caveat {
+  color: var(--ink-soft);
+}
+
+.discovery-guest-results .podcast-listen-trigger {
+  width: auto;
+  white-space: nowrap;
+}
+
+.discovery-society-threshold {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.65rem 0.75rem;
+  border-left: 4px solid var(--discovery-review-accent);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.discovery-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.discovery-review-actions button {
+  min-width: 10rem;
+}
+
+@media (max-width: 680px) {
+  .discovery-review-start,
+  .discovery-review-row {
+    grid-template-columns: 1fr;
+  }
+
+  .discovery-review-row {
+    gap: 0.35rem;
+  }
+
+  .discovery-guest-search > div,
+  .discovery-guest-search > div {
+    grid-template-columns: 1fr;
+  }
+
+  .discovery-guest-results article {
+    grid-template-columns: 3.25rem minmax(0, 1fr);
+  }
+
+  .discovery-guest-results .media-artwork {
+    width: 3.25rem;
+  }
+
+  .discovery-guest-results .podcast-listen-trigger {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .discovery-review-actions {
+    display: grid;
+  }
+
+  .discovery-review-actions button {
+    width: 100%;
+  }
+}

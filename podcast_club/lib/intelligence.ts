@@ -80,6 +80,7 @@ export type IntelligenceRecommendation = {
   id: string;
   title: string;
   subtitle: string;
+  showTitle?: string;
   href?: string;
   score: number;
   confidence: 'High' | 'Medium' | 'Exploratory';
@@ -958,6 +959,7 @@ function buildAppleRecommendation({
     id: result.trackId ? String(result.trackId) : normalizeKey(`${result.trackName} ${result.collectionName || ''}`),
     title: result.trackName,
     subtitle: compactText([result.collectionName, result.artistName]) || 'Apple Podcasts episode',
+    showTitle: result.collectionName || '',
     sourceKey: normalizeKey(result.collectionName || result.artistName || result.trackName),
     href: result.trackViewUrl || result.collectionViewUrl || result.episodeUrl,
     score,
