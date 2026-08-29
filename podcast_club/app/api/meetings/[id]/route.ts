@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { requireAdmin, requireSession } from '@/lib/auth';
 import { MAX_MEETING_PODCASTS, normalizeMeetingPodcastIds } from '@/lib/meeting-podcasts';
+import { notifyMeetingSelectionChange } from '@/lib/meeting-selection-notifications';
 import CarveOutModel from '@/models/CarveOut';
 import MeetingModel from '@/models/Meeting';
 import MemberModel from '@/models/Member';
@@ -149,7 +150,27 @@ export async function PATCH(req: Request, { params }: RouteContext) {
       }
     }
 
-    return NextResponse.json(formatMeetingPayload(updated));
+    let notification = null;
+    if (hasPodcastField) {
+      try {
+        notification = await notifyMeetingSelectionChange({
+          meetingId: String(existingMeeting._id),
+          meetingDate: updated.date,
+          hostId: nextHost,
+          meetingStatus: existingMeeting.status === 'completed' || existingMeeting.completedAt ? 'completed' : 'scheduled',
+          previousPodcastIds: oldPodcastIds,
+          nextPodcastIds
+        });
+      } catch (error) {
+        console.error('[meetings:PATCH] Selection notification failed after meeting update', {
+          meetingId: String(existingMeeting._id),
+          error
+        });
+        notification = { sent: 0, skipped: 0, failed: 1, notConfigured: false };
+      }
+    }
+
+    return NextResponse.json({ ...formatMeetingPayload(updated), notification });
   } catch (error) {
     return NextResponse.json(
       { message: error instanceof Error ? error.message : 'Unable to update meeting.' },

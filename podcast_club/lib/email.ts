@@ -1,4 +1,5 @@
 import { isReadOnlyPreview } from '@/lib/preview-mode';
+import type { MeetingSelectionChangeKind } from '@/lib/meeting-selection-change';
 
 type SendPasswordResetEmailParams = {
   to: string;
@@ -48,6 +49,21 @@ type SendWeeklyReviewReminderEmailParams = {
   to: string;
   recipientName: string;
   podcasts: PodcastEmailDetails[];
+};
+
+export type MeetingSelectionEmailPodcast = PodcastEmailDetails & {
+  artworkUrl?: string | null;
+};
+
+type SendMeetingSelectionEmailParams = {
+  to: string;
+  recipientName: string;
+  hostName: string;
+  meetingDate: Date | string;
+  meetingId: string;
+  changeKind: MeetingSelectionChangeKind;
+  podcasts: MeetingSelectionEmailPodcast[];
+  idempotencyKey: string;
 };
 
 type EmailReportRecipient = {
@@ -224,6 +240,73 @@ export async function sendWeeklyReviewReminderEmail({
       `<p>${podcasts.length === 1 ? 'This podcast is' : 'These podcasts are'} still waiting for your review:</p>`,
       `<ul>${podcastItems}</ul>`,
       `<p><a href="${escapeHtml(`${getBaseUrl()}/podcasts`)}">Review your pending podcasts</a></p>`
+    ].join('')
+  });
+}
+
+function formatMeetingEmailDate(value: Date | string) {
+  return new Date(value).toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC'
+  });
+}
+
+export async function sendMeetingSelectionEmail({
+  to,
+  recipientName,
+  hostName,
+  meetingDate,
+  meetingId,
+  changeKind,
+  podcasts,
+  idempotencyKey
+}: SendMeetingSelectionEmailParams) {
+  const formattedDate = formatMeetingEmailDate(meetingDate);
+  const shortDate = new Date(meetingDate).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC'
+  });
+  const meetingUrl = `${getBaseUrl()}/meetings?meeting=${encodeURIComponent(meetingId)}`;
+  const subject = changeKind === 'cleared'
+    ? `Listening reset for the ${shortDate} Society meeting`
+    : changeKind === 'updated'
+      ? `Updated listening for the ${shortDate} Society meeting`
+      : `New listening for the ${shortDate} Society meeting`;
+  const introduction = changeKind === 'cleared'
+    ? `<p><strong>${escapeHtml(hostName)}</strong> cleared the listening selections for the <strong>${escapeHtml(formattedDate)}</strong> meeting. The meeting is back to TBD.</p>`
+    : `<p><strong>${escapeHtml(hostName)}</strong> ${changeKind === 'updated' ? 'updated' : 'selected'} the listening for the <strong>${escapeHtml(formattedDate)}</strong> meeting:</p>`;
+  const podcastCards = podcasts.map((podcast) => {
+    const artwork = podcast.artworkUrl
+      ? `<td style="width:88px;vertical-align:top;padding:14px 0 14px 14px"><img src="${escapeHtml(podcast.artworkUrl)}" alt="${escapeHtml(`${podcast.title} artwork`)}" width="88" height="88" style="display:block;width:88px;height:88px;border-radius:14px;object-fit:cover"></td>`
+      : '';
+    return [
+      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 14px;border:1px solid #e4dfd5;border-radius:16px;background:#fffdf8"><tr>',
+      artwork,
+      '<td style="vertical-align:top;padding:14px">',
+      `<h2 style="margin:0 0 5px;font-size:20px">${escapeHtml(podcast.title)}</h2>`,
+      `<p style="margin:0 0 5px;color:#56514c"><strong>${escapeHtml(podcast.host)}</strong></p>`,
+      `<p style="margin:0 0 10px;color:#56514c">${escapeHtml(podcast.episodeNames)} · ${escapeHtml(podcast.totalTimeMinutes)} minutes</p>`,
+      `<a href="${escapeHtml(podcast.link)}" style="display:inline-block;padding:9px 13px;border-radius:10px;background:#2f2d2e;color:#fff;text-decoration:none;font-weight:700">Listen now</a>`,
+      '</td></tr></table>'
+    ].join('');
+  }).join('');
+
+  return sendEmail({
+    to,
+    subject,
+    idempotencyKey,
+    html: [
+      `<p>Hi ${escapeHtml(recipientName || 'there')},</p>`,
+      introduction,
+      podcastCards,
+      changeKind === 'cleared'
+        ? '<p>We’ll let you know when new listening is selected.</p>'
+        : '<p>Open the meeting in the Society app to see the full details and choose Apple Podcasts or Spotify.</p>',
+      `<p><a href="${escapeHtml(meetingUrl)}" style="display:inline-block;padding:12px 18px;border-radius:10px;background:#8ab536;color:#17220a;text-decoration:none;font-weight:800">Open the meeting</a></p>`
     ].join('')
   });
 }

@@ -12,6 +12,17 @@ import type { Meeting, Member, Podcast, SessionMember } from '@/lib/types';
 
 type MeetingTab = 'next' | 'schedule' | 'history';
 
+type MeetingNotificationResult = {
+  sent: number;
+  skipped: number;
+  failed: number;
+  notConfigured: boolean;
+};
+
+type MeetingSaveResponse = Meeting & {
+  notification?: MeetingNotificationResult | null;
+};
+
 const initialForm = {
   date: '',
   host: '',
@@ -78,6 +89,7 @@ export default function MeetingsPage() {
   const [form, setForm] = useState(initialForm);
   const [editingMeetingId, setEditingMeetingId] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [saving, setSaving] = useState(false);
   const [workingMeetingId, setWorkingMeetingId] = useState<string | null>(null);
   const [showAllPastMeetings, setShowAllPastMeetings] = useState(false);
@@ -207,6 +219,7 @@ export default function MeetingsPage() {
   function startEditMeeting(meeting: Meeting) {
     setEditingMeetingId(meeting._id);
     setError('');
+    setSuccess('');
     setActiveTab('schedule');
     setPodcastPickerOpen(false);
     setForm({
@@ -223,6 +236,7 @@ export default function MeetingsPage() {
     if (saving) return;
 
     setError('');
+    setSuccess('');
     setSaving(true);
 
     try {
@@ -235,14 +249,35 @@ export default function MeetingsPage() {
       const endpoint = editingMeetingId
         ? withBasePath(`/api/meetings/${editingMeetingId}`)
         : withBasePath('/api/meetings');
-      const result = await fetchJson(endpoint, {
+      const result = await fetchJson<MeetingSaveResponse>(endpoint, {
         method: editingMeetingId ? 'PATCH' : 'POST',
-        body: payload
+        body: payload,
+        timeoutMs: 30000
       });
 
       if (!result.ok) {
         setError(result.message || 'Unable to save meeting.');
         return;
+      }
+
+      const notification = result.data.notification;
+      if (!notification) {
+        setSuccess('Meeting saved.');
+      } else if (notification.notConfigured) {
+        setSuccess('Meeting saved. Member email is not configured.');
+      } else {
+        const undelivered = notification.skipped + notification.failed;
+        if (notification.sent > 0 && undelivered === 0) {
+          setSuccess(
+            `Meeting saved. ${notification.sent} member${notification.sent === 1 ? '' : 's'} emailed about the listening update.`
+          );
+        } else if (notification.sent > 0) {
+          setSuccess(
+            `Meeting saved. ${notification.sent} member${notification.sent === 1 ? '' : 's'} emailed; ${undelivered} could not be reached.`
+          );
+        } else {
+          setSuccess('Meeting saved, but the member email could not be sent.');
+        }
       }
 
       resetFormToCreate();
@@ -471,6 +506,7 @@ export default function MeetingsPage() {
   return (
     <section className="meetings-page page-stack">
       {error ? <div className="error-banner">{error}</div> : null}
+      {success ? <div className="toast-banner" role="status">{success}</div> : null}
 
       <div className="section-panel page-intro-panel">
         <div>

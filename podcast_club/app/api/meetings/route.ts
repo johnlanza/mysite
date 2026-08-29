@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { requireAdmin, requireSession } from '@/lib/auth';
 import { MAX_MEETING_PODCASTS, normalizeMeetingPodcastIds } from '@/lib/meeting-podcasts';
+import { notifyMeetingSelectionChange } from '@/lib/meeting-selection-notifications';
 import MeetingModel from '@/models/Meeting';
 import MemberModel from '@/models/Member';
 import PodcastModel from '@/models/Podcast';
@@ -146,10 +147,31 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'Meeting not found after creation.' }, { status: 404 });
     }
 
+    let notification = null;
+    if (selectedPodcastIds.length > 0) {
+      try {
+        notification = await notifyMeetingSelectionChange({
+          meetingId: String(meeting._id),
+          meetingDate: meeting.date,
+          hostId: String(meeting.host),
+          meetingStatus: shouldCreateAsCompleted ? 'completed' : 'scheduled',
+          previousPodcastIds: [],
+          nextPodcastIds: selectedPodcastIds
+        });
+      } catch (error) {
+        console.error('[meetings:POST] Selection notification failed after meeting creation', {
+          meetingId: String(meeting._id),
+          error
+        });
+        notification = { sent: 0, skipped: 0, failed: 1, notConfigured: false };
+      }
+    }
+
     return NextResponse.json(
       {
         ...formatMeetingPayload(populated),
-        status: shouldCreateAsCompleted ? 'completed' : 'scheduled'
+        status: shouldCreateAsCompleted ? 'completed' : 'scheduled',
+        notification
       },
       { status: 201 }
     );
