@@ -75,7 +75,7 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
   const [report, setReport] = useState<IntelligenceReport | null>(null);
   const [error, setError] = useState('');
   const [loadingReport, setLoadingReport] = useState(false);
-  const [mood, setMood] = useState<DiscoveryMood>('conversation');
+  const [mood, setMood] = useState<DiscoveryMood | null>(null);
   const [timeBudget, setTimeBudget] = useState<TimeBudget>('any');
   const [selectedId, setSelectedId] = useState('');
   const [history, setHistory] = useState<Record<string, DiscoveryFeedbackRecord>>({});
@@ -164,7 +164,7 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
         const sourceBonus = item.sourceKey ? sourceSignals.get(item.sourceKey.trim().toLowerCase()) || 0 : 0;
         return {
           item,
-          adjustedScore: item.score + moodBonus(item, mood) + feedbackBonus + sourceBonus + Math.max(-14, Math.min(14, learnedThemeBonus))
+          adjustedScore: item.score + (mood ? moodBonus(item, mood) : 0) + feedbackBonus + sourceBonus + Math.max(-14, Math.min(14, learnedThemeBonus))
         };
       })
       .sort((a, b) => b.adjustedScore - a.adjustedScore)
@@ -173,7 +173,7 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
 
   const topSuggestion = ranked.find((item) => item.id === selectedId) || ranked[0];
   const shortlist = ranked.filter((item) => item.id !== topSuggestion?.id).slice(0, 6);
-  const selectedMood = MOODS.find((option) => option.id === mood) || MOODS[0];
+  const selectedMood = MOODS.find((option) => option.id === mood);
   const selectedTime = TIMES.find((option) => option.id === timeBudget) || TIMES[0];
 
   function showRecommendation(id: string) {
@@ -219,22 +219,30 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
 
         {report ? (
           <>
-            <div className="discovery-mood-grid" role="group" aria-label="What kind of podcast are you looking for?">
+            <div className="discovery-control-heading">
+              <strong>Discovery focus</strong>
+              <span>Optional — choose one to reorder the suggestions</span>
+            </div>
+            <div className="discovery-mood-grid" role="group" aria-label="Optional discovery focus">
               {MOODS.map((option, index) => (
                 <button
                   type="button"
                   key={option.id}
                   className={mood === option.id ? 'selected' : ''}
                   aria-pressed={mood === option.id}
-                  onClick={() => { setMood(option.id); setSelectedId(''); }}
+                  onClick={() => { setMood((current) => current === option.id ? null : option.id); setSelectedId(''); }}
                 >
                   <span className="discovery-mode-number" aria-hidden="true">0{index + 1}</span>
                   <span className="discovery-mode-copy"><strong>{option.label}</strong><small>{option.detail}</small></span>
+                  <span className="discovery-selected-mark" aria-hidden="true">✓</span>
                 </button>
               ))}
             </div>
             <div className="discovery-time-row" role="group" aria-label="Filter by listening time">
-              <strong>Listening time</strong>
+              <div className="discovery-control-heading">
+                <strong>Listening time</strong>
+                <span>Any length is on until you choose a range</span>
+              </div>
               {TIMES.map((option) => (
                 <button
                   type="button"
@@ -247,7 +255,7 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
             </div>
             <div className="discovery-filter-status" aria-live="polite">
               <strong>{ranked.length} matching suggestion{ranked.length === 1 ? '' : 's'}.</strong>{' '}
-              {selectedMood.label} changes the order; {selectedTime.label.toLowerCase()} filters the list.
+              {selectedMood ? `${selectedMood.label} changes the order; ` : 'No discovery focus selected; '}{selectedTime.label.toLowerCase()} filters the list.
               <span className="discovery-learning-summary">
                 {visibleThemeSignals.length
                   ? <>Your learning so far: {visibleThemeSignals.map((signal) => `${signal.label} ${signal.score > 0 ? '↑' : '↓'}`).join(' · ')}</>
@@ -285,7 +293,7 @@ export default function IntelligenceClient({ embedded = false }: { embedded?: bo
           </div>
           <div className="discovery-why">
             <h3>Why this discovery stands out</h3>
-            <p>It is the strongest current beta match for {selectedMood.label.toLowerCase()} and {selectedTime.label.toLowerCase()}, based on the club signals above.</p>
+            <p>It is the strongest current beta match for {selectedMood ? selectedMood.label.toLowerCase() : 'the club overall'} and {selectedTime.label.toLowerCase()}, based on the club signals above.</p>
             <ul>{topSuggestion.reasons.slice(0, 3).map((reason) => <li key={reason}>{reason}</li>)}</ul>
           </div>
           <DiscoveryReview

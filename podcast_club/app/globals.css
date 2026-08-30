@@ -6162,13 +6162,16 @@ button {
 
 .discovery-mood-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.55rem;
+  width: 100%;
+  margin-inline: auto;
 }
 
 .discovery-mood-grid button {
+  position: relative;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.7rem;
   min-width: 0;
@@ -6178,6 +6181,18 @@ button {
   background: var(--panel);
   color: var(--ink);
   text-align: left;
+}
+
+.discovery-control-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.discovery-control-heading > span {
+  color: var(--ink-soft);
+  font-size: 0.76rem;
 }
 
 .discovery-mode-number {
@@ -6209,11 +6224,36 @@ button {
   line-height: 1.3;
 }
 
+.discovery-selected-mark {
+  display: grid;
+  place-items: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  border-radius: 50%;
+  background: var(--panel);
+  color: var(--nav-more);
+  font-size: 0.8rem;
+  font-weight: 950;
+  opacity: 0;
+  transform: scale(0.72);
+}
+
 .discovery-mood-grid button.selected,
 .discovery-time-row button.selected,
 .discovery-feedback button.selected {
   background: var(--nav-more);
   color: var(--nav-more-ink);
+}
+
+.discovery-mood-grid button.selected,
+.discovery-time-row button.selected {
+  border-color: var(--nav-more);
+  box-shadow: 0 0 0 3px rgb(var(--more-rgb) / 0.22);
+}
+
+.discovery-mood-grid button.selected .discovery-selected-mark {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .discovery-mood-grid button.selected small {
@@ -6230,16 +6270,14 @@ button {
 }
 
 .discovery-time-row {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.45rem;
-  overflow-x: auto;
   padding-bottom: 0.12rem;
 }
 
-.discovery-time-row > strong,
-.discovery-time-row button {
-  flex: 0 0 auto;
+.discovery-time-row .discovery-control-heading {
+  grid-column: 1 / -1;
 }
 
 .discovery-time-row button,
@@ -6249,6 +6287,16 @@ button {
   border-radius: 999px;
   background: var(--panel);
   color: var(--nav-more);
+}
+
+.discovery-time-row button {
+  width: 100%;
+}
+
+.discovery-time-row button.selected::before {
+  content: '✓';
+  margin-right: 0.28rem;
+  font-weight: 950;
 }
 
 .discovery-filter-status {
@@ -6434,6 +6482,16 @@ button {
 
   .discovery-mood-grid {
     grid-template-columns: 1fr;
+  }
+
+  .discovery-time-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .discovery-control-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.18rem;
   }
 }
 
@@ -7803,6 +7861,16 @@ body {
 .podcast-discovery-embedded .discovery-feedback button.selected {
   background: var(--nav-podcasts) !important;
   color: var(--podcasts-ink) !important;
+}
+
+.podcast-discovery-embedded .discovery-mood-grid button.selected,
+.podcast-discovery-embedded .discovery-time-row button.selected {
+  border-color: var(--nav-podcasts) !important;
+  box-shadow: 0 0 0 3px rgb(var(--podcasts-rgb) / 0.24) !important;
+}
+
+.podcast-discovery-embedded .discovery-selected-mark {
+  color: var(--nav-podcasts);
 }
 
 .podcast-discovery-embedded .discovery-mood-grid button small {
