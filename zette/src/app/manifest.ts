@@ -1,23 +1,42 @@
 import type { MetadataRoute } from "next";
 
-import { BASE_PATH } from "@/lib/base-path";
+import { withBasePath } from "@/lib/base-path";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Zette",
     short_name: "Zette",
     description: "A fount of wisdom drawn from everything you've read.",
-    start_url: BASE_PATH || "/",
-    scope: BASE_PATH || "/",
+    id: withBasePath("/"),
+    start_url: withBasePath("/"),
+    scope: withBasePath("/"),
     display: "standalone",
     orientation: "portrait",
-    background_color: "#f4efe6",
-    theme_color: "#f4efe6",
+    background_color: "#f5efe6",
+    theme_color: "#f5efe6",
     icons: [
       {
-        src: "/favicon.ico",
+        src: withBasePath("/icons/zette-icon-192.png"),
+        sizes: "192x192",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: withBasePath("/icons/zette-icon-512.png"),
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: withBasePath("/icons/zette-maskable-512.png"),
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "maskable",
+      },
+      {
+        src: withBasePath("/icons/zette-icon.svg"),
         sizes: "any",
-        type: "image/x-icon",
+        type: "image/svg+xml",
       },
     ],
   };

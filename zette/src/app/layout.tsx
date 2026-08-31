@@ -13,6 +13,7 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
+  applicationName: "Zette",
   title: "Zette",
   description: "A fount of wisdom drawn from everything you've read.",
   appleWebApp: {
