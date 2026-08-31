@@ -8,6 +8,7 @@ declare global {
 
 const CHECK_INTERVAL_MS = 30 * 60 * 1000;
 const MAX_TIMEOUT_MS = 2_147_483_647;
+const ONE_TIME_SWEEP_GRACE_MS = 24 * 60 * 60 * 1000;
 
 function getOneTimeSweepAt() {
   const configuredAt = process.env.PODCAST_CLUB_ONE_TIME_SWEEP_AT;
@@ -19,12 +20,16 @@ function getOneTimeSweepAt() {
 
 async function checkOneTimePodcastReviewSweep() {
   const sweepAt = getOneTimeSweepAt();
-  if (!sweepAt || Date.now() < sweepAt.getTime()) return;
+  if (!sweepAt) return;
+
+  const delay = Date.now() - sweepAt.getTime();
+  if (delay < 0 || delay > ONE_TIME_SWEEP_GRACE_MS) return;
 
   try {
     const result = await runWeeklyPodcastReviewSweep({
       reminderKey: `one-time:${sweepAt.toISOString()}`,
-      mailingName: 'One-time review sweep'
+      mailingName: 'One-time review sweep',
+      reminderField: 'oneTimePodcastReminderKey'
     });
     if (!result.notConfigured && (result.sent > 0 || result.failed > 0)) {
       console.log('[podcast-notifications] One-time sweep complete', result);

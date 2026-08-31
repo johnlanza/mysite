@@ -45,6 +45,13 @@ type AdminRecipient = {
   email: string;
 };
 
+type ReminderField = 'weeklyPodcastReminderKey' | 'oneTimePodcastReminderKey';
+
+function buildEmailIdempotencyKey(namespace: string, ...parts: string[]) {
+  const fingerprint = createHash('sha256').update(parts.join('|')).digest('hex').slice(0, 32);
+  return `${namespace}-${fingerprint}`;
+}
+
 type MeetingSelectionPodcastDetails = PodcastNotificationDetails;
 
 type ApplePodcastResult = {
@@ -142,12 +149,14 @@ async function sendAdminEmailReports({
   admins,
   mailingName,
   sentRecipients,
-  failedRecipients
+  failedRecipients,
+  reportKey
 }: {
   admins: AdminRecipient[];
   mailingName: string;
   sentRecipients: EmailReportRecipient[];
   failedRecipients: EmailReportRecipient[];
+  reportKey?: string;
 }) {
   if (sentRecipients.length === 0 && failedRecipients.length === 0) {
     return { sent: 0, failed: 0 };
@@ -160,7 +169,10 @@ async function sendAdminEmailReports({
         recipientName: admin.name,
         mailingName,
         sentRecipients,
-        failedRecipients
+        failedRecipients,
+        idempotencyKey: reportKey
+          ? buildEmailIdempotencyKey('podcast-report', reportKey, admin.email)
+          : undefined
       })
     )
   );
@@ -354,10 +366,12 @@ export async function notifyMembersOfMeetingSelection({
 
 export async function runWeeklyPodcastReviewSweep({
   reminderKey = getWeekKey(),
-  mailingName = 'Weekly review reminders'
+  mailingName = 'Weekly review reminders',
+  reminderField = 'weeklyPodcastReminderKey'
 }: {
   reminderKey?: string;
   mailingName?: string;
+  reminderField?: ReminderField;
 } = {}) {
   if (!isEmailDeliveryConfigured()) {
     return { sent: 0, skipped: 0, failed: 0, notConfigured: true };
@@ -365,7 +379,9 @@ export async function runWeeklyPodcastReviewSweep({
 
   await connectToDatabase();
   const [members, podcasts] = await Promise.all([
-    MemberModel.find().select('name email isAdmin').lean(),
+    MemberModel.find()
+      .select('name email isAdmin weeklyPodcastReminderKey oneTimePodcastReminderKey')
+      .lean(),
     PodcastModel.find({ status: 'pending' })
       .select('title host episodeCount episodeNames totalTimeMinutes link notes ratings')
       .lean<PodcastNotificationDetails[]>()
@@ -387,9 +403,9 @@ export async function runWeeklyPodcastReviewSweep({
     const claimedMember = await MemberModel.findOneAndUpdate(
       {
         _id: member._id,
-        weeklyPodcastReminderKey: { $ne: reminderKey }
+        [reminderField]: { $ne: reminderKey }
       },
-      { $set: { weeklyPodcastReminderKey: reminderKey } }
+      { $set: { [reminderField]: reminderKey } }
     )
       .select('_id')
       .lean();
@@ -402,6 +418,7 @@ export async function runWeeklyPodcastReviewSweep({
       const result = await sendWeeklyReviewReminderEmail({
         to: member.email,
         recipientName: member.name,
+        idempotencyKey: buildEmailIdempotencyKey('podcast-review', reminderKey, memberId),
         podcasts: missingPodcasts.map((podcast) => ({
           title: podcast.title,
           host: podcast.host,
@@ -415,8 +432,8 @@ export async function runWeeklyPodcastReviewSweep({
 
       if (!result.delivered) {
         await MemberModel.updateOne(
-          { _id: member._id, weeklyPodcastReminderKey: reminderKey },
-          { $unset: { weeklyPodcastReminderKey: 1 } }
+          { _id: member._id, [reminderField]: reminderKey },
+          { $unset: { [reminderField]: 1 } }
         );
         failedRecipients.push({
           name: member.name,
@@ -435,8 +452,8 @@ export async function runWeeklyPodcastReviewSweep({
       });
     } catch (error) {
       await MemberModel.updateOne(
-        { _id: member._id, weeklyPodcastReminderKey: reminderKey },
-        { $unset: { weeklyPodcastReminderKey: 1 } }
+        { _id: member._id, [reminderField]: reminderKey },
+        { $unset: { [reminderField]: 1 } }
       );
       failed += 1;
       failedRecipients.push({
@@ -455,7 +472,8 @@ export async function runWeeklyPodcastReviewSweep({
     admins: members.filter((member) => member.isAdmin),
     mailingName,
     sentRecipients,
-    failedRecipients
+    failedRecipients,
+    reportKey: `review-sweep:${reminderKey}`
   });
 
   return { sent, skipped, failed, notConfigured: false, adminReport };

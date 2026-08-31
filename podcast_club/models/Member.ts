@@ -19,7 +19,8 @@ const MemberSchema = new Schema(
     accountStatus: { type: String, enum: ['pending', 'claimed'], default: 'claimed' },
     claimCodeHash: { type: String, default: null, select: false },
     claimCodeExpiresAt: { type: Date, default: null },
-    weeklyPodcastReminderKey: { type: String, default: null }
+    weeklyPodcastReminderKey: { type: String, default: null },
+    oneTimePodcastReminderKey: { type: String, default: null }
   },
   { timestamps: true }
 );

@@ -49,6 +49,7 @@ type SendWeeklyReviewReminderEmailParams = {
   to: string;
   recipientName: string;
   podcasts: PodcastEmailDetails[];
+  idempotencyKey: string;
 };
 
 export type MeetingSelectionEmailPodcast = PodcastEmailDetails & {
@@ -78,6 +79,7 @@ type SendPodcastEmailReportParams = {
   mailingName: string;
   sentRecipients: EmailReportRecipient[];
   failedRecipients: EmailReportRecipient[];
+  idempotencyKey?: string;
 };
 
 function getBaseUrl() {
@@ -221,7 +223,8 @@ export async function sendNewPodcastEmail({
 export async function sendWeeklyReviewReminderEmail({
   to,
   recipientName,
-  podcasts
+  podcasts,
+  idempotencyKey
 }: SendWeeklyReviewReminderEmailParams) {
   const podcastItems = podcasts
     .map(
@@ -234,6 +237,7 @@ export async function sendWeeklyReviewReminderEmail({
 
   return sendEmail({
     to,
+    idempotencyKey,
     subject: `${podcasts.length} podcast${podcasts.length === 1 ? '' : 's'} awaiting your review`,
     html: [
       `<p>Hi ${escapeHtml(recipientName || 'there')},</p>`,
@@ -340,7 +344,8 @@ export async function sendPodcastEmailReport({
   recipientName,
   mailingName,
   sentRecipients,
-  failedRecipients
+  failedRecipients,
+  idempotencyKey
 }: SendPodcastEmailReportParams) {
   const recipientList = (recipients: EmailReportRecipient[]) =>
     recipients
@@ -353,6 +358,7 @@ export async function sendPodcastEmailReport({
 
   return sendEmail({
     to,
+    idempotencyKey,
     subject: `Podcast Club email report: ${mailingName}`,
     html: [
       `<p>Hi ${escapeHtml(recipientName || 'there')},</p>`,
