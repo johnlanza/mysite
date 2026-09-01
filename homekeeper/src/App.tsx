@@ -15,7 +15,6 @@ import {
   Fan,
   Filter,
   Hammer,
-  Home,
   KeyRound,
   Leaf,
   Paintbrush,
@@ -721,7 +720,7 @@ function App() {
       <header className="topbar">
         <div className="brand">
           <div className="brand-mark">
-            <Home size={24} />
+            <img src="/homekeeper/icon-192.png" alt="" />
           </div>
           <div>
             <p className="eyebrow">Local schedule</p>
