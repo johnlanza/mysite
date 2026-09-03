@@ -6,8 +6,8 @@
   "scope": "/homekeeper/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f7f3ea",
-  "theme_color": "#f7f3ea",
+  "background_color": "#c84c0b",
+  "theme_color": "#c84c0b",
   "categories": ["lifestyle", "productivity", "utilities"],
   "icons": [
     {

@@ -1,8 +1,11 @@
-const CACHE_NAME = 'homekeeper-shell-v2';
+const CACHE_NAME = 'homekeeper-shell-v4';
 const APP_SHELL = [
   '/homekeeper/',
   '/homekeeper/index.html',
   '/homekeeper/manifest.webmanifest',
+  '/homekeeper/favicon.ico',
+  '/homekeeper/favicon-32.png',
+  '/homekeeper/favicon-16.png',
   '/homekeeper/icon.png',
   '/homekeeper/icon-192.png',
   '/homekeeper/icon-512.png',
