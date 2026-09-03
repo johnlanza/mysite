@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Zette porcelain brain icon">
+  <defs>
+    <radialGradient id="field" cx="42%" cy="24%" r="92%">
+      <stop offset="0%" stop-color="#613066" />
+      <stop offset="48%" stop-color="#4a1f4e" />
+      <stop offset="100%" stop-color="#2c1430" />
+    </radialGradient>
+    <radialGradient id="fieldGlow" cx="32%" cy="20%" r="78%">
+      <stop offset="0%" stop-color="#78427a" stop-opacity="0.58" />
+      <stop offset="52%" stop-color="#4e2452" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#231026" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="brain" cx="39%" cy="18%" r="92%">
+      <stop offset="0%" stop-color="#dca2d5" />
+      <stop offset="44%" stop-color="#be70b5" />
+      <stop offset="100%" stop-color="#8d4288" />
+    </radialGradient>
+    <linearGradient id="brainLowerShade" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#f0b8e5" stop-opacity="0.1" />
+      <stop offset="56%" stop-color="#7d347d" stop-opacity="0.22" />
+      <stop offset="100%" stop-color="#53245d" stop-opacity="0.38" />
+    </linearGradient>
+    <filter id="raisedBrain" x="-18%" y="-18%" width="136%" height="146%">
+      <feDropShadow dx="0" dy="15" stdDeviation="12" flood-color="#1e0b23" flood-opacity="0.38" />
+      <feDropShadow dx="-7" dy="-8" stdDeviation="7" flood-color="#ffd8f5" flood-opacity="0.22" />
+      <feDropShadow dx="5" dy="5" stdDeviation="4" flood-color="#5a275d" flood-opacity="0.24" />
+    </filter>
+    <filter id="grooveShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="2.4" flood-color="#421744" flood-opacity="0.58" />
+    </filter>
+    <clipPath id="brainClip">
+      <path d="M251 117c-25-24-67-19-82 17-31 3-54 25-58 57-27 18-39 52-27 83-17 33 2 75 39 88 13 35 59 52 94 35 14 15 39 15 53 0 35 17 81 0 94-35 37-13 56-55 39-88 12-31 0-65-27-83-4-32-27-54-58-57-15-36-57-41-82-17-9-4-19-4-28 0Z" />
+    </clipPath>
+  </defs>
+
+  <rect width="512" height="512" fill="url(#field)" />
+  <rect width="512" height="512" fill="url(#fieldGlow)" />
+  <path d="M52 86c0-20 15-35 35-35h338c20 0 35 15 35 35v340c0 20-15 35-35 35H87c-20 0-35-15-35-35V86Z" fill="none" stroke="#704076" stroke-width="3" opacity="0.46" />
+
+  <g filter="url(#raisedBrain)">
+    <path d="M251 117c-25-24-67-19-82 17-31 3-54 25-58 57-27 18-39 52-27 83-17 33 2 75 39 88 13 35 59 52 94 35 14 15 39 15 53 0 35 17 81 0 94-35 37-13 56-55 39-88 12-31 0-65-27-83-4-32-27-54-58-57-15-36-57-41-82-17-9-4-19-4-28 0Z" fill="url(#brain)" />
+    <path d="M251 117c-25-24-67-19-82 17-31 3-54 25-58 57-27 18-39 52-27 83-17 33 2 75 39 88 13 35 59 52 94 35 14 15 39 15 53 0 35 17 81 0 94-35 37-13 56-55 39-88 12-31 0-65-27-83-4-32-27-54-58-57-15-36-57-41-82-17-9-4-19-4-28 0Z" fill="url(#brainLowerShade)" />
+    <path d="M219 127c-19 31-19 64 0 99 7 14 7 30 0 45-17 37-11 75 18 113" fill="none" stroke="#f3b9e9" stroke-width="7" stroke-linecap="round" opacity="0.22" />
+    <path d="M294 127c19 31 19 64 0 99-7 14-7 30 0 45 17 37 11 75-18 113" fill="none" stroke="#f3b9e9" stroke-width="7" stroke-linecap="round" opacity="0.18" />
+  </g>
+
+  <g clip-path="url(#brainClip)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke="#61265f" stroke-width="13" opacity="0.68" filter="url(#grooveShadow)">
+      <path d="M247 130c-7 43-6 82 2 118 4 19 4 38-1 56-5 25-3 55 7 89" />
+      <path d="M169 169c29-14 58-8 80 18" />
+      <path d="M127 234c36-14 72-5 101 27" />
+      <path d="M138 315c32-20 66-21 101-3" />
+      <path d="M344 169c-29-14-58-8-80 18" />
+      <path d="M386 234c-36-14-72-5-101 27" />
+      <path d="M374 315c-32-20-66-21-101-3" />
+    </g>
+    <g stroke="#d994d1" stroke-width="6" opacity="0.78">
+      <path d="M246 128c-7 43-6 82 2 118 4 19 4 38-1 56-5 25-3 55 7 89" />
+      <path d="M166 165c31-14 61-7 83 21" />
+      <path d="M124 230c38-14 75-4 105 29" />
+      <path d="M135 311c34-20 69-21 105-2" />
+      <path d="M347 165c-31-14-61-7-83 21" />
+      <path d="M389 230c-38-14-75-4-105 29" />
+      <path d="M377 311c-34-20-69-21-105-2" />
+    </g>
+  </g>
+
+  <path d="M153 151c-44 40-57 88-40 145 9 30 30 50 63 59" fill="none" stroke="#efbbe7" stroke-width="8" stroke-linecap="round" opacity="0.14" />
+  <path d="M359 151c44 40 57 88 40 145-9 30-30 50-63 59" fill="none" stroke="#3a153d" stroke-width="9" stroke-linecap="round" opacity="0.2" />
+</svg>

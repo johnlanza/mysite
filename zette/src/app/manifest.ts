@@ -1,5 +1,10 @@
 import type { MetadataRoute } from "next";
 
+import {
+  ZETTE_ICON_BACKGROUND_COLOR,
+  ZETTE_ICON_THEME_COLOR,
+  withIconVersion,
+} from "@/lib/icon-config";
 import { withBasePath } from "@/lib/base-path";
 
 export default function manifest(): MetadataRoute.Manifest {
@@ -12,23 +17,23 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: withBasePath("/"),
     display: "standalone",
     orientation: "portrait",
-    background_color: "#f5efe6",
-    theme_color: "#f5efe6",
+    background_color: ZETTE_ICON_BACKGROUND_COLOR,
+    theme_color: ZETTE_ICON_THEME_COLOR,
     icons: [
       {
-        src: withBasePath("/icons/zette-icon-192.png"),
+        src: withBasePath(withIconVersion("/icons/zette-icon-192.png")),
         sizes: "192x192",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: withBasePath("/icons/zette-icon-512.png"),
+        src: withBasePath(withIconVersion("/icons/zette-icon-512.png")),
         sizes: "512x512",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: withBasePath("/icons/zette-maskable-512.png"),
+        src: withBasePath(withIconVersion("/icons/zette-maskable-512.png")),
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",
