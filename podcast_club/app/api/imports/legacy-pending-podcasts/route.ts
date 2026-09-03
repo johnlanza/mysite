@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth';
 import { connectToDatabase } from '@/lib/db';
-import { normalizeHeader, parseCsv, parsePositiveInt } from '@/lib/csv-import';
+import { normalizeHeader, parseCsv, parseDurationMinutes, parsePositiveInt } from '@/lib/csv-import';
 import { getRatingPoints } from '@/lib/ranking';
 import MemberModel from '@/models/Member';
 import PodcastModel from '@/models/Podcast';
@@ -57,34 +57,6 @@ function normalizeRating(value: string) {
   if (normalized === 'i like it a lot.') return 'I like it a lot.';
   if (normalized === 'no selection' || normalized === 'no selection.') return 'No selection';
   return null;
-}
-
-function parseDurationMinutes(value: string) {
-  const raw = String(value || '').trim();
-  if (!raw) return 1;
-
-  const asNumber = Number(raw);
-  if (Number.isFinite(asNumber) && asNumber > 0) {
-    return Math.max(1, Math.round(asNumber));
-  }
-
-  const hoursMatch = raw.toLowerCase().match(/(\d+(?:\.\d+)?)\s*h/);
-  if (hoursMatch) {
-    const hours = Number(hoursMatch[1]);
-    if (Number.isFinite(hours) && hours > 0) {
-      return Math.max(1, Math.round(hours * 60));
-    }
-  }
-
-  const minutesMatch = raw.toLowerCase().match(/(\d+(?:\.\d+)?)\s*m/);
-  if (minutesMatch) {
-    const minutes = Number(minutesMatch[1]);
-    if (Number.isFinite(minutes) && minutes > 0) {
-      return Math.max(1, Math.round(minutes));
-    }
-  }
-
-  return 1;
 }
 
 export async function GET() {
@@ -181,7 +153,12 @@ export async function POST(req: Request) {
       const link = String(row[linkIndex] || '').trim() || '#';
       const notes = String(row[notesIndex] || '').trim();
       const episodeCount = parsePositiveInt(String(row[episodeCountIndex] || ''), 1);
-      const totalTimeMinutes = parseDurationMinutes(String(row[totalTimeIndex] || ''));
+      const rawDuration = String(row[totalTimeIndex] || '').trim();
+      const totalTimeMinutes = parseDurationMinutes(rawDuration);
+      if (totalTimeMinutes === null) {
+        warnings.push(`Row ${rowNumber}: total time '${rawDuration || '(blank)'}' is missing or invalid; row skipped.`);
+        continue;
+      }
 
       const ratings: { member: string; value: string; points: number }[] = [];
       const owners: string[] = [];

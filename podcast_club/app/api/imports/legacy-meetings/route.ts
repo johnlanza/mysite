@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth';
 import { connectToDatabase } from '@/lib/db';
-import { normalizeHeader, parseCsv, parseDateValue, parsePositiveInt } from '@/lib/csv-import';
+import { normalizeHeader, parseCsv, parseDateValue, parseDurationMinutes, parsePositiveInt } from '@/lib/csv-import';
 import CarveOutModel from '@/models/CarveOut';
 import MeetingModel from '@/models/Meeting';
 import MemberModel from '@/models/Member';
@@ -160,7 +160,12 @@ export async function POST(req: Request) {
       const podcastNotes = getCellByMapping(row, headers, mapping, 'podcastNotes');
 
       const episodeCount = parsePositiveInt(getCellByMapping(row, headers, mapping, 'podcastEpisodeCount'), 1);
-      const totalTimeMinutes = parsePositiveInt(getCellByMapping(row, headers, mapping, 'podcastTotalTimeMinutes'), 1);
+      const rawDuration = getCellByMapping(row, headers, mapping, 'podcastTotalTimeMinutes');
+      const totalTimeMinutes = parseDurationMinutes(rawDuration);
+      if (totalTimeMinutes === null) {
+        warnings.push(`Row ${rowNumber}: total time '${rawDuration || '(blank)'}' is missing or invalid; row skipped.`);
+        continue;
+      }
 
       const meetingDateInput = getCellByMapping(row, headers, mapping, 'meetingDate');
       const meetingDate = resolveDate(meetingDateInput, i);
