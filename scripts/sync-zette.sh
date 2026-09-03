@@ -15,6 +15,7 @@ fi
 npm --prefix zette run quotes:build
 npm --prefix zette run books:build
 npm --prefix zette run questions:build
+npm --prefix zette run brain:build
 npm --prefix zette run embeddings:build
 npm run build
 
@@ -23,9 +24,12 @@ git add \
   scripts/sync-zette.sh \
   scripts/sync-zette-questions.sh \
   zette/AGENTS.md \
+  zette/scripts/build-brain-dataset.mjs \
   zette/scripts/build-embeddings.mjs \
+  zette/src/lib/brain-data.ts \
   zette/src/lib/echoes.ts \
   zette/src/data/book-notes.json \
+  zette/src/data/brain.json \
   zette/src/data/embeddings.json \
   zette/src/data/questions.json \
   zette/src/data/quotes.json

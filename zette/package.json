@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "node --test tests/*.test.mjs",
     "quotes:build": "node ./scripts/build-quotes-dataset.mjs",
     "books:build": "node ./scripts/build-book-notes-dataset.mjs",
     "questions:build": "node ./scripts/build-questions-dataset.mjs",

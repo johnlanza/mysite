@@ -1,12 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import { PieceNoteBox } from "@/components/piece-note-box";
 import { RefreshQuotesButton } from "@/components/refresh-quotes-button";
 import { withBasePath } from "@/lib/base-path";
 import type { Piece } from "@/lib/pieces";
+import {
+  buildPieceHref,
+  buildTagsHref,
+  navigateSearchResultClick,
+} from "@/lib/search-navigation";
 
 type PieceSearchProps = {
   pieces: Piece[];
@@ -23,34 +29,6 @@ const TAG_SORT_OPTIONS: { value: TagSortMode; label: string }[] = [
   { value: "frequency", label: "Frequency" },
 ];
 
-function pieceHref(piece: Piece, selectedTags: string[], piecePath: string): string {
-  const params = new URLSearchParams();
-
-  if (selectedTags.length > 0) {
-    params.set("tags", selectedTags.join(","));
-  }
-
-  params.set("p", piece.id);
-
-  return `${piecePath}?${params.toString()}`;
-}
-
-function tagsHref(selectedTags: string[], tag: string | null): string {
-  if (!tag) {
-    return "/";
-  }
-
-  const nextTags = selectedTags.includes(tag)
-    ? selectedTags.filter((value) => value !== tag)
-    : [...selectedTags, tag];
-
-  if (nextTags.length === 0) {
-    return "/";
-  }
-
-  return `/?tags=${encodeURIComponent(nextTags.join(","))}`;
-}
-
 export function PieceSearch({
   pieces,
   tags,
@@ -59,6 +37,7 @@ export function PieceSearch({
   piecePath = "/",
   onSelectPiece,
 }: PieceSearchProps) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const isBrowse = mode === "browse";
   const [showTags, setShowTags] = useState(isBrowse);
@@ -278,7 +257,7 @@ export function PieceSearch({
                     ? "border-line bg-[#fffaf3]/75 text-muted hover:border-accent hover:text-accent"
                     : "border-accent bg-accent text-[#f8f2e9]"
                 }`}
-                href={tagsHref(selectedTags, null)}
+                href={buildTagsHref(selectedTags, null)}
               >
                 All
               </Link>
@@ -290,7 +269,7 @@ export function PieceSearch({
                       ? "border-accent bg-accent text-[#f8f2e9]"
                       : "border-line bg-[#fffaf3]/75 text-muted hover:border-accent hover:text-accent"
                   }`}
-                  href={tagsHref(selectedTags, tag)}
+                  href={buildTagsHref(selectedTags, tag)}
                 >
                   #{tag}
                   {tagSort === "frequency" ? (
@@ -322,16 +301,27 @@ export function PieceSearch({
                   : "max-h-[22rem] space-y-3 overflow-y-auto pr-1"
               }
             >
-              {results.map((piece) => (
-                <li key={piece.id}>
-                  <PieceNoteBox
-                    className={isBrowse ? "h-full sm:px-6 sm:py-5" : ""}
-                    href={pieceHref(piece, selectedTags, piecePath)}
-                    onClick={onSelectPiece}
-                    piece={piece}
-                  />
-                </li>
-              ))}
+              {results.map((piece) => {
+                const href = buildPieceHref(piece.id, selectedTags, piecePath);
+
+                return (
+                  <li key={piece.id}>
+                    <PieceNoteBox
+                      className={isBrowse ? "h-full sm:px-6 sm:py-5" : ""}
+                      href={href}
+                      onClick={(event) =>
+                        navigateSearchResultClick(
+                          event,
+                          href,
+                          (nextHref) => router.push(nextHref),
+                          onSelectPiece,
+                        )
+                      }
+                      piece={piece}
+                    />
+                  </li>
+                );
+              })}
             </ul>
           ) : (
             <p className="rounded-[1.25rem] border border-line bg-card/78 px-5 py-4 text-sm text-muted">
