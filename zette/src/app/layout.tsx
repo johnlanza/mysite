@@ -1,5 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Manrope, Newsreader } from "next/font/google";
+import {
+  ZETTE_ICON_THEME_COLOR,
+  withIconVersion,
+} from "@/lib/icon-config";
+import { withBasePath } from "@/lib/base-path";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -16,6 +21,23 @@ export const metadata: Metadata = {
   applicationName: "Zette",
   title: "Zette",
   description: "A fount of wisdom drawn from everything you've read.",
+  icons: {
+    icon: [
+      { url: withBasePath(withIconVersion("/favicon.ico")), sizes: "any" },
+      {
+        url: withBasePath(withIconVersion("/icon.png")),
+        sizes: "512x512",
+        type: "image/png",
+      },
+    ],
+    apple: [
+      {
+        url: withBasePath(withIconVersion("/apple-icon.png")),
+        sizes: "180x180",
+        type: "image/png",
+      },
+    ],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -29,8 +51,8 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f4efe6" },
-    { media: "(prefers-color-scheme: dark)", color: "#1d241f" },
+    { media: "(prefers-color-scheme: light)", color: ZETTE_ICON_THEME_COLOR },
+    { media: "(prefers-color-scheme: dark)", color: "#241026" },
   ],
 };
 
