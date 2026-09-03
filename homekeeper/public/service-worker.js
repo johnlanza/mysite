@@ -1,4 +1,4 @@
-const CACHE_NAME = 'homekeeper-shell-v1';
+const CACHE_NAME = 'homekeeper-shell-v2';
 const APP_SHELL = [
   '/homekeeper/',
   '/homekeeper/index.html',
@@ -6,15 +6,55 @@ const APP_SHELL = [
   '/homekeeper/icon.png',
   '/homekeeper/icon-192.png',
   '/homekeeper/icon-512.png',
+  '/homekeeper/icon-maskable-192.png',
+  '/homekeeper/icon-maskable-512.png',
   '/homekeeper/apple-touch-icon.png',
 ];
 
+async function buildCacheList() {
+  try {
+    const response = await fetch('/homekeeper/index.html', { cache: 'reload' });
+    if (!response.ok) {
+      return APP_SHELL;
+    }
+
+    const html = await response.text();
+    const buildAssets = [...html.matchAll(/(?:href|src)="(\/homekeeper\/assets\/[^"]+)"/g)].map(
+      (match) => match[1],
+    );
+    return [...new Set([...APP_SHELL, ...buildAssets])];
+  } catch {
+    return APP_SHELL;
+  }
+}
+
+async function cacheUrl(cache, url) {
+  try {
+    const response = await fetch(url, { cache: 'reload' });
+    if (response.ok) {
+      await cache.put(url, response);
+    }
+  } catch {
+    // A missed optional asset should not prevent the service worker from installing.
+  }
+}
+
+async function cacheRequest(request) {
+  const response = await fetch(request);
+  if (response.ok) {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.put(request, response.clone());
+  }
+  return response;
+}
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches
-      .open(CACHE_NAME)
-      .then((cache) => cache.addAll(APP_SHELL))
-      .then(() => self.skipWaiting()),
+    caches.open(CACHE_NAME).then(async (cache) => {
+      const urls = await buildCacheList();
+      await Promise.all(urls.map((url) => cacheUrl(cache, url)));
+      await self.skipWaiting();
+    }),
   );
 });
 
@@ -42,7 +82,9 @@ self.addEventListener('fetch', (event) => {
 
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match('/homekeeper/index.html')),
+      cacheRequest(event.request).catch(
+        () => caches.match('/homekeeper/index.html') || caches.match('/homekeeper/'),
+      ),
     );
     return;
   }
@@ -50,17 +92,11 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) {
+        event.waitUntil(cacheRequest(event.request).catch(() => undefined));
         return cached;
       }
 
-      return fetch(event.request).then((response) => {
-        if (response.ok) {
-          const responseCopy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseCopy));
-        }
-
-        return response;
-      });
+      return cacheRequest(event.request);
     }),
   );
 });

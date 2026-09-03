@@ -13,6 +13,23 @@ const homekeeperSyncSchema = new Schema(
       type: Schema.Types.Mixed,
       required: true,
     },
+    history: [
+      {
+        savedAt: {
+          type: Date,
+          required: true,
+        },
+        summary: {
+          customTasks: { type: Number, default: 0 },
+          completions: { type: Number, default: 0 },
+          archivedTaskIds: { type: Number, default: 0 },
+        },
+        state: {
+          type: Schema.Types.Mixed,
+          required: true,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );

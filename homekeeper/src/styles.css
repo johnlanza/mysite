@@ -423,6 +423,45 @@ h1 {
   background: #ffe0eb;
 }
 
+.sync-status.is-warning {
+  color: #7b4b00;
+  background: #ffedd0;
+}
+
+.backup-safety {
+  display: grid;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.safety-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 14px;
+  background: rgba(247, 243, 234, 0.72);
+}
+
+.safety-row span {
+  color: #6e675e;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.safety-row strong {
+  color: #171717;
+  font-size: 0.82rem;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
+}
+
 .up-next-list {
   display: grid;
   gap: 8px;

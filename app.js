@@ -703,6 +703,21 @@ function isDatabaseReady() {
   return mongoose.connection.readyState === 1;
 }
 
+function summarizeHomekeeperState(state) {
+  return {
+    customTasks: Array.isArray(state?.customTasks) ? state.customTasks.length : 0,
+    completions: Array.isArray(state?.completions) ? state.completions.length : 0,
+    archivedTaskIds: Array.isArray(state?.archivedTaskIds)
+      ? state.archivedTaskIds.length
+      : 0,
+  };
+}
+
+function hasHomekeeperUserData(state) {
+  const summary = summarizeHomekeeperState(state);
+  return summary.customTasks + summary.completions + summary.archivedTaskIds > 0;
+}
+
 app.get("/api/homekeeper-sync", async (req, res, next) => {
   try {
     const syncKeyHash = req.query.key;
@@ -723,6 +738,7 @@ app.get("/api/homekeeper-sync", async (req, res, next) => {
       exists: true,
       state: backup.state,
       updatedAt: backup.updatedAt,
+      summary: summarizeHomekeeperState(backup.state),
     });
   } catch (err) {
     next(err);
@@ -748,15 +764,49 @@ app.put("/api/homekeeper-sync", async (req, res, next) => {
       return res.status(503).json({ error: "Sync storage is unavailable." });
     }
 
-    const backup = await HomekeeperSync.findOneAndUpdate(
-      { syncKeyHash },
-      { $set: { state } },
-      { new: true, upsert: true, setDefaultsOnInsert: true }
-    ).lean();
+    const existingBackup = await HomekeeperSync.findOne({ syncKeyHash });
+    if (
+      existingBackup &&
+      hasHomekeeperUserData(existingBackup.state) &&
+      !hasHomekeeperUserData(state)
+    ) {
+      return res.status(409).json({
+        error: "Empty overwrite blocked. Restore local history first.",
+        updatedAt: existingBackup.updatedAt,
+        summary: summarizeHomekeeperState(existingBackup.state),
+      });
+    }
+
+    const update = {
+      $set: { state },
+      $setOnInsert: { history: [] },
+    };
+
+    if (existingBackup) {
+      update.$push = {
+        history: {
+          $each: [
+            {
+              savedAt: existingBackup.updatedAt || new Date(),
+              summary: summarizeHomekeeperState(existingBackup.state),
+              state: existingBackup.state,
+            },
+          ],
+          $slice: -20,
+        },
+      };
+    }
+
+    const backup = await HomekeeperSync.findOneAndUpdate({ syncKeyHash }, update, {
+      new: true,
+      upsert: true,
+      setDefaultsOnInsert: true,
+    }).lean();
 
     res.json({
       ok: true,
       updatedAt: backup.updatedAt,
+      summary: summarizeHomekeeperState(backup.state),
     });
   } catch (err) {
     next(err);

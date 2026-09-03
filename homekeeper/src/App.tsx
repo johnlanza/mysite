@@ -35,6 +35,8 @@ import type { Category, Completion, MaintenanceTask, Preferences, StoredState } 
 
 const STORAGE_KEY = 'homekeeper-state-v1';
 const SYNC_STORAGE_KEY = 'homekeeper-sync-v1';
+const SNAPSHOTS_STORAGE_KEY = 'homekeeper-snapshots-v1';
+const MAX_LOCAL_SNAPSHOTS = 40;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 type CSSVarStyle = CSSProperties & Record<`--${string}`, string | number>;
@@ -110,8 +112,23 @@ interface SyncSettings {
 }
 
 interface SyncStatus {
-  tone: 'idle' | 'syncing' | 'success' | 'error';
+  tone: 'idle' | 'syncing' | 'success' | 'error' | 'warning';
   message: string;
+}
+
+interface SnapshotSummary {
+  customTasks: number;
+  completions: number;
+  archivedTaskIds: number;
+}
+
+interface LocalSnapshot {
+  id: string;
+  createdAt: string;
+  reason: 'auto' | 'before-backup-restore' | 'before-snapshot-restore';
+  fingerprint: string;
+  summary: SnapshotSummary;
+  state: StoredState;
 }
 
 const defaultSyncSettings: SyncSettings = {
@@ -137,6 +154,102 @@ function normalizeStoredState(parsed?: Partial<StoredState> | null): StoredState
     archivedTaskIds: Array.isArray(parsed?.archivedTaskIds) ? parsed.archivedTaskIds : [],
     preferences,
   };
+}
+
+function summarizeState(state: StoredState): SnapshotSummary {
+  return {
+    customTasks: state.customTasks.length,
+    completions: state.completions.length,
+    archivedTaskIds: state.archivedTaskIds.length,
+  };
+}
+
+function hasUserData(state: StoredState) {
+  const summary = summarizeState(state);
+  return summary.customTasks + summary.completions + summary.archivedTaskIds > 0;
+}
+
+function stateFingerprint(state: StoredState) {
+  return JSON.stringify({
+    customTasks: state.customTasks,
+    completions: state.completions,
+    archivedTaskIds: state.archivedTaskIds,
+    preferences: state.preferences,
+  });
+}
+
+function readLocalSnapshots(): LocalSnapshot[] {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
+  try {
+    const raw = window.localStorage.getItem(SNAPSHOTS_STORAGE_KEY);
+    if (!raw) {
+      return [];
+    }
+
+    const parsed = JSON.parse(raw) as Partial<LocalSnapshot>[];
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed
+      .map((snapshot) => {
+        const state = normalizeStoredState(snapshot.state);
+        const createdAt =
+          typeof snapshot.createdAt === 'string' ? snapshot.createdAt : new Date().toISOString();
+        const fingerprint =
+          typeof snapshot.fingerprint === 'string' ? snapshot.fingerprint : stateFingerprint(state);
+        const reason: LocalSnapshot['reason'] =
+          snapshot.reason === 'before-backup-restore' ||
+          snapshot.reason === 'before-snapshot-restore'
+            ? snapshot.reason
+            : 'auto';
+        return {
+          id: typeof snapshot.id === 'string' ? snapshot.id : `snapshot-${createdAt}`,
+          createdAt,
+          reason,
+          fingerprint,
+          summary: summarizeState(state),
+          state,
+        };
+      })
+      .slice(0, MAX_LOCAL_SNAPSHOTS);
+  } catch {
+    return [];
+  }
+}
+
+function writeLocalSnapshot(
+  state: StoredState,
+  reason: LocalSnapshot['reason'] = 'auto',
+): LocalSnapshot[] {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
+  const current = readLocalSnapshots();
+  const fingerprint = stateFingerprint(state);
+  if (current[0]?.fingerprint === fingerprint && reason === 'auto') {
+    return current;
+  }
+
+  const snapshot: LocalSnapshot = {
+    id: `snapshot-${Date.now()}`,
+    createdAt: new Date().toISOString(),
+    reason,
+    fingerprint,
+    summary: summarizeState(state),
+    state,
+  };
+
+  const next = [snapshot, ...current.filter((item) => item.fingerprint !== fingerprint)].slice(
+    0,
+    MAX_LOCAL_SNAPSHOTS,
+  );
+  window.localStorage.setItem(SNAPSHOTS_STORAGE_KEY, JSON.stringify(next));
+  return next;
 }
 
 function readStoredState(): StoredState {
@@ -326,7 +439,8 @@ async function saveRemoteState(syncKeyHash: string, state: StoredState, signal?:
   });
 
   if (!response.ok) {
-    throw new Error('Backup failed.');
+    const body = (await response.json().catch(() => null)) as { error?: string } | null;
+    throw new Error(body?.error ?? 'Backup failed.');
   }
 
   return (await response.json()) as { ok: true; updatedAt?: string };
@@ -343,6 +457,7 @@ function formatSyncTime(value?: string) {
 function App() {
   const stored = useMemo(readStoredState, []);
   const storedSyncSettings = useMemo(readSyncSettings, []);
+  const storedSnapshots = useMemo(readLocalSnapshots, []);
   const today = useMemo(() => new Date(), []);
   const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
@@ -351,11 +466,16 @@ function App() {
   const [archivedTaskIds, setArchivedTaskIds] = useState<string[]>(stored.archivedTaskIds);
   const [preferences, setPreferences] = useState<Preferences>(stored.preferences);
   const [syncSettings, setSyncSettings] = useState<SyncSettings>(storedSyncSettings);
+  const [remoteHydrated, setRemoteHydrated] = useState(!storedSyncSettings.enabled);
   const [syncKeyInput, setSyncKeyInput] = useState('');
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({
-    tone: 'idle',
-    message: storedSyncSettings.enabled ? 'Ready to sync' : 'Local only',
+    tone: storedSyncSettings.enabled ? 'syncing' : 'idle',
+    message: storedSyncSettings.enabled ? 'Checking backup...' : 'Local only',
   });
+  const [localSnapshots, setLocalSnapshots] = useState<LocalSnapshot[]>(storedSnapshots);
+  const [lastLocalSavedAt, setLastLocalSavedAt] = useState<string | undefined>(
+    storedSnapshots[0]?.createdAt,
+  );
   const [query, setQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<Category | 'All'>('All');
   const [isAdding, setIsAdding] = useState(false);
@@ -369,6 +489,8 @@ function App() {
     category: 'Seasonal',
     effortMinutes: 20,
   });
+  const stateSnapshotRef = useRef<StoredState>(stored);
+  const localSnapshotsRef = useRef<LocalSnapshot[]>(storedSnapshots);
 
   const allTasks = useMemo(() => [...defaultTasks, ...customTasks], [customTasks]);
   const archivedIdSet = useMemo(() => new Set(archivedTaskIds), [archivedTaskIds]);
@@ -391,6 +513,18 @@ function App() {
       preferences,
     }),
     [archivedTaskIds, completions, customTasks, preferences],
+  );
+  const currentStateFingerprint = useMemo(
+    () => stateFingerprint(stateSnapshot),
+    [stateSnapshot],
+  );
+  const latestRestorableSnapshot = useMemo(
+    () =>
+      localSnapshots.find(
+        (snapshot) =>
+          snapshot.fingerprint !== currentStateFingerprint && hasUserData(snapshot.state),
+      ),
+    [currentStateFingerprint, localSnapshots],
   );
   const selectedMonthTasks = useMemo(
     () =>
@@ -460,7 +594,18 @@ function App() {
   );
 
   useEffect(() => {
+    stateSnapshotRef.current = stateSnapshot;
+  }, [stateSnapshot]);
+
+  useEffect(() => {
+    localSnapshotsRef.current = localSnapshots;
+  }, [localSnapshots]);
+
+  useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(stateSnapshot));
+    const now = new Date().toISOString();
+    setLastLocalSavedAt(now);
+    setLocalSnapshots(writeLocalSnapshot(stateSnapshot));
   }, [stateSnapshot]);
 
   useEffect(() => {
@@ -469,6 +614,63 @@ function App() {
 
   useEffect(() => {
     if (!syncSettings.enabled || !syncSettings.syncKeyHash) {
+      setRemoteHydrated(true);
+      return;
+    }
+
+    let cancelled = false;
+    setRemoteHydrated(false);
+    setSyncStatus({ tone: 'syncing', message: 'Checking backup...' });
+
+    fetchRemoteState(syncSettings.syncKeyHash)
+      .then((remote) => {
+        if (cancelled) {
+          return;
+        }
+
+        if (!remote.exists) {
+          setRemoteHydrated(true);
+          setSyncStatus({ tone: 'success', message: 'Backup ready' });
+          return;
+        }
+
+        const remoteState = normalizeStoredState(remote.state);
+        const localState = stateSnapshotRef.current;
+
+        if (!hasUserData(remoteState) && hasUserData(localState)) {
+          setRemoteHydrated(true);
+          setSyncStatus({ tone: 'warning', message: 'Kept local data' });
+          return;
+        }
+
+        setLocalSnapshots(writeLocalSnapshot(localState, 'before-backup-restore'));
+        applyStoredState(remoteState);
+        setRemoteHydrated(true);
+        setSyncStatus({
+          tone: 'success',
+          message: `Restored ${formatSyncTime(remote.updatedAt)}`,
+        });
+      })
+      .catch(() => {
+        if (cancelled) {
+          return;
+        }
+        setRemoteHydrated(false);
+        setSyncStatus({ tone: 'error', message: 'Backup check failed' });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [syncSettings.enabled, syncSettings.syncKeyHash]);
+
+  useEffect(() => {
+    if (!syncSettings.enabled || !syncSettings.syncKeyHash || !remoteHydrated) {
+      return;
+    }
+
+    if (!hasUserData(stateSnapshot) && localSnapshotsRef.current.some((item) => hasUserData(item.state))) {
+      setSyncStatus({ tone: 'warning', message: 'Local history saved' });
       return;
     }
 
@@ -486,7 +688,12 @@ function App() {
           if (error instanceof DOMException && error.name === 'AbortError') {
             return;
           }
-          setSyncStatus({ tone: 'error', message: 'Sync failed' });
+          setSyncStatus({
+            tone: error instanceof Error && error.message.includes('Empty overwrite')
+              ? 'warning'
+              : 'error',
+            message: error instanceof Error && error.message ? error.message : 'Sync failed',
+          });
         });
     }, 900);
 
@@ -494,7 +701,7 @@ function App() {
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [stateSnapshot, syncSettings]);
+  }, [remoteHydrated, stateSnapshot, syncSettings]);
 
   useEffect(() => {
     monthButtonRefs.current[selectedMonth]?.scrollIntoView({
@@ -605,6 +812,23 @@ function App() {
     setArchivedTaskIds((current) => current.filter((id) => id !== taskId));
   }
 
+  function applyStoredState(nextState: StoredState) {
+    setCustomTasks(nextState.customTasks);
+    setCompletions(nextState.completions);
+    setArchivedTaskIds(nextState.archivedTaskIds);
+    setPreferences(nextState.preferences);
+  }
+
+  function restoreLatestLocalSnapshot() {
+    if (!latestRestorableSnapshot) {
+      return;
+    }
+
+    setLocalSnapshots(writeLocalSnapshot(stateSnapshot, 'before-snapshot-restore'));
+    applyStoredState(latestRestorableSnapshot.state);
+    setSyncStatus({ tone: 'success', message: 'Restored local history' });
+  }
+
   async function enableNotifications() {
     if (!('Notification' in window)) {
       return;
@@ -630,25 +854,33 @@ function App() {
       setSyncStatus({ tone: 'syncing', message: 'Checking backup...' });
       const syncKeyHash = await hashSyncKey(syncKey);
       const remote = await fetchRemoteState(syncKeyHash);
+      const localState = stateSnapshotRef.current;
 
       if (remote.exists) {
         const remoteState = normalizeStoredState(remote.state);
-        setCustomTasks(remoteState.customTasks);
-        setCompletions(remoteState.completions);
-        setArchivedTaskIds(remoteState.archivedTaskIds);
-        setPreferences(remoteState.preferences);
-        setSyncStatus({
-          tone: 'success',
-          message: `Restored ${formatSyncTime(remote.updatedAt)}`,
-        });
+        if (!hasUserData(remoteState) && hasUserData(localState)) {
+          const result = await saveRemoteState(syncKeyHash, localState);
+          setSyncStatus({
+            tone: 'success',
+            message: `Synced ${formatSyncTime(result.updatedAt)}`,
+          });
+        } else {
+          setLocalSnapshots(writeLocalSnapshot(localState, 'before-backup-restore'));
+          applyStoredState(remoteState);
+          setSyncStatus({
+            tone: 'success',
+            message: `Restored ${formatSyncTime(remote.updatedAt)}`,
+          });
+        }
       } else {
-        const result = await saveRemoteState(syncKeyHash, stateSnapshot);
+        const result = await saveRemoteState(syncKeyHash, localState);
         setSyncStatus({
           tone: 'success',
           message: `Synced ${formatSyncTime(result.updatedAt)}`,
         });
       }
 
+      setRemoteHydrated(true);
       setSyncSettings({ enabled: true, syncKeyHash });
       setSyncKeyInput('');
     } catch {
@@ -658,6 +890,7 @@ function App() {
 
   function disconnectSync() {
     setSyncSettings(defaultSyncSettings);
+    setRemoteHydrated(true);
     setSyncStatus({ tone: 'idle', message: 'Local only' });
     setSyncKeyInput('');
   }
@@ -847,7 +1080,7 @@ function App() {
             </div>
             {syncSettings.enabled ? (
               <div className="sync-connected">
-                <div className={`sync-status is-${syncStatus.tone}`}>
+                <div className={`sync-status is-${syncStatus.tone}`} aria-live="polite">
                   <span>{syncStatus.message}</span>
                 </div>
                 <button className="secondary-button full-width" onClick={disconnectSync}>
@@ -875,11 +1108,29 @@ function App() {
                   <Cloud size={17} />
                   Start backup
                 </button>
-                <div className={`sync-status is-${syncStatus.tone}`}>
+                <div className={`sync-status is-${syncStatus.tone}`} aria-live="polite">
                   <span>{syncStatus.message}</span>
                 </div>
               </form>
             )}
+            <div className="backup-safety" aria-label="Local safety">
+              <div className="safety-row">
+                <span>Last saved</span>
+                <strong>{lastLocalSavedAt ? formatSyncTime(lastLocalSavedAt) : 'Not yet'}</strong>
+              </div>
+              <div className="safety-row">
+                <span>Local history</span>
+                <strong>{localSnapshots.length}</strong>
+              </div>
+              <button
+                className="secondary-button full-width"
+                onClick={restoreLatestLocalSnapshot}
+                disabled={!latestRestorableSnapshot}
+              >
+                <Undo2 size={17} />
+                Restore local history
+              </button>
+            </div>
           </div>
 
           <div className="panel-section">
@@ -944,6 +1195,7 @@ function App() {
             <div className="search-wrap">
               <Search size={18} />
               <input
+                aria-label="Search tasks"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search tasks"
@@ -952,6 +1204,7 @@ function App() {
             <div className="filter-wrap">
               <Filter size={18} />
               <select
+                aria-label="Filter tasks by category"
                 value={categoryFilter}
                 onChange={(event) => setCategoryFilter(event.target.value as Category | 'All')}
               >

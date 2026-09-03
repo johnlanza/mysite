@@ -13,6 +13,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register('/homekeeper/service-worker.js', { scope: '/homekeeper/' })
+      .then((registration) => registration.update())
       .catch(() => undefined);
   });
 }
