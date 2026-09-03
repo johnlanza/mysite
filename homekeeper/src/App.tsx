@@ -720,7 +720,7 @@ function App() {
       <header className="topbar">
         <div className="brand">
           <div className="brand-mark">
-            <img src="/homekeeper/icon-192.png" alt="" />
+            <img src="/homekeeper/homekeeper-relief-v1-192.png" alt="" />
           </div>
           <div>
             <p className="eyebrow">Local schedule</p>

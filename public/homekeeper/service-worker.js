@@ -1,12 +1,13 @@
-const CACHE_NAME = 'homekeeper-shell-v1';
+const CACHE_NAME = 'homekeeper-shell-relief-v1';
 const APP_SHELL = [
   '/homekeeper/',
   '/homekeeper/index.html',
   '/homekeeper/manifest.webmanifest',
-  '/homekeeper/icon.png',
-  '/homekeeper/icon-192.png',
-  '/homekeeper/icon-512.png',
-  '/homekeeper/apple-touch-icon.png',
+  '/homekeeper/homekeeper-relief-v1-192.png',
+  '/homekeeper/homekeeper-relief-v1-512.png',
+  '/homekeeper/homekeeper-relief-v1-maskable-192.png',
+  '/homekeeper/homekeeper-relief-v1-maskable-512.png',
+  '/homekeeper/homekeeper-relief-v1-apple-180.png',
 ];
 
 self.addEventListener('install', (event) => {
