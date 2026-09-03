@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto';
 import { connectToDatabase } from '@/lib/db';
 import {
   isEmailDeliveryConfigured,
@@ -9,6 +8,7 @@ import {
   type MeetingSelectionEmailPodcast
 } from '@/lib/email';
 import type { MeetingSelectionChangeKind } from '@/lib/meeting-selection-change';
+import { buildEmailIdempotencyKey, buildMeetingSelectionEventFingerprint } from '@/lib/notification-idempotency';
 import MemberModel from '@/models/Member';
 import PodcastModel from '@/models/Podcast';
 
@@ -46,11 +46,6 @@ type AdminRecipient = {
 };
 
 type ReminderField = 'weeklyPodcastReminderKey' | 'oneTimePodcastReminderKey';
-
-function buildEmailIdempotencyKey(namespace: string, ...parts: string[]) {
-  const fingerprint = createHash('sha256').update(parts.join('|')).digest('hex').slice(0, 32);
-  return `${namespace}-${fingerprint}`;
-}
 
 type MeetingSelectionPodcastDetails = PodcastNotificationDetails;
 
@@ -236,6 +231,7 @@ export async function notifyMembersOfNewPodcast(
   await connectToDatabase();
   const members = await MemberModel.find().select('name email isAdmin').lean();
   const admins = members.filter((member) => member.isAdmin);
+  const podcastId = String(podcast._id);
   const deliveries = await Promise.allSettled(
     members.map((member) =>
       sendNewPodcastEmail({
@@ -248,7 +244,8 @@ export async function notifyMembersOfNewPodcast(
         episodeNames: podcast.episodeNames,
         totalTimeMinutes: podcast.totalTimeMinutes,
         link: podcast.link,
-        notes: podcast.notes || ''
+        notes: podcast.notes || '',
+        idempotencyKey: buildEmailIdempotencyKey('new-podcast', podcastId, String(member._id))
       })
     )
   );
@@ -275,7 +272,8 @@ export async function notifyMembersOfNewPodcast(
     admins,
     mailingName: `New podcast: ${podcast.title}`,
     sentRecipients,
-    failedRecipients
+    failedRecipients,
+    reportKey: `new-podcast:${podcastId}`
   });
 
   return {
@@ -324,15 +322,12 @@ export async function notifyMembersOfMeetingSelection({
       artworkUrl: await resolvePodcastEmailArtwork(podcast)
     }))
   );
-  const eventFingerprint = createHash('sha256')
-    .update([
-      meetingId,
-      changeKind,
-      [...new Set(previousPodcastIds)].sort().join(','),
-      [...new Set(nextPodcastIds)].sort().join(',')
-    ].join('|'))
-    .digest('hex')
-    .slice(0, 32);
+  const eventFingerprint = buildMeetingSelectionEventFingerprint({
+    meetingId,
+    changeKind,
+    previousPodcastIds,
+    nextPodcastIds
+  });
   const deliveries = await Promise.allSettled(
     members.map((member) =>
       sendMeetingSelectionEmail({

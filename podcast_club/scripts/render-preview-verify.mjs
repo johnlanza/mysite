@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
 import { spawn } from 'node:child_process';
+import { loadSmokeEnv } from './load-smoke-env.mjs';
+
+loadSmokeEnv();
 
 const requiredEnv = ['PODCAST_CLUB_BASE_URL', 'RENDER_API_KEY', 'RENDER_SERVICE_ID'];
 const missingEnv = requiredEnv.filter((name) => !process.env[name]);

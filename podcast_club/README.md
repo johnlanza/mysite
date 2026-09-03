@@ -158,25 +158,23 @@ Local verification env:
 - `PODCAST_CLUB_EMAIL` and `PODCAST_CLUB_PASSWORD` for a non-production smoke-test member, or `PODCAST_CLUB_SESSION_COOKIE` with a valid cookie header
 - Optional: `RENDER_DEPLOY_ID` to verify a specific deploy instead of the service's latest deploy
 
+Create a local smoke env file:
+
+```bash
+cp .env.smoke.example .env.smoke
+```
+
+Fill in `.env.smoke`. The smoke and Render status scripts load it automatically, and shell-exported values override values in the file.
+
 Run the full gate:
 
 ```bash
-PODCAST_CLUB_BASE_URL=https://mysite-pr-123.onrender.com/podcastclub \
-RENDER_API_KEY=... \
-RENDER_SERVICE_ID=srv-... \
-PODCAST_CLUB_EMAIL=smoke@example.com \
-PODCAST_CLUB_PASSWORD=... \
 npm run verify:render:preview
 ```
 
 For a staging service, use the same env shape with the staging URL and service ID:
 
 ```bash
-PODCAST_CLUB_BASE_URL=https://mysite-staging.onrender.com/podcastclub \
-RENDER_API_KEY=... \
-RENDER_SERVICE_ID=srv-... \
-PODCAST_CLUB_EMAIL=smoke@example.com \
-PODCAST_CLUB_PASSWORD=... \
 npm run verify:render:staging
 ```
 
@@ -186,8 +184,11 @@ Useful one-off commands:
 
 ```bash
 RENDER_WAIT=1 RENDER_REQUIRED_STATUS=live RENDER_REQUIRE_SHA_MATCH=1 npm run render:status
-PODCAST_CLUB_BASE_URL=https://mysite-staging.onrender.com/podcastclub npm run smoke:live
+npm run smoke:live
+npm run check:production
 ```
+
+`check:production` is GET-only: it checks public pages/assets, guest API boundaries, archive data, podcast durations, and `/api/health`. Pass a URL and commit (`npm run check:production -- https://www.johnlanza.com/podcastclub <sha>`) to require exact deployed-commit proof. It does not sign in, write data, or send email.
 
 If Render does not expose a commit SHA for the target deploy, the full gate fails while `RENDER_REQUIRE_SHA_MATCH=1`. Only set `RENDER_REQUIRE_SHA_MATCH=0` after checking the deploy commit in the Render dashboard.
 

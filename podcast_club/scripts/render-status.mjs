@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 
+import { loadSmokeEnv } from './load-smoke-env.mjs';
+
+loadSmokeEnv();
+
 const apiKey = process.env.RENDER_API_KEY;
 const serviceId = process.env.RENDER_SERVICE_ID;
 const deployId = process.env.RENDER_DEPLOY_ID || '';

@@ -43,6 +43,7 @@ type SendNewPodcastEmailParams = PodcastEmailDetails & {
   to: string;
   recipientName: string;
   submittedByName: string;
+  idempotencyKey: string;
 };
 
 type SendWeeklyReviewReminderEmailParams = {
@@ -198,10 +199,12 @@ export async function sendNewPodcastEmail({
   episodeNames,
   totalTimeMinutes,
   link,
-  notes
+  notes,
+  idempotencyKey
 }: SendNewPodcastEmailParams) {
   return sendEmail({
     to,
+    idempotencyKey,
     subject: `New podcast added: ${title}`,
     html: [
       `<p>Hi ${escapeHtml(recipientName || 'there')},</p>`,

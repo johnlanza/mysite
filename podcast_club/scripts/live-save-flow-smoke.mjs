@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 
+import { loadSmokeEnv } from './load-smoke-env.mjs';
+
+loadSmokeEnv();
+
 const rawBaseUrl = process.env.PODCAST_CLUB_BASE_URL || '';
 const allowProductionSmoke = parseBoolean(process.env.PODCAST_CLUB_ALLOW_PRODUCTION_SMOKE);
 const productionHosts = new Set(['johnlanza.com', 'www.johnlanza.com']);

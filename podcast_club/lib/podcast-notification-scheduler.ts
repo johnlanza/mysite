@@ -1,4 +1,5 @@
 import { isWeeklyReminderWindow, runWeeklyPodcastReviewSweep } from '@/lib/podcast-notifications';
+import { isOneTimeSweepEligible } from '@/lib/notification-schedule';
 
 declare global {
   var podcastNotificationInterval: ReturnType<typeof setInterval> | undefined;
@@ -8,8 +9,6 @@ declare global {
 
 const CHECK_INTERVAL_MS = 30 * 60 * 1000;
 const MAX_TIMEOUT_MS = 2_147_483_647;
-const ONE_TIME_SWEEP_GRACE_MS = 24 * 60 * 60 * 1000;
-
 function getOneTimeSweepAt() {
   const configuredAt = process.env.PODCAST_CLUB_ONE_TIME_SWEEP_AT;
   if (!configuredAt) return null;
@@ -22,8 +21,7 @@ async function checkOneTimePodcastReviewSweep() {
   const sweepAt = getOneTimeSweepAt();
   if (!sweepAt) return;
 
-  const delay = Date.now() - sweepAt.getTime();
-  if (delay < 0 || delay > ONE_TIME_SWEEP_GRACE_MS) return;
+  if (!isOneTimeSweepEligible(sweepAt)) return;
 
   try {
     const result = await runWeeklyPodcastReviewSweep({
