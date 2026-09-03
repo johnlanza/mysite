@@ -3,7 +3,9 @@ import { requireAdminRequest } from "@/lib/admin-auth";
 import { connectToPoolaramaDatabase } from "@/lib/db";
 import { knownParticipants } from "@/lib/known-participants";
 import { defaultPoolSlug } from "@/lib/mock-api-data";
+import { deleteParticipantAfterBackup, validateParticipantDeleteRequest } from "@/lib/participant-delete-guard";
 import { generateInviteCode, slugifyParticipantCode } from "@/lib/participant-utils";
+import { createPoolaramaBackup } from "@/lib/poolarama-backup";
 import { isMaintenanceMode, maintenanceModeResponse } from "@/lib/runtime-safety";
 import ParticipantModel from "@/models/Participant";
 import SubmissionModel from "@/models/Submission";
@@ -167,36 +169,43 @@ export async function DELETE(request: NextRequest) {
     }
 
     const participantCode = request.nextUrl.searchParams.get("code") || "";
+    const body = (await request.json().catch(() => ({}))) as { confirmation?: string };
 
-    if (!participantCode) {
+    const participantExists = participantCode
+      ? Boolean(await ParticipantModel.exists({ poolSlug: defaultPoolSlug, participantCode }))
+      : false;
+    const deleteGuard = validateParticipantDeleteRequest({
+      participantCode,
+      confirmation: body.confirmation,
+      isSeededParticipant: knownParticipants.some((participant) => participant.code === participantCode),
+      participantExists
+    });
+
+    if (!deleteGuard.ok) {
       return NextResponse.json(
-        { error: "Participant code is required." },
-        { status: 400 }
+        { error: deleteGuard.error },
+        { status: deleteGuard.status }
       );
     }
 
-    if (knownParticipants.some((participant) => participant.code === participantCode)) {
-      return NextResponse.json(
-        { error: "Seeded participants cannot be deleted here." },
-        { status: 403 }
-      );
-    }
-
-    const [participantResult, submissionResult] = await Promise.all([
-      ParticipantModel.deleteOne({ poolSlug: defaultPoolSlug, participantCode }),
-      SubmissionModel.deleteMany({ poolSlug: defaultPoolSlug, participantCode })
-    ]);
+    const deleteResult = await deleteParticipantAfterBackup({
+      createBackup: () => createPoolaramaBackup(deleteGuard.backupReason),
+      deleteParticipant: () => ParticipantModel.deleteOne({ poolSlug: defaultPoolSlug, participantCode }),
+      deleteSubmissions: () => SubmissionModel.deleteMany({ poolSlug: defaultPoolSlug, participantCode })
+    });
 
     return NextResponse.json({
-      deleted: participantResult.deletedCount,
-      submissionsDeleted: submissionResult.deletedCount,
-      storageMode: "mongo"
+      deleted: deleteResult.deleted,
+      submissionsDeleted: deleteResult.submissionsDeleted,
+      storageMode: "mongo",
+      backup: deleteResult.backup
     });
   } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not delete participant.";
     console.error("Poolarama /api/admin/participants DELETE failed", error);
 
     return NextResponse.json(
-      { error: "Could not delete participant." },
+      { error: message === "Backup failed; participant was not deleted." ? message : "Could not delete participant." },
       { status: 500 }
     );
   }

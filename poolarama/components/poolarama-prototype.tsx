@@ -2,9 +2,11 @@
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { withBasePath } from "@/lib/base-path";
+import { formatChampionScore } from "@/lib/champion-display";
 import { normalizeGoldenBootName, type GoldenBootRow } from "@/lib/golden-boot";
 import { defaultParticipant, knownParticipants, type KnownParticipant } from "@/lib/known-participants";
 import { formatKnockoutSchedule } from "@/lib/knockout-schedule";
+import { getParticipantDeleteConfirmation } from "@/lib/participant-delete-guard";
 import type { AdminParticipantOverview } from "@/lib/poolarama-types";
 import { goldenBootCandidates, groups, teams, type GroupId } from "@/lib/tournament-data";
 
@@ -3913,9 +3915,18 @@ export function PoolaramaPrototype() {
   }
 
   async function handleDeleteParticipant(participant: AdminParticipantOverview) {
+    const phrase = getParticipantDeleteConfirmation(participant.code);
+
     if (pendingDeleteCode !== participant.code) {
       setPendingDeleteCode(participant.code);
-      setAdminFeedback(`Tap Confirm delete for ${participant.nickname} to remove this test player.`);
+      setAdminFeedback(`Type ${phrase} when prompted to remove ${participant.nickname}. A backup will be created first.`);
+      return;
+    }
+
+    const confirmation = window.prompt(`Type ${phrase} to delete ${participant.nickname} and their submissions. A backup will be created first.`);
+
+    if (confirmation !== phrase) {
+      setAdminFeedback(`Delete cancelled for ${participant.nickname}.`);
       return;
     }
 
@@ -3924,7 +3935,8 @@ export function PoolaramaPrototype() {
     try {
       const response = await fetch(withBasePath(`/api/admin/participants?code=${participant.code}`), {
         method: "DELETE",
-        ...adminFetchOptions
+        headers: adminJsonHeaders(),
+        body: JSON.stringify({ confirmation })
       });
 
       if (!response.ok) {
@@ -3935,7 +3947,8 @@ export function PoolaramaPrototype() {
       await loadAdminOverview();
       await loadPublicPicks();
       setPendingDeleteCode("");
-      setAdminFeedback(`${participant.nickname} deleted.`);
+      const data = (await response.json().catch(() => null)) as { backup?: { backupId?: string } } | null;
+      setAdminFeedback(`${participant.nickname} deleted.${data?.backup?.backupId ? ` Backup ${data.backup.backupId.slice(-6)} saved.` : ""}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not delete participant.";
       setAdminFeedback(message);
@@ -5733,7 +5746,7 @@ export function PoolaramaPrototype() {
                           return (
                             <div key={`${person.code}-${item.label}`}>
                               <span>{item.label}</span>
-                              <strong>{item.label === "Champion" ? "TBD" : item.value}</strong>
+                              <strong>{item.label === "Champion" ? formatChampionScore(item.value, tournamentComplete) : item.value}</strong>
                               {showProgress && (
                                 <small>
                                   {formatScoreProgress(item.value, potential)}

@@ -29,7 +29,8 @@ export type PoolaramaBackupReason =
   | "final-open"
   | "final-lock"
   | "final-score"
-  | "final-sync";
+  | "final-sync"
+  | "participant-delete";
 
 export async function buildPoolaramaBackupSnapshot(reason: PoolaramaBackupReason = "manual") {
   const [pool, participants, submissions, groupStandings, matches] = await Promise.all([
