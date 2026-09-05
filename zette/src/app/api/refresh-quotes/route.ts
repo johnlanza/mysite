@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 
 import { readBookNotesDataset } from "@/lib/book-notes-data";
 import { readBrainDataset } from "@/lib/brain-data";
+import { getEmbeddingFreshness } from "@/lib/embedding-freshness";
 import { EMBEDDINGS_DATA_FILE, type EmbeddingsFile } from "@/lib/embeddings";
 import { readQuestionsDataset } from "@/lib/questions-data";
 import { readQuotesDataset } from "@/lib/quotes-data";
@@ -49,9 +50,17 @@ export async function GET() {
     brain.generatedAt,
     embeddings?.generatedAt,
   ]);
+  const smart = getEmbeddingFreshness({
+    quotesDataset: quotes,
+    notesDataset: bookNotes,
+    questionsDataset: questions,
+    brainDataset: brain,
+    embeddings,
+  });
 
   return Response.json({
     generatedAt,
+    smart,
     datasets: {
       quotes: {
         count: quotes.quotes.length,

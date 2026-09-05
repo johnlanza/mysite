@@ -13,8 +13,20 @@ type SyncDatasetStatus = {
   generatedAt: string | null;
 };
 
+type SmartLayerStatus = {
+  generatedAt: string | null;
+  isCurrent: boolean;
+  totalPieces: number;
+  pendingPieces: number;
+  removedPieces: number;
+  estimatedPendingCostUsd: number;
+  staleDueToModelChange: boolean;
+  topPendingSources?: Array<{ label: string; count: number }>;
+};
+
 type SyncStatusPayload = {
   generatedAt: string | null;
+  smart?: SmartLayerStatus;
   datasets: {
     quotes: SyncDatasetStatus;
     bookNotes: SyncDatasetStatus;
@@ -33,6 +45,51 @@ function formatUpdatedAt(value: string | null) {
     dateStyle: "short",
     timeStyle: "short",
   });
+}
+
+function formatCost(value: number) {
+  if (!value || value <= 0) {
+    return "$0.00";
+  }
+
+  if (value < 0.01) {
+    return "<$0.01";
+  }
+
+  return value.toLocaleString(undefined, {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 2,
+  });
+}
+
+function buildStatusMessage(payload: SyncStatusPayload) {
+  const counts = payload.datasets;
+  const smart = payload.smart;
+
+  if (!smart) {
+    return `Updated ${formatUpdatedAt(payload.generatedAt)} · ${counts.quotes.count.toLocaleString()} quotes · ${counts.bookNotes.count.toLocaleString()} notes · ${counts.questions.count.toLocaleString()} questions · ${counts.brain.count.toLocaleString()} brain records`;
+  }
+
+  const latestData = formatUpdatedAt(payload.generatedAt);
+  const lastSmartPass = formatUpdatedAt(smart.generatedAt);
+
+  if (smart.staleDueToModelChange) {
+    return `Data ${latestData} · smart model changed · ${smart.totalPieces.toLocaleString()} pieces pending`;
+  }
+
+  if (smart.pendingPieces > 0 || smart.removedPieces > 0) {
+    const pendingText =
+      smart.pendingPieces > 0
+        ? `${smart.pendingPieces.toLocaleString()} pending`
+        : "prune pending";
+    const topSource = smart.topPendingSources?.[0];
+    const topSourceText = topSource ? ` · top ${topSource.label}` : "";
+
+    return `Data ${latestData} · last smart pass ${lastSmartPass} · ${pendingText}${topSourceText} · est. ${formatCost(smart.estimatedPendingCostUsd)}`;
+  }
+
+  return `Updated ${latestData} · smart layer current · ${smart.totalPieces.toLocaleString()} pieces`;
 }
 
 export function RefreshQuotesButton({
@@ -63,11 +120,8 @@ export function RefreshQuotesButton({
       }
 
       const payload = (await response.json()) as SyncStatusPayload;
-      const counts = payload.datasets;
 
-      setStatus(
-        `Updated ${formatUpdatedAt(payload.generatedAt)} · ${counts.quotes.count.toLocaleString()} quotes · ${counts.bookNotes.count.toLocaleString()} notes · ${counts.questions.count.toLocaleString()} questions · ${counts.brain.count.toLocaleString()} brain records`,
-      );
+      setStatus(buildStatusMessage(payload));
     } finally {
       setIsRefreshing(false);
     }
@@ -93,7 +147,7 @@ export function RefreshQuotesButton({
           aria-live="polite"
           className={`text-muted ${
             compact
-              ? "max-w-[14rem] text-right text-[0.62rem] leading-4"
+              ? "max-w-[18rem] text-right text-[0.62rem] leading-4"
               : "text-xs"
           }`}
         >

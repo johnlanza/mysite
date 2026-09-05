@@ -26,6 +26,9 @@ git add \
   zette/AGENTS.md \
   zette/scripts/build-brain-dataset.mjs \
   zette/scripts/build-embeddings.mjs \
+  zette/scripts/embedding-status.mjs \
+  zette/scripts/embedding-utils.mjs \
+  zette/src/lib/embedding-freshness.ts \
   zette/src/lib/brain-data.ts \
   zette/src/lib/echoes.ts \
   zette/src/data/book-notes.json \

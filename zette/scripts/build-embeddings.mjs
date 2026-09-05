@@ -1,91 +1,19 @@
 #!/usr/bin/env node
-import crypto from "node:crypto";
 import fs from "node:fs/promises";
-import path from "node:path";
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
-const QUOTES_FILE = path.join(ROOT, "src/data/quotes.json");
-const BOOK_NOTES_FILE = path.join(ROOT, "src/data/book-notes.json");
-const QUESTIONS_FILE = path.join(ROOT, "src/data/questions.json");
-const BRAIN_FILE = path.join(ROOT, "src/data/brain.json");
-const EMBEDDINGS_FILE = path.join(ROOT, "src/data/embeddings.json");
+import {
+  DIMENSIONS,
+  EMBEDDINGS_FILE,
+  MODEL,
+  getEmbeddingPlan,
+  summarizeEmbeddingPlan,
+} from "./embedding-utils.mjs";
 
-const MODEL = "text-embedding-3-small";
-const DIMENSIONS = 512;
 const BATCH_SIZE = 96;
 
 function die(msg) {
   console.error(`\n✗ ${msg}\n`);
   process.exit(1);
-}
-
-function hashText(text) {
-  return crypto.createHash("sha1").update(text).digest("hex").slice(0, 16);
-}
-
-function buildEmbeddingInput(piece) {
-  // Keep embeddings focused on the idea itself; source metadata is handled
-  // separately during Echoes ranking so one book does not dominate matches.
-  const parts = [piece.text];
-  if (piece.note) parts.push(`my note: ${piece.note}`);
-  if (piece.tags && piece.tags.length > 0) {
-    parts.push(`tags: ${piece.tags.join(", ")}`);
-  }
-  return parts.join("\n");
-}
-
-function unifyQuote(q) {
-  return {
-    id: `q:${q.id}`,
-    text: q.text,
-    note: q.note,
-    attribution: q.author,
-    context: q.source,
-    tags: q.tags ?? [],
-  };
-}
-
-function unifyNote(n) {
-  return {
-    id: `n:${n.id}`,
-    text: n.text,
-    note: n.note,
-    attribution: n.bookAuthor || null,
-    context: n.bookTitle || null,
-    tags: n.tags ?? [],
-  };
-}
-
-function unifyQuestion(q) {
-  return {
-    id: `question:${q.id}`,
-    text: q.text,
-    note: null,
-    attribution: null,
-    context: q.sourceDisplay,
-    tags: q.tags ?? [],
-  };
-}
-
-function unifyBrainRecord(record) {
-  return {
-    id: `brain:${record.id}`,
-    text: record.text,
-    note: record.note,
-    attribution: record.sourceAttribution || null,
-    context: record.sourceTitle || record.sourceDisplay,
-    tags: record.tags ?? [],
-  };
-}
-
-async function readJson(filePath, fallback = null) {
-  try {
-    const content = await fs.readFile(filePath, "utf8");
-    return JSON.parse(content);
-  } catch (err) {
-    if (err.code === "ENOENT" && fallback !== null) return fallback;
-    throw err;
-  }
 }
 
 async function embedBatch(inputs, apiKey) {
@@ -115,60 +43,12 @@ async function main() {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) die("OPENAI_API_KEY is not set");
 
-  const quotesDataset = await readJson(QUOTES_FILE);
-  const notesDataset = await readJson(BOOK_NOTES_FILE);
-  const questionsDataset = await readJson(QUESTIONS_FILE);
-  const brainDataset = await readJson(BRAIN_FILE);
-  if (!quotesDataset) die(`Missing ${QUOTES_FILE}`);
-  if (!notesDataset) die(`Missing ${BOOK_NOTES_FILE}`);
-  if (!questionsDataset) die(`Missing ${QUESTIONS_FILE}`);
-  if (!brainDataset) die(`Missing ${BRAIN_FILE}`);
-
-  const curatedRecordIds = new Set([
-    ...quotesDataset.quotes.map((quote) => quote.id),
-    ...notesDataset.notes.map((note) => note.id),
-    ...questionsDataset.questions.map((question) => question.id),
-  ]);
-
-  const pieces = [
-    ...quotesDataset.quotes.map(unifyQuote),
-    ...notesDataset.notes.map(unifyNote),
-    ...questionsDataset.questions.map(unifyQuestion),
-    ...brainDataset.records
-      .filter(
-        (record) =>
-          record.search?.semanticEligible && !curatedRecordIds.has(record.id),
-      )
-      .map(unifyBrainRecord),
-  ];
-
-  const existing = await readJson(EMBEDDINGS_FILE, {
-    model: MODEL,
-    dimensions: DIMENSIONS,
-    generatedAt: null,
-    entries: {},
-  });
-
-  const modelChanged =
-    existing.model !== MODEL || existing.dimensions !== DIMENSIONS;
-  const entries = modelChanged ? {} : { ...existing.entries };
-
-  const toEmbed = [];
-  for (const piece of pieces) {
-    const input = buildEmbeddingInput(piece);
-    const textHash = hashText(input);
-    const prior = entries[piece.id];
-    if (prior && prior.textHash === textHash) continue;
-    toEmbed.push({ id: piece.id, input, textHash });
-  }
-
-  const validIds = new Set(pieces.map((p) => p.id));
-  for (const id of Object.keys(entries)) {
-    if (!validIds.has(id)) delete entries[id];
-  }
+  const plan = await getEmbeddingPlan();
+  const summary = summarizeEmbeddingPlan(plan);
+  const { entries, toEmbed } = plan;
 
   console.log(
-    `Pieces: ${pieces.length} · cached: ${pieces.length - toEmbed.length} · to embed: ${toEmbed.length}`,
+    `Pieces: ${summary.totalPieces} · cached: ${summary.cachedPieces} · to embed: ${summary.pendingPieces}`,
   );
 
   if (toEmbed.length === 0) {

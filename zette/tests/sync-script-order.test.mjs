@@ -28,6 +28,9 @@ test("content publish path stages brain dataset inputs and output", () => {
   for (const expectedPath of [
     "zette/scripts/build-brain-dataset.mjs",
     "zette/src/lib/brain-data.ts",
+    "zette/scripts/embedding-status.mjs",
+    "zette/scripts/embedding-utils.mjs",
+    "zette/src/lib/embedding-freshness.ts",
     "zette/src/data/brain.json",
     "zette/src/data/embeddings.json",
   ]) {

@@ -9,7 +9,8 @@
     "poolarama:smoke": "node scripts/poolarama-smoke.mjs",
     "poolarama:smoke:r32": "node scripts/poolarama-r32-smoke.mjs",
     "poolarama:smoke:visual": "node scripts/poolarama-visual-smoke.mjs",
-    "sync:questions": "./scripts/sync-zette-questions.sh"
+    "sync:questions": "./scripts/sync-zette-questions.sh",
+    "sync:status": "npm --prefix zette run embeddings:status"
   },
   "dependencies": {
     "connect-flash": "^0.1.1",
